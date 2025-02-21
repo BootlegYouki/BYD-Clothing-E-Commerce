@@ -162,6 +162,7 @@ footer h5{
 
 footer li{
   padding-bottom: 4px;
+  cursor:pointer;
 }
 
 footer li a{
