@@ -1,13 +1,12 @@
 <?php
 if (!isset($originalPrice)) {
-    $originalPrice = 1200; // Set a default original price
+    $originalPrice = 1200;
 }
 
 if (!isset($price)) {
-    $price = 780; // Set a default discounted price
+    $price = 780;
 }
 
-// Calculate the discount percentage
 $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 ?>
 
@@ -22,46 +21,18 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="icon" href="img/logo/BYD-removebg-preview.ico" type="image/x-icon">
     <!-- ICONSCSS -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&icon_names=menu,search,shopping_bag" />
-    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/fontawesome.css" integrity="sha384-jLKHWM3JRmfMU0A5x5AkjWkw/EYfGUAGagvnfryNV3F9VqM98XiIH7VBGVoxVSc7" crossorigin="anonymous"/> -->
-    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"/> -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle,menu,person,search,shopping_bag" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
+    <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 sticky-top">
-        <div class="container-fluid navbar-container-padding">
-        <img src="img/logo/logo.webp" alt="logo" class="img-fluid img-10">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span><i id="bar" class="material-symbols-outlined">menu</i></span>
-          </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                
-                <li class="nav-item">
-                <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Shop</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contact us</a>
-                </li>
-                <li class="nav-item">
-                    <i class="material-symbols-outlined">search</i>
-                    <i class="material-symbols-outlined">shopping_bag</i>
-                    <span class="cart-count">0</span>
-                </li>
-            </ul>
-            </div>
-        </div>
-    </nav>
+    <?php include 'navbar.php'; ?>
+    <!-- HOME SECTION -->
     <section id="home">
-      <div class="container-fluid">
+      <div class="container-fluid px-3">
         <div class="small-container">
         <div class="row align-items-center">
           <!-- Left Column: Text -->
@@ -190,7 +161,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
             </div>
-            <h5 class="p-name">LONG-SLEEVES - "GIPSY”</h5>
+            <h5 class="p-name">LONG-SLEEVES - "OPTIMUS”</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -209,7 +180,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
             </div>
-            <h5 class="p-name">LONG-SLEEVES - "GIPSY”</h5>
+            <h5 class="p-name">LONG-SLEEVES - "PRIMAL”</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -220,61 +191,109 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
           </div>
         </div>
     </section>
-    <footer class="py-2">
-        <div class="row container mx-auto pt-5 mb-5">
-            <div class="footer-one col-lg-3 col-md-7 col-12">
-              <img src="img/logo/logo2.webp" alt="logo" class="img-fluid img-10">
-              <p class="my-3">We offer fully customized sublimation services:</p>
-              <ul class="text-uppercase list-unstyled">
-                <li>T-shirt</li>
-                <li>Polo Shirt</li>
-                <li>Basketball Jersey</li>
-                <li>Long Sleeves</li>
-              </ul>
+    <!-- Banner -->
+    <section id="banner">
+      <div class="container px-5">
+        <h1><span>CUSTOM</span> SUBLIMATION<br>SERVICE</h1>
+        <p>We offer fully customized sublimation services:</p>
+        <ul class="list-unstyled">
+          <li><h4>T-shirt</li>
+          <li><h4>Polo Shirt</li>
+          <li><h4>Basketball</li>
+          <li><h4>Jersey</li>
+          <li><h4>Long Sleeves</li>
+        </ul>
+        <button class="text-uppercase mt-5">Learn More</button>
+      </div>
+    </section>
+    <!-- t-shirt section -->
+    <section id="featured" class="my-5 pb-5">
+        <div class="container text-center mt-5 py-5">
+        <h3>T-Shirt Collection</h3>
+        <hr class="mx-auto">
+        <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
+        </div>
+        <div class="row mx-auto container-fluid">
+          <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/t-shirt/sam.webp" alt="">
+            <div class="star">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+          </div>
+            <h5 class="p-name">T-SHIRT - "SAM”</h5>
+            <h4 class="p-price mb-4">
+              <?php echo "₱" . $price; ?>
+              <?php if (isset($discount) && $discount > 0): ?>
+                <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+              <?php endif; ?>
+            </h4>
+            <button class="buy-btn">Buy now</button>
+          </div>
 
+          <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/t-shirt/vale.webp" alt="">
+            <div class="star">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
             </div>
-            <!-- Products --> 
-            <div class="footer-one col-lg-5 col-md-6 col-12">
-              <h5 class="pb-2">Products</h5>
-              <ul class="text-uppercase list-unstyled">
-                <li class="my-1"><a href="#">T-SHIRT Collections</a></li>
-                <li class="my-1"><a href="#">FIRST Released - LONG SLEEVE Collections</a></li>
-                <li class="my-1"><a href="#">MECHA - LONG SLEEVES Collections</a></li>
-              </ul>
+            <h5 class="p-name">T-SHIRT - "VALE”</h5>
+            <h4 class="p-price mb-4">
+              <?php echo "₱" . $price; ?>
+              <?php if (isset($discount) && $discount > 0): ?>
+                <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+              <?php endif; ?>
+            </h4>
+            <button class="buy-btn">Buy now</button>
+          </div>
+
+          <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/t-shirt/brook.webp" alt="">
+            <div class="star">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
             </div>
-            <!-- Contact -->
-            <div class="footer-one col-lg-3 col-md-6 col-12">
-              <h5 class="pb-2">Contact Us</h5>
-              <div>
-                <h6 class="text-uppercase">address</h6>
-                <li class="list-unstyled mb-3 text-uppercase"><a href="https://maps.app.goo.gl/A3EBEo5AkcxrYoMh6" target="_blank" rel="noopener noreferrer">
-                  Blk 27 Lot 12 Pechayan Kanan Namasape HOA, Commonwealth Ave. North Fairview QC, Quezon City, Philippines
-                </a>
-              </li>
-              </div>
-              <div>
-                <h6 class="text-uppercase">phone</h6>
-                <p>0905 507 9634</p>
-              </div>
+            <h5 class="p-name">T-SHIRT - "BROOK”</h5>
+            <h4 class="p-price mb-4">
+              <?php echo "₱" . $price; ?>
+              <?php if (isset($discount) && $discount > 0): ?>
+                <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+              <?php endif; ?>
+            </h4>
+            <button class="buy-btn ">Buy now</button>
+          </div>
+
+          <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/t-shirt/retain.webp" alt="">
+            <div class="star">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
             </div>
+            <h5 class="p-name">T-SHIRT - "RETAIN”</h5>
+            <h4 class="p-price mb-4">
+              <?php echo "₱" . $price; ?>
+              <?php if (isset($discount) && $discount > 0): ?>
+                <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+              <?php endif; ?>
+            </h4>
+            <button class="buy-btn">Buy now</button>
           </div>
         </div>
-        <div class="copyright mt-5 mb-3">
-            <div class="row container mx-auto">
-                <div class="col-lg-3 col-md-6 col-12 d-flex align-items-center mb-3">
-                    <img src="img/payment.png" alt="" class="img-fluid img-11">
-                </div>
-                <div class="col-lg-5 col-md-6 col-12 d-flex align-items-center mb-3">
-                    <p class="mb-0">&copy; 2025 Beyond Doubt Clothing. All Rights Reserved.</p>
-                  </div>
-                <div class="col-lg-4 col-md-6 col-12 d-flex align-items-center mb-3">
-                    <a href="https://www.facebook.com/profile.php?id=100094756167660"><i class="fa fa-facebook"></i></a>
-                    <a href="https://www.instagram.com/beyonddoubt.clothing"><i class="fa fa-instagram"></i></a>
-                </div>
-                </div>
-            </div>
-        </div>
-      </footer>
+    </section>
+    <!-- FOOTER -->
+    <?php include 'footer.php'; ?>
+    <!-- SCRIPTS -->
     <script src="script.js"></script>
     <!-- BOOTSTRAP JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
