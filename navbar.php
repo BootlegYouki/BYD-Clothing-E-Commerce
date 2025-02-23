@@ -24,13 +24,13 @@
                     <input class="form-control" type="search" placeholder="Search" aria-label="Search">
                     </div>
                     </li>
-                    <li class="nav-item d-flex align-items-center mt-2">
+                    <li class="nav-item d-flex align-items-center">
                         <i class="material-symbols-outlined">shopping_bag</i>
                     </li>
                     <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center p-1 mt-2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-1 " href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="material-symbols-outlined">person</i>
-                        Hello!
+                        Hello, User
                     </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Logout</a></li>
