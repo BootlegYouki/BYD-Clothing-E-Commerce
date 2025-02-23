@@ -12,3 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
   
   products.forEach(product => observer.observe(product));
 });
+
+$(document).ready(function(){
+  $('.navbar-toggler').on('click', function(){
+      var $icon = $('#bar');
+      $icon.text($icon.text().trim() === "menu" ? "close" : "menu");
+  });
+});
