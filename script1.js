@@ -1,43 +1,43 @@
-var MainImg = document.getElementById('Mainimg');
-var small = document.getElementsByClassName('smol-img');
-
-small[0].onclick =function(){
-    MainImg.src = small[0].src;
-}
-
-small[1].onclick =function(){
-    MainImg.src = small[1].src;
-}
-small[2].onclick =function(){
-    MainImg.src = small[2].src;
-}
-small[3].onclick =function(){
-    MainImg.src = small[3].src;
-}
-
-document.getElementById("sizeSelector").addEventListener("change", function () {
-    let selectedPrice = this.value;
-    let priceDisplay = document.getElementById("price1");
-
-    if (selectedPrice) {
-        priceDisplay.textContent = `₱${selectedPrice}`;
-    } else {
-        priceDisplay.textContent = "₱399-599";
-    }
-});
-
-document.getElementById('decrement').addEventListener('click', function() {
-    var quantityElement = document.getElementById('quantity');
-    var currentValue = parseInt(quantityElement.textContent);
-    if (currentValue > 1) {
-        quantityElement.textContent = currentValue - 1;
-    }
-});
-
-document.getElementById('increment').addEventListener('click', function() {
-    var quantityElement = document.getElementById('quantity');
-    var currentValue = parseInt(quantityElement.textContent);
-    if (currentValue < 100) { // Assuming 100 is the max quantity
-        quantityElement.textContent = currentValue + 1;
-    }
-});
+document.addEventListener('DOMContentLoaded', function () {
+    const products = document.querySelectorAll('.product');
+    
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    
+    products.forEach(product => observer.observe(product));
+  });
+  
+  // Modal Update Logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const productModal = document.getElementById('productModal');
+    
+    productModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        document.getElementById('modalProductImage').src = button.dataset.img;
+        document.getElementById('modalProductTitle').textContent = button.dataset.title;
+        document.getElementById('modalProductPrice').textContent = button.dataset.price;
+    });
+  
+    // Lazy Loading for images
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src || img.src;
+                observer.unobserve(img);
+            }
+        });
+    });
+  
+    lazyImages.forEach(img => {
+        if (!img.src) img.src = img.dataset.src;
+        observer.observe(img);
+    });
+  });
