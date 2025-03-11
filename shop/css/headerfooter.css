@@ -9,17 +9,14 @@
     
 }
 
-
-
-.navbar-toggler{
-    border: none;
-    font-size:1.25rem;
-}
-
-.btn-close{
+.navbar-toggler,
+.btn-close,
+.navbar-toggler:focus,
+.btn-close:focus {
     box-shadow: none;
     border: none;
-    font-size:1.25rem;
+    font-size: 1.25rem;
+    outline: none;
 }
 
 .nav-link{

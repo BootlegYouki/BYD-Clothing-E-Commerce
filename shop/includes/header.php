@@ -41,6 +41,7 @@
     </form>
     <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-3 text-decoration-none">
       <i class="bx bx-user fs-4"></i>
+      <span class="ms-2 d-none">Hello User</span>
     </a>
       <div class="order-icon-wrapper">
         <a href="#" class="nav-icon d-flex  text-decoration-none">
@@ -53,3 +54,7 @@
     </button>
   </div>
 </nav>
+
+<?php include 'includes/LoginModal.php'; ?>
+<?php include 'includes/SignupModal.php'; ?>
+<?php include 'includes/terms.php'; ?>

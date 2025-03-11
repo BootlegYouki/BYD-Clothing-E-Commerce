@@ -67,6 +67,15 @@
                             </div>
                         </div>
                         <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" name="agree_terms" id="agree_terms">
+                                <label class="form-check-label text-secondary" for="agree_terms">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="modal-link text-decoration-none">Terms & Conditions</a> and 
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal" class="modal-link text-decoration-none">Privacy Policy</a>.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
                             <div class="d-grid">
                                 <button class="btn-modal btn btn-primary btn-lg" type="submit">Sign up now</button>
                             </div>

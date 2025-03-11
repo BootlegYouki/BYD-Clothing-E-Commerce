@@ -33,8 +33,6 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
-    <?php include 'includes/LoginModal.php'; ?>
-    <?php include 'includes/SignupModal.php'; ?>
     <!-- HOME SECTION -->
     <section id="home">
       <div class="container-fluid px-3">
