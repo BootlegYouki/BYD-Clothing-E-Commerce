@@ -3,7 +3,9 @@
     <img src="img/logo/logo.webp" alt="logo" class="imglogo me-auto">
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
-      <img src="img/logo/logo.webp" alt="logo" class="imglogo me-auto">
+      <img src="img/logo/logo.webp" alt="logo" class="imglogo">
+        <span class="ms-3">Hello, Username</span>
+      </a>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>        
         <div class="offcanvas-body">
@@ -26,7 +28,7 @@
             <a class="nav-link mx-lg-2" href="#">About</a>
           </li>
           <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2" href="#">Contact Us</a>
+            <a class="nav-link mx-lg-2" href="#">New Arrivals</a>
           </li>
         </ul>
       </div>
@@ -39,12 +41,12 @@
         </span>
     </div>
     </form>
-    <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-3 text-decoration-none">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-none align-items-center me-3 text-decoration-none d-lg-flex">
       <i class="bx bx-user fs-4"></i>
-      <span class="ms-2 d-none">Hello User</span>
+      <span class="ms-2">Hello, Username</span>
     </a>
-      <div class="order-icon-wrapper">
-        <a href="#" class="nav-icon d-flex  text-decoration-none">
+    <div class="order-icon-wrapper ms-2">
+        <a href="#" class="nav-icon d-flex text-decoration-none">
           <i class="bx bx-shopping-bag fs-4"></i>
         </a>
         <span class="order-number">0</span>

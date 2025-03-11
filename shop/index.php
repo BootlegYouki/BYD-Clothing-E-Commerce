@@ -39,7 +39,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
         <div class="small-container">
         <div class="row align-items-center">
           <!-- Left Column: Text -->
-          <div class="col-md-6 mb-5">
+          <div class="col-md-6">
             <h4>New Arrival</h5>
             <h1>
                 From casual hangouts to<span> High-energy moments.</span>
@@ -47,14 +47,14 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             </h1>
             <p>Our Air-Cool Fabric T-shirt adapts to every occasion and keeps you cool.</p>
             <button class="btn-body">Shop Now</button>
-            <div class="text-endx mt-5">
+            <div class="mt-5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
                   <path d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                 </svg>
               </div>
           </div>
           <!-- Right Column: Carousel -->
-          <div class="col-md-6 ps-md-4">
+          <div class="col-md-6 mb-5">
             <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
               <div class="carousel-indicators">
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" 
@@ -122,7 +122,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
           <p>Unleash the power of style with our Mecha Collection Moto Jerseys.</p>
         </div>
         <div class="row mx-auto container-fluid">
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/featured/gipsy.webp" alt="" loading="lazy">
             <div class="star">
             <i class="fa fa-star"></i>
@@ -141,7 +141,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/featured/megazord.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -160,7 +160,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/featured/optimus.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -179,7 +179,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn ">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/featured/primal.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -222,7 +222,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
         <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
         </div>
         <div class="row mx-auto container-fluid">
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/t-shirt/sam.webp" alt="" loading="lazy">
             <div class="star">
             <i class="fa fa-star"></i>
@@ -241,7 +241,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/t-shirt/vale.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -260,7 +260,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/t-shirt/brook.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -279,7 +279,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn ">Buy now</button>
           </div>
 
-          <div class="product text-center col-lg-3 col-md-4 col-12">
+          <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/t-shirt/retain.webp" alt="" loading="lazy">
             <div class="star">
               <i class="fa fa-star"></i>
@@ -307,7 +307,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
         <p>Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.</p>
     </div>
     <div class="row mx-auto container-fluid">
-        <div class="product text-center col-lg-3 col-md-4 col-12">
+        <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/longsleeve/brook.webp" alt="BROOK" loading="lazy">
             <div class="star">
                 <i class="fa fa-star"></i>
@@ -326,7 +326,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">BUY NOW</button>
         </div>
 
-        <div class="product text-center col-lg-3 col-md-4 col-12">
+        <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/longsleeve/jap.webp" alt="JAP" loading="lazy">
             <div class="star">
                 <i class="fa fa-star"></i>
@@ -345,7 +345,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">BUY NOW</button>
         </div>
 
-        <div class="product text-center col-lg-3 col-md-4 col-12">
+        <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/longsleeve/seud.webp" alt="SEUD" loading="lazy">
             <div class="star">
                 <i class="fa fa-star"></i>
@@ -364,7 +364,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <button class="buy-btn">BUY NOW</button>
         </div>
 
-        <div class="product text-center col-lg-3 col-md-4 col-12">
+        <div class="product text-center col-lg-3 col-md-6 col-12">
             <img class="img-fluid img-11 mb-2" src="img/longsleeve/toyo.webp" alt="TOYO" loading="lazy">
             <div class="star">
                 <i class="fa fa-star"></i>
