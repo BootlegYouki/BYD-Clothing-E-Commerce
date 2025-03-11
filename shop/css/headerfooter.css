@@ -6,21 +6,10 @@
     margin:15px;
     border-radius: 12px;
     padding: 0.8rem;
-
-}
-.login-button{
-    background-color: coral;
-    color: white;
-    font-size: 14px;
-    padding: 8px 20px;
-    border-radius: 50px;
-    text-decoration: none;
-    transition: 0.3s background-color;
+    
 }
 
-.login-button:hover{
-    background-color: #ff4500;
-}
+
 
 .navbar-toggler{
     border: none;
@@ -55,7 +44,7 @@
         transition: 0.3s ease-in-out;
     }
     
-    .nav-link:hover::before, .nav-link.active::before {
+    .nav-link:hover::before {
         width: 100%;
         visibility: visible;
     }
@@ -86,10 +75,15 @@ input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
 }
 
-input[type="search"]:focus {
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="checkbox"]:focus {
     outline: none;
     box-shadow: none;
-    border-color: #DEE2E6;
+    border-color: coral;
 }
 
 .search-icon-wrapper {
@@ -101,9 +95,66 @@ input[type="search"]:focus {
     right: 12px;
     transform: translateY(-50%);
     color: #aaa;
-    pointer-events: none;
+    cursor: pointer;
 }
 
+.search-icon-wrapper .search-icon:hover {
+    color: coral;
+    transition: 0.3s ease;
+}
+
+.nav-icon{
+    color: #595959;
+}
+
+.nav-icon:hover{
+    color: coral;
+    transition: 0.3s ease;
+}
+
+.order-icon-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.order-icon-wrapper .order-number {
+    position: absolute;
+    top: -7px;
+    right: -12px;
+    background-color: coral;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* MODAL */
+.btn-modal{
+    font-weight: 600;
+    outline: none;
+    border: none;
+    color: white;
+    padding: 13px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s ease;
+    background-color: #000;
+}
+
+.btn-modal:hover {
+background-color: coral;
+color: white;
+}
+
+.modal-link {
+    font-weight: 700;
+    color: #595959;
+}
+
+.form-check-input:checked {
+    background-color: coral;
+    border-color: coral;
+}
 
 
 

@@ -15,17 +15,17 @@
             </span>
         </div>
         </form>
-        <ul class="navbar-nav justify-content-center flex-grow-1 pe-3 text-center">
-          <li class="nav-item">
+        <ul class="navbar-nav justify-content-end flex-grow-1 text-center">
+          <li class="nav-item my-2">
             <a class="nav-link mx-lg-2 active" aria-current="page" href="#">Home</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item my-2">
             <a class="nav-link mx-lg-2" href="#">Shop</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item my-2">
             <a class="nav-link mx-lg-2" href="#">About</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item my-2">
             <a class="nav-link mx-lg-2" href="#">Contact Us</a>
           </li>
         </ul>
@@ -39,7 +39,15 @@
         </span>
     </div>
     </form>
-    <a href="" class="login-button">Login</a>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-3 text-decoration-none">
+      <i class="bx bx-user fs-4"></i>
+    </a>
+      <div class="order-icon-wrapper">
+        <a href="#" class="nav-icon d-flex  text-decoration-none">
+          <i class="bx bx-shopping-bag fs-4"></i>
+        </a>
+        <span class="order-number">0</span>
+      </div>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>

@@ -33,6 +33,8 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <?php include 'includes/LoginModal.php'; ?>
+    <?php include 'includes/SignupModal.php'; ?>
     <!-- HOME SECTION -->
     <section id="home">
       <div class="container-fluid px-3">
@@ -47,6 +49,11 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             </h1>
             <p>Our Air-Cool Fabric T-shirt adapts to every occasion and keeps you cool.</p>
             <button class="btn-body">Shop Now</button>
+            <div class="text-endx mt-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
+                  <path d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+              </div>
           </div>
           <!-- Right Column: Carousel -->
           <div class="col-md-6 ps-md-4">
@@ -114,7 +121,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
         <div class="container text-center mt-5 py-5">
           <h3>Our featured</h3>
           <hr class="body-hr mx-auto">
-          <p>Explore our new collection and experience premium quality at prices you'll love.</p>
+          <p>Unleash the power of style with our Mecha Collection Moto Jerseys.</p>
         </div>
         <div class="row mx-auto container-fluid">
           <div class="product text-center col-lg-3 col-md-4 col-12">
@@ -126,7 +133,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
             <i class="fa fa-star"></i>
             <i class="fa fa-star"></i>
           </div>
-            <h5 class="p-name">LONG-SLEEVES - "GIPSY”</h5>
+            <h5 class="p-name">T-SHIRT - "GIPSY”</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -145,7 +152,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
             </div>
-            <h5 class="p-name">LONG-SLEEVES - "MEGAZORD</h5>
+            <h5 class="p-name">T-SHIRT - "MEGAZORD</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -164,7 +171,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
             </div>
-            <h5 class="p-name">LONG-SLEEVES - "OPTIMUS”</h5>
+            <h5 class="p-name">T-SHIRT - "OPTIMUS”</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -183,7 +190,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
             </div>
-            <h5 class="p-name">LONG-SLEEVES - "PRIMAL”</h5>
+            <h5 class="p-name">T-SHIRT - "PRIMAL”</h5>
             <h4 class="p-price mb-4">
               <?php echo "₱" . $price; ?>
               <?php if (isset($discount) && $discount > 0): ?>
@@ -210,7 +217,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
       </div>
     </section>
     <!-- t-shirt section -->
-    <section id="featured" class="my-5 pb-5">
+    <section id="t-shirt" class="my-5 pb-5">
         <div class="container text-center mt-5 py-5">
         <h3>T-Shirt Collection</h3>
         <hr class="body-hr mx-auto">
@@ -294,6 +301,91 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
           </div>
         </div>
     </section>
+    <!-- Long Sleeve Section -->
+    <section id="longsleeve" class="my-5 pb-5">
+    <div class="container text-center mt-5 py-5">
+        <h3>Long Sleeve Collection</h3>
+        <hr class="body-hr mx-auto">
+        <p>Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.</p>
+    </div>
+    <div class="row mx-auto container-fluid">
+        <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/longsleeve/brook.webp" alt="BROOK" loading="lazy">
+            <div class="star">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+            </div>
+            <h5 class="p-name">LONGSLEEVE - "BROOK"</h5>
+            <h4 class="p-price mb-4">
+                <?php echo "₱" . $price; ?>
+                <?php if (isset($discount) && $discount > 0): ?>
+                    <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+                <?php endif; ?>
+            </h4>
+            <button class="buy-btn">BUY NOW</button>
+        </div>
+
+        <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/longsleeve/jap.webp" alt="JAP" loading="lazy">
+            <div class="star">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+            </div>
+            <h5 class="p-name">LONGSLEEVE - "JAP"</h5>
+            <h4 class="p-price mb-4">
+                <?php echo "₱" . $price; ?>
+                <?php if (isset($discount) && $discount > 0): ?>
+                    <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+                <?php endif; ?>
+            </h4>
+            <button class="buy-btn">BUY NOW</button>
+        </div>
+
+        <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/longsleeve/seud.webp" alt="SEUD" loading="lazy">
+            <div class="star">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+            </div>
+            <h5 class="p-name">LONGSLEEVE - "SEUD"</h5>
+            <h4 class="p-price mb-4">
+                <?php echo "₱" . $price; ?>
+                <?php if (isset($discount) && $discount > 0): ?>
+                    <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+                <?php endif; ?>
+            </h4>
+            <button class="buy-btn">BUY NOW</button>
+        </div>
+
+        <div class="product text-center col-lg-3 col-md-4 col-12">
+            <img class="img-fluid img-11 mb-2" src="img/longsleeve/toyo.webp" alt="TOYO" loading="lazy">
+            <div class="star">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+            </div>
+            <h5 class="p-name">LONGSLEEVE - "TOYO"</h5>
+            <h4 class="p-price mb-4">
+                <?php echo "₱" . $price; ?>
+                <?php if (isset($discount) && $discount > 0): ?>
+                    <span class="discount"><?php echo "-" . $discount . "%"; ?></span>
+                <?php endif; ?>
+            </h4>
+            <button class="buy-btn">BUY NOW</button>
+        </div>
+    </div>
+</section>
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

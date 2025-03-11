@@ -17,8 +17,7 @@
               <h5 class="pb-2">Products</h5>
               <ul class="text-uppercase list-unstyled">
                 <li class="my-1"><a href="#">T-SHIRT Collections</a></li>
-                <li class="my-1"><a href="#">FIRST Released - LONG SLEEVE Collections</a></li>
-                <li class="my-1"><a href="#">MECHA - LONG SLEEVES Collections</a></li>
+                <li class="my-1"><a href="#">LONG SLEEVE Collections</a></li>
               </ul>
             </div>
             <!-- Contact -->
