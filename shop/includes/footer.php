@@ -1,7 +1,7 @@
 <footer class="py-2">
         <div class="row container mx-auto pt-5 mb-5">
             <div class="footer-one col-lg-3 col-md-7 col-12">
-              <img src="img/logo/logo2.webp" alt="logo" class="img-fluid img-10">
+              <img src="img/logo/logo2.webp" alt="logo" class="imglogo">
               <p class="my-3">We offer fully customized sublimation services:</p>
               <ul class="text-uppercase list-unstyled">
                 <li>T-shirt</li>
@@ -33,7 +33,7 @@
               </div>
               <div>
                 <h6 class="text-uppercase">phone</h6>
-                <p>0905 507 9634</p>
+                <p id="phoneCopy" onclick="copyPhoneNumber()" title="Click to copy to clipboard" style="cursor: pointer;">0905 507 9634</p>
               </div>
             </div>
           </div>
@@ -44,9 +44,9 @@
                     <img src="img/payment.png" alt="" class="img-fluid img-11">
                 </div>
                 <div class="col-lg-5 col-md-6 col-12 d-flex align-items-center mb-3">
-                    <p class="mb-0">&copy; 2025 Beyond Doubt Clothing. All Rights Reserved.</p>
+                <p class="mb-0">&copy; <?php echo date('Y'); ?> Beyond Doubt Clothing. All Rights Reserved.</p>
                   </div>
-                <div class="social-media">
+                <div class="social-media col-lg-3">
                     <a href="https://www.facebook.com/profile.php?id=100094756167660"><i class="fa fa-facebook"></i></a>
                     <a href="https://www.instagram.com/beyonddoubt.clothing"><i class="fa fa-instagram"></i></a>
                 </div>

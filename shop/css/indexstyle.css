@@ -1,5 +1,5 @@
 /* home section */
-button{
+.btn-body{
   font-size: 0.8rem;
   font-weight: 700;
   outline: none;
@@ -12,7 +12,7 @@ button{
   transition: 0.3s ease;
 }
 
-button:hover {
+.btn-body:hover {
   background-color: coral;
   color: white;
 }
@@ -25,7 +25,7 @@ button:hover {
 #home {
     background-color: black;
     color: white;
-    padding: 120px 0 120px;
+    padding: 220px 0 120px;
 }
 
     #home span {
@@ -51,10 +51,10 @@ button:hover {
         color: coral;
     }
 /* featured */
-hr {
+.body-hr {
     width: 70px;
-    height: 2px;
-    background-color: coral;
+    border: 2px solid coral;
+    opacity: 1;
 }
 
 .star {
@@ -105,6 +105,16 @@ hr {
     }
 
 .product .buy-btn {
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    border: none;
+    background-color: white;
+    color: black;
+    padding: 13px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s ease;
     background: coral;
     color: white;
     transform: translateY(20px);
