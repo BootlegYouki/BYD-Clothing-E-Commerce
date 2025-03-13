@@ -6,7 +6,6 @@ if (!isset($originalPrice)) {
 if (!isset($price)) {
     $price = 780;
 }
-
 $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 ?>
 
@@ -33,6 +32,18 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <!-- REGISTER MODAL  -->
+     <?php include 'includes/register.php'; ?>
+    <!-- LOGIN MODAL  -->
+    <?php include 'includes/login.php'; ?>
+    <!-- SUCCESS MODAL  -->
+    <?php include 'includes/loginsuccess.php'; ?>
+    <?php include 'includes/registersuccess.php'; ?>
+    <!-- FAILED MODAL  -->
+    <?php include 'includes/failedmodal.php'; ?>
+    <!-- TERMS MODAL  -->
+    <?php include 'includes/terms.php'; ?>
+
     <!-- HOME SECTION -->
     <section id="home">
       <div class="container-fluid px-3">
@@ -78,34 +89,34 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
                 <div class="carousel-item active">
                   <img src="img/carousel/1.jpg" class="d-block w-100" alt="Image 1" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/2.jpg" class="d-block w-100" alt="Image 2" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/3.jpg" class="d-block w-100" alt="Image 3" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/4.jpg" class="d-block w-100" alt="Image 4" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/5.jpg" class="d-block w-100" alt="Image 5" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/6.jpg" class="d-block w-100" alt="Image 6" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/7.jpg" class="d-block w-100" alt="Image 7" loading="lazy">
                 </div>
-                <div class="carousel-item">
+                <div class="carousel-item" inert>
                   <img src="img/carousel/8.jpg" class="d-block w-100" alt="Image 8" loading="lazy">
                 </div>
               </div>
               <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="carousel-control-prev-icon"></span>
                 <span class="visually-hidden">Previous</span>
               </a>
               <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="carousel-control-next-icon"></span>
                 <span class="visually-hidden">Next</span>
               </a>
             </div>
