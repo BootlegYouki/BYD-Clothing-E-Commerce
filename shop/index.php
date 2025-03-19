@@ -10,7 +10,7 @@ if (!isset($price)) {
 }
 $discount = round((($originalPrice - $price) / $originalPrice) * 100);
 ?>
-
+  
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,6 +30,8 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/indexstyle.css">
+    <link rel="stylesheet" href="css/shopcart.css">
+
 </head>
 <body>
     <!-- NAVBAR -->
@@ -44,7 +46,9 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <!-- FAILED MODAL  -->
     <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
-    <?php include 'includes/terms.php'; ?>
+    <?php include 'includes/terms.php'; 
+    <!-- SHOP CART -->
+    <?php include 'includes/shopcart.php'; ?>
     <!-- HOME SECTION -->
     <section id="home">
       <div class="container-fluid px-3">
@@ -399,6 +403,8 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- SCRIPT -->
     <script src="js/indexscript.js"></script>
+    <script src="js/shopcart.js"></script>
 </body>
 </html>
