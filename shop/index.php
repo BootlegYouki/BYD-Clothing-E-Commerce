@@ -1,3 +1,5 @@
+<!-- this is the index.php file for the shop folder  -->
+
 <?php
 if (!isset($originalPrice)) {
     $originalPrice = 1200;
@@ -43,7 +45,6 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-
     <!-- HOME SECTION -->
     <section id="home">
       <div class="container-fluid px-3">
