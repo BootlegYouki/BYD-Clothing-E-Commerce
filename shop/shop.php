@@ -16,7 +16,6 @@
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/indexstyle.css">
     <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/shopcart.css">
 </head>

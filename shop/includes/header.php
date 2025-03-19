@@ -72,8 +72,8 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
            data-bs-target="#cartModal">
         </i>
     </a>
-    <span class="order-number">0</span>
-</div>
+    <span class="order-number">1</span>
+    </div>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
