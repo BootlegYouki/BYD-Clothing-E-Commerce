@@ -8,20 +8,19 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
     <img src="img/logo/logo.webp" alt="logo" class="imglogo me-auto">
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
-        <img src="img/logo/logo.webp" alt="logo" class="imglogo">
         <span class="ms-3">Hello, <?php echo $username; ?></span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>        
       <div class="offcanvas-body">
         <!-- Search form and nav items here... -->
         <form class="d-block d-lg-none ms-auto pe-2">
-      <div class="search-icon-wrapper">
-        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
-        <span class="search-icon">
-          <i class="fas fa-search"></i>
-        </span>
-      </div>
-    </form>
+          <div class="search-icon-wrapper">
+            <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+            <span class="search-icon">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
+        </form>
         <ul class="navbar-nav justify-content-end flex-grow-1 text-center">
           <li class="nav-item my-2">
             <a class="nav-link mx-lg-2 active" aria-current="page" href="index.php">Home</a>
@@ -63,7 +62,8 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
         </ul>
       </div>
     <?php endif; ?>
-    
+
+    <!-- Shopping Bag Icon that triggers the modal -->
     <div class="order-icon-wrapper ms-2">
     <a class="nav-icon d-flex text-decoration-none">
         <i class="bx bx-shopping-bag fs-4"
@@ -74,6 +74,7 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
     </a>
     <span class="order-number">0</span>
 </div>
+
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
