@@ -39,10 +39,10 @@
         </div>
         <div class="copyright mt-5 mb-3">
             <div class="row container mx-auto">
-                <div class="col-lg-4 col-md-7 col-9 d-flex align-items-center mb-3">
+                <div class="col-lg-4 col-md-7 col-9 d-flex mb-3">
                     <img src="img/payment.png" alt="" class="img-fluid img-11">
                 </div>
-                <div class="col-lg-5 col-md-6 col-12 d-flex align-items-center mb-3">
+                <div class="col-lg-5 col-md-6 col-12 d-flex mb-3 pt-3" >
                 <p class="mb-0">&copy; <?php echo date('Y'); ?> Beyond Doubt Clothing. All Rights Reserved.</p>
                   </div>
                   <div class="social-media col-lg-3 mb-3">

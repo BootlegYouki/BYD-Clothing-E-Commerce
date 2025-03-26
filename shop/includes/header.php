@@ -1,6 +1,8 @@
 <?php
 session_start();
 $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) : 'Guest';
+
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <nav class="navbar navbar-expand-lg bg-white fixed-top shadow">
@@ -23,19 +25,27 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
       </div>
     </form>
         <ul class="navbar-nav justify-content-end flex-grow-1 text-center">
-          <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2 active" aria-current="page" href="index.php">Home</a>
-          </li>
-          <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2" href="shop.php">Shop</a>
-          </li>
-          <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2" href="aboutus.php">About</a>
-          </li>
-          <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2" href="#">New Arrivals</a>
-          </li>
-        </ul>
+      <li class="nav-item my-2">
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" 
+          <?php echo ($current_page == 'index.php') ? 'aria-current="page"' : ''; ?> 
+          href="index.php">Home</a>
+      </li>
+      <li class="nav-item my-2">
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'shop.php') ? 'active' : ''; ?>" 
+          <?php echo ($current_page == 'shop.php') ? 'aria-current="page"' : ''; ?> 
+          href="shop.php">Shop</a>
+      </li>
+      <li class="nav-item my-2">
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'aboutus.php') ? 'active' : ''; ?>" 
+          <?php echo ($current_page == 'aboutus.php') ? 'aria-current="page"' : ''; ?> 
+          href="aboutus.php">About</a>
+      </li>
+      <li class="nav-item my-2">
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'new-arrivals.php') ? 'active' : ''; ?>" 
+          <?php echo ($current_page == 'new-arrivals.php') ? 'aria-current="page"' : ''; ?> 
+          href="#">New Arrivals</a>
+      </li>
+    </ul>
       </div>
     </div>
     <form class="d-none d-lg-flex ms-auto pe-2">
@@ -73,7 +83,7 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
         </i>
     </a>
     <span class="order-number">0</span>
-</div>
+    </div>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
