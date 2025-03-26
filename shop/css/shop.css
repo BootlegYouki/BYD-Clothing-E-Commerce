@@ -3,7 +3,7 @@
     h4: SA PRODUCTS SECTION
     p: SA PRODUCTS SECTION
     .form-label: SA PRODUCT MODAL
-
+    d-flex: SA SMALL MEDIA (DALAWA)
 
     FIX NA GAGAWIN MO: EITHER LAGYAN MO NG BAGONG CLASS NAME YUNG ELEMENTS
     OR WAG MO NALANG BAGUHIN YUNG h3 and h4 SINCE MAY STANDARD SIZING TAYO SA CSS NATEN
@@ -67,10 +67,10 @@ nav {
   }
 
 @media (max-width: 768px) {
-    .d-flex {
+    /* .d-flex {
         flex-direction: column; 
         align-items: flex-start; 
-    }
+    } */
     .form-select {
         width: 100%; 
     }
@@ -88,10 +88,10 @@ nav {
         text-align: center; 
     } */
 
-    .d-flex {
+    /* .d-flex {
         flex-direction: column; 
         align-items: stretch; 
-    }
+    } */
 
     p {
         margin-bottom: 10px; 

@@ -1,5 +1,3 @@
-<!-- this is the index.php file for the shop folder  -->
-
 <?php
 if (!isset($originalPrice)) {
     $originalPrice = 1200;
@@ -31,7 +29,6 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/indexstyle.css">
     <link rel="stylesheet" href="css/shopcart.css">
-
 </head>
 <body>
     <!-- NAVBAR -->

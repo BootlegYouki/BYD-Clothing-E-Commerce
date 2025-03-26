@@ -1,5 +1,5 @@
 <div class="modal fade" id="loginsuccessmodal" tabindex="-1" aria-labelledby="loginsuccessmodalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog">
     <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
