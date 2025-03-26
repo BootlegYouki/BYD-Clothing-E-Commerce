@@ -63,7 +63,7 @@
 <!-- PRODUCTS -->
 <section id="products">
     <div class="small-container">
-        <div class="product">
+        <div class="product" data-product-id="1">
             <a href="details.php" id="sht1">
                 <img src="img/shirt/shirt7.png" alt="shirt" loading="lazy">
             </a>
@@ -79,7 +79,7 @@
             </button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="2">
           <a href="details.php" id="sht2">
             <img src="img/shirt/shirt2.png" alt="shirt" loading="lazy">
             </a>
@@ -95,7 +95,7 @@
             </button>
         </div>
 
-        <div class="product">
+        <div class="product"data-product-id="3">
           <a href ="details.php" id="sht3">
           <img src="img/shirt/shirt3.png" alt="shirt">
           </a>
@@ -109,7 +109,7 @@
           data-price="₱399.00">View</button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="4">
           <a href="details.php">
           <img src="img/shirt/shirt4.png" alt="shirt">
           </a>
@@ -122,7 +122,7 @@
           data-price="₱399.00">View</button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="5">
           <a href="details.php">
           <img src="img/shirt/shirt5.png" alt="shirt">
           </a>
@@ -135,7 +135,7 @@
           data-price="₱399.00">View</button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="6">
           <a href="details.php">
           <img src="img/shirt/shirt6.png" alt="shirt">
           </a>
@@ -148,7 +148,7 @@
           data-price="₱399.00">View</button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="7">
           <a href="details.php">
           <img src="img/shirt/shirt1.png" alt="shirt">
           </a>
@@ -161,7 +161,7 @@
           data-price="₱399.00">View</button>
         </div>
 
-        <div class="product">
+        <div class="product" data-product-id="8">
           <a href="details.php">
           <img src="img/shirt/shirt8.png" alt="shirt">
           </a>
@@ -210,7 +210,7 @@
                       </select>
                     </div>
           
-                    <button type="button" class="btn btn-dark add-to-cart-btn">Add to Cart</button>
+                    <button type="button" class="btn btn-dark add-to-cart-btn">ADD TO CART</button>
 
                     <!-- can add rest of modal content ... -->
                   </div>
@@ -245,14 +245,7 @@
     <script src="js/shopscript.js"></script>
     <script src="js/indexscript.js"></script>
     <script src="js/shopcart.js"></script>
-    <!-- SCRIPTS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <!-- BOOTSTRAP JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beyond Doubt Clothing</title> 
@@ -14,17 +14,14 @@
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- CUSTOM CSS -->
-    <link rel="stylesheet" href="css/aboutus.css">
-    <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/shopcart.css">
-
+    <link rel="stylesheet" href="css/aboutus.css">
 
 </head>
 <body>
-   <!-- NAVBAR -->
-   <?php include 'includes/header.php'; ?>
+    <!-- NAVBAR -->
+    <?php include 'includes/header.php'; ?>
     <!-- REGISTER MODAL  -->
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
@@ -39,61 +36,127 @@
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
 
-
+    <!-- BANNER -->
     <section class="top-image-container">
-        <img src="img/logo/BANNER LOGO.jpg" alt="Banner" class="top-image">
+        <img src="img/logo/Banner.png" alt="Banner" class="top-image">
       </section>      
 
-    <section id="contact-details">
-<div class="details">
-    <span>GET IN TOUCH</span>
-    <h2>Visit our Flagship Store or contact us today</h2>
-    <h3>Flagship Store</h3>
-    <div>
-        <li>
-            <i class="fa fa-map" aria-hidden="true"></i>
-            <p>Block 27 Lot 12, Pechayan Kanan Namasape HOA, Quezon City, 1121 Metro Manila</p>
-        </li>
-        <li>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
-            <p>test@gmail.com</p>
-        </li> <li>
-            <i class="fa fa-phone" aria-hidden="true"></i>
-            <p>0905 507 9634</p>
-        </li> <li>
-            <i class="fa fa-clock-o" aria-hidden="true"></i>
-            <p>Monday to Saturday: 9:00am to 8:30pm</p>
-        </li>
+ <!-- ABOUT US -->
+<section id="about-head">
+    <div class="container" >
+        <div class="left-side">
+            <h1>Who We Are</h1>
+            <p>
+                Beyond Doubt Clothing (BYD) is a local brand specializing in moto-inspired shirts and long sleeves. 
+                Designed for riders and streetwear enthusiasts, our apparel combines style, comfort, and durability. Based in Quezon City, we take pride in creating quality gear that reflects the fearless moto lifestyle. Ride beyond limits—wear Beyond Doubt.
+            </p>
+            <a href="visit_us.php">
+            <button class="btn-body" > VISIT US</button>
+            </a>
+        </div>
+        <div class="right-side">
+            <img src="img/featured/abt_1.png" class="abt-img">
+        </div>
     </div>
-</div>
-<div class="map">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d781.3691204711571!2d121.0653305!3d14.706414699999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b10c977c4ab7%3A0x8fe8b06b27997eea!2sBeyond%20Doubt%20Clothing!5e1!3m2!1sen!2sph!4v1740317440833!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-</div>
 </section>
 
-<section id="form-details">
-    <form>
-        <span>LEAVE US A MESSAGE</span>    
-    <h2>SEND US YOUR DESIGN</h2>
-    <input type="text" placeholder="E-mail"class="deets">
-    <input type="text" placeholder="Subject"class="deets">
-    <textarea name="" id="text-a" cols="30" rows="10" placeholder="Your Message"></textarea>
-    <button class="message">Submit</button>
+<!-- ABOUT US SECTION 2 -->
+<section id="about-head-2">
+    <div class="container">
+        <div class="left-side-2">
+            <img src="img/featured/custom1.png" class="abt-img">
+        </div>
+        <div class="right-side-2">
+            <h1>Custom Designs & Sublimation</h1>
+            <p>We provide high-quality custom designs and sublimation printing for long-lasting, vibrant prints. 
+                Using premium materials and expert techniques, we ensure durable, comfortable, and well-crafted apparel for personal wear, teams, or events.                
+            </p>
+        </div>
+    </div>
+</section>
 
-</form>
-<div class="custom1">
-<img src="img/t-shirt/ad(3).jpg">
+<!-- ABOUT US SECTION 3---- TAGLINE -->
+<section id="about-us-3">
+    <div class="container-2">
+        <!-- LEFT COLUMN -->
+        <div class="left-text">
+            <h1>Find Fashion <br>
+                <span id="orange"> That Make a Statement</span></h1>
+            <p><strong>What do we make?</strong></p>
+            <p>We craft high-quality apparel inspired by moto culture. 
+                Our collection includes stylish and durable shirts and long sleeves designed for riders and streetwear enthusiasts. 
+                Every piece is made for comfort, performance, and everyday wear, ensuring both function and style on and off the roa</p>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-text">
+            <br>
+            <br><br>
+            <p><strong>How do we create our products?</strong></p>
+            <p>
+                We use quality fabrics, 
+                precise stitching, and advanced printing to ensure durable, comfortable, and long-lasting apparel. 
+                Every piece is carefully crafted and quality-checked for the best fit and design.</p>
+        </div>
+    </div>
+</section>
 
 
-</div>
+<!-- ABOUT US SECTION 3 --- FEATURED PRODUCTS-->
+<section id="about-us-3">
+    <div class="container-3">
+        <div class="column">
+            <a>
+            <img src="img/featured/latest_new.png">
+            </a>
+            <p><strong>New Arrivals</strong></p>
+            <p>The Latest BYD Dropped; Ready to be Shopped</p>
+            <a href="shop.php" class="shop-now" id="orange">Shop Now</a>
+        </div>
 
-    </section>
+        <div class="column">
+            <a>
+            <img src="img/featured/top.png">
+            </a>
+            <p><strong>Top Rated</strong></p>
+            <p>Our Best Reviewed Products love by our Customers</p>
+            <a href="shop.php" class="shop-now" id="orange">Shop Now</a>
+
+        </div>
+
+        <div class="column">
+            <a>
+            <img src="img/featured/popular.png">
+            </a>
+            <p><strong>Best Sellers</strong></p>
+            <p>Our most popular Products, Always Popular, Always a good idea</p>
+            <a href="shop.php" class="shop-now" id="orange">Shop Now</a>
+
+        </div>
+    </div>
+    
+</section>
+
+<!-- ABOUT US SECTION 3 --- NEWSLETTER-->
+<section id="Newsletter">
+    <div class="newsletter">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Get the latest updates and offers.</p>
+        <form >
+            <input type="email" placeholder="Enter your email" required>
+            <button class="btn-body">Subscribe</button>
+        </form>
+    </div>
+</section>
+
+
+
+
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
-
     <!--SCRIPT-->
-    <script src="js/shopcart.js"></script>
-    <script src =script1.js></script>
+    <script src="js/indexscript.js"></script>
+
     <!-- SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -103,6 +166,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

@@ -31,7 +31,7 @@
         <div class="footer-content w-100 d-flex justify-content-between align-items-end">
           <div class="d-flex align-items-center gap-3">
             <strong>Subtotal: ₱798.00</strong>
-            <button class="btn btn-checkout">Checkout</button>
+            <a href="checkout.php" class="btn btn-checkout">CHECKOUT</a>
           </div>
         </div>
       </div>

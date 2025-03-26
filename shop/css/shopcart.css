@@ -114,15 +114,19 @@
 }
 
 /*-------------------------- TABLE DETAILS --------------------------------*/
-/* --TABLE ALLIGNMENT-- */
-/* Reduce table width */
+
 .modal.fullscreen-modal .table {
+  background: transparent !important;
+  border-collapse: collapse;
   max-width: 80%; 
   margin: 0 auto;
 }
 
-.modal.fullscreen-modal .table tbody tr {
-  border-bottom: none !important;
+.modal.fullscreen-modal .table th,
+.modal.fullscreen-modal .table td {
+  background: none !important; 
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2); 
+  color: inherit; 
 }
 
 .modal.fullscreen-modal .modal-footer {
@@ -272,7 +276,7 @@ td {
 
 .modal-footer .btn-checkout {
   padding: 15px 50px; 
-  font-size: 0.7rem; 
+  font-size: 12px; 
   background-color: black;
   color: white; 
   border: none; 
@@ -284,8 +288,8 @@ td {
 
 /* Hover effect */
 .modal-footer .btn-checkout:hover {
-  background-color: #333;
-  transform: scale(1.03);
+  background-color: coral;
+  transform: scale(1.01);
 }
 
 /* Adjust spacing between total and button (slightly farther) */
