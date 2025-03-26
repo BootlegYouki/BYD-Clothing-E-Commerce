@@ -59,7 +59,7 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
           <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="includes/logout.php">Logout</a></li>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
         </ul>
       </div>
     <?php endif; ?>

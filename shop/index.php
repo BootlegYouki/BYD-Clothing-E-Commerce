@@ -40,13 +40,15 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
     <?php include 'includes/login.php'; ?>
+    <!-- LOGOUT MODAL  -->
+    <?php include 'includes/logout.php'; ?>
     <!-- SUCCESS MODAL  -->
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
     <!-- FAILED MODAL  -->
     <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
-    <?php include 'includes/terms.php'; 
+    <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
     <!-- HOME SECTION -->
