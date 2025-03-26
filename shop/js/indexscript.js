@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function() {
     phoneInput.addEventListener("blur", function() {
       const phoneVal = phoneInput.value.trim();
       if(phoneVal !== "") {
-        fetch("functions/check_phone.php?phone=" + encodeURIComponent(phoneVal))
+        fetch("functions/check_phone.php?phone_number=" + encodeURIComponent(phoneVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('phoneRegisteredFeedback');
