@@ -1,0 +1,256 @@
+/*--BANNER--*/
+.top-image-container {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: block;
+    overflow: hidden; /* Ensures cropped content is not visible */
+  }
+  
+  .top-image {
+    width: 100%;
+    height: 600px; /* Adjust height to crop bottom part */
+    object-fit: cover;
+    object-position: center 18%; /* Moves the focus upwards */
+    display: block;
+    margin: 0;
+  }
+  
+    
+  /*--LABEL--*/
+  p {
+      margin-right: 15px;
+  }
+  .form-select{
+      font-size: 14px;
+  }
+  .form-select:focus, 
+  .form-select:focus-visible {
+      outline: none !important;
+  }
+  
+  /*--PAGINATION--*/
+  nav {
+      display: flex;
+      justify-content: center; 
+      align-items: center;      
+      margin: 20px 0;           
+    }
+    .page-item {
+      margin: 0 2px;           
+    }
+    .page-link {
+      padding: 8px 12px;      
+      border: 1px solid #ccc;  
+      border-radius: 4px;     
+      background-color: #f8f9fa;  
+      color: black; 
+    }
+    .page-link:hover {
+      background-color: #e9ecef;  
+      color: black;
+    }
+/*BUTTON FILTER */
+    .selection {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px; 
+        overflow-x: auto; 
+        white-space: nowrap; 
+        padding-bottom: 10px; 
+        scrollbar-width: none; 
+    }
+    
+    /*SCROLLBAR */
+    .selection::-webkit-scrollbar {
+        display: none; 
+    }
+    
+    /*BUTTON*/
+    .flt-1 {
+        padding: 5px 10px;
+        font-size: 1rem;
+        border: none;
+        background-color: #000; 
+        color: white;
+        cursor: pointer;
+        white-space: nowrap; 
+        transition: transform 0.5s ease, background-color 0.5s ease;
+
+    }
+
+    .flt-1:hover{
+        background-color: coral;
+        color: white;
+    }
+/*NEW ARRIVAL TEXT*/
+.small-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.small-container > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.body-hr {
+    width: 50%; 
+    border: 2px solid coral; 
+    margin: 5px auto 15px; 
+}
+
+/* Align "Sort by" to the right */
+.sort-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 10px; 
+}
+
+h3 {
+    margin-bottom: 5px; 
+    font-size: 1.5rem;
+}
+
+.body-hr {
+    width: 20%; 
+    border: 2px solid coral;
+    margin: 0 auto; 
+}
+
+/*<------PRODUCTS----->*/
+/* Container Styling */
+#new-arrivals {
+    background-color: #f9f9f9;
+    padding: 50px 0;
+}
+
+/* Product Card */
+.product-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+}
+
+.product-card:hover {
+    transform: scale(1.02);
+}
+
+/* Product Image Wrapper */
+.product-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+/* Carousel Styling */
+.carousel {
+    max-width: 100%;
+    margin: auto;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.carousel img {
+    width: 100%;
+    height: 350px; /* Adjust image size */
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Navigation Arrows */
+.carousel-control-prev,
+.carousel-control-next {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Product Info */
+.product-info h4 {
+    font-size: 18px;
+    margin: 15px 0 5px;
+}
+
+.product-info p {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff5733;
+}
+
+/* Buy Now Button */
+.buy-now {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff5733;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.product-image:hover .buy-now {
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .carousel img {
+        height: 250px;
+    }
+}
+
+
+
+
+
+
+
+    /* Responsive: Activate sliding effect only on mobile */
+    @media (max-width: 768px) {
+        .selection {
+            display: flex;
+            overflow-x: auto;
+            flex-wrap: nowrap; 
+            scroll-snap-type: x mandatory; 
+        }
+    
+        .flt-1 {
+            flex: 0 0 auto; 
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+    }
+    
