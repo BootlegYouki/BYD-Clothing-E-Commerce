@@ -9,7 +9,7 @@
         <p>Welcome back! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
-        <a href="index.php" class="btn btn-primary">Continue</a>
+        <a href="index.php" class="btn btn-acc">Continue</a>
       </div>
     </div>
   </div>

@@ -1,0 +1,9 @@
+.form-control{
+    border: 1px solid #ccc;
+    padding-left: 15px;
+}
+.form-control:focus{
+    outline: none;
+    box-shadow: none;
+    border-color: coral;
+}

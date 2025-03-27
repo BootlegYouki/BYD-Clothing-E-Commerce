@@ -3,9 +3,9 @@ session_start();
 include '../../admin/config/dbcon.php';
 
 /* HELPER FUNCTIONS FOR LOGIN */
-function isEmailRegistered($conn, $email) {
-    $safeEmail = mysqli_real_escape_string($conn, $email);
-    $query = "SELECT * FROM users WHERE email='$safeEmail' LIMIT 1";
+function getUserByIdentifier($conn, $identifier) {
+    $safeIdentifier = mysqli_real_escape_string($conn, $identifier);
+    $query = "SELECT * FROM users WHERE email='$safeIdentifier' OR username='$safeIdentifier' LIMIT 1";
     $result = mysqli_query($conn, $query);
     return (mysqli_num_rows($result) > 0) ? $result : false;
 }
@@ -51,10 +51,10 @@ if (isset($_POST['signupButton'])) {
 }
 else if (isset($_POST['loginButton'])) {
     // Login process
-    $loginemail    = mysqli_real_escape_string($conn, $_POST['loginemail']);
+    $loginidentifier = mysqli_real_escape_string($conn, $_POST['loginidentifier']);
     $loginpassword = mysqli_real_escape_string($conn, $_POST['loginpassword']);
     
-    $result = isEmailRegistered($conn, $loginemail);
+    $result = getUserByIdentifier($conn, $loginidentifier);
     if (!$result) {
         displayInvalidCredentials();
     }
@@ -64,8 +64,22 @@ else if (isset($_POST['loginButton'])) {
         displayInvalidCredentials();
     }
     
-    $_SESSION['username'] = $user['username'];
-    header("Location: ../index.php?loginSuccess=1");
+    $_SESSION['auth'] = true;
+    $_SESSION['auth_role'] = $user['role_as'];
+    $_SESSION['auth_user'] = [
+        'user_id' => $user['id'],
+        'username' => $user['username'],
+        'email' => $user['email']
+    ];
+    
+    if($user['role_as'] == 1) {
+        $_SESSION['username'] = $user['username'];
+        header("Location: ../index.php?loginSuccess=1");
+    }
+    else {
+        $_SESSION['username'] = $user['username'];
+        header("Location: ../index.php?loginSuccess=1");
+    }
     exit;
 }
 ?>

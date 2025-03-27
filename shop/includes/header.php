@@ -1,16 +1,20 @@
 <?php
 session_start();
 $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) : 'Guest';
-
 $current_page = basename($_SERVER['PHP_SELF']);
+$is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
 ?>
 
 <nav class="navbar navbar-expand-lg bg-white fixed-top shadow">
   <div class="container-fluid">
-    <img src="img/logo/logo.webp" alt="logo" class="imglogo me-auto">
+    <a href="index.php" class="me-auto">
+    <img src="img/logo/logo.webp" alt="logo" class="imglogo">
+    </a>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
+      <a href="index.php">
         <img src="img/logo/logo.webp" alt="logo" class="imglogo">
+      </a>
         <span class="ms-3">Hello, <?php echo $username; ?></span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>        
@@ -69,11 +73,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
           <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
         </a>
         <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a></li>
+        <?php if ($is_admin): ?>
+          <li><a class="dropdown-item" href="../../admin/index.php" target="_blank">
+          <i class="bx bx-cog me-2"></i>Admin Panel
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+        <?php endif; ?>
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+        <i class="bx bx-log-out me-2"></i>Logout</a></li>
         </ul>
       </div>
     <?php endif; ?>
     
+    <?php if (!$is_admin): ?>
     <div class="order-icon-wrapper ms-2">
     <a class="nav-icon d-flex text-decoration-none">
         <i class="bx bx-shopping-bag fs-4"
@@ -84,6 +96,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </a>
     <span class="order-number">0</span>
     </div>
+    <?php endif; ?>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>

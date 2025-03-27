@@ -4,10 +4,9 @@
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group input-group-outline">
               <label class="form-label"></label>
-              <input type="text" class="form-control">
+              <input type="text" class="form-control" placeholder="Search...">
             </div>
           </div>
-          
         </div>
       </div>
     </nav>
