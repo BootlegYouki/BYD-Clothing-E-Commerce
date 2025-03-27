@@ -1,5 +1,5 @@
 <div class="modal fade" id="loginsuccessmodal" tabindex="-1" aria-labelledby="loginsuccessmodalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog">
     <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
@@ -9,7 +9,7 @@
         <p>Welcome back! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
-        <a href="index.php" class="btn btn-primary">Continue</a>
+        <a href="index.php" class="btn btn-acc">Continue</a>
       </div>
     </div>
   </div>
