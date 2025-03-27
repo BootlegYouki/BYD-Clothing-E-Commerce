@@ -124,57 +124,75 @@ document.getElementById('cartModal').addEventListener('hide.bs.modal', function(
     }
 
     // Update cart summary and visibility
-    function updateCartSummary() {
-        let subtotal = 0;
-        let totalItems = 0;
+// Update cart summary and visibility
+function updateCartSummary() {
+    let subtotal = 0;
+    let totalItems = 0;
 
-        const rows = document.querySelectorAll('.modal.fullscreen-modal tbody tr');
+    const rows = document.querySelectorAll('.modal.fullscreen-modal tbody tr');
 
-        if (totalItemsElement) {
-            totalItemsElement.textContent = `Total Items (${rows.length})`;
+    if (totalItemsElement) {
+        totalItemsElement.textContent = `Total Items (${rows.length})`;
+    }
+
+    rows.forEach(row => {
+        const quantityElement = row.querySelector('.num');
+        const priceCell = row.querySelector('td:nth-child(4)');
+
+        if (quantityElement && priceCell) {
+            const quantity = parseInt(quantityElement.textContent);
+            const price = parseFloat(priceCell.textContent.replace('₱', '')) || 0;
+            
+            totalItems += quantity;
+            subtotal += price;
         }
+    });
 
-        rows.forEach(row => {
-            const quantityElement = row.querySelector('.num');
-            const priceCell = row.querySelector('td:nth-child(4)');
+    if (subtotalElement) {
+        subtotalElement.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
+    }
 
-            if (quantityElement && priceCell) {
-                const quantity = parseInt(quantityElement.textContent);
-                const price = parseFloat(priceCell.textContent.replace('₱', '')) || 0;
-                
-                totalItems += quantity;
-                subtotal += price;
-            }
-        });
+    // Update order number display
+    if (orderNumberElement) {
+        orderNumberElement.textContent = totalItems;
+    }
 
-        if (subtotalElement) {
-            subtotalElement.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
+    // Hide modal elements if cart is empty - use more specific selectors
+    if (rows.length === 0) {
+        // Use more specific selectors that only target the cart modal elements
+        const cartModal = document.getElementById('cartModal'); // Make sure your cart modal has this ID
+        
+        if (cartModal) {
+            const cartTable = cartModal.querySelector('table');
+            const cartFooter = cartModal.querySelector('.modal-footer');
+            const cartTitle = cartModal.querySelector('.modal-header h2');
+            
+            if (cartTable) cartTable.style.display = 'none';
+            if (cartFooter) cartFooter.style.display = 'none';
+            if (cartTitle) cartTitle.style.display = 'none';
+            if (totalItemsElement) totalItemsElement.style.display = 'none';
+            if (checkoutButton) checkoutButton.style.display = 'none';
+            if (subtotalText) subtotalText.style.display = 'none';
+            if (emptyCartMessage) emptyCartMessage.classList.remove('d-none');
         }
-
-        // Update order number display
-        if (orderNumberElement) {
-            orderNumberElement.textContent = totalItems;
-        }
-
-        // Hide modal elements if cart is empty
-        if (rows.length === 0) {
-            cartTable.style.display = 'none';
-            cartFooter.style.display = 'none';
-            cartTitle.style.display = 'none';
-            totalItemsElement.style.display = 'none';
-            checkoutButton.style.display = 'none';
-            subtotalText.style.display = 'none';
-            emptyCartMessage.classList.remove('d-none'); 
-        } else {
-            cartTable.style.display = '';
-            cartFooter.style.display = '';
-            cartTitle.style.display = '';
-            totalItemsElement.style.display = '';
-            checkoutButton.style.display = '';
-            subtotalText.style.display = '';
-            emptyCartMessage.classList.add('d-none'); 
+    } else {
+        const cartModal = document.getElementById('cartModal');
+        
+        if (cartModal) {
+            const cartTable = cartModal.querySelector('table');
+            const cartFooter = cartModal.querySelector('.modal-footer');
+            const cartTitle = cartModal.querySelector('.modal-header h2');
+            
+            if (cartTable) cartTable.style.display = '';
+            if (cartFooter) cartFooter.style.display = '';
+            if (cartTitle) cartTitle.style.display = '';
+            if (totalItemsElement) totalItemsElement.style.display = '';
+            if (checkoutButton) checkoutButton.style.display = '';
+            if (subtotalText) subtotalText.style.display = '';
+            if (emptyCartMessage) emptyCartMessage.classList.add('d-none');
         }
     }
+}
 
     // Handle minus, plus, and remove button clicks
     cartBody.addEventListener('click', function (e) {

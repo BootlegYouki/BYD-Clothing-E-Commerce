@@ -45,9 +45,9 @@ $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
           href="aboutus.php">About</a>
       </li>
       <li class="nav-item my-2">
-        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'new-arrivals.php') ? 'active' : ''; ?>" 
-          <?php echo ($current_page == 'new-arrivals.php') ? 'aria-current="page"' : ''; ?> 
-          href="#">New Arrivals</a>
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'new_arrival.php') ? 'active' : ''; ?>" 
+          <?php echo ($current_page == 'new_arrival.php') ? 'aria-current="page"' : ''; ?> 
+          href="new_arrival.php">New Arrivals</a>
       </li>
     </ul>
       </div>

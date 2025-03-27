@@ -18,11 +18,8 @@
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/new_arrival.css">
-
-
 </head>
 <body>
     <!-- NAVBAR -->
@@ -31,17 +28,15 @@
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
     <?php include 'includes/login.php'; ?>
+    <!-- LOGOUT MODAL  -->
+    <?php include 'includes/logout.php'; ?>
     <!-- SUCCESS MODAL  -->
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
-    <!-- FAILED MODAL  -->
-    <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
-    <!-- ABOUT US -->
-    <?php include 'includes/about_us.php'; ?>
 
 
     <!-- BANNER -->
@@ -52,27 +47,15 @@
     <!-- LABEL -->
     <section id="label" class="my-5 py-2">
         <div class="container-fluid">
-          <div class="selection">
+          <div class="selection justify-content-center">
           <button class="flt-1">All Products</button>
           <button class="flt-1">T-Shirts Collections</button>
           <button class="flt-1">First Released - Long Sleeve Collections</button>
           <button class="flt-1">Mecha - Long Sleeve Collection</button>
           <br>
           </div>
-
-            <div class="small-container mt-1 py-1 d-flex justify-content-between align-items-center">
-              <div>
-                <h3>New Arrivals</h3>
-                <hr class="body-hr mx-auto">
-            </div>
-            <div class="sort-container d-flex align-items-center gap-3">
-                <p class="mb-0">Sort by:</p>
-                <select class="form-select w-auto">
-                    <option>Highest Price</option>
-                    <option>Lowest Price</option>
-                </select>
-            </div>
-                </div>
+          <h3 class="text-center mt-2">New Arrivals</h3>
+          <hr class="body-hr mx-auto">
     </section>
 
 <!-- PRODUCTS -->
