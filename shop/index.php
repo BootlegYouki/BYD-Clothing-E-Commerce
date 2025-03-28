@@ -39,7 +39,7 @@
     <!-- HOME SECTION -->
 <!-- HOME SECTION -->
 <section id="home">
-  <div class="container-fluid px-3 pb-5">
+  <div class="container-fluid px-3">
     <div class="small-container">
       <div class="row align-items-center">
         <!-- Left Column: Text -->
