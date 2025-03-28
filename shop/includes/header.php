@@ -5,8 +5,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
 ?>
 
-<nav class="navbar navbar-expand-lg bg-white sticky-top shadow">
-  <div class="container-fluid my-2 px-4">
+<nav class="navbar navbar-expand-lg bg-white fixed-top shadow">
+  <div class="container-fluid px-4">
     <a href="index.php" class="me-auto">
     <img src="img/logo/logo.webp" alt="logo" class="imglogo">
     </a>
@@ -102,3 +102,5 @@ $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
     </button>
   </div>
 </nav>
+
+<script src="js/url-cleaner.js"></script>

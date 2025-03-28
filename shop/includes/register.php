@@ -298,3 +298,5 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 </script>
+
+<script src="js/url-cleaner.js"></script>

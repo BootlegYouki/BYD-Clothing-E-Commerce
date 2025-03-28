@@ -1,11 +1,3 @@
-<footer class="footer pt-5">
-</footer>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="../assets/js/perfect-scrollbar.min.js"></script>
-<script src="../assets/js/smooth-scrollbar.min.js"></script>
-<script src="../assets/js/file-upload.js"></script>
-<script>
 // Automatically remove .php extension from all href attributes
 document.addEventListener('DOMContentLoaded', function() {
   // Find all anchor tags with href attributes containing .php
@@ -50,6 +42,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-</script>
-</body>
-</html>

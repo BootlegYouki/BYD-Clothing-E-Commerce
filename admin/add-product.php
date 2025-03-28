@@ -288,4 +288,5 @@ function updateSKU() {
     document.getElementById('sku').value = sku;
 }
 </script>
+
 <?php include 'includes/footer.php'; ?>

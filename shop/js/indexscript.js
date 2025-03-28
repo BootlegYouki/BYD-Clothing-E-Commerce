@@ -1,18 +1,13 @@
-// PRODUCT ANIMATION WHEN FIRST LOADED
 document.addEventListener('DOMContentLoaded', function () {
-  // Add some delay to ensure DOM is fully processed
+  // PRODUCT ANIMATION WHEN FIRST LOADED
   setTimeout(() => {
-    // Select all product cards
     const products = document.querySelectorAll('.product-card');
     
     if (products.length > 0) {
-      console.log(`Found ${products.length} product cards`);
-      
       // Create intersection observer
       const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            console.log('Product visible:', entry.target);
             entry.target.classList.add('animate');
             observer.unobserve(entry.target);
           }
@@ -23,44 +18,90 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       
       // Observe each product card
-      products.forEach((product, index) => {
-        console.log(`Observing product ${index}`);
+      products.forEach((product) => {
         // Add initial class before animation
         product.classList.add('product-before-animate');
         // Start observing
         observer.observe(product);
       });
-    } else {
-      console.warn('No product cards found on page');
     }
-  }, 100);
-});
+  }, 300);
 
-// PHONE NUMBER COPY TO CLIPBOARD IN FOOTER
-function copyPhoneNumber() {
-  const phone = "0905 507 9634";
-  navigator.clipboard.writeText(phone)
-      .then(() => {
+  // PHONE NUMBER COPY TO CLIPBOARD IN FOOTER
+  window.copyPhoneNumber = function() {
+    const phone = "0905 507 9634";
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(phone)
+        .then(() => {
           alert('Phone number copied to clipboard');
-      })
-      .catch(err => {
-          alert('Failed to copy text: ' + err);
-      });
-}
+        })
+        .catch(() => {
+          fallbackCopy();
+        });
+    } else {
+      fallbackCopy();
+    }
+    
+    function fallbackCopy() {
+      const tempInput = document.createElement('input');
+      tempInput.value = phone;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      let success = false;
+      try {
+        success = document.execCommand('copy');
+      } catch (e) {
+        // Silent catch
+      }
+      
+      document.body.removeChild(tempInput);
+      
+      if (success) {
+        alert('Phone number copied to clipboard');
+      } else {
+        alert('Please copy this number manually: ' + phone);
+      }
+    }
+  };
   
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('signupSuccess') === '1') {
-    var registerSuccessModal = new bootstrap.Modal(document.getElementById('registersuccessmodal'));
-    registerSuccessModal.show();
-  }
+  // URL PARAMETER PROCESSING
+  try {
+    const params = new URLSearchParams(window.location.search);
+    
+    // Handle signup success
+    if (params.get('signupSuccess') === '1') {
+      const modalElement = document.getElementById('registersuccessmodal');
+      if (modalElement) {
+        const registerSuccessModal = new bootstrap.Modal(modalElement);
+        registerSuccessModal.show();
+      }
+    }
 
-  if (params.get('loginSuccess') === '1') {
-    var loginSuccessModal = new bootstrap.Modal(document.getElementById('loginsuccessmodal'));
-    loginSuccessModal.show();
-  }
+    // Handle login success
+    if (params.get('loginSuccess') === '1') {
+      const modalElement = document.getElementById('loginsuccessmodal');
+      if (modalElement) {
+        const loginSuccessModal = new bootstrap.Modal(modalElement);
+        loginSuccessModal.show();
+      }
+    }
 
-  if (params.get('loginFailed') === '1') {
-    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-    document.getElementById('loginErrorMessage').classList.remove('d-none');
+    // Handle login failed
+    if (params.get('loginFailed') === '1') {
+      const modalElement = document.getElementById('loginModal');
+      if (modalElement) {
+        const loginModal = new bootstrap.Modal(modalElement);
+        loginModal.show();
+        
+        const errorMessageElement = document.getElementById('loginErrorMessage');
+        if (errorMessageElement) {
+          errorMessageElement.classList.remove('d-none');
+        }
+      }
+    }
+  } catch (e) {
+    // Silent catch
   }
+});

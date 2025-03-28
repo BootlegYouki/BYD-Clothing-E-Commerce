@@ -11,7 +11,7 @@ function getUserByIdentifier($conn, $identifier) {
 }
 
 function displayInvalidCredentials() {
-   header("Location: ../index.php?loginFailed=1");
+   header("Location: ../index?loginFailed=1");
    exit;
 }
 
@@ -74,12 +74,14 @@ else if (isset($_POST['loginButton'])) {
     
     if($user['role_as'] == 1) {
         $_SESSION['username'] = $user['username'];
-        header("Location: ../index.php?loginSuccess=1");
+        header("Location: ../index?loginSuccess=1");
     }
     else {
         $_SESSION['username'] = $user['username'];
-        header("Location: ../index.php?loginSuccess=1");
+        header("Location: ../index?loginSuccess=1");
     }
     exit;
 }
 ?>
+
+<script src="../js/url-cleaner.js"></script>

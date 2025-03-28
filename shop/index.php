@@ -39,7 +39,7 @@
     <!-- HOME SECTION -->
 <!-- HOME SECTION -->
 <section id="home">
-  <div class="container-fluid px-3">
+  <div class="container-fluid px-3 pb-5">
     <div class="small-container">
       <div class="row align-items-center">
         <!-- Left Column: Text -->
@@ -103,7 +103,7 @@
                   }
               ?>
                 <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                  <img src="<?= $imagePath ?>" class="d-block w-100" alt="Carousel Image" loading="lazy">
+                  <img src="<?= $imagePath ?>" class="d-block w-100" alt="Carousel Image">
                 </div>
               <?php } ?>
             </div>
@@ -147,7 +147,7 @@
         <hr class="body-hr mx-auto">
         <p>Unleash the power of style with our Mecha Collection Moto Jerseys.</p>
     </div>
-    <div class="row mx-auto container-fluid">
+    <div class="container-fluid px-5">
         <div class="row justify-content-center">
             <?php
             require_once '../admin/config/dbcon.php';
@@ -216,7 +216,7 @@
         </div>
     </div>
 </section>
-    <!-- Banner -->
+<!-- Banner -->
     <section id="banner">
       <div class="container px-5">
         <h1><span>CUSTOM</span> SUBLIMATION<br>SERVICE</h1>
@@ -238,7 +238,7 @@
         <hr class="body-hr mx-auto">
         <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
     </div>
-    <div class="row mx-auto container-fluid">
+    <div class="container-fluid px-5">
         <div class="row justify-content-center">
             <?php
             require_once '../admin/config/dbcon.php';
@@ -314,7 +314,7 @@
         <hr class="body-hr mx-auto">
         <p>Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.</p>
     </div>
-    <div class="row mx-auto container-fluid">
+    <div class="container-fluid px-5">
         <div class="row justify-content-center">
             <?php
             require_once '../admin/config/dbcon.php';
@@ -387,7 +387,8 @@
     <?php include 'includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- SCRIPT -->
-    <script src="js/indexscript.js"></script>
     <script src="js/shopcart.js"></script>
+    <script src="js/indexscript.js"></script>
+    <script src="js/url-cleaner.js"></script>
 </body>
 </html>

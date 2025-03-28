@@ -1,8 +1,8 @@
-
 .imglogo {
   width: clamp(120px, 15vw, 150px);
   height: auto;
 }
+
 .navbar{
   margin:15px;
   border-radius: 12px;

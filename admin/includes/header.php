@@ -2,7 +2,7 @@
 session_start();
 // Check if user is logged in and is an admin
 if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
-    header("Location: ../shop/index.php");
+    header("Location: ../shop/index");
     exit();
 }
 ?>

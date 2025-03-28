@@ -52,4 +52,3 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </div>
     </div>
   </aside>
-  

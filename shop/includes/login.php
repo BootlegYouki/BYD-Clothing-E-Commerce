@@ -5,7 +5,7 @@
           <div class="modal-header">
             <h3 class="modal-title" id="loginModalLabel">Login</h3>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-            onclick="window.location.href='index.php'"></button>
+            onclick="window.location.href='index'"></button>
           </div>
           <div class="modal-body">
             <p>Don't have an account? 
@@ -77,3 +77,4 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<script src="js/url-cleaner.js"></script>
