@@ -5,7 +5,7 @@
 <script src="../assets/js/perfect-scrollbar.min.js"></script>
 <script src="../assets/js/smooth-scrollbar.min.js"></script>
 <script src="../assets/js/file-upload.js"></script>
-<script>
+<!-- <script>
 // Automatically remove .php extension from all href attributes
 document.addEventListener('DOMContentLoaded', function() {
   // Find all anchor tags with href attributes containing .php
@@ -50,6 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-</script>
+</script> -->
 </body>
 </html>
