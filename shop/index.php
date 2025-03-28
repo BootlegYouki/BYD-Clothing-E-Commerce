@@ -122,7 +122,6 @@
             ?>
               <div class="carousel-inner">
                 <div class="carousel-item active">
-                  <!-- Placeholder image when no carousel images are active -->
                   <img src="img/placeholder.jpg" class="d-block w-100" alt="BYD Clothing" loading="lazy">
                   <div class="carousel-caption d-none d-md-block">
                     <h5>Welcome to BYD Clothing</h5>

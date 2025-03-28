@@ -67,22 +67,27 @@
 </div>
 </section>
 
-<section id="form-details">
-    <form class="sublimation-form">
+<section id="form-details" class="container">
+  <div class="row">
+    <div class="col-md-6 mb-md-0">
+      <form class="sublimation-form mx-auto">
         <span>LEAVE US A MESSAGE</span>    
-    <h2>SEND US YOUR DESIGN</h2>
-    <input type="text" placeholder="E-mail"class="deets">
-    <input type="text" placeholder="Subject"class="deets">
-    <textarea name="" id="text-a" cols="30" rows="10" placeholder="Your Message"></textarea>
-    <button class="message btn-body">Submit</button>
-    </form>
-<div class="custom1">
-<img src="img/t-shirt/ad(3).jpg">
-
-
-</div>
-
-    </section>
+        <h2>SEND US YOUR DESIGN</h2>
+        <input type="text" placeholder="E-mail" class="deets">
+        <input type="text" placeholder="Subject" class="deets">
+        <textarea name="" id="text-a" cols="30" rows="10" placeholder="Your Message"></textarea>
+        <button class="message btn-body">Submit</button>
+      </form>
+    </div>
+    
+    <!-- Right Column: Image -->
+    <div class="col-md-6 pt-4 mt-2">
+      <div class="custom1">
+        <img src="img/sublimation.jpg" alt="sublimation">
+      </div>
+    </div>
+  </div>
+</section>
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
 

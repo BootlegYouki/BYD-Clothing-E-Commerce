@@ -33,9 +33,9 @@
                     <input type="password" class="form-control" name="loginpassword" id="loginpassword" placeholder="Password" required>
                     <label for="loginpassword" class="form-label">Password</label>
                     <!-- Update the span element with additional styles to prevent highlighting -->
-                  <span toggle="#loginpassword" 
+                  <!-- <span toggle="#loginpassword" 
                         class="material-symbols-outlined field-icon toggle-password position-absolute end-0 top-50 translate-middle-y me-3" 
-                        style="cursor: pointer; font-size: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none;">visibility_off</span>
+                        style="cursor: pointer; font-size: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none;">visibility_off</span> -->
                     <div class="invalid-feedback">
                       Please enter your password.
                     </div>
