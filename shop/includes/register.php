@@ -127,7 +127,7 @@
           </div>
           <div class="col-12 mt-3">
             <div class="d-grid">
-            <button type="submit" name="signupButton" class="btn-modal btn btn-primary btn-lg" id="signupButton">Sign up now</button>
+            <button type="submit" name="signupButton" class="btn-modal btn-lg" id="signupButton">Sign up now</button>
             </div>
           </div>
         </form>

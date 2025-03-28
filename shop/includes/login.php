@@ -32,26 +32,22 @@
                   <div class="form-floating mb-1 position-relative">
                     <input type="password" class="form-control" name="loginpassword" id="loginpassword" placeholder="Password" required>
                     <label for="loginpassword" class="form-label">Password</label>
-                    <!-- Update the span element with additional styles to prevent highlighting -->
-                  <!-- <span toggle="#loginpassword" 
-                        class="material-symbols-outlined field-icon toggle-password position-absolute end-0 top-50 translate-middle-y me-3" 
-                        style="cursor: pointer; font-size: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none;">visibility_off</span> -->
                     <div class="invalid-feedback">
                       Please enter your password.
                     </div>
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" name="remember_me" id="remember_me">
-                    <label class="form-check-label text-secondary" for="remember_me">
-                      Keep me logged in
-                    </label>
-                  </div>
+                <div class="form-check">
+                  <input class="form-check-input toggle-password" type="checkbox" id="show_password">
+                  <label class="form-check-label text-secondary" for="show_password">
+                    Show Password
+                  </label>
+                </div>
                 </div>
                 <div class="col-12">
                   <div class="d-grid">
-                    <button type="submit" name="loginButton" class="btn-modal btn btn-primary btn-lg">Login now</button>
+                    <button type="submit" name="loginButton" class="btn-modal btn-lg">Login now</button>
                   </div>
                 </div>
               </div>
@@ -66,24 +62,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Get all password toggle elements
-  const toggleElements = document.querySelectorAll('.toggle-password');
+  // Get the password toggle checkbox
+  const togglePassword = document.getElementById('show_password');
   
-  toggleElements.forEach(function(toggle) {
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Find the password input
-      const passwordInput = document.querySelector(this.getAttribute('toggle'));
-      if (!passwordInput) return;
-      
-      // Toggle between password and text
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-    
-      this.textContent = type === 'text' ? 'visibility' : 'visibility_off';
+  // Get the password input
+  const passwordInput = document.getElementById('loginpassword');
+  
+  // Add event listener to checkbox
+  if(togglePassword && passwordInput) {
+    togglePassword.addEventListener('change', function() {
+      // Change the password input type based on checkbox state
+      passwordInput.type = this.checked ? 'text' : 'password';
     });
-  });
+  }
 });
 </script>

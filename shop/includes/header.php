@@ -80,7 +80,7 @@ $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
           <li><hr class="dropdown-divider"></li>
         <?php endif; ?>
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-        <i class="bx bx-log-out me-2"></i>Logout</a></li>
+        <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
         </ul>
       </div>
     <?php endif; ?>

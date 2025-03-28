@@ -16,23 +16,21 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/style1.css">
     <link rel="stylesheet" href="css/important.css">
-    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/indexstyle.css">
     <link rel="stylesheet" href="css/shopcart.css">
 
 </head>
 <body>
 <!-- NAVBAR -->
-<?php include 'includes/navbar.php'; ?>
     <!-- REGISTER MODAL  -->
+     <?php include("includes/header.php"); ?>
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
     <?php include 'includes/login.php'; ?>
     <!-- SUCCESS MODAL  -->
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
-    <!-- FAILED MODAL  -->
-    <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->

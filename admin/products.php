@@ -150,7 +150,7 @@ include 'config/dbcon.php';
 <div class="modal fade" id="viewProductModal" tabindex="-1" role="dialog" aria-labelledby="viewProductModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-    <div class="modal-header bg-gradient-primary">
+    <div class="modal-header" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">
         <h5 class="modal-title text-white text-uppercase" id="productName">Product Details</h5>
         <button type="button" class="btn btn-icon btn-sm ms-auto my-auto" data-bs-dismiss="modal" aria-label="Close">
         <span class="material-symbols-rounded text-white" style="font-size: 25px; line-height: 1; display: block;">close</span>

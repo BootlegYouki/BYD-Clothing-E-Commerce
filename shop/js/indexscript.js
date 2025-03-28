@@ -1,5 +1,4 @@
 // PRODUCT ANIMATION WHEN FIRST LOADED
-// PRODUCT ANIMATION WHEN FIRST LOADED
 document.addEventListener('DOMContentLoaded', function () {
   // Add some delay to ensure DOM is fully processed
   setTimeout(() => {

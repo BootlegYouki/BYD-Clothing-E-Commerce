@@ -145,7 +145,7 @@ function generateSKU($productName, $category) {
                             </div>
 
                             <div class="col-md-12">
-                                <button type="submit" name="add_product" class="btn btn-primary">Add Product</button>
+                                <button type="submit" name="add_product" class="btn btn-primary" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">Add Product</button>
                             </div>
                         </div>
                     </form>

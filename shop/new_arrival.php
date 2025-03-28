@@ -71,13 +71,13 @@
             <div id="carousel1" class="carousel slide" data-bs-ride="carousel">
               <div class="carousel-inner">
                 <div class="carousel-item active">
-                  <img src="img/new_arrival/jap_1.png" class="d-block w-100" alt="Image 1">
+                  <img src="img/longsleeve/brook-ls.jpg" class="d-block w-100" alt="Image 1">
                 </div>
                 <div class="carousel-item">
-                  <img src="img/new_arrival/jap_2.png" class="d-block w-100" alt="Image 2">
+                  <img src="img/longsleeve/gul-ls.jpg" class="d-block w-100" alt="Image 2">
                 </div>
                 <div class="carousel-item">
-                  <img src="img/new_arrival/jap_3.png" class="d-block w-100" alt="Image 3">
+                  <img src="img/longsleeve/leve-ls.jpg" class="d-block w-100" alt="Image 3">
                 </div>
               </div>
               <a class="carousel-control-prev" href="#carousel1" role="button" data-bs-slide="prev">
