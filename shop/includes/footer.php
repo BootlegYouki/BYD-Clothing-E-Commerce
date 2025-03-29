@@ -16,8 +16,9 @@
             <div class="footer-one col-lg-5 col-md-6 col-12">
               <h5 class="pb-2">Products</h5>
               <ul class="text-uppercase list-unstyled">
-                <li class="my-1"><a href="#">T-SHIRT Collections</a></li>
-                <li class="my-1"><a href="#">LONG SLEEVE Collections</a></li>
+                <li class="my-1"><a href="#newrelease">NEW RELEASE</a></li>
+                <li class="my-1"><a href="#t-shirt">T-SHIRT Collections</a></li>
+                <li class="my-1"><a href="#longsleeve">LONG SLEEVE Collections</a></li>
               </ul>
             </div>
             <!-- Contact -->
