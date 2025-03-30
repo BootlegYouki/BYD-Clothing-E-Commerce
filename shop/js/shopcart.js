@@ -5,7 +5,7 @@ document.getElementById('cartModal').addEventListener('hide.bs.modal', function(
     e.preventDefault();
     this.classList.add('modal-closing');
     
-    const dialog = this.querySelector('.modal-dialog');
+    const dialog = this.querySelector('.cart-modal');
     const onTransitionEnd = () => {
       dialog.removeEventListener('transitionend', onTransitionEnd);
       this.dataset.programmaticHide = 'true';
@@ -17,284 +17,294 @@ document.getElementById('cartModal').addEventListener('hide.bs.modal', function(
     dialog.addEventListener('transitionend', onTransitionEnd);
   });
 
-// SHOP CART
-document.addEventListener('DOMContentLoaded', function () {
-  console.log("DOM Loaded - Script Running"); // Debugging check
+// ======================
+// Cart Functionality
+// ======================
 
-  // Cart elements
-  const cartBody = document.querySelector('.modal.fullscreen-modal tbody');
-  const subtotalElement = document.querySelector('.modal-footer strong');
-  const totalItemsElement = document.querySelector('.total-items');
-  const orderNumberElement = document.querySelector('.order-number');
-  const viewButtons = document.querySelectorAll('.quickview');
-  const addToCartButton = document.querySelector('.add-to-cart-btn');
-  const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+// Get DOM elements
+const cartModal = document.getElementById('cartModal');
+const cartTable = cartModal.querySelector('.cart-table-wrapper');
+const emptyCartMessage = cartModal.querySelector('.empty-cart-message');
+const cartFooter = cartModal.querySelector('.cart-footer');
+const cartHeader = cartModal.querySelector('.cart-header');
+const totalItems = cartHeader.querySelector('.total-items');
+const modalTitle = cartHeader.querySelector('.cart-title');
+const orderNumberElement = document.querySelector('.order-number');
 
-  // Elements to Hide/Show
-  const cartTable = document.querySelector('.modal.fullscreen-modal table');
-  const cartFooter = document.querySelector('.modal-footer');
-  const cartTitle = document.querySelector('.modal-header h2');
-  const emptyCartMessage = document.querySelector('.empty-cart-message');
-  const checkoutButton = document.querySelector('.btn-checkout');
-  const subtotalText = document.querySelector('.modal-footer strong');
-
-  let currentProduct = null;
-
-   // Function to animate item flying to cart
-   function animateToCart(imageElement) {
-    const cartIcon = document.querySelector('.bx-shopping-bag'); // Correct cart icon target
-
-    if (!cartIcon || !imageElement) {
-        console.error("Animation Error: Missing imageElement or cartIcon.");
-        return;
+// ======================
+// Cart Display Toggle
+// ======================
+function toggleCartDisplay() {
+    const hasItems = cartTable.querySelector('tbody tr') !== null;
+    
+    if (!hasItems) {
+        cartTable.classList.add('d-none');
+        cartFooter.classList.add('d-none');
+        totalItems.classList.add('d-none');
+        modalTitle.classList.add('d-none');
+        emptyCartMessage.classList.remove('d-none');
+    } else {
+        cartTable.classList.remove('d-none');
+        cartFooter.classList.remove('d-none');
+        totalItems.classList.remove('d-none');
+        modalTitle.classList.remove('d-none');
+        emptyCartMessage.classList.add('d-none');
     }
-
-    console.log("Animating to cart...");
-
-    // Clone the image and append to the body
-    const flyingImage = imageElement.cloneNode(true);
-    document.body.appendChild(flyingImage);
-
-    // Get positions relative to the viewport
-    const imageRect = imageElement.getBoundingClientRect();
-    const cartRect = cartIcon.getBoundingClientRect();
-
-    // Set initial styles for cloned image
-    flyingImage.style.position = "fixed";
-    flyingImage.style.top = `${imageRect.top}px`; // Start from item's position
-    flyingImage.style.left = `${imageRect.left}px`;
-    flyingImage.style.width = `${imageRect.width}px`; // Maintain original size
-    flyingImage.style.height = `${imageRect.height}px`;
-    flyingImage.style.opacity = "1";
-    flyingImage.style.transition = "transform 0.8s ease-in-out, opacity 0.8s ease-in-out";
-    flyingImage.style.zIndex = "1000";
-    flyingImage.style.borderRadius = "8px"; // Optional styling
-
-    // Calculate translation values
-    const translateX = cartRect.left - imageRect.left + (cartRect.width / 2 - imageRect.width / 2);
-    const translateY = cartRect.top - imageRect.top + (cartRect.height / 2 - imageRect.height / 2);
-
-    // Move the image to the cart position
-    setTimeout(() => {
-        flyingImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(0.1)`;
-        flyingImage.style.opacity = "0";
-    }, 50);
-
-    // Remove image after animation
-    setTimeout(() => {
-        flyingImage.remove();
-    }, 800);
 }
 
-  // Handle "View" button click to open the modal and populate product details
-  viewButtons.forEach(button => {
-      button.addEventListener('click', function () {
-          currentProduct = {
-              id: this.closest('.product').dataset.productId,
-              title: this.dataset.title,
-              price: parseFloat(this.dataset.price.replace('₱', '')),
-              image: this.dataset.img
-          };
+// ======================
+// Local Storage Functions
+// ======================
+function saveCartToStorage(cartItems) {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+}
 
-          console.log("Viewing Product:", currentProduct); // Debugging
+function getCartFromStorage() {
+    const cartItems = localStorage.getItem('cartItems');
+    return cartItems ? JSON.parse(cartItems) : [];
+}
 
-          // Populate modal with product details
-          document.getElementById('modalProductImage').src = currentProduct.image;
-          document.getElementById('modalProductTitle').textContent = currentProduct.title;
-          document.getElementById('modalProductPrice').textContent = `₱${currentProduct.price.toFixed(2)}`;
+function loadCartFromStorage() {
+    const cartItems = getCartFromStorage();
+    const tbody = cartTable.querySelector('tbody');
+    tbody.innerHTML = ''; // Clear current cart
 
-          // Reset modal inputs
-          document.getElementById('size').value = 'M';
-          document.getElementById('quantity').value = '1';
-      });
-  });
+    cartItems.forEach(item => {
+        const newRow = document.createElement('tr');
+        newRow.dataset.productId = item.id;
+        newRow.innerHTML = `
+            <td>
+                <img src="${item.image}" alt="${item.title}" style="width: 100px; height: auto;">
+            </td>
+            <td class="product-info text-start">
+                <div class="text-left">
+                    <strong>${item.title}</strong><br>
+                    <span class="product-detail size">Size: ${item.size}</span><br>
+                    <span class="product-detail">Price: ₱${parseFloat(item.price.replace('₱', '')).toFixed(2)}</span>
+                </div>
+            </td>
+            <td>
+                <div class="quantity-control">
+                    <span class="minus">-</span>
+                    <span class="num">${item.quantity}</span>
+                    <span class="plus">+</span>
+                </div>
+            </td>
+            <td data-base-price="${item.price}">₱${(parseFloat(item.price.replace('₱', '')) * item.quantity).toFixed(2)}</td>
+            <td>
+                <button class="btn-remove custom-btn-remove"></button>
+            </td>
+        `;
+        tbody.appendChild(newRow);
+    });
 
-  // Handle "Add to Cart" from the modal
-  if (addToCartButton) {
-      addToCartButton.addEventListener('click', function () {
-          console.log("Add to Cart Button Clicked"); // Debugging
+    toggleCartDisplay();
+    updateCartTotals();
+}
 
-          if (!currentProduct) {
-              console.error("Error: No product selected.");
-              return;
-          }
+// ======================
+// Quantity Adjustment (With Removal)
+// ======================
+cartTable.querySelector('tbody').addEventListener('click', function(event) {
+    const target = event.target;
+    const isDecrement = target.classList.contains('minus');
+    const isIncrement = target.classList.contains('plus');
+    
+    // Only handle quantity buttons
+    if (!isDecrement && !isIncrement) return;
 
-          const selectedSize = document.getElementById('size').value;
-          let selectedQuantity = parseInt(document.getElementById('quantity').value);
+    const row = target.closest('tr');
+    const quantityElement = row.querySelector('.num');
+    let quantity = parseInt(quantityElement.textContent);
 
-          addToCart({
-              ...currentProduct,
-              size: selectedSize,
-              quantity: selectedQuantity
-          });
+    // Handle quantity changes
+    if (isDecrement) quantity--;
+    if (isIncrement) quantity++;
 
-          // Trigger animation
-          const productImage = document.getElementById('modalProductImage');
-          animateToCart(productImage);
+    // Prevent negative quantities
+    quantity = Math.max(quantity, 0);
 
-          productModal.hide();
-      });
-  } else {
-      console.error("Add to Cart button not found in DOM.");
-  }
+    // Update storage and handle removal
+    const cartItems = getCartFromStorage();
+    const productId = row.dataset.productId;
+    const size = row.querySelector('.size').textContent.replace('Size: ', '');
+    const itemIndex = cartItems.findIndex(item => 
+        item.id === productId && item.size === size
+    );
 
-  // Function to add product to the cart
-  function addToCart(product) {
-      console.log("Adding to cart:", product); // Debugging
-
-      // Check for existing item by ID and size
-      const existingItem = Array.from(cartBody.querySelectorAll('tr')).find(row => {
-          return row.dataset.productId === product.id && row.querySelector('.size').dataset.size === product.size;
-      });
-
-      if (existingItem) {
-          // Update quantity and total price
-          const quantityEl = existingItem.querySelector('.num');
-          let newQuantity = parseInt(quantityEl.textContent) + product.quantity;
-
-          // Enforce max limit of 9
-          if (newQuantity > 9) newQuantity = 9;
-
-          quantityEl.textContent = newQuantity;
-
-          const priceCell = existingItem.querySelector('td:nth-child(4)');
-          const basePrice = parseFloat(priceCell.dataset.basePrice);
-          priceCell.textContent = `₱${(basePrice * newQuantity).toFixed(2)}`;
-      } else {
-          // Create new row
-          const newRow = document.createElement('tr');
-          newRow.dataset.productId = product.id;
-          newRow.innerHTML = `
-              <td>
-                  <img src="${product.image}" alt="${product.title}" style="width: 120px; height: auto;">
-              </td>
-              <td class="product-info text-start">
-                  <div class="text-left">
-                      <strong>${product.title}</strong><br>
-                      <span class="size" data-size="${product.size}">Size: ${product.size}</span><br>
-                      <span class="product-detail">Price: ₱${product.price.toFixed(2)}</span>
-                  </div>
-              </td>
-              <td>
-                  <div class="quantity-control">
-                      <span class="minus">-</span>
-                      <span class="num">${product.quantity}</span>
-                      <span class="plus">+</span>
-                  </div>
-              </td>
-              <td data-base-price="${product.price}">₱${(product.price * product.quantity).toFixed(2)}</td>
-              <td>
-                  <button class="btn-remove custom-btn-remove"></button>
-              </td>
-          `;
-          cartBody.appendChild(newRow);
-      }
-
-      updateCartSummary();
-  }
-
-  // Ensure cart updates on page load
-  setTimeout(updateCartSummary, 500);
-
-  // Update cart summary and visibility
-  function updateCartSummary() {
-      let subtotal = 0;
-      let totalItems = 0;
-
-      const rows = document.querySelectorAll('.modal.fullscreen-modal tbody tr');
-
-      if (totalItemsElement) {
-          totalItemsElement.textContent = `Total Items (${rows.length})`;
-      }
-
-      rows.forEach(row => {
-          const quantityElement = row.querySelector('.num');
-          const priceCell = row.querySelector('td:nth-child(4)');
-
-          if (quantityElement && priceCell) {
-              const quantity = parseInt(quantityElement.textContent);
-              const price = parseFloat(priceCell.textContent.replace('₱', '')) || 0;
-              
-              totalItems += quantity;
-              subtotal += price;
-          }
-      });
-
-      if (subtotalElement) {
-          subtotalElement.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
-      }
-
-      if (orderNumberElement) {
-          orderNumberElement.textContent = totalItems;
-      }
-
-      if (rows.length === 0) {
-          cartTable.style.display = 'none';
-          cartFooter.style.display = 'none';
-          cartTitle.style.display = 'none';
-          totalItemsElement.style.display = 'none';
-          checkoutButton.style.display = 'none';
-          subtotalText.style.display = 'none';
-          emptyCartMessage.classList.remove('d-none');
-      } else {
-          cartTable.style.display = '';
-          cartFooter.style.display = '';
-          cartTitle.style.display = '';
-          totalItemsElement.style.display = '';
-          checkoutButton.style.display = '';
-          subtotalText.style.display = '';
-          emptyCartMessage.classList.add('d-none');
-      }
-  }
-
- // Handle minus, plus, and remove button clicks
-cartBody.addEventListener('click', function (e) {
-  const target = e.target;
-  const row = target.closest('tr');
-
-  if (!row) return;
-
-  if (target.classList.contains('minus') || target.classList.contains('plus')) {
-      const quantityElement = row.querySelector('.num');
-      let quantity = parseInt(quantityElement.textContent);
-      const priceElement = row.querySelector('td:nth-child(4)');
-      const basePrice = parseFloat(priceElement.dataset.basePrice);
-
-      if (target.classList.contains('minus')) {
-          quantity -= 1;
-          if (quantity <= 0) {
-              removeItemWithAnimation(row);
-              return;
-          }
-      } else if (target.classList.contains('plus')) {
-          if (quantity < 9) {
-              quantity += 1;
-          }
-      }
-
-      if (quantity > 0) {
-          quantityElement.textContent = quantity;
-          priceElement.textContent = `₱${(basePrice * quantity).toFixed(2)}`;
-      }
-  }
-
-  if (target.classList.contains('btn-remove')) {
-      removeItemWithAnimation(row);
-  }
+    if (itemIndex > -1) {
+        if (quantity <= 0) {
+            // Remove item completely
+            cartItems.splice(itemIndex, 1);
+            row.remove();
+        } else {
+            // Update UI
+            quantityElement.textContent = quantity;
+            const priceElement = row.querySelector('td:nth-child(4)');
+            const basePrice = parseFloat(priceElement.dataset.basePrice.replace('₱', ''));
+            priceElement.textContent = `₱${(basePrice * quantity).toFixed(2)}`;
+            
+            // Update quantity
+            cartItems[itemIndex].quantity = quantity;
+        }
+        
+        saveCartToStorage(cartItems);
+        updateCartTotals();
+        toggleCartDisplay();
+    }
 });
 
-// Function to remove item with slide animation
-function removeItemWithAnimation(row) {
-  row.style.transition = "transform 0.4s ease-out, opacity 0.4s ease-out";
-  row.style.transform = "translateX(100%)";
-  row.style.opacity = "0";
+// ======================
+// Cart Modification Functions
+// ======================
+function updateCartTotals() {
+    const cartItems = getCartFromStorage();
+    let subtotal = 0;
+    let totalQuantity = 0;
 
-  setTimeout(() => {
-      row.remove();
-      updateCartSummary();
-  }, 300); // Wait for animation to complete before removing the row
+    cartItems.forEach(item => {
+        const price = parseFloat(item.price.replace('₱', ''));
+        const quantity = parseInt(item.quantity);
+        subtotal += price * quantity;
+        totalQuantity += quantity;
+    });
+
+    const subtotalElement = cartFooter.querySelector('strong');
+    subtotalElement.textContent = `Subtotal: ₱${subtotal.toFixed(2)}`;
+
+    const totalItemsElement = cartHeader.querySelector('.total-items');
+    totalItemsElement.textContent = `Total Items (${totalQuantity})`;
+
+    orderNumberElement.textContent = totalQuantity;
 }
 
-  // Ensure cart updates on page load
-  setTimeout(updateCartSummary, 500);
+// Function to add items to cart
+function addToCart(button) {
+    const productDetails = document.getElementById('productDetails');
+    const cartItems = getCartFromStorage();
+    
+    // Get product information from the product details modal
+    const product = {
+        id: productDetails.dataset.productId || new Date().getTime().toString(),
+        image: productDetails.dataset.productImage || productDetails.querySelector('.detail-img').src,
+        title: productDetails.dataset.productTitle || productDetails.querySelector('.detail-title').textContent,
+        price: productDetails.dataset.productPrice || productDetails.querySelector('.detail-price').textContent,
+        size: productDetails.querySelector('.size-select').value,
+        quantity: parseInt(productDetails.querySelector('.quantity-select').value)
+    };
+    
+    // Ensure numeric quantity
+    product.quantity = Math.max(1, product.quantity || 1);
+    
+    // Normalize price format
+    product.price = `₱${parseFloat(product.price.replace('₱', '')).toFixed(2)}`;
+    
+    const existingItemIndex = cartItems.findIndex(item => 
+        item.id === product.id && item.size === product.size
+    );
+
+    if (existingItemIndex > -1) {
+        // Update existing item quantity
+        cartItems[existingItemIndex].quantity += product.quantity;
+    } else {
+        // Add new item with clean data structure
+        cartItems.push({
+            id: product.id,
+            image: product.image,
+            title: product.title,
+            price: product.price,
+            size: product.size,
+            quantity: product.quantity
+        });
+    }
+
+    saveCartToStorage(cartItems);
+    loadCartFromStorage(); // Refresh entire cart display
+    updateCartTotals();
+    
+    // Show success message
+    const toast = document.createElement('div');
+    toast.className = 'toast show position-fixed bottom-0 end-0 m-3';
+    toast.innerHTML = `
+        <div class="toast-body bg-success text-white">
+            Item added to cart successfully!
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+    
+    // Close the product details modal
+    closeProductDetails();
+}
+
+function removeCartItem(button) {
+    const row = button.closest('tr');
+    const productId = row.dataset.productId;
+    const size = row.querySelector('.product-detail.size').textContent.replace('Size: ', '');
+    
+    // Add animation class
+    row.classList.add('cart-item-removing');
+    
+    // Wait for animation to complete before removing
+    row.addEventListener('animationend', () => {
+        const cartItems = getCartFromStorage();
+        const updatedCart = cartItems.filter(item => 
+            !(item.id === productId && item.size === size)
+        );
+        
+        saveCartToStorage(updatedCart);
+        row.remove();
+        toggleCartDisplay();
+        updateCartTotals();
+    });
+}
+
+// Event listeners
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-remove') || 
+        e.target.closest('.btn-remove')) {
+        const button = e.target.classList.contains('btn-remove') ? 
+                      e.target : 
+                      e.target.closest('.btn-remove');
+        removeCartItem(button);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadCartFromStorage();
+    toggleCartDisplay();
+    updateCartTotals();
+});
+
+document.querySelector('.add-to-cart-btn').addEventListener('click', function() {
+    const productModal = document.getElementById('productModal');
+    
+    // Generate stable ID based on product characteristics
+    const product = {
+        id: productModal.dataset.productId || 
+            `${btoa(productModal.querySelector('.product-title').textContent)}-${productModal.querySelector('#size').value}`,
+        image: productModal.querySelector('.product-img').src,
+        title: productModal.querySelector('.product-title').textContent,
+        price: productModal.querySelector('.product-price').textContent,
+        size: productModal.querySelector('#size').value,
+        quantity: parseInt(productModal.querySelector('#quantity').value)
+    };
+
+    // Ensure numeric quantity
+    product.quantity = Math.max(1, product.quantity || 1);
+
+    addToCart(product);
+
+    // Show success message
+    const toast = document.createElement('div');
+    toast.className = 'toast show position-fixed bottom-0 end-0 m-3';
+    toast.innerHTML = `
+        <div class="toast-body bg-success text-white">
+            Item added to cart successfully!
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+
+    bootstrap.Modal.getInstance(productModal).hide();
 });
