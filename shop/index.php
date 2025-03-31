@@ -8,7 +8,7 @@
     <!-- BOOTSTRAP CSS/JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="icon" href="img/logo/BYD-removebg-preview.ico" type="image/x-icon">
-    <!-- SWIPER CSS  -->
+    <!-- UTILITY CSS  -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <!-- ICONSCSS -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
@@ -16,11 +16,12 @@
     <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- CUSTOM CSS/JS -->
+    <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/indexstyle.css">
     <link rel="stylesheet" href="css/shopcart.css">
+    <link rel="stylesheet" href="css/assistant.css">
 </head>
 <body>
     <!-- NAVBAR -->
@@ -38,7 +39,8 @@
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
-    <!-- HOME SECTION -->
+    <!-- CHAT BOT -->
+    <?php include 'includes/assistant.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
   <div class="container-fluid px-3 pb-5">
@@ -577,11 +579,14 @@
 </section>
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
+    <!-- UTILITY SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- SCRIPT -->
     <script src="js/shopcart.js"></script>
     <script src="js/indexscript.js"></script>
     <script src="js/url-cleaner.js"></script>
+    <script src="js/assistant.js"></script>
 </body>
 </html>
