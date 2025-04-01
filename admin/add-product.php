@@ -54,7 +54,7 @@ function generateSKU($productName, $category) {
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="4" required></textarea>
+                                <textarea name="description" class="form-control" rows="4"></textarea>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="original_price" class="form-label">Original Price</label>

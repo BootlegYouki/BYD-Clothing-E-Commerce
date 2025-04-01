@@ -298,3 +298,37 @@
 .feedback-btn.regenerate i {
     font-size: 15px;
 }
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-header h2 {
+    flex-grow: 1;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.chat-controls {
+    display: flex;
+    align-items: center;
+}
+
+.clear-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    margin-right: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-btn:hover {
+    color: #FF7A00;
+}

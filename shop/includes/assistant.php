@@ -5,9 +5,14 @@
     <div class="chat-header">
         <i class="fas fa-robot"></i>
         <h2>BYD Clothing AI Assistant</h2>
-        <button class="close-btn" id="close-chat">
-            <i class="fas fa-times"></i>
-        </button>
+        <div class="chat-controls">
+            <button class="clear-btn" id="clear-chat" title="Start new conversation">
+                <i class="fas fa-square-plus"></i>
+            </button>
+            <button class="close-btn" id="close-chat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </div>
     <div class="chat-messages" id="chat-messages">
         <div class="message bot-message">

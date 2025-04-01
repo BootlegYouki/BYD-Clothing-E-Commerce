@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $requestData = json_decode(file_get_contents('php://input'), true);
 
 // API key is stored on the server, not exposed to client
-$apiKey = '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';
+$apiKey = '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';
 
 // Create request to OpenRouter API
 $ch = curl_init('https://openrouter.ai/api/v1/chat/completions');
@@ -24,7 +24,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $apiKey,
     'HTTP-Referer: http://localhost',
-    'X-Title: My Chatbot',
+    'X-Title: Beyond Doubt Clothing',
     'Content-Type: application/json',
 ]);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestData));

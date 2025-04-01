@@ -2,6 +2,122 @@ let currentController = null;
 let currentMessageId = null;
 let latestBotMessageId = null;
 let conversationHistory;
+const chatbot = "deepseek/deepseek-chat:free";
+
+
+async function checkUserAuth() {
+    try {
+        const response = await fetch('../shop/functions/check-auth.php');
+        const data = await response.json();
+        return data.isLoggedIn;
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        return false;
+    }
+}
+
+async function loadConversation() {
+    try {
+        const isLoggedIn = await checkUserAuth();
+        if (!isLoggedIn) {
+            console.log('User not logged in, cannot load conversation');
+            return false;
+        }
+
+        const response = await fetch('../shop/functions/conversation-handler.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'load'
+            })
+        });
+
+        const data = await response.json();
+        console.log('Loaded conversation data:', data);
+        
+        if (data && data.status === 'success' && data.conversation) {
+            // Additional check to ensure we have a valid array
+            if (Array.isArray(data.conversation) && data.conversation.length > 0) {
+                return data.conversation;
+            } else {
+                console.log('Invalid conversation structure:', data.conversation);
+                return false;
+            }
+        } else {
+            console.log('No conversation found or invalid response structure');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error loading conversation:', error);
+        return false;
+    }
+}
+async function saveConversation() {
+    try {
+        const isLoggedIn = await checkUserAuth();
+        if (!isLoggedIn) return false;
+
+        const response = await fetch('../shop/functions/conversation-handler.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'save',
+                conversation: conversationHistory
+            })
+        });
+
+        const data = await response.json();
+        return data.status === 'success';
+    } catch (error) {
+        console.error('Error saving conversation:', error);
+        return false;
+    }
+}
+
+async function clearServerConversation() {
+    try {
+        const isLoggedIn = await checkUserAuth();
+        if (!isLoggedIn) return false;
+
+        const response = await fetch('../shop/functions/conversation-handler.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'clear'
+            })
+        });
+
+        const data = await response.json();
+        return data.status === 'success';
+    } catch (error) {
+        console.error('Error clearing conversation:', error);
+        return false;
+    }
+}
+
+async function clearChat() {
+    // Clear UI
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = `
+        <div class="message bot-message">
+            <div class="message-content">
+                <p>Hi there! How can I help you with BYD-CLOTHING products today?</p>
+            </div>
+        </div>
+    `;
+    
+    // Clear server-side conversation
+    await clearServerConversation();
+    
+    // Reset client-side conversation history
+    initializeBot();
+}
 
 function createSystemPrompt(tshirtInfo, longslvInfo, isErrorState = false) {
 if (isErrorState) {
@@ -76,7 +192,14 @@ IMPORTANT DISPLAY INSTRUCTIONS:
 - Only mention available sizes if asked (XS, S, M, L, XL, XXL) without quantities unless requested
 - When recommending products, always suggest both T-shirts and Long Sleeves if appropriate for the customer's needs
 - If the stock of the product is 0 in any size you can still mention it but just say that there are no available stock.
-- If the product is not available, just say "Sorry, this product is currently unavailable."`;
+- If the product is not available, just say "Sorry, this product is currently unavailable" or you can say anything`;
+}
+
+function scrollToBottom() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -85,14 +208,29 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('chat-bubble').addEventListener('click', function() {
         document.getElementById('chat-container').classList.add('active');
         document.getElementById('chat-bubble').classList.add('hidden');
+        // Add scroll to bottom when chat is opened
+        setTimeout(scrollToBottom, 100); // Short delay to ensure chat is fully visible
     });
 
     document.getElementById('close-chat').addEventListener('click', function() {
         document.getElementById('chat-container').classList.remove('active');
         document.getElementById('chat-bubble').classList.remove('hidden');
     });
+    
+    // Modified handler for the clear chat button
+    const clearChatButton = document.getElementById('clear-chat');
+    if (clearChatButton) {
+        clearChatButton.addEventListener('click', function() {
+            if (confirm('Are you sure you want to start a new conversation?')) {
+                clearChat();
+                setTimeout(scrollToBottom, 100); // Scroll to bottom after clearing
+            }
+        });
+    }
+    
+    // Initial scroll to bottom
+    setTimeout(scrollToBottom, 300); // Longer delay for initial load
 });
-
 
 async function sendMessage() {
     const inputElem = document.getElementById('userInput');
@@ -150,7 +288,7 @@ async function sendMessage() {
     document.getElementById("sendIcon").classList.add("d-none");
     document.getElementById("stopIcon").classList.remove("d-none");
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollToBottom();
     
     try {
         await refreshProductData();
@@ -163,7 +301,7 @@ async function sendMessage() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "model": "deepseek/deepseek-chat:free",
+                "model": chatbot,
                 "messages": conversationHistory,
                 "stream": true
             }),
@@ -228,6 +366,7 @@ async function sendMessage() {
         
         currentController = null;
         conversationHistory.push({"role": "assistant", "content": fullMessage});
+        saveConversation();
         
         if (conversationHistory.length > 12) {
             conversationHistory = [
@@ -261,6 +400,7 @@ async function sendMessage() {
         document.getElementById("stopIcon").classList.add("d-none");
         inputElem.disabled = false;
     }
+    scrollToBottom();
 }
 
 function sendORstop() {
@@ -288,7 +428,8 @@ function sendORstop() {
     }
 }
 
-async function initializeBot() {
+async function initializeBot() 
+{
     try {
         // Fetch product data from API
         const response = await fetch('../shop/functions/product-data.php');
@@ -340,17 +481,54 @@ async function initializeBot() {
                 }
             });
         }
-        conversationHistory = [
-            {"role": "system", "content": createSystemPrompt(tshirtInfo, longslvInfo)},
-            {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
-        ];
+
+        const savedConversation = await loadConversation();
+
+        if (savedConversation) {
+            conversationHistory = savedConversation;
+            
+            // If found, render previous messages in the UI
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = ''; // Clear default greeting
+            
+            // Skip the system message (index 0) when rendering
+            for (let i = 1; i < conversationHistory.length; i++) {
+                const message = conversationHistory[i];
+                const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
+                
+                chatMessages.innerHTML += `
+                    <div class="message ${messageClass}">
+                        <div class="message-content">${
+                            message.role === 'assistant' 
+                                ? marked.parse(message.content) 
+                                : message.content
+                        }</div>
+                    </div>
+                `;
+            }
+            
+            // Update the system message with current product info
+            if (conversationHistory.length > 0) {
+                conversationHistory[0] = {
+                    "role": "system", 
+                    "content": createSystemPrompt(tshirtInfo, longslvInfo)
+                };
+            }
+        } else {
+            // If no conversation found, create a new one
+            conversationHistory = [
+                {"role": "system", "content": createSystemPrompt(tshirtInfo, longslvInfo)},
+                {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+            ];
+        }
         } catch (error) {
             console.error('Error initializing bot with product data:', error);
-        conversationHistory = [
-            {"role": "system", "content": createSystemPrompt("", "", true)},
-            {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
-        ];
-    }
+            conversationHistory = [
+                {"role": "system", "content": createSystemPrompt("", "", true)},
+                {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+            ];
+        }
+        scrollToBottom();
 }
 
 async function refreshProductData() {
@@ -496,7 +674,7 @@ function regenerateResponse(messageId) {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "model": "deepseek/deepseek-chat:free",
+                    "model": chatbot,
                     "messages": conversationHistory,
                     "stream": true
                 }),
@@ -554,6 +732,8 @@ function regenerateResponse(messageId) {
                 }
                 
                 conversationHistory.push({"role": "assistant", "content": fullMessage});
+
+                saveConversation();
                 
                 document.getElementById("sendIcon").classList.remove("d-none");
                 document.getElementById("stopIcon").classList.add("d-none");
@@ -575,3 +755,4 @@ function regenerateResponse(messageId) {
         });
     }
 }
+
