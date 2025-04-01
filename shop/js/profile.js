@@ -26,3 +26,5 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error loading content:", error));
     }
 });
+
+

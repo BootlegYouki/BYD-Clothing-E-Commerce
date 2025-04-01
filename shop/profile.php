@@ -70,8 +70,8 @@
         </div>
 
         <!-- Purchases -->
-        <h2 class="mt-3 d-flex align-items-center">
-            <i class="fas fa-shopping-cart me-2"></i> <span  data-page="includes/order_track.php" >Purchases</span>
+        <h2 class="btn sidebar-btn mt-3 d-flex align-items-center custom-font-size"data-page="includes/order_track.php">
+            <i class=" fas fa-shopping-cart me-2"></i> <span>Purchases</span>
         </h2>
     </div>
 
