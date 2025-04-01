@@ -104,9 +104,6 @@ if ($result && mysqli_num_rows($result) > 0) {
             }
         }
         
-        // Debug output to see sizes in PHP
-        echo "<!-- Debug: Product {$product['id']} sizes: " . json_encode($available_sizes) . " -->";
-        
         $formatted_product['availableSizes'] = $available_sizes;
         $products[] = $formatted_product;
     }
@@ -500,7 +497,5 @@ function updateQueryStringParameter(uri, key, value) {
 </script>
 <script src="js/shop.js"></script>
 <script src="js/shopcart.js"></script>
-<script src="js/assistant.js"></script>
 <script src="js/url-cleaner.js"></script>
-</body>
-</html>
+<script src="js/assistant.js"></script>

@@ -45,7 +45,6 @@ $shipping_fee = 50;
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
-    <?php include 'includes/logout.php'; ?>
     
     <section id="checkout" class="my-5 py-5">
         <div class="container mt-5">
@@ -69,19 +68,19 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="firstname" class="form-label">First Name*</label>
+                                        <label for="firstname" class="form-label">First Name</label>
                                         <input type="text" class="form-control" id="firstname" name="firstname" value="<?= htmlspecialchars($user['firstname'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="lastname" class="form-label">Last Name*</label>
+                                        <label for="lastname" class="form-label">Last Name</label>
                                         <input type="text" class="form-control" id="lastname" name="lastname" value="<?= htmlspecialchars($user['lastname'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="email" class="form-label">Email*</label>
+                                        <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="phone" class="form-label">Phone Number*</label>
+                                        <label for="phone" class="form-label">Phone Number</label>
                                         <input type="tel" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>" required>
                                     </div>
                                 </div>
@@ -95,15 +94,15 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <label for="address" class="form-label">Complete Address*</label>
+                                        <label for="address" class="form-label">Complete Address</label>
                                         <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($user['full_address'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="city" class="form-label">City*</label>
+                                        <label for="city" class="form-label">City</label>
                                         <input type="text" class="form-control" id="city" name="city" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="zipcode" class="form-label">Postal/ZIP Code*</label>
+                                        <label for="zipcode" class="form-label">Postal/ZIP Code</label>
                                         <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" required>
                                     </div>
                                 </div>
@@ -154,7 +153,7 @@ $shipping_fee = 50;
                     </div>
 
                     <!-- Right column - Order summary -->
-                    <div class="col-md-5">
+                    <div class="col-md-5 pb-3">
                         <div class="card position-sticky" style="top: 150px;">
                             <div class="card-header bg-white">
                                 <h5 class="mb-0">Order Summary</h5>

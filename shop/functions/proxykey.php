@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $requestData = json_decode(file_get_contents('php://input'), true);
 
 // API key is stored on the server, not exposed to client
-$apiKey = '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';
+$apiKey = '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';
 
 // Create request to OpenRouter API
 $ch = curl_init('https://openrouter.ai/api/v1/chat/completions');

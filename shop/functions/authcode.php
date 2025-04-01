@@ -46,7 +46,6 @@ if (isset($_POST['signupButton'])) {
      
      // Set all auth session variables, matching the login process
      $_SESSION['auth'] = true;
-     $_SESSION['reload_cart'] = true;
      $_SESSION['auth_role'] = 0; // Default role for new users
      $_SESSION['auth_user'] = [
          'user_id' => $new_user_id,
@@ -78,7 +77,6 @@ else if (isset($_POST['loginButton'])) {
     }
     
     $_SESSION['auth'] = true;
-    $_SESSION['reload_cart'] = true;
     $_SESSION['auth_role'] = $user['role_as'];
     $_SESSION['auth_user'] = [
         'user_id' => $user['id'],

@@ -106,11 +106,5 @@ $hide_cart = ($current_page == 'checkout.php');
     </button>
   </div>
 </nav>
-<?php if(isset($_SESSION['reload_cart']) && $_SESSION['reload_cart']): ?>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    loadCartFromServer();
-    <?php $_SESSION['reload_cart'] = false; ?>
-});
-</script>
-<?php endif; ?>
+
+<script src="js/url-cleaner.js"></script>
