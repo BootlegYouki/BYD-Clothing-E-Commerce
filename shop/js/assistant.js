@@ -287,10 +287,13 @@ async function sendMessage() {
         currentController = new AbortController();
         const signal = currentController.signal;
         
-        const response = await fetch("../shop/functions/proxykey.php", {
+        fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": "Bearer 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",
+                "HTTP-Referer": window.location.origin,
+                "X-Title": "BYD Clothing Assistant"
             },
             body: JSON.stringify({
                 "model": chatbot,
@@ -660,10 +663,13 @@ function regenerateResponse(messageId) {
             currentController = new AbortController();
             const signal = currentController.signal;
             
-            fetch("../shop/functions/proxykey.php", {
+            fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer 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",
+                    "HTTP-Referer": window.location.origin,
+                    "X-Title": "BYD Clothing Assistant"
                 },
                 body: JSON.stringify({
                     "model": chatbot,
