@@ -42,7 +42,6 @@
         <img src="img/logo/Banner.png" alt="Banner" class="top-image">
       </section>      
 
-<<<<<<< Updated upstream
           <!-- MAP -->
       <section id="contact">
     <div class="map">
@@ -74,9 +73,6 @@
 </div>
       </section>
 
-=======
-     
->>>>>>> Stashed changes
 
 
     <!-- FOOTER -->

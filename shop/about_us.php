@@ -30,7 +30,10 @@
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
     <!-- FAILED MODAL  -->
+<<<<<<< Updated upstream
     <?php include 'includes/failedmodal.php'; ?>
+=======
+>>>>>>> Stashed changes
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
@@ -218,7 +221,11 @@
                                 <input type="number" class="form-control form-control-sm" required>
                             </div>
                             <div class="col-md-6 col-12">
+<<<<<<< Updated upstream
                                 <label class="form-label small">City / Address <span class="text-danger">*</span></label>
+=======
+                                <label class="form-label small">Address <span class="text-danger">*</span></label>
+>>>>>>> Stashed changes
                                 <input type="text" class="form-control form-control-sm" required>
                             </div>
                         </div>
@@ -262,12 +269,22 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<<<<<<< Updated upstream
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+=======
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+
+>>>>>>> Stashed changes
 
     <!-- BOOTSTRAP JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<<<<<<< Updated upstream
+=======
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+>>>>>>> Stashed changes
 </body>
 </html>

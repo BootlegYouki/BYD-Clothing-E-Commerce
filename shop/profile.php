@@ -16,7 +16,8 @@
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/visit_us.css">
+    <link rel="stylesheet" href="css/profile.css">
+  
 
 
 </head>
@@ -31,67 +32,79 @@
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
     <!-- FAILED MODAL  -->
-    <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
 
+
+
+ 
+
+
+    
+
     <!-- BANNER -->
-    <section class="top-image-container">
+<!--     <section class="top-image-container">
         <img src="img/logo/Banner.png" alt="Banner" class="top-image">
-      </section>      
+      </section>     -->  
 
-<<<<<<< Updated upstream
-          <!-- MAP -->
-      <section id="contact">
-    <div class="map">
-        <h2>GET IN TOUCH</h2>
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d781.3691204711571!2d121.0653305!3d14.706414699999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b10c977c4ab7%3A0x8fe8b06b27997eea!2sBeyond%20Doubt%20Clothing!5e1!3m2!1sen!2sph!4v1740317440833!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-    <div id="deets">
-        <li>
-            <h4 class="deets-title"><strong>Flagship Store Inquiry</strong></h4>
-            <i class="fa fa-map" aria-hidden="true"></i>
-            <p>Block 27 Lot 12, Pechayan Kanan Namasape HOA, Quezon City, 1121 Metro Manila</p>
-        </li>
-        <li>
-            <h4 class="deets-title"><strong>Custom Design Inquiry</strong></h4>
-            <i class="fa fa-envelope" aria-hidden="true"></i>
-            <p>test@gmail.com</p>
-        </li> 
-        <li>
-            <h4 class="deets-title"><strong>Online Transactions</strong></h4>
-            <i class="fa fa-phone" aria-hidden="true"></i>
-            <p>0905 507 9634</p>
-        </li>
-         <li>
-            <h4 class="deets-title"><strong>Store Hours</strong></h4>
-            <i class="fa fa-clock-o" aria-hidden="true"></i>
-            <p>Monday to Saturday: 9:00am to 8:30pm</p>
-        </li>
-    </div>
-</div>
-      </section>
+<!-- Sidebar & Main Content Wrapper -->
+<section class="d-flex mt-5">
+    <!-- Sidebar -->
+    <div class="sidebar bg-light p-3 shadow-sm mt-5" style="width: 250px; min-height: 100vh;">
+        <h2 class="d-flex align-items-center justify-content-between">
+            <a class="text-dark text-decoration-none d-flex align-items-center w-100" data-bs-toggle="collapse" href="#accountMenu" role="button" aria-expanded="false">
+                <i class="fas fa-user-circle me-2"></i> <span>My Account</span> 
+                <i class="fa fa-chevron-down ms-auto"></i>
+            </a>
+        </h2>
 
-=======
-     
->>>>>>> Stashed changes
+        <!-- Collapsible Menu -->
+        <div class="collapse show" id="accountMenu"> 
+            <div class="d-flex flex-column">
+                <button class="btn sidebar-btn active" data-page="includes/profile_user_info.php">Profile</button>
+                <button class="btn sidebar-btn" data-page="includes/profile_address.php">Address</button>
+                <button class="btn sidebar-btn" data-page="includes/profile_changePass.php">Change Password</button>
+            </div>
+        </div>
+
+        <!-- Purchases -->
+        <h2 class="mt-3 d-flex align-items-center">
+            <i class="fas fa-shopping-cart me-2"></i> <span>Purchases</span>
+        </h2>
+    </div>
+
+    <!-- Main Content Section (Now inside flex container) -->
+    <div class="p-4 flex-grow-1 mt-5">
+        <div class="content shadow bg-white rounded">
+            <?php include 'includes/profile_address.php'; ?>
+        </div>
+    </div>
+</section>
 
 
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
     <!--SCRIPT-->
     <script src="js/indexscript.js"></script>
+    <script src="js/profile.js"></script>
+
 
     <!-- SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Google Maps API (Enable Places Library) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+
     <!-- BOOTSTRAP JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

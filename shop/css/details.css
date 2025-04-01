@@ -29,7 +29,11 @@ h5{
   font-weight: 600;
   color: #1d1d1d;
 }
-h6{
+
+#eto{
+  text-decoration: none !important;
+  color: #1d1d1d !important; /* Set this to match your h5 color */
+
   color: #D8D8D8;
 }
 button{
@@ -264,4 +268,102 @@ footer .copyright a:hover{
   align-items: center;
   gap: 10px; 
   margin-bottom: 20px; 
+<<<<<<< Updated upstream
 }
+=======
+}
+
+#reviewer-name {
+  width: 100% !important;  /* Makes the name field take full width */
+  max-width: 500px;  /* Optional: Adjust max width if needed */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .sproduct {
+        text-align: center; /* Center align for better mobile UX */
+    }
+
+    .sproduct img {
+        max-width: 100%; /* Ensures images scale properly */
+        height: auto;
+    }
+
+    .small-img-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .small-img-col {
+        width: 48%;
+        margin-bottom: 5px; /* Reduces spacing between small images */
+    }
+
+    .size-quantity-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .quantity-selector {
+        display: flex;
+        justify-content: center;
+    }
+
+    .buy-btn, .cart-btn {
+        width: 100%;
+        font-size: 14px; /* Slightly smaller font for mobile */
+    }
+
+    .review-container h4 {
+        font-size: 18px; /* Slightly smaller for mobile */
+    }
+
+    .review-toggle {
+        width: 100%; /* Button takes full width for easy tapping */
+        margin-top: 5px;
+    }
+
+    .write-review input, .write-review textarea, .write-review select {
+        width: 100% !important;
+    }
+}
+
+/*RECOMMENDED*/
+.product img {
+  transition: transform 0.3s ease-in-out;
+}
+
+.product img:hover {
+  transform: scale(1.05);
+}
+
+.quickview {
+  width: 100%;
+  transition: background 0.3s ease-in-out;
+}
+
+.quickview:hover {
+  background-color: #000;
+  color: coral;
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 992px) { /* Tablets */
+  .product img {
+      height: 530px; /* Adjusted for tablets */
+  }
+}
+
+@media (max-width: 768px) { /* iPads & Small Tablets */
+  .product img {
+      height: 200px; /* Adjusted for smaller devices */
+  }
+}
+
+@media (max-width: 576px) { /* Small Phones */
+  .product img {
+      height: 180px; /* Adjusted for small screens */
+  }
+}
+>>>>>>> Stashed changes
