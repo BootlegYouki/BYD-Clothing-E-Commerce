@@ -47,11 +47,6 @@ $hide_cart = ($current_page == 'checkout.php');
           <?php echo ($current_page == 'aboutus.php') ? 'aria-current="page"' : ''; ?> 
           href="aboutus.php">About</a>
       </li>
-      <li class="nav-item my-2">
-        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'new_arrival.php') ? 'active' : ''; ?>" 
-          <?php echo ($current_page == 'new_arrival.php') ? 'aria-current="page"' : ''; ?> 
-          href="new_arrival.php">New Arrivals</a>
-      </li>
     </ul>
       </div>
     </div>

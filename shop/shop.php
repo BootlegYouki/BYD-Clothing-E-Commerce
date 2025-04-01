@@ -496,6 +496,5 @@ function updateQueryStringParameter(uri, key, value) {
 }
 </script>
 <script src="js/shop.js"></script>
-<script src="js/shopcart.js"></script>
 <script src="js/url-cleaner.js"></script>
 <script src="js/assistant.js"></script>

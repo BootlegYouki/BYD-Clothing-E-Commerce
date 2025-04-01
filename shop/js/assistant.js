@@ -232,9 +232,7 @@ async function sendMessage() {
     const userMessage = inputElem.value.trim();
     inputElem.value = '';
 
- 
     inputElem.disabled = true;
-    
 
     const allFeedbackElements = document.querySelectorAll('.message-feedback');
     allFeedbackElements.forEach(element => {
@@ -246,7 +244,6 @@ async function sendMessage() {
 
     currentMessageId = messageId;
     latestBotMessageId = messageId;
-    
     
     // Abort any previous ongoing requests
     if (currentController) {
@@ -287,11 +284,12 @@ async function sendMessage() {
         currentController = new AbortController();
         const signal = currentController.signal;
         
-        fetch("https://openrouter.ai/api/v1/chat/completions", {
+        // FIX: Store the fetch response in the response variable
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer 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",
+                "Authorization": "Bearer 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",
                 "HTTP-Referer": window.location.origin,
                 "X-Title": "BYD Clothing Assistant"
             },
@@ -599,7 +597,6 @@ function regenerateResponse(messageId) {
     if (lastUserMessage && lastUserMessage.role === 'user') {
         // Remove the last bot message from conversation history
         conversationHistory.pop();
-        
         // Remove both the message and its feedback element
         const messageElement = document.getElementById(messageId);
         if (messageElement) {
@@ -667,7 +664,7 @@ function regenerateResponse(messageId) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer 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",
+                    "Authorization": "Bearer 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",
                     "HTTP-Referer": window.location.origin,
                     "X-Title": "BYD Clothing Assistant"
                 },
