@@ -30,10 +30,6 @@
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
     <!-- FAILED MODAL  -->
-<<<<<<< Updated upstream
-    <?php include 'includes/failedmodal.php'; ?>
-=======
->>>>>>> Stashed changes
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
@@ -221,11 +217,7 @@
                                 <input type="number" class="form-control form-control-sm" required>
                             </div>
                             <div class="col-md-6 col-12">
-<<<<<<< Updated upstream
-                                <label class="form-label small">City / Address <span class="text-danger">*</span></label>
-=======
                                 <label class="form-label small">Address <span class="text-danger">*</span></label>
->>>>>>> Stashed changes
                                 <input type="text" class="form-control form-control-sm" required>
                             </div>
                         </div>

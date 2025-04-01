@@ -30,7 +30,7 @@ $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) :
             <a class="nav-link mx-lg-2" href="shop.php">Shop</a>
           </li>
           <li class="nav-item my-2">
-            <a class="nav-link mx-lg-2" href="aboutus.php">About</a>
+            <a class="nav-link mx-lg-2" href="about_us.php">About</a>
           </li>
           <li class="nav-item my-2">
             <a class="nav-link mx-lg-2" href="#">New Arrivals</a>

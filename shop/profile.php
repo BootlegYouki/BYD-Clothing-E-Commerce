@@ -78,7 +78,7 @@
     <!-- Main Content Section (Now inside flex container) -->
     <div class="p-4 flex-grow-1 mt-5">
         <div class="content shadow bg-white rounded">
-            <?php include 'includes/profile_address.php'; ?>
+            <?php include 'includes/profile_user_info.php'; ?>
         </div>
     </div>
 </section>
