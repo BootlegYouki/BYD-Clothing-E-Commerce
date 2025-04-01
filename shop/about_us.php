@@ -112,7 +112,7 @@
             <a>
             <img src="img/featured/latest_new.png">
             </a>
-            <p><strong>New Arrivals</strong></p>
+            <p><strong>Latest Release</strong></p>
             <p>The Latest BYD Dropped; Ready to be Shopped</p>
             <a href="shop.php" class="shop-now" id="orange">Shop Now</a>
         </div>
