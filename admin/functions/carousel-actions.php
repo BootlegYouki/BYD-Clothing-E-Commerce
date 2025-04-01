@@ -46,8 +46,7 @@ function addCarouselImage() {
             mkdir($targetDir, 0777, true);
         }
         
-        // First, set all images to inactive
-        mysqli_query($conn, "UPDATE carousel_images SET is_active = 0");
+        mysqli_query($conn, "UPDATE carousel_images SET is_active = 1");
         
         // Count total files
         $countFiles = count($_FILES['carousel_image']['name']);
@@ -80,12 +79,6 @@ function addCarouselImage() {
             } else {
                 $errorCount++;
             }
-        }
-        
-        // Set only the last uploaded image as active
-        if ($lastInsertedId > 0) {
-            mysqli_query($conn, "UPDATE carousel_images SET is_active = 1 WHERE id = $lastInsertedId");
-            mysqli_query($conn, "UPDATE carousel_images SET is_active = 0 WHERE id != $lastInsertedId");
         }
         
         if ($successCount > 0) {
