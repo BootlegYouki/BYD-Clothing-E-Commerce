@@ -1,53 +1,52 @@
-<div class="modal fullscreen-modal" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-    <div class="cart-modal modal-dialog modal-fullscreen">
-        <div class="cart-content modal-content d-flex flex-column h-100">
-            
-        <!-- Header -->
-        <div class="cart-header modal-header">
-                <h2 class="cart-title modal-title">Your Shopping Cart</h2>
-                <div class="total-items">Total Items (0)</div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Off-Canvas Shopping Cart -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasCartLabel">
+            <i class="bx bx-shopping-bag me-2"></i>
+            Your Shopping Cart
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- Empty Cart State -->
+        <div id="empty-cart" class="text-center py-5">
+            <i class="bx bx-cart-alt fs-1 text-muted mb-3"></i>
+            <p class="mb-3">Your cart is empty</p>
+            <a href="shop.php" class="btn btn-outline-dark">Continue Shopping</a>
+        </div>
+        
+        <!-- Cart Items Container -->
+        <div id="cart-items-container" class="d-none">
+            <div id="cart-items" class="mb-3">
+                <!-- Cart items will be dynamically added here -->
             </div>
             
-            <!-- Table wrapper -->
-            <div class="cart-table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- PRODUCTS LOADED -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Empty cart message -->
-            <div class="empty-cart-container">
-                <div class="empty-cart-message text-center d-none">
-                    <h2>Your Shopping Cart</h2>
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                    Cart is empty at the moment!
-                </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="cart-footer modal-footer">
-                <div class="footer-content w-100 d-flex justify-content-between align-items-end">
-                    <div class="d-flex align-items-center gap-3">
-                        <strong>Subtotal: ₱0.00</strong>
-                        <a class="btn btn-checkout" href="checkout.php">CHECKOUT</a>
+            <!-- Cart Summary -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal">₱0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping:</span>
+                        <span>Calculated at checkout</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3 fw-bold">
+                        <span>Estimated Total:</span>
+                        <span id="cart-total">₱0.00</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                    <?php if(isset($_SESSION['auth_user'])): ?>
+                    <a href="checkout.php" class="btn btn-dark">Checkout</a>
+                    <?php else: ?>
+                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="offcanvas">Login to Checkout</button>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Continue Shopping</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
- 

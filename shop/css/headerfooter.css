@@ -124,7 +124,7 @@ input[type="checkbox"]:focus {
   position: relative;
   display: inline-block;
 }
-.order-icon-wrapper .order-number {
+.order-icon-wrapper .cart-badge {
   position: absolute;
   top: -7px;
   right: -12px;

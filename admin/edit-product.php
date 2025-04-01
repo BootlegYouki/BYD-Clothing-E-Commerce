@@ -86,7 +86,7 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea name="description" rows="4" class="form-control" required><?= $product['description'] ?></textarea>
+                                <textarea name="description" rows="4" class="form-control"><?= $product['description'] ?></textarea>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="original_price" class="form-label">Original Price</label>
