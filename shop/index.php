@@ -46,7 +46,7 @@ $discount = round((($originalPrice - $price) / $originalPrice) * 100);
     <!-- FAILED MODAL  -->
     <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
-    <?php include 'includes/terms.php'; 
+    <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
     <!-- HOME SECTION -->

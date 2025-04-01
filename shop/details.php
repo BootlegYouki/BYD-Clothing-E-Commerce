@@ -16,12 +16,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/style1.css">
     <link rel="stylesheet" href="css/important.css">
-<<<<<<< Updated upstream
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/indexstyle.css">
-=======
     <link rel="stylesheet" href="css/headerfooter.css">
->>>>>>> Stashed changes
     <link rel="stylesheet" href="css/shopcart.css">
 
 </head>
@@ -260,15 +255,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 <script src =script1.js></script>
 <script src="js/indexscript.js"></script>
-<<<<<<< Updated upstream
-<script src="js/shopcart.js"></script>
-<script src="js/shopscript.js"></script>
-=======
 <script src="js/details.js"></script>
 
 <script src="js/shopcart.js"></script>
 <script src="js/shopscript.js"></script>
 <script src="js/url-cleaner.js"></script>
->>>>>>> Stashed changes
 </body>
 </html>
