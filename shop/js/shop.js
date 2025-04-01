@@ -444,7 +444,7 @@ function setupAddToCartButton(product) {
             
             // Close the quick view after adding to cart
             closeProductDetails();
-        }, 1500);
+        }, 200);
     });
 }
 
@@ -505,7 +505,7 @@ function showAddToCartNotification(productTitle, size, quantity) {
     // Create a new Bootstrap Toast instance
     const toast = new bootstrap.Toast(toastElement, {
         autohide: true,
-        delay: 3000
+        delay: 1500
     });
     
     // Show the toast
@@ -556,20 +556,16 @@ function addItemToCart(item) {
     // Get current cart from localStorage or initialize empty array
     let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
     
-    // Check if item already exists in cart (same product ID and size)
-    const existingItemIndex = cart.findIndex(cartItem => 
-        cartItem.id === item.id && cartItem.size === item.size
+    // Check if item already exists in cart
+    const existingItemIndex = cart.findIndex(
+        cartItem => cartItem.id === item.id && cartItem.size === item.size
     );
     
-    if (existingItemIndex !== -1) {
-        // Item exists, update quantity (not exceeding max)
-        const newQuantity = Math.min(
-            cart[existingItemIndex].quantity + item.quantity,
-            item.maxQuantity
-        );
-        cart[existingItemIndex].quantity = newQuantity;
+    if (existingItemIndex > -1) {
+        // Update existing item quantity
+        cart[existingItemIndex].quantity += item.quantity;
     } else {
-        // Item doesn't exist, add to cart
+        // Add new item to cart
         cart.push(item);
     }
     
@@ -578,6 +574,8 @@ function addItemToCart(item) {
     
     // Update cart UI
     updateCartUI();
+    
+    // Sync with server (this will call syncCartWithServer via the modified updateCartUI)
 }
 /**
  * Updates the shopping cart UI
@@ -658,6 +656,7 @@ function updateCartUI() {
             badge.textContent = totalItems;
         }
     });
+    syncCartWithServer();
 }
 
 /**
@@ -682,6 +681,7 @@ function removeCartItem(index) {
 
 // Initialize cart UI when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    loadCartFromServer();
     updateCartUI();
     
     // Check if offcanvasCart exists before trying to use it
@@ -718,3 +718,77 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+/**
+ * Syncs the cart with server for logged in users
+ */
+/**
+ * Syncs the cart with server for logged in users
+ */
+function syncCartWithServer() {
+    // Check if user is logged in by looking for dropdown menu
+    const isLoggedIn = document.querySelector('.dropdown-menu') !== null;
+    
+    if (isLoggedIn) {
+        const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+        
+        // Save cart to server using fetch API
+        fetch('functions/cartHandlers.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=save&cart_data=${encodeURIComponent(JSON.stringify(cart))}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Cart synced with server:', data);
+        })
+        .catch(error => console.error('Error syncing cart:', error));
+    }
+}
+
+/**
+ * Loads cart from server if available
+ */
+function loadCartFromServer() {
+    // Check if user is logged in by looking for dropdown menu
+    const isLoggedIn = document.querySelector('.dropdown-menu') !== null;
+    
+    if (isLoggedIn) {
+        fetch('functions/cartHandlers.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=load'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server cart data received:', data);
+            if (data.success && data.cart) {
+                // Parse the JSON string from the server
+                try {
+                    const serverCart = JSON.parse(data.cart);
+                    // Only update if we have items
+                    if (serverCart && serverCart.length > 0) {
+                        // Update localStorage with server cart
+                        localStorage.setItem('shopping-cart', data.cart);
+                        // Update the UI to reflect the loaded cart
+                        updateCartUI();
+                    }
+                } catch (e) {
+                    console.error('Error parsing cart JSON:', e);
+                }
+            }
+        })
+        .catch(error => console.error('Error loading cart:', error));
+    }
+}
+
+// Modify your existing updateCartUI function to call syncCartWithServer
+const originalUpdateCartUI = window.updateCartUI || function() {};
+window.updateCartUI = function() {
+    originalUpdateCartUI.apply(this, arguments);
+    syncCartWithServer();  // Sync after every cart update
+};

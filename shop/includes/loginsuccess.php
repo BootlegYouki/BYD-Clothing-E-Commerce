@@ -4,13 +4,13 @@
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-            onclick="window.location.href='index'"></button>
+            onclick="window.location.href='index.'"></button>
       </div>
       <div class="modal-body">
         <p>Welcome back! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
-        <a href="index" class="btn btn-acc">Continue</a>
+        <a href="index.php" class="btn btn-acc">Continue</a>
       </div>
     </div>
   </div>

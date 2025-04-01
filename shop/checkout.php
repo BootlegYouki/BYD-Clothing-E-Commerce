@@ -45,6 +45,7 @@ $shipping_fee = 50;
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <?php include 'includes/logout.php'; ?>
     
     <section id="checkout" class="my-5 py-5">
         <div class="container mt-5">

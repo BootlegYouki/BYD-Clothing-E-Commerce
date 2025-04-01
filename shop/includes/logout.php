@@ -10,7 +10,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-        <a href="includes/logout_process.php" class="btn btn-acc">Logout</a>
+        <a href="functions/logout_process.php" class="btn btn-acc">Logout</a>
       </div>
     </div>
   </div>
