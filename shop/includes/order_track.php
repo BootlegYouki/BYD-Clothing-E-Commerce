@@ -23,6 +23,7 @@
 
     <!-- Orders Container -->
     <div id="ordersContainer">
+        <!-- Order List will be loaded dynamically via JS FUNCTION -->
     </div>
 </div>
 

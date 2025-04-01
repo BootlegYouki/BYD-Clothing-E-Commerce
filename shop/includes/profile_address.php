@@ -232,6 +232,8 @@
 
 
 
+<script src="js/profile_address.js"></script>
+
 <!-- Google Maps API (Enable Places Library) -->
 <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
 
