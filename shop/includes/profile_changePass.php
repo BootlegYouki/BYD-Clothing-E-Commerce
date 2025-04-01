@@ -1,48 +1,38 @@
 <h2>Change Password</h2>
-<p class="text-muted">For your account's security, do not share your password with anyone else.</p>
+<p>For your account's security, do not share your password with anyone else</p>
 
-<!-- Current Password -->
-<div class="mb-3 d-flex align-items-center">
-    <label class="me-3" style="width: 150px;">Current Password</label>
-    <div class="input-group flex-grow-1">
-        <input type="password" class="form-control password-input" id="current-P">
-        <span class="input-group-text toggle-password" data-target="current-P"></span>
-    </div>
+<div class="input-group mb-3 d-flex align-items-center">
+    <p class="mb-0 mr-2" style="width: 150px;">Current Password</p>
+    <input type="text" class="form-control" id="Current-P" data-current="" style="flex-grow: 1;" />
+    <span class="input-group-text" style="background: none; border: none; cursor: pointer;" onclick="toggleVisibility('Current-P', this)">
+        <i class="fas fa-eye"></i>
+    </span>
 </div>
 
-<!-- New Password -->
-<div class="mb-3 d-flex align-items-center">
-    <label class="me-3" style="width: 150px;">New Password</label>
-    <div class="input-group flex-grow-1">
-        <input type="password" class="form-control password-input" id="new-P">
-        <span class="input-group-text toggle-password" data-target="new-P"></span>
-    </div>
+<div class="input-group mb-3 d-flex align-items-center">
+    <p class="mb-0 mr-2" style="width: 150px;">New Password</p>
+    <input type="text" class="form-control" id="New-P" data-current="" style="flex-grow: 1;" />
+    <span class="input-group-text" style="background: none; border: none; cursor: pointer;" onclick="toggleVisibility('New-P', this)">
+        <i class="fas fa-eye"></i>
+    </span>
 </div>
 
-<!-- Confirm Password -->
-<div class="mb-3 d-flex align-items-center">
-    <label class="me-3" style="width: 150px;">Confirm Password</label>
-    <div class="input-group flex-grow-1">
-        <input type="password" class="form-control password-input" id="confirm-P">
-        <span class="input-group-text toggle-password" data-target="confirm-P"></span>
-    </div>
+<div class="input-group mb-3 d-flex align-items-center">
+    <p class="mb-0 mr-2" style="width: 150px;">Confirm Password</p>
+    <input type="text" class="form-control" id="Confirm-P" data-current="" style="flex-grow: 1;" />
+    <span class="input-group-text" style="background: none; border: none; cursor: pointer;" onclick="toggleVisibility('Confirm-P', this)">
+        <i class="fas fa-eye"></i>
+    </span>
 </div>
-
-<!-- Confirm Button -->
-<button class="btn-body btn btn-primary">Confirm</button>
+<button class=" btn-body btn btn-primary mt-2" >Confirm</button>
 
 
-<!-- CSS--> <!-- CSS-->  <!-- CSS--> <!-- CSS--> <!-- CSS--> <!-- CSS--> <!-- CSS--> <!-- CSS--> <!-- CSS-->
 
-<!--  Remove Border -->
+
+
+<!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS -->
 <style>
-    .toggle-password {
-        background: none !important;
-        border: none !important;
-        cursor: pointer;
-    }
-
-    .btn-body {
+.btn-body {
     font-size: 0.8rem;
     font-weight: 700;
     outline: none;
@@ -61,25 +51,26 @@
 
 </style>
 
-<!-- Show/Hide Password Script -->
+<!-- JS --> <!-- JS --> <!-- JS -->  <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS -->
 <script>
-    document.querySelectorAll(".toggle-password").forEach(button => {
-        let icon = document.createElement("i"); // Create the icon dynamically
-        button.appendChild(icon); // Append icon to the button
+// Function to mask the input value completely
+function maskValue(value) {
+    return "*".repeat(value.length); // Mask all characters
+}
 
-        button.addEventListener("click", function () {
-            let targetInput = document.getElementById(this.dataset.target);
-            
-            if (targetInput.type === "password") {
-                targetInput.type = "text";
-                icon.classList.replace("bi-eye", "bi-eye-slash");
-            } else {
-                targetInput.type = "password";
-                icon.classList.replace("bi-eye-slash", "bi-eye");
-            }
-        });
-    });
+// Toggle Visibility Without Resetting Input
+function toggleVisibility(fieldId, iconElement) {
+    let input = document.getElementById(fieldId);
+    let icon = iconElement.querySelector("i");
+
+    if (input.value.includes("*")) {
+        input.value = input.dataset.current; // Show full value
+        icon.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+        input.dataset.current = input.value; // Store the latest user input
+        input.value = maskValue(input.dataset.current); // Mask the entire input
+        icon.classList.replace("fa-eye-slash", "fa-eye");
+    }
+}
+
 </script>
-
-<!-- Bootstrap Icons (Make sure this is included in your project) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
