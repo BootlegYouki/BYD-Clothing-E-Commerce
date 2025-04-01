@@ -1,35 +1,20 @@
 /*--BANNER--*/
-<<<<<<< Updated upstream
-.top-image-container {
-=======
 /* .top-image-container {
->>>>>>> Stashed changes
     margin: 0;
     padding: 0;
     width: 100%;
     display: block;
     overflow: hidden; /* Ensures cropped content is not visible */
-<<<<<<< Updated upstream
-  }
-=======
-  /* }
->>>>>>> Stashed changes
+  
   
   .top-image {
     width: 100%;
     height: 600px; /* Adjust height to crop bottom part */
-<<<<<<< Updated upstream
-    object-fit: cover;
+   /*  object-fit: cover;
     object-position: center 18%; /* Moves the focus upwards */
     display: block;
     margin: 0;
-  }
-=======
-   /*  object-fit: cover;
-    object-position: center 18%; /* Moves the focus upwards */
- /*    display: block;
-    margin: 0;
-  } */
+  } 
   
   .top-image-container {
     width: 100%;
@@ -44,7 +29,6 @@
     max-width: 100%;
     object-fit: contain; /* Prevent distortion */
 }
->>>>>>> Stashed changes
 
 /*BUTTON*/
   .btn-body{
@@ -360,11 +344,7 @@
     }
 }
 
-<<<<<<< Updated upstream
 /* Smaller Mobile*/
-=======
-/* Smaller Mobile */
->>>>>>> Stashed changes
 @media (max-width: 480px) {
     h1 {
         font-size: 1.5rem;
@@ -382,38 +362,15 @@
         flex-direction: column;
         text-align: center;
         align-items: center;
-<<<<<<< Updated upstream
-=======
-        padding: 20px;
->>>>>>> Stashed changes
     }
 
     /* Adjust image size */
     .right-side img, 
-<<<<<<< Updated upstream
     .left-side-2 img, 
     .abt-img {
         max-height: 400px; /* Smaller max height */
     }
 
-=======
-    .left-side-2 img
-    {
-        max-width: 100%;
-        height: auto; /* Maintain aspect ratio */
-        max-height: 300px; /* Adjust max height */
-    }
-
-
-    .abt-img, 
-.abt-img-2 {
-    width: 100%;
-    max-width: 500px; /* Prevents images from getting too big */
-    height: auto;
-    display: block;
-    margin: 0 auto; /* Centers image */
-}
->>>>>>> Stashed changes
     /* Remove extra <br> tags */
     .right-text br, 
     .left-text br {
@@ -423,34 +380,7 @@
     /* Fix section spacing */
     #about-head, 
     #about-head-2 {
-<<<<<<< Updated upstream
         padding: 50px 15px;
     }
 }
 
-=======
-        padding: 40px 10px;
-    }
-}
-
-/* Medium Devices (Tablets, iPads) */
-/* Stack elements for medium devices (tablets, iPads) */
-@media (max-width: 1024px) {
-    .container {
-        flex-direction: column; /* Stacks items */
-        text-align: center;
-    }
-
-    .left-side, 
-    .right-side, 
-    .left-side-2, 
-    .right-side-2 {
-        width: 100%;
-    }
-
-    .abt-img, 
-    .abt-img-2 {
-        max-width: 80%; /* Prevents images from becoming too big */
-    }
-}
->>>>>>> Stashed changes
