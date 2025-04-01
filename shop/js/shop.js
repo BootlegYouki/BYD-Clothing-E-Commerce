@@ -656,7 +656,6 @@ function updateCartUI() {
     cartBadges.forEach(badge => {
         if (badge) {
             badge.textContent = totalItems;
-            badge.style.display = totalItems > 0 ? '' : 'none';
         }
     });
 }

@@ -98,7 +98,7 @@ $hide_cart = ($current_page == 'checkout.php');
            aria-controls="offcanvasCart">
         </i>
     </a>
-    <span class="cart-badge"></span>
+    <span class="cart-badge">0</span>
     </div>
     <?php endif; ?>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
