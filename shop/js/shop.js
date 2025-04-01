@@ -385,3 +385,337 @@ function closeProductDetails() {
         }
     }
 }
+
+/**
+ * Sets up the Add to Cart button functionality
+ * @param {Object} product - The product object containing product details
+ */
+function setupAddToCartButton(product) {
+    const addToCartBtn = document.getElementById('quick-view-add-to-cart');
+    if (!addToCartBtn) return;
+    
+    // Remove any previous event listeners
+    const newAddToCartBtn = addToCartBtn.cloneNode(true);
+    addToCartBtn.parentNode.replaceChild(newAddToCartBtn, addToCartBtn);
+    
+    newAddToCartBtn.addEventListener('click', function() {
+        const selectedSize = document.getElementById('quick-view-size').value;
+        const quantity = parseInt(document.getElementById('quick-view-quantity').value);
+        
+        // Validate size selection
+        if (!selectedSize) {
+            document.getElementById('size-error').style.display = 'block';
+            return;
+        }
+        
+        // Calculate the actual price (considering discounts)
+        let price = parseFloat(product.price);
+        if (product.discount_percentage > 0) {
+            price = price - (price * (product.discount_percentage / 100));
+        }
+        
+        // Create cart item object
+        const cartItem = {
+            id: product.id,
+            title: product.title,
+            price: price,
+            image: product.image,
+            size: selectedSize,
+            quantity: quantity,
+            category: product.category,
+            sku: product.sku || '',
+            maxQuantity: parseInt(document.querySelector('.btn-size.active')?.dataset.stock || 10)
+        };
+        
+        // Add to cart
+        addItemToCart(cartItem);
+        
+        // Show success feedback on button
+        const originalText = newAddToCartBtn.textContent;
+        newAddToCartBtn.innerHTML = '<i class="fa fa-check me-2"></i>ADDED TO CART';
+        newAddToCartBtn.classList.add('btn-success');
+        
+        // Show toast notification
+        showAddToCartNotification(product.title, selectedSize, quantity);
+        
+        setTimeout(() => {
+            newAddToCartBtn.textContent = originalText;
+            newAddToCartBtn.classList.remove('btn-success');
+            
+            // Close the quick view after adding to cart
+            closeProductDetails();
+        }, 1500);
+    });
+}
+
+/**
+ * Shows a notification that item was added to cart
+ * @param {string} productTitle - The product title
+ * @param {string} size - Selected size
+ * @param {number} quantity - Selected quantity
+ */
+function showAddToCartNotification(productTitle, size, quantity) {
+    // Check if a notification container exists, if not create one
+    let notificationContainer = document.getElementById('cart-notification-container');
+    
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = 'cart-notification-container';
+        notificationContainer.className = 'position-fixed top-0 end-0 p-3';
+        notificationContainer.style.zIndex = '1060';
+        document.body.appendChild(notificationContainer);
+    } else {
+        // Make sure the container is visible
+        notificationContainer.style.display = 'block';
+    }
+    
+    // Create a unique ID for this toast
+    const toastId = 'cart-toast-' + Date.now();
+    
+    // Create the toast element
+    const toastElement = document.createElement('div');
+    toastElement.id = toastId;
+    toastElement.className = 'toast cart-notification show';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.innerHTML = `
+        <div class="toast-header bg-success text-white">
+            <i class="fa fa-check-circle me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <small>just now</small>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <p class="mb-0"><strong>${productTitle}</strong> added to cart</p>
+                    <p class="mb-0 small text-muted">Size: ${size} | Quantity: ${quantity}</p>
+                </div>
+                <button class="btn btn-sm btn-outline-dark ms-3 view-cart-btn">
+                    View Cart
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Append the toast to the container
+    notificationContainer.appendChild(toastElement);
+    
+    // Create a new Bootstrap Toast instance
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 3000
+    });
+    
+    // Show the toast
+    toast.show();
+    
+    // Add event listener for View Cart button
+    const viewCartBtn = toastElement.querySelector('.view-cart-btn');
+    viewCartBtn.addEventListener('click', function() {
+        toast.dispose(); // Properly dispose of toast instance
+        toastElement.remove(); // Remove the element
+        
+        // Show cart
+        const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasCart'));
+        cartOffcanvas.show();
+    });
+    
+    // When toast is hidden, remove it from the DOM
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        toast.dispose(); // Properly dispose of toast instance
+        toastElement.remove();
+        
+        // If there are no more toasts in the container, hide the container
+        if (notificationContainer.children.length === 0) {
+            notificationContainer.style.display = 'none';
+        }
+    });
+    
+    // Also add an event listener to the close button
+    const closeButton = toastElement.querySelector('.btn-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            toast.dispose(); // Properly dispose of toast instance
+            toastElement.remove();
+            
+            // If there are no more toasts in the container, hide the container
+            if (notificationContainer.children.length === 0) {
+                notificationContainer.style.display = 'none';
+            }
+        });
+    }
+}
+
+/**
+ * Adds an item to the shopping cart
+ * @param {Object} item - The item to add to the cart
+ */
+function addItemToCart(item) {
+    // Get current cart from localStorage or initialize empty array
+    let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+    
+    // Check if item already exists in cart (same product ID and size)
+    const existingItemIndex = cart.findIndex(cartItem => 
+        cartItem.id === item.id && cartItem.size === item.size
+    );
+    
+    if (existingItemIndex !== -1) {
+        // Item exists, update quantity (not exceeding max)
+        const newQuantity = Math.min(
+            cart[existingItemIndex].quantity + item.quantity,
+            item.maxQuantity
+        );
+        cart[existingItemIndex].quantity = newQuantity;
+    } else {
+        // Item doesn't exist, add to cart
+        cart.push(item);
+    }
+    
+    // Save updated cart to localStorage
+    localStorage.setItem('shopping-cart', JSON.stringify(cart));
+    
+    // Update cart UI
+    updateCartUI();
+}
+/**
+ * Updates the shopping cart UI
+ */
+function updateCartUI() {
+    const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+    const cartItemsContainer = document.getElementById('cart-items');
+    const emptyCart = document.getElementById('empty-cart');
+    const cartItemsWrapper = document.getElementById('cart-items-container');
+    
+    // Show/hide empty cart message
+    if (cart.length === 0) {
+        emptyCart.classList.remove('d-none');
+        cartItemsWrapper.classList.add('d-none');
+    } else {
+        emptyCart.classList.add('d-none');
+        cartItemsWrapper.classList.remove('d-none');
+    }
+    
+    // Clear existing items
+    if (cartItemsContainer) {
+        cartItemsContainer.innerHTML = '';
+    }
+    
+    // Calculate totals
+    let subtotal = 0;
+    
+    // Add each item to the cart UI
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        if (cartItemsContainer) {
+            const cartItemElement = document.createElement('div');
+            cartItemElement.className = 'cart-item mb-3';
+            cartItemElement.innerHTML = `
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="cart-item-img me-3">
+                                <img src="${item.image}" alt="${item.title}" class="img-fluid rounded">
+                            </div>
+                            <div class="cart-item-details flex-grow-1">
+                                <h6 class="mb-1">${item.title}</h6>
+                                <p class="mb-1 text-muted small">Size: ${item.size} | Qty: ${item.quantity}</p>
+                                <p class="mb-0 fw-bold">₱${(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            cartItemsContainer.appendChild(cartItemElement);
+            
+            // Add remove item event listener
+            const removeBtn = cartItemElement.querySelector('.remove-item');
+            removeBtn.addEventListener('click', function() {
+                removeCartItem(index);
+            });
+        }
+    });
+    
+    // Update totals in the UI
+    const subtotalElement = document.getElementById('cart-subtotal');
+    const totalElement = document.getElementById('cart-total');
+    if (subtotalElement) subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+    if (totalElement) totalElement.textContent = `₱${subtotal.toFixed(2)}`;
+    
+    // Update all cart badges on the page
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartBadges = document.querySelectorAll('.cart-badge');
+    
+    cartBadges.forEach(badge => {
+        if (badge) {
+            badge.textContent = totalItems;
+            badge.style.display = totalItems > 0 ? '' : 'none';
+        }
+    });
+}
+
+/**
+ * Removes an item from the shopping cart
+ * @param {number} index - The index of the item to remove
+ */
+function removeCartItem(index) {
+    // Get current cart
+    let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+    
+    // Remove the item at the specified index
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+        
+        // Save updated cart
+        localStorage.setItem('shopping-cart', JSON.stringify(cart));
+        
+        // Update UI immediately
+        updateCartUI();
+    }
+}
+
+// Initialize cart UI when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartUI();
+    
+    // Check if offcanvasCart exists before trying to use it
+    const offcanvasCart = document.getElementById('offcanvasCart');
+    if (offcanvasCart) {
+        offcanvasCart.addEventListener('show.bs.offcanvas', function() {
+            // Refresh cart UI when cart is opened
+            updateCartUI();
+            
+            // Hide notification container when cart is open to prevent overlap
+            const notificationContainer = document.getElementById('cart-notification-container');
+            if (notificationContainer) {
+                notificationContainer.style.display = 'none';
+            }
+        });
+        
+        // Ensure the close button is accessible by giving it a higher z-index
+        const closeButton = offcanvasCart.querySelector('.btn-close');
+        if (closeButton) {
+            closeButton.style.zIndex = '1070'; // Higher than notification container
+            closeButton.style.position = 'relative'; // Ensure z-index works
+        }
+    }
+    
+    // Handle click on the cart close button explicitly
+    document.querySelectorAll('#offcanvasCart .btn-close').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const offcanvasCart = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasCart'));
+            if (offcanvasCart) {
+                offcanvasCart.hide();
+            }
+        });
+    });
+});

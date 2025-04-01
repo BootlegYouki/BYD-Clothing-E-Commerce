@@ -7,7 +7,7 @@
     <title>Beyond Doubt Clothing</title> 
     <!-- BOOTSTRAP CSS/JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="icon" href="img/logo/BYD-removebg-preview.ico" type="image/x-icon">
+    <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
     <!-- UTILITY CSS  -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <!-- ICONSCSS -->
@@ -26,6 +26,8 @@
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <!-- SHOPPING CART MODAL  -->
+    <?php include 'includes/shopcart.php'; ?>
     <!-- REGISTER MODAL  -->
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
@@ -37,8 +39,6 @@
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-    <!-- SHOP CART -->
-    <?php include 'includes/shopcart.php'; ?>
     <!-- CHAT BOT -->
     <?php include 'includes/assistant.php'; ?>
 <!-- HOME SECTION -->
@@ -584,9 +584,10 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- SCRIPT -->
-    <script src="js/shopcart.js"></script>
     <script src="js/indexscript.js"></script>
     <script src="js/url-cleaner.js"></script>
     <script src="js/assistant.js"></script>
+    <script src="js/shopcart.js"></script>
+    <script src="js/shop.js"></script>
 </body>
 </html>

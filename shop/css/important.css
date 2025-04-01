@@ -46,6 +46,5 @@ h5 {
 
 h6 {
     font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-    color: #D8D8D8;
     font-weight: 500;
 }

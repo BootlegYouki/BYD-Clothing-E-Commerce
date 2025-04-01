@@ -1,498 +1,62 @@
-/* IMPORTANT */
-.modal.fullscreen-modal * {
-  box-sizing: border-box;
-  color: #000;
-  overflow: auto;
-  background-color: white;
-}
-
-.modal.fullscreen-modal::-webkit-scrollbar {
-  width: 0;
-}
-
-/* Modal dialog full screen */
-.modal.fullscreen-modal .cart-modal {
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100%;
-  transform: translateX(100%);
-  opacity: 0;
-  transition: transform 0.7s ease, opacity 0.5s ease;
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.modal.fullscreen-modal h2 {
-  font-size: 1.2rem;
+/* Cart item styling */
+.cart-item-img {
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
 }
 
-.modal.fullscreen-modal .cart-title {
-  font-size: 1.4rem !important;
+.cart-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* Show & Hide Animations */
-.modal.fullscreen-modal.show .cart-modal {
-  transform: translateX(0);
+.remove-item {
+  padding: 4px 8px;
+}
+
+/* Quantity styling in cart */
+.cart-item-quantity {
+  width: 60px;
+}
+
+#cart-notification-container {
+  z-index: 1060;
+}
+
+.cart-notification {
+  width: 320px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.cart-notification.show {
   opacity: 1;
 }
 
-.modal.fullscreen-modal.modal-closing .cart-modal {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-/* Modal content */
-.modal.fullscreen-modal .cart-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border: none;
-  padding: 20px;
-}
-
-/* Title styling */
-.modal.fullscreen-modal .cart-header {
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  padding: 70px 0;
-  border-bottom: none;
-  flex-direction: column;
-}
-
-/* Cart Title */
-.modal.fullscreen-modal .cart-title {
-  font-weight: 700;
-  font-size: 1.3rem;
-}
-
-.cart-header .total-items {
-  font-size: 1rem;
-  font-weight: normal;
-  margin-top: 1px;
-  align-self: unset;
-}
-
-.empty-cart-container {
-  position: fixed; 
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); 
-  width: 100%; 
-  text-align: center; 
-}
-
-/*--------------------------- Close Button ------------------------------*/
-/* Close button styling */
-.modal.fullscreen-modal .btn-close {
-position: absolute;
-top: 20px;
-right: 20px;
-width: 32px;
-height: 32px;
-background: none;
-border: none;
-font-size: 1.8rem;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: normal; 
-}
-
-/* X icon */
-.modal.fullscreen-modal .btn-close { 
-width: 48px;  
-height: 48px;
-}
-
-.modal.fullscreen-modal .btn-close::before {
-content: '×';
-transition: opacity 0.3s ease;
-font-size: 2.5rem; 
-line-height: 0.9;  
-}
-
-/* Rotation animation synchronized with modal closing */
-.modal.fullscreen-modal.modal-closing .btn-close::before {
-animation: rotateClose 0.7s ease forwards; 
-}
-
-@keyframes rotateClose {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
-}
-
-/*-------------------------- TABLE DETAILS --------------------------------*/
-/* --TABLE ALLIGNMENT-- */
-.modal.fullscreen-modal .table {
-max-width: 80%; 
-margin: 0 auto;
-}
-
-.modal.fullscreen-modal .table tbody tr {
-border-bottom: none !important;
-}
-
-.modal.fullscreen-modal .cart-footer {
-border-top: none !important;
-}
-
-.modal.fullscreen-modal .table th,
-.modal.fullscreen-modal .table td {
-border-bottom: 1px solid rgba(0, 0, 0, 0.2); 
-padding: 10px;
-text-align: center;
-}
-
-.modal.fullscreen-modal .table tbody tr:last-child td {
-border-bottom: 1px solid rgba(0, 0, 0, 0.2); 
-}
-
-.modal.fullscreen-modal .table thead th {
-text-align: center;
-vertical-align: middle;
-border-top: none;
-}
-
-.modal.fullscreen-modal table th {
-font-weight: normal !important;
-}
-
-/* --IMAGE-- */
-.modal.fullscreen-modal .table tbody td:first-child img:hover {
-transform: scale(1.05);
-transition: transform 0.3s ease;
-}
-
-/* --PRODUCT DETAILS-- */
-
-/* --QUANTITY COUNTER-- */
-.modal.fullscreen-modal .quantity-control {
-justify-content: center;
-}
-
-/* Quantity controls alignment */
-.quantity-control {
-display: inline-flex;
-justify-content: center;
-align-items: center;
-border: 1px solid rgba(128, 128, 128, 0.5); 
-padding: 6px 10px; 
-gap: 12px; 
-}
-
-.quantity-control span {
-display: inline-block;
-text-align: center;
-font-size: 23px;
-min-width: 20px;
-margin: 0;
-padding: 0;
-line-height: 1;
-cursor: default; /* Default cursor for all spans */
-}
-
-.quantity-control span.num {
-font-size: 14px;
-}
-
-.quantity-control span.minus, 
-.quantity-control span.plus {
-font-weight: normal !important;
-cursor: pointer; 
-user-select: none; 
-}
-
-/* Optional: Add hover effect */
-.quantity-control span.minus:hover,
-.quantity-control span.plus:hover {
-font-weight: bold;
-}
-
-/* --PRICE-- */
-td {
-text-align: center !important;
-vertical-align: middle !important;
-padding: 0.75rem; 
-}
-
-/* Price text alignment */
-.modal.fullscreen-modal .item-price {
-font-size: 0.9rem;
-font-weight: 600;
-}
-
-/* --REMOVE BUTTON-- */
-.modal.fullscreen-modal .btn-remove {
-background: none;
-border: none;
-width: 32px;   
-height: 32px;  
-font-size: 1.5rem;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-margin: 0 auto; 
-color: inherit; 
-transition: all 0.2s ease;
-}
-
-/* --X ICON INSIDE BUTTON-- */
-.modal.fullscreen-modal .btn-remove::before {
-content: '×'; 
-font-size: 1.8rem; 
-line-height: 0.9;
-transition: transform 0.2s ease;
-}
-
-/* Hover effect */
-.modal.fullscreen-modal .btn-remove:hover::before {
-color: #dc3545;
-}
-
-/* Item removal animation */
-@keyframes slideOutRight {
-  0% {
-      transform: translateX(0);
-      opacity: 1;
-  }
-  100% {
-      transform: translateX(100%);
-      opacity: 0;
-  }
-}
-
-.cart-item-removing {
-  animation: slideOutRight 0.5s ease forwards;
-  pointer-events: none;
-}
-
-/*------------------------FOOTER ---------------------*/
-
-.cart-footer .footer-content {
-padding: 10px 118px;
-display: flex;
-justify-content: flex-end;
-width: 100%;
-}
-
-/* Total price: bigger and bold */
-.cart-footer strong {
-font-size: 1.1rem; 
-font-weight: normal; 
-}
-
-.cart-footer .btn-checkout {
-padding: 15px 50px; 
-font-size: 0.8rem; 
-background-color: black;
-color: white; 
-border: none; 
-border-radius: 0; 
-transition: background-color 0.3s ease; 
-cursor: pointer; 
-font-weight: 700;
-}
-
-/* Hover effect */
-.cart-footer .btn-checkout:hover {
-background-color: coral;
-transform: scale(1.03);
-}
-
-.cart-footer .d-flex.align-items-center {
-gap: 1.5rem;
-margin-left: auto;
-}
-
-
-/* Responsive styles for shop cart */
-@media (max-width: 992px) {
-.modal.fullscreen-modal .table {
-  max-width: 90%;
-}
-
-.cart-footer .footer-content {
-  padding: 10px 60px;
-}
-}
-
-@media (max-width: 768px) {
-.modal.fullscreen-modal .table {
-  max-width: 95%;
-}
-
-.modal.fullscreen-modal .cart-header {
-  padding: 50px 0;
-}
-
-.cart-footer .footer-content {
-  padding: 10px 30px;
-}
-
-.cart-footer .btn-checkout {
-  padding: 12px 30px;
-}
-
-.cart-footer .d-flex.align-items-center {
-  gap: 1rem;
-}
+.toast-header.bg-success .btn-close-white:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
 }
 
 @media (max-width: 576px) {
-.modal.fullscreen-modal .table {
-  max-width: 100%;
-}
-
-.modal.fullscreen-modal .table thead {
-  display: none;
-}
-
-.modal.fullscreen-modal .table tbody tr {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #eee;
-  padding: 15px 10px;
-  position: relative;
-}
-
-.modal.fullscreen-modal .table tbody td {
-  border: none !important;
-  padding: 5px;
-  text-align: left !important;
-}
-
-/* Bigger image with adjusted spacing */
-.modal.fullscreen-modal .table tbody td:first-child {
-  flex: 0 0 100px;
-  margin-right: 15px;
-}
-
-.modal.fullscreen-modal .table tbody td:first-child img {
-  width: 100%;
-  height: auto;
-}
-
-/* Product title with normal font weight */
-.modal.fullscreen-modal .table tbody td:nth-child(2) {
-  flex: 1;
-  font-weight: normal;
-  padding-right: 30px;
-}
-
-/* Variant/size info */
-.modal.fullscreen-modal .table tbody td:nth-child(3) {
-  flex: 0 0 100%;
-  margin-left: 115px;
-  font-size: 14px;
-  color: #666;
-  padding-top: 0;
-}
-
-/* Price and quantity controls */
-.modal.fullscreen-modal .table tbody td:nth-child(4) {
-  flex: 0 0 100%;
-  margin-left: 115px;
-  padding-top: 10px;
-}
-
-/* Centered close button on right side */
-.modal.fullscreen-modal .table tbody td:last-child {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  width: auto;
-}
-
-.modal.fullscreen-modal .cart-header {
-  padding: 30px 0;
-}
-
-.cart-footer .footer-content {
-  padding: 10px 15px;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.cart-footer .d-flex.align-items-center {
-  flex-direction: column;
-  gap: 10px;
-  margin: 0;
-  width: 100%;
-  align-items: center;
-}
-
-.cart-footer .btn-checkout {
-  width: 100%;
-  padding: 12px 20px;
-}
-
-/* Smaller quantity controls */
-.quantity-control {
-  padding: 3px 6px;
-  gap: 6px;
-  border: 1px solid #ddd;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 90px;
-}
-
-.quantity-control span {
-  font-size: 16px;
-}
-
-.quantity-control span.num {
-  font-size: 13px;
-  width: 25px;
-  text-align: center;
-}
-
-.modal.fullscreen-modal .item-price {
-  margin-top: 5px;
-  color: #000;
-  font-weight: normal;
-}
-}
-
-@media (max-width: 400px) {
-.modal.fullscreen-modal .cart-title {
-  font-size: 1.1rem !important;
-}
-
-.cart-header .total-items {
-  font-size: 0.9rem;
-}
-
-.modal.fullscreen-modal .btn-close {
-  top: 10px;
-  right: 10px;
-  width: 36px;
-  height: 36px;
-}
-
-.modal.fullscreen-modal .btn-close::before {
-  font-size: 2rem;
-}
-
-/* Adjust image size for very small screens */
-.modal.fullscreen-modal .table tbody td:first-child {
-  flex: 0 0 85px;
-}
-
-/* Adjust margins for text elements */
-.modal.fullscreen-modal .table tbody td:nth-child(3),
-.modal.fullscreen-modal .table tbody td:nth-child(4) {
-  margin-left: 100px;
-}
-
-/* Further reduce quantity control size */
-.quantity-control {
-  width: 80px;
-}
+  .cart-notification {
+      width: 280px;
+  }
 }

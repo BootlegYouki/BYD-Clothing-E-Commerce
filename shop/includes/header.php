@@ -1,8 +1,11 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 $username = isset($_SESSION['username']) ? htmlentities($_SESSION['username']) : 'Guest';
 $current_page = basename($_SERVER['PHP_SELF']);
 $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
+$hide_cart = ($current_page == 'checkout.php');
 ?>
 
 <nav class="navbar navbar-expand-lg bg-white fixed-top shadow">
@@ -86,15 +89,16 @@ $is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
     <?php endif; ?>
     
     <?php if (!$is_admin): ?>
-    <div class="order-icon-wrapper ms-2">
+    <div class="order-icon-wrapper ms-2 <?php echo $hide_cart ? 'd-none' : ''; ?>">
     <a class="nav-icon d-flex text-decoration-none">
         <i class="bx bx-shopping-bag fs-4"
            style="cursor: pointer;"
-           data-bs-toggle="modal"
-           data-bs-target="#cartModal">
+           data-bs-toggle="offcanvas"
+           data-bs-target="#offcanvasCart"
+           aria-controls="offcanvasCart">
         </i>
     </a>
-    <span class="order-number">0</span>
+    <span class="cart-badge"></span>
     </div>
     <?php endif; ?>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">

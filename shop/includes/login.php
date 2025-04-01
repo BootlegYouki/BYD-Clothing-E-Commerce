@@ -4,8 +4,7 @@
         <div class="modal-content rounded-4">
           <div class="modal-header">
             <h3 class="modal-title" id="loginModalLabel">Login</h3>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-            onclick="window.location.href='index'"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <p>Don't have an account? 
@@ -60,7 +59,7 @@
       </div>
     </div>
 
-<script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Get the password toggle checkbox
   const togglePassword = document.getElementById('show_password');
@@ -75,6 +74,43 @@ document.addEventListener('DOMContentLoaded', function() {
       passwordInput.type = this.checked ? 'text' : 'password';
     });
   }
+  
+  // Handle login form submission
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+      // Store a flag in sessionStorage if this login was initiated from checkout
+      if (document.getElementById('checkout-login-message')) {
+        sessionStorage.setItem('redirectToCheckout', 'true');
+      }
+    });
+  }
+  
+  // Check if we should redirect to checkout after login
+  if (<?php echo isset($_SESSION['auth_user']) ? 'true' : 'false'; ?> && 
+      sessionStorage.getItem('redirectToCheckout') === 'true') {
+    sessionStorage.removeItem('redirectToCheckout');
+    window.location.href = 'checkout.php';
+  }
 });
+
+const checkoutLogin = <?php echo isset($_GET['checkout_login']) ? 'true' : 'false'; ?>;
+if (checkoutLogin) {
+    sessionStorage.setItem('redirectToCheckout', 'true');
+    
+    // Display message about checkout login requirement
+    const loginModalBody = document.querySelector('#loginModal .modal-body');
+    if (loginModalBody) {
+        const checkoutMessage = document.createElement('div');
+        checkoutMessage.id = 'checkout-login-message';
+        checkoutMessage.className = 'alert alert-info mb-3';
+        checkoutMessage.innerHTML = '<i class="fas fa-info-circle me-2"></i> Please log in to continue with checkout.';
+        loginModalBody.insertBefore(checkoutMessage, loginModalBody.firstChild);
+    }
+    
+    // Show login modal
+    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    loginModal.show();
+}
 </script>
 <script src="js/url-cleaner.js"></script>
