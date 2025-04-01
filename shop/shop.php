@@ -129,7 +129,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beyond Doubt Clothing</title> 
     <!-- BOOTSTRAP CSS/JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -202,7 +202,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                 <div class="col-md-5">
                     <div class="d-flex justify-content-md-end justify-content-center align-items-center">
                         <!-- Sort dropdown -->
-                        <div class="d-flex align-items-center gap-2 justify-content-end">
+                        <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
                             <select id="product-sort" class="form-select" 
                                     onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
