@@ -505,7 +505,7 @@ function showAddToCartNotification(productTitle, size, quantity) {
     // Create a new Bootstrap Toast instance
     const toast = new bootstrap.Toast(toastElement, {
         autohide: true,
-        delay: 1500
+        delay: 100
     });
     
     // Show the toast
@@ -733,7 +733,7 @@ function syncCartWithServer() {
         const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
         
         // Save cart to server using fetch API
-        fetch('functions/cartHandlers.php', {
+        fetch('functions/check_cart', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -756,7 +756,7 @@ function loadCartFromServer() {
     const isLoggedIn = document.querySelector('.dropdown-menu') !== null;
     
     if (isLoggedIn) {
-        fetch('functions/cartHandlers.php', {
+        fetch('functions/check_cart', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

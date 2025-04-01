@@ -114,4 +114,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
-<script src="js/url-cleaner.js"></script>

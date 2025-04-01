@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 01, 2025 at 02:17 PM
+-- Generation Time: Apr 01, 2025 at 03:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -219,6 +219,26 @@ INSERT INTO `users` (`id`, `firstname`, `middlename`, `lastname`, `phone_number`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_carts`
+--
+
+CREATE TABLE `user_carts` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `cart_data` text NOT NULL,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_carts`
+--
+
+INSERT INTO `user_carts` (`id`, `user_id`, `cart_data`, `last_updated`) VALUES
+(1, 9, '[{\"id\":\"14\",\"title\":\"GIPSY\",\"price\":720,\"image\":\"../uploads/products/14/primary_1743071866.webp\",\"size\":\"S\",\"quantity\":4,\"category\":\"T-Shirt\",\"sku\":\"T-S-GIPS-664\",\"maxQuantity\":100},{\"id\":\"14\",\"title\":\"GIPSY\",\"price\":720,\"image\":\"../uploads/products/14/primary_1743071866.webp\",\"size\":\"M\",\"quantity\":2,\"category\":\"T-Shirt\",\"sku\":\"T-S-GIPS-664\",\"maxQuantity\":1}]', '2025-04-01 12:40:25');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_conversations`
 --
 
@@ -275,6 +295,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `user_carts`
+--
+ALTER TABLE `user_carts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `user_conversations`
 --
 ALTER TABLE `user_conversations`
@@ -316,6 +343,12 @@ ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
+-- AUTO_INCREMENT for table `user_carts`
+--
+ALTER TABLE `user_carts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `user_conversations`
 --
 ALTER TABLE `user_conversations`
@@ -336,6 +369,12 @@ ALTER TABLE `product_images`
 --
 ALTER TABLE `product_sizes`
   ADD CONSTRAINT `product_sizes_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_carts`
+--
+ALTER TABLE `user_carts`
+  ADD CONSTRAINT `user_carts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_conversations`
