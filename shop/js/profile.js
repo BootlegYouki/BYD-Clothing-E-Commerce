@@ -1,23 +1,28 @@
-$(document).ready(function () {
-    $(".sidebar-btn").click(function () {
-        let page = $(this).data("page");
+document.addEventListener("DOMContentLoaded", function () {
+    // Select all buttons with "sidebar-btn" class
+    document.querySelectorAll(".sidebar-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let page = this.getAttribute("data-page"); // Get PHP file path
+            loadContent(page); // Call function to load content
 
-        if (page) {
-            $("#dynamicContent").fadeOut(200, function () {
-                $.ajax({
-                    url: page,
-                    type: "GET",
-                    success: function (response) {
-                        $("#dynamicContent").html(response).fadeIn(200);
-                    },
-                    error: function () {
-                        $("#dynamicContent").html("<p class='text-danger'>Error loading page. Please try again.</p>").fadeIn(200);
-                    }
-                });
-            });
-
-            $(".sidebar-btn").removeClass("active");
-            $(this).addClass("active");
-        }
+            // Remove active class from all buttons, then add to the clicked one
+            document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+        });
     });
+
+    // Handle Purchases <span> click (since it's not a button)
+    document.querySelector("[data-page='includes/order_track.php']").addEventListener("click", function () {
+        loadContent("includes/order_track.php");
+    });
+
+    // Function to load content dynamically
+    function loadContent(page) {
+        fetch(page) // Fetch PHP file
+            .then(response => response.text()) // Convert response to text
+            .then(data => {
+                document.querySelector(".content").innerHTML = data; // Update content
+            })
+            .catch(error => console.error("Error loading content:", error));
+    }
 });

@@ -24,32 +24,10 @@
         <i class="fas fa-eye"></i>
     </span>
 </div>
-<button class=" btn-body btn btn-primary mt-2" >Confirm</button>
-
-
-
-
+<button id="saveProfile" class="btn btn-primary mt-2" style="display: none;">Confirm</button>
 
 <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS --> <!-- CSS -->
-<style>
-.btn-body {
-    font-size: 0.8rem;
-    font-weight: 700;
-    outline: none;
-    border: none;
-    background-color: coral;
-    color: white;
-    padding: 10px 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease-in-out; 
-}
 
-.btn-body:hover {
-    background-color: rgb(255, 150, 115); 
-}
-
-</style>
 
 <!-- JS --> <!-- JS --> <!-- JS -->  <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS --> <!-- JS -->
 <script>

@@ -1,0 +1,106 @@
+
+
+.topside{
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-deets {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.right-side {
+    text-align: right; /* Aligns text and buttons to the right */
+}
+
+.right-side a {
+    text-decoration: none;
+    color: blue; /* Adjust as needed */
+    margin-bottom: 5px;
+}
+
+.right-side button {
+    background-color: coral;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.right-side button:hover {
+    background-color: rgb(255, 127, 80, 0.8);
+}
+
+
+.btn-body {
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    border: none;
+    background-color: coral;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease-in-out; 
+}
+
+.btn-body:hover {
+    background-color: rgb(255, 150, 115); 
+}
+
+
+    .container{ /*whole ass container */
+         border-radius: 20px;
+    }
+    .address-deets p {
+    margin-bottom: 2px; 
+    font-size: 15px;
+    line-height: 1.2; 
+
+}
+
+.vertical-separator {
+    width: 1px;
+    height: 15px;
+    background-color: black; /* Adjust color if needed */
+}
+
+.main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+
+.right-side {
+    display: flex;
+    align-items: center;
+}
+
+.right-side a {
+    color: blue;
+    font-size: 14px;
+    text-decoration: underline;
+}
+.same-row{
+    display: flex;
+}
+.modal-md, .modal-dialog {
+    max-width: 600px; 
+    max-height: 90vh;
+    overflow-y: auto; 
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+}
+
+#btn_submit, #btn-submit1{
+    background-color: coral;
+    border: none;
+
+
+}

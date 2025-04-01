@@ -71,14 +71,14 @@
 
         <!-- Purchases -->
         <h2 class="mt-3 d-flex align-items-center">
-            <i class="fas fa-shopping-cart me-2"></i> <span>Purchases</span>
+            <i class="fas fa-shopping-cart me-2"></i> <span  data-page="includes/order_track.php" >Purchases</span>
         </h2>
     </div>
 
     <!-- Main Content Section (Now inside flex container) -->
     <div class="p-4 flex-grow-1 mt-5">
         <div class="content shadow bg-white rounded">
-            <?php include 'includes/order_track.php'; ?>
+            <?php include 'includes/profile_user_info.php'; ?>
         </div>
     </div>
 </section>

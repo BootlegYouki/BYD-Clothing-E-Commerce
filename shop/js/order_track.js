@@ -44,7 +44,7 @@ function loadOrders(status) {
     </div>
                 <div class="mt-3">
                   <button id="btn-dynamic" class="btn btn-primary order-action mb-1 position-relative move-up" data-id="${order.id}" ${order.disabled ? "disabled" : ""}>${order.buttonText}</button>
-                  <button id="btn-contact-seller" class="btn btn-info mb-1 position-relative move-up">Contact Seller</button>
+                  <button id="btn-contact-seller" class="btn btn-info mb-1 position-relative move-up" id="contactSellerBtn" >Contact Seller</button>
 
                 </div>
                 </div>
@@ -194,4 +194,10 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("User rating: " + selectedRating); // For debugging, showing the selected rating
         closeModal("rateProductModal"); // Close the modal after submission
     });
+});
+
+//MESSENGER
+document.getElementById("contactSellerBtn").addEventListener("click", function() {
+    // Replace 'yourpageusername' with your actual Facebook Page username
+    window.open("https://www.facebook.com/share/1ASQ6TT9qM/", "_blank");
 });
