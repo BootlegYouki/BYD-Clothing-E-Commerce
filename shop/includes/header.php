@@ -43,9 +43,9 @@ $hide_cart = ($current_page == 'checkout.php');
           href="shop.php">Shop</a>
       </li>
       <li class="nav-item my-2">
-        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'aboutus.php') ? 'active' : ''; ?>" 
+        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'about_us.php') ? 'active' : ''; ?>" 
           <?php echo ($current_page == 'aboutus.php') ? 'aria-current="page"' : ''; ?> 
-          href="aboutus.php">About</a>
+          href="about_us.php">About</a>
       </li>
     </ul>
       </div>
