@@ -58,7 +58,7 @@ function getShopProducts($conn, $params = []) {
             $base_query .= " ORDER BY p.discount_percentage DESC";
             break;
         default:
-            $base_query .= " ORDER BY p.is_featured DESC, p.created_at DESC";
+            $base_query .= " ORDER BY p.created_at DESC";
             break;
     }
     
