@@ -101,6 +101,8 @@
     overflow-y: auto;
     padding: 15px;
     background-color: #f9f9f9;
+    max-height: 500px;
+    overscroll-behavior: contain;
 }
 
 .message {

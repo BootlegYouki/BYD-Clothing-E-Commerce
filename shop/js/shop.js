@@ -57,6 +57,39 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Updates or adds a query parameter to a URL
+ * @param {string} uri - The current URL
+ * @param {string} key - The parameter name to update/add
+ * @param {string} value - The new value for the parameter
+ * @returns {string} - The updated URL
+ */
+function updateQueryStringParameter(uri, key, value) {
+    // Check if we have a URL object supported
+    if (typeof URL === 'function') {
+        try {
+            // Create a URL object (handles relative and absolute URLs)
+            const url = new URL(uri, window.location.origin);
+            // Set the parameter
+            url.searchParams.set(key, value);
+            // Return the updated URL as string
+            return url.toString();
+        } catch (e) {
+            console.error("Error updating URL parameters:", e);
+        }
+    }
+    
+    // Fallback implementation for older browsers
+    const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    const separator = uri.indexOf('?') !== -1 ? "&" : "?";
+    
+    if (uri.match(re)) {
+        return uri.replace(re, '$1' + key + "=" + value + '$2');
+    } else {
+        return uri + separator + key + "=" + value;
+    }
+}
+
+/**
  * Sets up quantity controls for quick view
  */
 function setupQuantityControls() {
