@@ -1,12 +1,17 @@
 <?php
 require_once '../admin/config/dbcon.php';
 
+$view_product_id = isset($_GET['view_product']) ? intval($_GET['view_product']) : 0;
+
 $items_per_page = 8;
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $items_per_page;
 
 // Get category filter from URL if present
 $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
+
+// Get search query from URL if present
+$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 // Get sorting parameter from URL if present
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
@@ -17,10 +22,19 @@ $base_query = "SELECT p.*, pi.image_url as image
                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
                WHERE 1=1";
 
+if ($view_product_id > 0) {
+    $base_query .= " AND p.id = $view_product_id";
+}
 // Add category filter if specified
 if (!empty($category_filter)) {
     $category_filter = mysqli_real_escape_string($conn, $category_filter);
     $base_query .= " AND p.category = '$category_filter'";
+}
+
+// Add search filter if specified
+if (!empty($search_query)) {
+    $search_query = mysqli_real_escape_string($conn, $search_query);
+    $base_query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%' OR p.category LIKE '%$search_query%')";
 }
 
 // Add sorting logic
@@ -168,9 +182,15 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
     <section id="label" class="my-5 py-2">
     <!-- Title Section -->
     <div class="container text-center mt-5 py-5">
-        <h3><?= !empty($category_filter) ? htmlspecialchars($category_filter) : 'All Collections' ?></h3>
+    <?php if (!empty($category_filter)): ?>
+        <h3><?= htmlspecialchars($category_filter) ?></h3>
         <hr class="body-hr mx-auto">
         <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
+    <?php else: ?>
+        <h3>All Collections</h3>
+        <hr class="body-hr mx-auto">
+        <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
+    <?php endif; ?>
     </div>
     
     <!-- Filter and Sort Section -->
@@ -182,12 +202,12 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                 <div class="col-md-7 d-none d-md-block">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php foreach($categories as $category): ?>
-                            <a href="?category=<?= urlencode($category) ?>" 
+                            <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
                                class="category-filter <?= $category_filter === $category ? 'active' : '' ?>">
                                 <?= htmlspecialchars($category) ?>
                             </a>
                         <?php endforeach; ?>
-                        <?php if (!empty($category_filter)): ?>
+                        <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)):?>
                             <a href="shop.php" class="clear-filter ms-2">
                                 <i class="fa fa-times-circle me-1"></i>Clear
                             </a>
@@ -202,7 +222,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                         <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
                             <select id="product-sort" class="form-select" 
-                                    onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
+                            onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
                                 <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>Featured</option>
                                 <option value="price-asc" <?= $sort === 'price-asc' ? 'selected' : '' ?>>Price: Low to High</option>
                                 <option value="price-desc" <?= $sort === 'price-desc' ? 'selected' : '' ?>>Price: High to Low</option>
@@ -223,7 +243,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                 <!-- Mobile product count -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="mobile-products-count" class="text-muted"><?= $total_items ?> products</span>
-                    <?php if (!empty($category_filter)): ?>
+                    <?php if (!empty($category_filter) || !empty($search_query)): ?>
                         <a href="shop.php" class="clear-filter btn btn-sm btn-outline-danger">
                             <i class="fa fa-times-circle me-1"></i>Clear Filter
                         </a>
@@ -238,7 +258,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                     <div class="card card-body mt-2">
                         <div class="d-flex flex-wrap gap-2">
                             <?php foreach($categories as $category): ?>
-                                <a href="?category=<?= urlencode($category) ?>" 
+                                <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
                                    class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm">
                                     <?= htmlspecialchars($category) ?>
                                 </a>
@@ -252,6 +272,59 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
 </section>
 
 <section id="products">
+<div class="Results">
+    <div class="container-fluid px-md-5 px-2">
+        <div class="row">
+            <div class="col-12">
+                <?php if (!empty($search_query)): ?>
+                    <div class="search-results-header my-3">
+                        <h4 class="mb-0">Search results for: "<?= htmlspecialchars($search_query) ?>"</h4>
+                        
+                        <?php if(empty($products)): ?>
+                            <div class="alert alert-info mt-3">
+                                <i class="fa fa-info-circle me-2"></i>No products found matching your search.
+                                <a href="shop.php" class="alert-link ms-2">View all products</a>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted mb-0 mt-2">Found <?= count($products) ?> <?= count($products) === 1 ? 'product' : 'products' ?> matching your search</p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($category_filter) && empty($search_query)): ?>
+                    <div class="search-results-header my-3">
+                        <h4 class="mb-0">Category: "<?= htmlspecialchars($category_filter) ?>"</h4>
+                        
+                        <?php if(empty($products)): ?>
+                            <div class="alert alert-info mt-3">
+                                <i class="fa fa-info-circle me-2"></i>No products found in this category.
+                                <a href="shop.php" class="alert-link ms-2">View all products</a>
+                            </div>
+                        <?php else: ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($sort !== 'default' && empty($search_query) && empty($category_filter)): ?>
+                    <div class="search-results-header my-3">
+                        <h4 class="mb-0">
+                            Sorted by: 
+                            <?php 
+                                switch ($sort) {
+                                    case 'price-asc': echo 'Price: Low to High'; break;
+                                    case 'price-desc': echo 'Price: High to Low'; break;
+                                    case 'name-asc': echo 'Name: A to Z'; break;
+                                    case 'name-desc': echo 'Name: Z to A'; break;
+                                    case 'discount': echo 'Best Discount'; break;
+                                }
+                            ?>
+                        </h4>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
     <div class="container-fluid px-md-5 px-2">
         <?php if(empty($products)): ?>
             <div class="row">
@@ -285,7 +358,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                         }
                         ?>
                         <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
-                            <div class="product-card">
+                            <div class="product-card" data-product-id="<?= $product['id'] ?>">
                                 <div class="product-img-container">
                                     <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
                                     <?php if($discountPercentage > 0): ?>
@@ -332,7 +405,7 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
                         }
                     ?>
                     <div class="swiper-slide">
-                        <div class="product-card">
+                        <div class="product-card" data-product-id="<?= $product['id'] ?>">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
@@ -479,22 +552,59 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
 
 <!-- FOOTER -->
 <?php include 'includes/footer.php'; ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewProductId = urlParams.get('view_product');
+    
+    if (viewProductId) {
+        // Find the product with matching ID in our products array
+        const products = <?= json_encode($products) ?>;
+        const productToShow = products.find(product => product.id == viewProductId);
+        
+        if (productToShow) {
+            // Find the product card in the DOM that matches this product ID
+            const productCard = document.querySelector(`.product-card[data-product-id="${productToShow.id}"]`);
+            
+            // Small delay to ensure all scripts are loaded
+            setTimeout(() => {
+                // Trigger quick view modal
+                showQuickView(productToShow, null);
+                
+                // Show the modal using Bootstrap API
+                const quickViewCollapse = document.getElementById('productQuickView');
+                const quickViewModal = new bootstrap.Collapse(quickViewCollapse);
+                quickViewModal.show();
+                
+                // Manually set up the scroll-back functionality that's missing
+                // when showQuickView is called with null event
+                if (productCard) {
+                    const closeButton = quickViewCollapse.querySelector('.btn-close');
+                    if (closeButton) {
+                        closeButton.removeEventListener('click', function() {});
+                        
+                        closeButton.addEventListener('click', function() {
+                            scrollBackToProduct(productCard);
+                        });
+                    }
+                }
+            }, 300);
+            
+            // Remove the view_product parameter from URL to prevent reopening on refresh
+            if (history.pushState) {
+                let newUrl = new URL(window.location.href);
+                newUrl.searchParams.delete('view_product');
+                window.history.pushState({path: newUrl.toString()}, '', newUrl.toString());
+            }
+        }
+    }
+});
+</script>
 <!-- UTILITY SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- SCRIPT -->
-<script>
-function updateQueryStringParameter(uri, key, value) {
-    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
-    if (uri.match(re)) {
-        return uri.replace(re, '$1' + key + "=" + value + '$2');
-    } else {
-        return uri + separator + key + "=" + value;
-    }
-}
-</script>
 <script src="js/shop.js"></script>
 <script src="js/url-cleaner.js"></script>
 <script src="js/assistant.js"></script>

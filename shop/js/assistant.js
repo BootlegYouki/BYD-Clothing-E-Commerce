@@ -2,7 +2,7 @@ let currentController = null;
 let currentMessageId = null;
 let latestBotMessageId = null;
 let conversationHistory;
-const chatbot = "deepseek/deepseek-chat:free";
+const chatbot = "deepseek/deepseek-chat";
 
 
 async function checkUserAuth() {
@@ -289,7 +289,7 @@ async function sendMessage() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer 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",
+                "Authorization": "Bearer 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",
                 "HTTP-Referer": window.location.origin,
                 "X-Title": "BYD Clothing Assistant"
             },
@@ -664,7 +664,7 @@ function regenerateResponse(messageId) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer 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",
+                    "Authorization": "Bearer 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",
                     "HTTP-Referer": window.location.origin,
                     "X-Title": "BYD Clothing Assistant"
                 },

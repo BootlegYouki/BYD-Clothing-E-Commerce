@@ -123,48 +123,60 @@ function setupLazyLoading() {
 /**
  * Show Quick View function for displaying product details in collapse panel
  * @param {Object} product - The product object containing all product data
- * @param {Event} event - The click event
+ * @param {Event} event - The click event (optional)
  */
 function showQuickView(product, event) {
-    if (!event) return;
-    
-    const clickedCard = event.target.closest('.product-card');
-    if (!clickedCard) return;
-    
     const quickViewCollapse = document.getElementById('productQuickView');
     if (!quickViewCollapse) return;
     
     const container = quickViewCollapse.closest('.container');
     if (!container) return;
     
-    let targetRow;
+    let clickedCard = null;
+    let targetRow = null;
     
-    if (window.innerWidth >= 768) {
-        targetRow = clickedCard.closest('.product-row');
-    } else {
-        targetRow = document.querySelector('.shop-swiper');
-    }
-    
-    if (!targetRow) return;
-    
-    // Store the clicked product card for scroll-back functionality
-    quickViewCollapse.dataset.sourceProduct = clickedCard.id || Date.now();
-    
-    if (!clickedCard.id) {
-        clickedCard.id = 'product-' + quickViewCollapse.dataset.sourceProduct;
-    }
-    
-    const closeButton = quickViewCollapse.querySelector('.btn-close');
-    if (closeButton) {
-        closeButton.removeEventListener('click', scrollBackToProduct);
+    // Handle case when function is called from click event
+    if (event) {
+        clickedCard = event.target.closest('.product-card');
         
-        closeButton.addEventListener('click', function() {
-            scrollBackToProduct(clickedCard);
-        });
+        if (clickedCard) {
+            if (window.innerWidth >= 768) {
+                targetRow = clickedCard.closest('.product-row');
+            } else {
+                targetRow = document.querySelector('.shop-swiper');
+            }
+            
+            // Store the clicked product card for scroll-back functionality
+            quickViewCollapse.dataset.sourceProduct = clickedCard.id || Date.now();
+            
+            if (!clickedCard.id) {
+                clickedCard.id = 'product-' + quickViewCollapse.dataset.sourceProduct;
+            }
+            
+            const closeButton = quickViewCollapse.querySelector('.btn-close');
+            if (closeButton) {
+                closeButton.removeEventListener('click', scrollBackToProduct);
+                
+                closeButton.addEventListener('click', function() {
+                    scrollBackToProduct(clickedCard);
+                });
+            }
+            
+            if (targetRow) {
+                targetRow.after(container);
+            }
+        }
+    } 
+    // Handle case when function is called programmatically (from URL parameter)
+    else {
+        // Find a suitable place to put the modal - first product row or main container
+        targetRow = document.querySelector('.product-row') || document.querySelector('#products');
+        if (targetRow) {
+            targetRow.after(container);
+        }
     }
     
-    targetRow.after(container);
-    
+    // Continue with populating the modal content regardless of event source
     document.querySelector('.quick-view-title').textContent = product.title;
     document.querySelector('.quick-view-img').src = product.image;
     document.querySelector('.quick-view-category').textContent = product.category;

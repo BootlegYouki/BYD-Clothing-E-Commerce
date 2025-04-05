@@ -187,12 +187,12 @@
             ?>
                 <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -212,7 +212,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
@@ -244,12 +244,12 @@
                 ?>
                 <div class="swiper-slide">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -269,7 +269,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
@@ -341,12 +341,12 @@
             ?>
                 <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -366,7 +366,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
@@ -398,12 +398,12 @@
                 ?>
                 <div class="swiper-slide">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -423,7 +423,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
@@ -480,12 +480,12 @@
             ?>
                 <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -505,7 +505,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
@@ -537,12 +537,12 @@
                 ?>
                 <div class="swiper-slide">
                     <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
+                        <div class="product-img-container">
                             <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
                             <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
-                        </a>
+                        </div>
                         <div class="product-info">
                             <div class="star mb-2">
                                 <i class="fa fa-star"></i>
@@ -562,7 +562,7 @@
                                     <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
+                            <button class="buy-btn" onclick="window.location.href='shop.php?view_product=<?= $product['id'] ?>'">View</button>
                         </div>
                     </div>
                 </div>
