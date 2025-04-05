@@ -22,19 +22,23 @@ $base_query = "SELECT p.*, pi.image_url as image
                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
                WHERE 1=1";
 
+// If viewing a specific product, only use that filter
 if ($view_product_id > 0) {
     $base_query .= " AND p.id = $view_product_id";
-}
-// Add category filter if specified
-if (!empty($category_filter)) {
-    $category_filter = mysqli_real_escape_string($conn, $category_filter);
-    $base_query .= " AND p.category = '$category_filter'";
-}
+} else {
+    // Only apply these filters when NOT viewing a specific product
+    
+    // Add category filter if specified
+    if (!empty($category_filter)) {
+        $category_filter = mysqli_real_escape_string($conn, $category_filter);
+        $base_query .= " AND p.category = '$category_filter'";
+    }
 
-// Add search filter if specified
-if (!empty($search_query)) {
-    $search_query = mysqli_real_escape_string($conn, $search_query);
-    $base_query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%' OR p.category LIKE '%$search_query%')";
+    // Add search filter if specified
+    if (!empty($search_query)) {
+        $search_query = mysqli_real_escape_string($conn, $search_query);
+        $base_query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%' OR p.category LIKE '%$search_query%')";
+    }
 }
 
 // Add sorting logic
@@ -134,7 +138,6 @@ if ($category_result && mysqli_num_rows($category_result) > 0) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
