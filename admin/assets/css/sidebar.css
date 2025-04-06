@@ -374,10 +374,10 @@
     transition: all 0.2s ease;
   }
   
-  #sidebarOffcanvas .footer-btn.view-shop {
-    background-color: #f8f9fa;
-    color: #555;
-    border: 1px solid rgba(0,0,0,0.08);
+  body.theme-dark .footer-btn.view-shop {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    border-color: var(--border-color);
   }
   
   #sidebarOffcanvas .footer-btn.view-shop:hover {

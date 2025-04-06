@@ -37,7 +37,7 @@ $breadcrumbs = [
 $current_breadcrumb = isset($breadcrumbs[$current_page]) ? $breadcrumbs[$current_page] : [['Home', 'index.php', false]];
 ?>
 
-<nav class="top-navbar d-flex justify-content-between align-items-center">
+<nav class="top-navbar sticky-top" style="top: 25px;">
   <div class="d-flex align-items-center">
     <!-- Add sidebar toggle button for mobile -->
     <button class="btn sidebar-toggle d-md-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
