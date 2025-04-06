@@ -48,7 +48,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     // Using the same delay as navbar.php for consistency
     setTimeout(function() {
       window.location.href = href;
-    }, 1); // 500ms delay to ensure theme processing
+    }, 0.1);
     
     return false;
   }

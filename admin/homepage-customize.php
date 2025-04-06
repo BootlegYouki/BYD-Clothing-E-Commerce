@@ -280,7 +280,7 @@ function get_setting($key, $default = '') {
                   </div>
                   <button type="button" class="btn mb-0" data-bs-toggle="modal" data-bs-target="#addImageModal" 
                   style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white; box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);">
-                  <i class="material-symbols-rounded" style="vertical-align: middle; margin-right: 4px;">add</i>
+                  <i class="material-symbols-rounded">add</i>
                   </button>
                 </div>
               </div>
@@ -368,7 +368,7 @@ function get_setting($key, $default = '') {
                   ?>
                   <tr>
                     <td colspan="4" class="text-center py-4">
-                      <div class="alert bg-gradient-dark text-white text-center mb-0">
+                      <div class="alert bg-gradient-dark text-muted text-center mb-0">
                         No carousel images found. Add your first image!
                       </div>
                     </td>
@@ -420,110 +420,6 @@ function get_setting($key, $default = '') {
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-// Modify your existing script section
-document.addEventListener('DOMContentLoaded', function() {
-  var deleteModal = document.getElementById('deleteImageModal');
-  if (deleteModal) {
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-      var button = event.relatedTarget;
-      var imageId = button.getAttribute('data-id');
-      document.getElementById('delete_image_id').value = imageId;
-    });
-  }
-  
-  // Toggle switch for active status
-  window.updateImageStatus = function(imageId, isActive) {
-  // Get the clicked element
-  const checkbox = event.target;
-  
-  // Immediately update the label
-  const label = checkbox.nextElementSibling;
-  if (label) {
-    label.textContent = isActive ? 'Active' : 'Inactive';
-  }
-  
-  // Then send request to server
-  fetch('functions/carousel-actions.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'action=toggle&image_id=' + imageId + '&is_active=' + (isActive ? 1 : 0)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (!data.success) {
-      // If server update fails, revert the UI change
-      console.error('Error:', data.message);
-      checkbox.checked = !isActive;
-      if (label) {
-        label.textContent = !isActive ? 'Active' : 'Inactive';
-      }
-    }
-  })
-  .catch(error => {
-    // If there's a network error, revert the UI change
-    console.error('Error:', error);
-    checkbox.checked = !isActive;
-    if (label) {
-      label.textContent = !isActive ? 'Active' : 'Inactive';
-    }
-  });
-};
-  
-  // File upload preview functionality
-  const carouselImageInput = document.getElementById('carousel_image');
-  const carouselImageBtn = document.getElementById('carousel_image_btn');
-  const carouselImageText = document.getElementById('carousel_image_text');
-  const carouselImagePreview = document.getElementById('carousel_image_preview');
-  const errorMessage = document.querySelector('.error-message');
-
-  if (carouselImageBtn && carouselImageInput) {
-    carouselImageBtn.addEventListener('click', function() {
-      carouselImageInput.click();
-    });
-    
-    carouselImageInput.addEventListener('change', function() {
-      // Update text to show how many files are selected
-      carouselImageText.value = this.files.length > 0 ? 
-        (this.files.length === 1 ? this.files[0].name : this.files.length + ' files selected') : 
-        'No files selected';
-      
-      // Clear previous previews
-      carouselImagePreview.innerHTML = '';
-      errorMessage.textContent = '';
-      
-      // Show preview for images
-      if (this.files.length > 0) {
-        let totalSize = 0;
-        
-        for (let i = 0; i < this.files.length; i++) {
-          const file = this.files[i];
-          totalSize += file.size;
-          
-          // Create preview for each image
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'img-thumbnail m-1';
-            img.style.height = '50px';
-            img.style.width = 'auto';
-            carouselImagePreview.appendChild(img);
-          }
-          reader.readAsDataURL(file);
-        }
-        
-        // Show warning if total size is large
-        if (totalSize > 10 * 1024 * 1024) {
-          errorMessage.textContent = 'Warning: Total file size exceeds 10MB. The upload might be slow.';
-        }
-      }
-    });
-  }
-});
-</script>
+<script src="assets/js/homepage-customize.js"></script>
 </body>
 </html>

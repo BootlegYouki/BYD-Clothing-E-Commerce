@@ -561,19 +561,6 @@
 .add-to-cart-btn:hover {
   background-color: #ff7f50;
 }
-.add-to-cart-btn:disabled {
-  background-color: #cccccc;
-  color: #888888;
-  cursor: not-allowed;
-  transform: none;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-.add-to-cart-btn:disabled:hover {
-  background-color: #cccccc;
-  transform: none;
-}
 
 /* Product Description */
 .quick-view-description {

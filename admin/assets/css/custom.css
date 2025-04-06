@@ -331,6 +331,13 @@ a {
   box-shadow: 0 5px 10px rgba(255, 127, 80, 0.3) !important;
 }
 
+.btn-secondary:hover{
+  background: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(131, 146, 171, 0.3) !important;
+}
+
 .btn-primary:active {
   transform: translateY(0);
 }
