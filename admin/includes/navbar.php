@@ -21,7 +21,7 @@ $page_title = isset($page_titles[$current_page]) ? $page_titles[$current_page] :
 
 // Define breadcrumb paths
 $breadcrumbs = [
-  'index' => [['Main', 'index.php', false]],
+  'index' => [['Home', 'index.php', false]],
   'products' => [['Home', 'index.php', true], ['Products', '', false]],
   'add-product' => [['Home', 'index.php', true], ['Products', 'products.php', true], ['Add New', '', false]],
   'edit-product' => [['Home', 'index.php', true], ['Products', 'products.php', true], ['Edit', '', false]],
@@ -37,12 +37,6 @@ $breadcrumbs = [
 $current_breadcrumb = isset($breadcrumbs[$current_page]) ? $breadcrumbs[$current_page] : [['Home', 'index.php', false]];
 ?>
 
-<!-- Add this style tag to prevent flash -->
-<style>
-  html.theme-preload * {
-    transition: none !important;
-  }
-</style>
 <nav class="top-navbar d-flex justify-content-between align-items-center">
   <div class="d-flex align-items-center">
     <!-- Add sidebar toggle button for mobile -->

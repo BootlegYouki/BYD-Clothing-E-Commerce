@@ -3,7 +3,6 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
-
 <script>
   // This function will be called before the document loads
   (function() {
