@@ -3,6 +3,121 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
+
+<script>
+  // This function will be called before the document loads
+  (function() {
+    // Apply theme immediately to prevent flash
+    document.documentElement.classList.add('theme-preload');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.classList.add(`theme-${currentTheme}`);
+    document.body.classList.add(`theme-${currentTheme}`);
+    
+    // Remove preload class after the page is fully loaded
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.documentElement.classList.remove('theme-preload');
+      }, 50);
+    });
+  })();
+
+  // Global shared navigation handler for consistency across sidebar and navbar
+  function handleGlobalNavigation(event, href) {
+    // Only process links within the domain and not anchor links
+    if (!href || href.includes('#') || 
+        !href.startsWith(window.location.origin) ||
+        event.ctrlKey || event.shiftKey || event.metaKey) {
+      return true; // Let the browser handle it normally
+    }
+    
+    // Prevent default link behavior
+    event.preventDefault();
+    
+    // Store current theme before navigation
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    
+    
+    // First close the offcanvas if it's open
+    const offcanvasElement = document.getElementById('sidebarOffcanvas');
+    const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+    
+    if (bsOffcanvas) {
+      bsOffcanvas.hide();
+    }
+    
+    // Add a consistent delay to allow dark mode processing before navigation
+    // Using the same delay as navbar.php for consistency
+    setTimeout(function() {
+      window.location.href = href;
+    }, 1); // 500ms delay to ensure theme processing
+    
+    return false;
+  }
+  
+  // Initialize everything when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    // Make sure the Bootstrap JS is loaded
+    if (typeof bootstrap === 'undefined') {
+      console.error('Bootstrap JavaScript is not loaded. Make sure to include it.');
+      return;
+    }
+    
+    // Remove any inline onclick handlers for consistency
+    document.querySelectorAll('[onclick="closeOffcanvas()"]').forEach(el => {
+      el.removeAttribute('onclick');
+    });
+    
+    // Update all sidebar navigation links to use our global navigation handler
+    const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link, .offcanvas a.nav-link, .sidebar .navbar-brand, .offcanvas .navbar-brand');
+    sidebarLinks.forEach(link => {
+      // Remove any existing event listeners first
+      const newLink = link.cloneNode(true);
+      link.parentNode.replaceChild(newLink, link);
+      
+      // Add our global handler
+      newLink.addEventListener('click', function(event) {
+        handleGlobalNavigation(event, this.href);
+      });
+    });
+    
+    // Handle the "View Shop" link as well
+    const viewShopLinks = document.querySelectorAll('.view-shop');
+    viewShopLinks.forEach(link => {
+      // Remove any existing event listeners first
+      const newLink = link.cloneNode(true);
+      link.parentNode.replaceChild(newLink, link);
+      
+      // Add our global handler
+      newLink.addEventListener('click', function(event) {
+        handleGlobalNavigation(event, this.href);
+      });
+    });
+    
+    // Handle sidebar toggle for desktop
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', function() {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.toggle('show');
+        }
+      });
+    }
+    
+    // Handle clicks outside the sidebar
+    document.addEventListener('click', function(event) {
+      if (!sidebar) return;
+      
+      const isClickInside = sidebar.contains(event.target) || 
+                          (toggleBtn && toggleBtn.contains(event.target));
+      
+      if (!isClickInside && window.innerWidth < 992 && sidebar.classList.contains('show')) {
+        sidebar.classList.remove('show');
+      }
+    });
+  });
+</script>
 <aside class="sidebar d-none d-md-flex">
   <div class="sidebar-header">
     <a class="navbar-brand" href="index.php">
@@ -170,48 +285,3 @@ $currentPage = basename($_SERVER['PHP_SELF']);
   </div>
   </div>
 </div>
-
-<script>
-  // Function to properly close the offcanvas
-  function closeOffcanvas() {
-    const offcanvasElement = document.getElementById('sidebarOffcanvas');
-    const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-    
-    if (bsOffcanvas) {
-      bsOffcanvas.hide();
-    }
-  }
-  
-  // Initialize offcanvas and handle older code
-  document.addEventListener('DOMContentLoaded', function() {
-    // Make sure the Bootstrap JS is loaded
-    if (typeof bootstrap === 'undefined') {
-      console.error('Bootstrap JavaScript is not loaded. Make sure to include it.');
-      return;
-    }
-    
-    // Handle older toggle script for compatibility
-    const toggleBtn = document.querySelector('.sidebar-toggle');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener('click', function() {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.toggle('show');
-        }
-      });
-    }
-    
-    // Handle clicks outside the sidebar for desktop version
-    document.addEventListener('click', function(event) {
-      if (!sidebar) return;
-      
-      const isClickInside = sidebar.contains(event.target) || 
-                          (toggleBtn && toggleBtn.contains(event.target));
-      
-      if (!isClickInside && window.innerWidth < 992 && sidebar.classList.contains('show')) {
-        sidebar.classList.remove('show');
-      }
-    });
-  });
-</script>
