@@ -5,7 +5,7 @@ header('Connection: keep-alive');
 header('X-Accel-Buffering: no'); // Prevents buffering for Nginx
 
 // Store API key securely on the server
-$api_key = "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";
+$api_key = "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";
 
 // Get the incoming request
 $input = json_decode(file_get_contents('php://input'), true);
