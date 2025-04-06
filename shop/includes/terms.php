@@ -30,7 +30,7 @@
                     <p>By using our website, you acknowledge that you have read, understood, and agreed to these Terms and Conditions.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal">I Understand</button>
+                    <button type="button" class="btn-modal btn-lg" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal">I Understand</button>
                 </div>
             </div>
         </div>

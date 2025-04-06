@@ -1,5 +1,10 @@
-<?php 
-include 'includes/header.php';
+<?php
+session_start();
+// Check if user is logged in and is an admin
+if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
+    header("Location: ../shop/index");
+    exit();
+}
 include 'config/dbcon.php';
 
 // Check if ID is provided
@@ -44,6 +49,32 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
     $sizes[$size['size']] = $size['stock'];
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <?php include('includes/theme-initializer.php'); ?>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>Admin | Beyond Doubt Clothing</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+  
+  <!-- Core CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/custom.css">
+  <link rel="stylesheet" href="assets/css/sidebar.css">
+</head>
+<body>
+<?php include 'includes/sidebar.php'; ?>
+<main class="main-content">
+<?php include 'includes/navbar.php'; ?>
 
 <div class="container-fluid py-4">
     <?php if(isset($_SESSION['message'])) : ?>
@@ -65,10 +96,24 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
     <div class="row">
         <div class="col-12">
             <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                <div class="bg-gradient-coral shadow-coral border-radius-lg pt-4 pb-3" 
-                style="background: linear-gradient(195deg, #FF7F50, #FF6347); box-shadow: 0 4px 20px 0 rgba(255, 111, 71, 0.14), 0 7px 10px -5px rgba(255, 111, 71, 0.4);">
-                        <h6 class="text-white text-capitalize ps-3">Edit Product</h6>
+                <div class="card-header p-0 position-relative mx-3 z-index-2">
+                    <div class="pt-4 pb-3">
+                        <div class="row px-2">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="text-black text-capitalize mb-0 ms-0">Edit Product</h5>
+                                        <h6 class="text-b text-xs mb-0 opacity-8">Update product information</h6>
+                                    </div>
+                                    <div>
+                                        <a href="products.php" class="btn mb-0" 
+                                        style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white; box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);">
+                                            <i class="material-symbols-rounded" style="vertical-align: middle; margin-right: 4px;">arrow_back</i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -198,7 +243,7 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                             </div>
                             <div class="col-md-12 mt-4 text-end">
                                 <a href="products.php" class="btn bg-gradient-secondary">Cancel</a>
-                                <button type="submit" name="update_product" class="btn bg-gradient-primary">Update Product</button>
+                                <button type="submit" name="update_product" class="btn btn-primary">Update Product</button>
                             </div>
                         </div>
                     </form>
@@ -207,6 +252,12 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
         </div>
     </div>
 </div>
+
+</main>
+
+<!-- Core JS Files -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 document.getElementById('primary_image_btn').addEventListener('click', function() {
@@ -457,6 +508,26 @@ function updateRemainingImagesText() {
     }
 }
 
+// Set page title based on current page
+document.addEventListener('DOMContentLoaded', function() {
+  const currentPage = '<?php echo basename($_SERVER["PHP_SELF"], ".php"); ?>';
+  const titleMap = {
+    'index': 'Dashboard',
+    'products': 'Products Management',
+    'add-product': 'Add New Product',
+    'edit-product': 'Edit Product',
+    'homepage-customize': 'Homepage Customization',
+    'categories': 'Categories',
+    'orders': 'Orders Management',
+    'customers': 'Customer Management'
+  };
+  
+  // Update navbar title
+  const navbarTitle = document.querySelector('.top-navbar h4');
+  if (navbarTitle && titleMap[currentPage]) {
+    navbarTitle.textContent = titleMap[currentPage];
+  }
+});
 </script>
-
-<?php include 'includes/footer.php'; ?>
+</body>
+</html>
