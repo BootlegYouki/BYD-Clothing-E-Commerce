@@ -47,6 +47,8 @@ function get_setting($key, $default = '') {
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <!-- CHATBOT  -->
+    <?php include 'includes/assistant.php'; ?>
     <!-- SHOPPING CART MODAL  -->
     <?php include 'includes/shopcart.php'; ?>
     <!-- REGISTER MODAL  -->
@@ -60,8 +62,6 @@ function get_setting($key, $default = '') {
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-    <!-- CHAT BOT -->
-    <?php include 'includes/assistant.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
   <div class="container-fluid px-3 pb-5">

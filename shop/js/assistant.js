@@ -2,7 +2,7 @@ let currentController = null;
 let currentMessageId = null;
 let latestBotMessageId = null;
 let conversationHistory;
-const chatbot = "deepseek/deepseek-chat:free";
+const chatbot = "deepseek/deepseek-chat-v3-0324:free";
 //OPEN CHATBOT
 document.addEventListener('DOMContentLoaded', function() {
     initializeBot();
@@ -149,6 +149,8 @@ Answer customer questions accurately and suggest products based on their needs b
 If the question is in Filipino, respond in Filipino with natural conversational style.
 
 VERY IMPORTANT RULES:
+- YOUR SCOPE IS ONLY T-SHIRTS AND LONG SLEEVES.
+- NEVER HALLUCINATE OR MAKE UP ANY PRODUCT INFORMATION OR EVEN ADD A RANDOM PRODUCT. IF YOU DONT KNOW THE INFORMATION, SAY "I DON'T KNOW".
 - ONLY respond to inquiries directly related to BYD-CLOTHING products, prices, sizes, designs, or store services.
 - For any unrelated questions, respond ONLY with: "I'm sorry, I can only answer questions related to BYD-CLOTHING products and services."
 
@@ -179,7 +181,7 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     
                     // Add price info only if specifically requested
                     if (requiresPriceData) {
-                        const finalPrice = Math.floor(product.original_price * (1 - (product.discount_percentage / 100)));
+                        const finalPrice = Math.round(product.original_price * (1 - (product.discount_percentage / 100)));
                         tshirtInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + finalPrice : ''})`;
                     }
                     
@@ -429,13 +431,10 @@ async function sendMessage() {
         currentController = new AbortController();
         const signal = currentController.signal;
         
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("../shop/functions/openrouter-proxy.php", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer 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",
-                "HTTP-Referer": window.location.origin,
-                "X-Title": "BYD Clothing Assistant"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 "model": chatbot,
@@ -610,13 +609,10 @@ async function regenerateResponse(messageId) {
             currentController = new AbortController();
             const signal = currentController.signal;
             
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const response = await fetch("../shop/functions/openrouter-proxy.php", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer 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",
-                    "HTTP-Referer": window.location.origin,
-                    "X-Title": "BYD Clothing Assistant"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     "model": chatbot,
@@ -806,10 +802,24 @@ async function clearChat() {
         </div>
     `;
     
+    // Clear all storage
+    localStorage.removeItem('conversationHistory');
+    sessionStorage.removeItem('conversationLoaded');
+    
     // Clear server-side conversation
     await clearServerConversation();
     
-    // Reset client-side conversation history
-    initializeBot();
+    // Reset client-side conversation history with a fresh system prompt
+    const baseSystemPrompt = await createDynamicSystemPrompt(false);
+    conversationHistory = [
+        {"role": "system", "content": baseSystemPrompt},
+        {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+    ];
+    
+    // Mark as new conversation
+    sessionStorage.setItem('conversationLoaded', 'true');
+    
+    // Save the new empty conversation
+    saveConversation();
 }
 
