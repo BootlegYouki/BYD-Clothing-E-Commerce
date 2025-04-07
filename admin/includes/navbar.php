@@ -12,7 +12,7 @@ $page_titles = [
   'categories' => 'Categories Management',
   'orders' => 'Orders Management',
   'customers' => 'Customers Management',
-  'user-profile' => 'User Profile',
+  'profile' => 'Admin Profile',
   'settings' => 'Settings'
 ];
 
@@ -29,7 +29,7 @@ $breadcrumbs = [
   'categories' => [['Home', 'index.php', true], ['Categories', '', false]],
   'orders' => [['Home', 'index.php', true], ['Orders', '', false]],
   'customers' => [['Home', 'index.php', true], ['Customers', '', false]],
-  'user-profile' => [['Home', 'index.php', true], ['Profile', '', false]],
+  'profile' => [['Home', 'index.php', true], ['Profile', '', false]],
   'settings' => [['Home', 'index.php', true], ['Settings', '', false]]
 ];
 
@@ -84,7 +84,7 @@ $current_breadcrumb = isset($breadcrumbs[$current_page]) ? $breadcrumbs[$current
         </div>
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><a class="dropdown-item" href="profile.php">Profile</a></li>
         <li><a class="dropdown-item" href="#">Settings</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="../shop/includes/logout_process.php">Logout</a></li>

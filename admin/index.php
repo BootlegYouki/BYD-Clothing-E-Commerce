@@ -454,12 +454,10 @@ function tableExists($conn, $tableName) {
             },
         });
         
-        // Toggle between year and month views
         document.getElementById('view-sales-year').addEventListener('click', function() {
             document.getElementById('view-sales-month').classList.remove('active');
             this.classList.add('active');
             
-            // Static yearly data
             monthlySalesChart.data.labels = ["2020", "2021", "2022", "2023", "2024"];
             monthlySalesChart.data.datasets[0].data = [85000, 125000, 165000, 220000, 140000];
             monthlySalesChart.options.scales.x.title = {
