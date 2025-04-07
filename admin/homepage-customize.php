@@ -79,7 +79,7 @@ function get_setting($key, $default = '') {
           </div>
         </div>
         <div class="card-body px-0 pb-2">
-  <div class="px-4 pt-3">
+  <div class="px-4 pt-1">
     <?php if(isset($_SESSION['content_message'])) : ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert" id="content-success-alert">
         <strong>Success!</strong> <?= $_SESSION['content_message']; ?>
@@ -108,7 +108,7 @@ function get_setting($key, $default = '') {
     </nav>
     
     <form action="functions/update-homepage.php" method="POST">
-      <div class="tab-content pt-3" id="nav-tabContent">
+      <div class="tab-content pt-3" id="nav-tabContent" style="height: 450px; overflow-y: auto;">
         <!-- Hero Section Content -->
         <div class="tab-pane fade show active" id="hero-content" role="tabpanel" aria-labelledby="hero-tab">
           <div class="row">
@@ -164,7 +164,7 @@ function get_setting($key, $default = '') {
         
         <!-- Section Titles and Descriptions -->
         <div class="tab-pane fade" id="sections-content" role="tabpanel" aria-labelledby="sections-tab">
-        <div class="sections-scrollable" style="max-height: 510px; overflow-y: auto; padding-right: 5px;">
+        <div class="sections-scrollable" style="max-height: 430px; overflow-y: auto; padding-right: 5px;">
           <div class="card mb-3">
             <div class="card-header py-2 px-3 bg-light">
               <h6 class="mb-0">New Release Section</h6>
@@ -278,12 +278,12 @@ function get_setting($key, $default = '') {
                     <h5 class="text-black text-capitalize mb-0 ms-0">Carousel Customization</h6>
                     <h6 class="text-b text-xs mb-0 opacity-8">Manage your carousel images</h6>
                   </div>
-                  <button type="button" class="btn mb-0" data-bs-toggle="modal" data-bs-target="#addImageModal" 
-                  style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white; box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);">
-                  <i class="material-symbols-rounded">add</i>
+                  <button type="button" class="btn" 
+                  style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white; box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);"
+                  data-bs-toggle="modal" data-bs-target="#addImageModal">
+                    <i class="material-symbols-rounded" style="vertical-align: middle;">add</i>
                   </button>
                 </div>
-              </div>
               </div>
             </div>
           </div>
@@ -309,14 +309,14 @@ function get_setting($key, $default = '') {
           </div>
           
           <!-- Table Layout - Centered -->
-          <div class="table-responsive px-lg-4 px-2">
+          <div class="table-responsive px-lg-4 px-2" style="max-height: 545px; overflow-y: auto;">
             <div class="mx-auto">
               <table class="table align-items-center mb-0">
                 <thead>
                   <tr>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Preview</th>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Status</th>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Actions</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Preview</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Status</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -407,15 +407,26 @@ function get_setting($key, $default = '') {
         </div>
         </div>
         <div class="modal-footer">
-        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn bg-gradient-primary">Upload Image</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Upload Image</button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
 </main>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="actionToast" class="toast align-items-center text-white" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bx bx-check-circle me-2"></i>
+        <span id="toastMessage"></span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
 
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

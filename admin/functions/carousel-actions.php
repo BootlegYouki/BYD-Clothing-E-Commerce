@@ -82,19 +82,20 @@ function addCarouselImage() {
         }
         
         if ($successCount > 0) {
-            $_SESSION['message'] = "$successCount carousel image(s) added successfully" . 
-                                  ($errorCount > 0 ? ", but $errorCount failed to upload." : ".");
-            $_SESSION['message_type'] = "success";
+            $message = "$successCount carousel image(s) added successfully" . 
+                      ($errorCount > 0 ? ", but $errorCount failed to upload." : ".");
+            $type = "success";
         } else {
-            $_SESSION['message'] = "Error uploading images.";
-            $_SESSION['message_type'] = "danger";
+            $message = "Error uploading images.";
+            $type = "error";
         }
     } else {
-        $_SESSION['message'] = "Please select at least one image for the carousel.";
-        $_SESSION['message_type'] = "danger";
+        $message = "Please select at least one image for the carousel.";
+        $type = "error";
     }
     
-    header("Location: ../homepage-customize.php");
+    // Use toast notification instead of session message
+    header("Location: ../homepage-customize.php?toast_message=" . urlencode($message) . "&toast_type=" . $type);
     exit();
 }
 
@@ -117,14 +118,12 @@ function deleteCarouselImage() {
     $query = "DELETE FROM carousel_images WHERE id = $image_id";
     
     if (mysqli_query($conn, $query)) {
-        $_SESSION['message'] = "Carousel image deleted successfully";
-        $_SESSION['message_type'] = "success";
+        // Redirect with toast parameters instead of using session
+        header("Location: ../homepage-customize.php?toast_message=Carousel+image+deleted+successfully&toast_type=success");
     } else {
-        $_SESSION['message'] = "Error deleting image: " . mysqli_error($conn);
-        $_SESSION['message_type'] = "danger";
+        header("Location: ../homepage-customize.php?toast_message=Error+deleting+image&toast_type=error");
     }
     
-    header("Location: ../homepage-customize.php");
     exit();
 }
 

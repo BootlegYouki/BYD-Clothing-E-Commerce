@@ -177,7 +177,7 @@ include 'config/dbcon.php';
                                     <tr>
                                         <td colspan="7" class="text-center py-4">
                                             <p class="text-sm mb-0">No products found</p>
-                                            <a href="add-product.php" class="btn btn-sm bg-gradient-dark mt-3">Add Your First Product</a>
+                                            <a href="add-product.php" class="btn btn-sm btn-primary mt-3">Add Your First Product</a>
                                         </td>
                                     </tr>
                                     <?php } ?>

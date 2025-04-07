@@ -4,15 +4,18 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize success message auto-dismissal
-    initializeAlerts();
-    
-    // Initialize modal functionality
-    initializeModals();
-    
-    // Initialize carousel image upload functionality
-    initializeImageUpload();
-  });
+  // Initialize success message auto-dismissal
+  initializeAlerts();
+  
+  // Initialize modal functionality
+  initializeModals();
+  
+  // Initialize carousel image upload functionality
+  initializeImageUpload();
+  
+  // Initialize toast notifications
+  initializeToastNotifications();
+});
   
   /**
    * Initialize auto-dismissal for success alerts
@@ -32,6 +35,52 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+    
+  /**
+   * Initialize toast notifications
+   */
+  function initializeToastNotifications() {
+    // Check for toast message in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const toastMessage = urlParams.get('toast_message');
+    const toastType = urlParams.get('toast_type') || 'success';
+    
+    if (toastMessage) {
+      showToast(toastMessage, toastType);
+      
+      // Clean URL by removing the parameters without refreshing
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }
+
+  /**
+   * Display a toast notification
+   * @param {string} message - Message to display
+   * @param {string} type - Type of toast (success, error, etc)
+   */
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('actionToast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    if (!toast || !toastMessage) return;
+    
+    // Set the toast color based on type
+    toast.className = toast.className.replace(/bg-\w+/, '');
+    toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+    
+    // Set the message
+    toastMessage.textContent = message;
+    
+    // Show the toast
+    const bsToast = new bootstrap.Toast(toast, {
+      autohide: true,
+      delay: 3000
+    });
+    
+    bsToast.show();
+  }
   
   /**
    * Initialize modal event handlers
@@ -46,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
-  
   /**
    * Toggle carousel image active status
    * @param {number} imageId - The ID of the carousel image
@@ -79,6 +127,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (label) {
           label.textContent = !isActive ? 'Active' : 'Inactive';
         }
+        // Show error toast
+        showToast('Failed to update image status', 'error');
+      } else {
+        // Show success toast
+        showToast('Image status updated successfully', 'success');
       }
     })
     .catch(error => {
@@ -88,6 +141,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (label) {
         label.textContent = !isActive ? 'Active' : 'Inactive';
       }
+      // Show error toast
+      showToast('Network error occurred', 'error');
     });
   };
   
@@ -152,11 +207,6 @@ function initializeImageUpload() {
             if (filesProcessed === originalFiles.length) {
               updateFileInputWithWebP(carouselImageInput, originalFiles, convertedFiles);
               errorMessage.textContent = 'Images converted to WebP format successfully.';
-              
-              // Show warning if total size is still large
-              if (totalSize > 10 * 1024 * 1024) {
-                errorMessage.textContent += ' Warning: Total file size exceeds 10MB. The upload might be slow.';
-              }
               
               // Clear the message after a few seconds
               setTimeout(() => {

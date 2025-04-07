@@ -319,14 +319,12 @@ a {
 }
 
 .btn-primary {
-  background: var(--black);
-  border-color: var(--black);
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
   box-shadow: var(--box-shadow-sm);
 }
 
 .btn-primary:hover {
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
   transform: translateY(-2px);
   box-shadow: 0 5px 10px rgba(255, 127, 80, 0.3) !important;
 }
@@ -438,8 +436,12 @@ a {
 }
 
 .form-check-input:focus {
-  border-color: #FF7F50;
+  border-color: #FF7F50 !important;
   box-shadow: 0 0 0 0.25rem rgba(255, 127, 80, 0.25) !important;
+}
+.form-switch .form-check-input:focus {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
 }
 
 /* DARK MODE VARIABLES & STYLING */
@@ -463,7 +465,6 @@ body.theme-dark {
   --border-color: #6d7380;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
-  
   background-color: var(--bg-color);
   color: var(--text-color);
 }
@@ -817,6 +818,33 @@ body.theme-dark {
   .dropdown-divider {
     border-color: var(--border-color);
   }
+}
+
+body.theme-dark .modal-content {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+body.theme-dark .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+body.theme-dark .modal-footer {
+  border-top-color: var(--border-color);
+}
+
+body.theme-dark .modal-close {
+  color: var(--text-color);
+}
+
+body.theme-dark .modal .btn-close {
+  filter: brightness(0.7) invert(1);
+}
+body.theme-dark .modal input[readonly],
+body.theme-dark .modal input[type="text"] {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-muted);
 }
 
 /* Make Home breadcrumb coral colored */
