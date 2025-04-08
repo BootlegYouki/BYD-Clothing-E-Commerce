@@ -23,14 +23,14 @@ $hide_cart = ($current_page == 'checkout.php');
       </div>        
       <div class="offcanvas-body">
         <!-- Search form and nav items here... -->
-        <form class="d-block d-lg-none ms-auto pe-2">
-      <div class="search-icon-wrapper">
-        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
-        <span class="search-icon">
-          <i class="fas fa-search"></i>
-        </span>
-      </div>
-    </form>
+        <form class="d-block d-lg-none ms-auto pe-2" action="shop.php" method="GET">
+          <div class="search-icon-wrapper">
+            <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+            <button type="submit" class="search-icon border-0 bg-transparent">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
         <ul class="navbar-nav justify-content-end flex-grow-1 text-center">
       <li class="nav-item my-2">
         <a class="nav-link mx-lg-2 <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" 
@@ -47,20 +47,15 @@ $hide_cart = ($current_page == 'checkout.php');
           <?php echo ($current_page == 'aboutus.php') ? 'aria-current="page"' : ''; ?> 
           href="aboutus.php">About</a>
       </li>
-      <li class="nav-item my-2">
-        <a class="nav-link mx-lg-2 <?php echo ($current_page == 'new_arrival.php') ? 'active' : ''; ?>" 
-          <?php echo ($current_page == 'new_arrival.php') ? 'aria-current="page"' : ''; ?> 
-          href="new_arrival.php">New Arrivals</a>
-      </li>
     </ul>
       </div>
     </div>
-    <form class="d-none d-lg-flex ms-auto pe-2">
+    <form class="d-none d-lg-flex ms-auto pe-2" action="shop.php" method="GET">
       <div class="search-icon-wrapper">
-        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
-        <span class="search-icon">
+        <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+        <button type="submit" class="search-icon border-0 bg-transparent">
           <i class="fas fa-search"></i>
-        </span>
+        </button>
       </div>
     </form>
     

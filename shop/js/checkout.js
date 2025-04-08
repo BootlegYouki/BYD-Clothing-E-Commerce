@@ -1,3 +1,12 @@
+/**
+ * Checkout Page JavaScript
+ * 
+ * This script handles the checkout process:
+ * 1. Loads cart data from localStorage
+ * 2. Displays order summary
+ * 3. Calculates totals
+ * 4. Handles form submission and payment processing
+ */
 document.addEventListener('DOMContentLoaded', function() {
     // Load cart data from localStorage
     const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
@@ -27,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use item.productTitle or item.title if item.name is undefined
         const productName = item.name || item.productTitle || item.title || 'Product';
         
+        // Generate HTML for each cart item
         itemsHtml += `
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center">
@@ -52,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileOrderSummary.innerHTML = itemsHtml;
     }
     
-    // Update subtotal
+    // Update subtotal display
     const orderSubtotal = document.getElementById('order-subtotal');
     if (orderSubtotal) {
         orderSubtotal.textContent = `₱${subtotal.toFixed(2)}`;
@@ -69,50 +79,62 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkoutForm = document.getElementById('checkout-form');
     
     if (checkoutForm) {
-        checkoutForm.addEventListener('submit', function(e) {
+        // Modify the form submission handler
+        checkoutForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get form data
-            const formData = new FormData(checkoutForm);
-            
-            // Add cart items to form data
-            formData.append('cart_items', JSON.stringify(cart));
-            formData.append('subtotal', subtotal);
-            formData.append('shipping_cost', SHIPPING_FEE);
-            formData.append('total', subtotal + SHIPPING_FEE);
-            
             // Show loading state
-            document.querySelector('button[type="submit"]').innerHTML = 
-                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
-            document.querySelector('button[type="submit"]').disabled = true;
-            
-            // Submit the form via AJAX
-            fetch('functions/place_order.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Processing...';
+            submitBtn.disabled = true;
+
+            try {
+                // Get form data
+                const formData = new FormData(checkoutForm);
+                
+                // Add cart items to form data
+                formData.append('cart_items', JSON.stringify(cart));
+                formData.append('subtotal', subtotal.toFixed(2));
+                formData.append('shipping_cost', SHIPPING_FEE.toFixed(2));
+                formData.append('total', (subtotal + SHIPPING_FEE).toFixed(2));
+                
+                console.log('Submitting payment with total:', (subtotal + SHIPPING_FEE).toFixed(2));
+                
+                // Submit order data to backend
+                const response = await fetch('functions/process_payment.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Log the raw response for debugging
+                const responseText = await response.text();
+                console.log('Raw API response:', responseText);
+                
+                // Parse the JSON response
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error('Invalid JSON response from server: ' + responseText);
+                }
+                
                 if (data.success) {
-                    // Clear cart
+                    console.log('Payment URL received:', data.payment_url);
+                    // Clear cart before redirecting
                     localStorage.removeItem('shopping-cart');
                     
-                    // Redirect to thank you page with order ID
-                    window.location.href = `order-confirmation.php?order_id=${data.order_id}`;
+                    // Redirect to PayMongo payment page
+                    window.location.href = data.payment_url;
                 } else {
-                    alert(data.message || 'Something went wrong. Please try again.');
-                    // Reset button
-                    document.querySelector('button[type="submit"]').innerHTML = 'Place Order';
-                    document.querySelector('button[type="submit"]').disabled = false;
+                    throw new Error(data.message || 'Payment processing failed');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-                // Reset button
-                document.querySelector('button[type="submit"]').innerHTML = 'Place Order';
-                document.querySelector('button[type="submit"]').disabled = false;
-            });
+            } catch (error) {
+                // Handle errors
+                console.error('Payment Error:', error);
+                alert('Payment failed: ' + (error.message || 'Unknown error occurred'));
+                submitBtn.innerHTML = 'Proceed to Payment';
+                submitBtn.disabled = false;
+            }
         });
     }
 });

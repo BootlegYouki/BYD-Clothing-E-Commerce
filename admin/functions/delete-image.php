@@ -10,7 +10,7 @@ if(!isset($_GET['id']) || empty($_GET['id'])) {
 $image_id = mysqli_real_escape_string($conn, $_GET['id']);
 
 // Get image details before deleting
-$query = "SELECT image_url FROM product_images WHERE id = '$image_id'";
+$query = "SELECT image_url, is_primary, product_id FROM product_images WHERE id = '$image_id'";
 $result = mysqli_query($conn, $query);
 
 if(mysqli_num_rows($result) == 0) {
@@ -21,11 +21,19 @@ if(mysqli_num_rows($result) == 0) {
 $image = mysqli_fetch_assoc($result);
 $image_path = '../../' . $image['image_url'];
 
+// Start transaction for database operations
+mysqli_autocommit($conn, false);
+$success = true;
+
 // Delete from database
 $delete_query = "DELETE FROM product_images WHERE id = '$image_id'";
-$delete_result = mysqli_query($conn, $delete_query);
+if(!mysqli_query($conn, $delete_query)) {
+    $success = false;
+    $error = mysqli_error($conn);
+}
 
-if($delete_result) {
+if($success) {
+    mysqli_commit($conn);
     // Try to delete the physical file
     if(file_exists($image_path) && unlink($image_path)) {
         echo json_encode(['success' => true]);
@@ -34,6 +42,9 @@ if($delete_result) {
         echo json_encode(['success' => true, 'message' => 'Image deleted from database, but file may remain']);
     }
 } else {
-    echo json_encode(['success' => false, 'message' => 'Failed to delete image: ' . mysqli_error($conn)]);
+    mysqli_rollback($conn);
+    echo json_encode(['success' => false, 'message' => 'Failed to delete image: ' . $error]);
 }
+
+mysqli_autocommit($conn, true);
 ?>

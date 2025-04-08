@@ -56,7 +56,7 @@ $shipping_fee = 50;
             </div>
 
             <!-- Checkout form -->
-            <form id="checkout-form" action="functions/place_order.php" method="POST">
+            <form id="checkout-form" action="functions/process_payment.php" method="POST">
                 <input type="hidden" name="shipping_fee" value="<?= $shipping_fee ?>">
                 <div class="row g-4">
                     <!-- Left column - Customer info -->
@@ -68,19 +68,19 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="firstname" class="form-label">First Name*</label>
+                                        <label for="firstname" class="form-label">First Name</label>
                                         <input type="text" class="form-control" id="firstname" name="firstname" value="<?= htmlspecialchars($user['firstname'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="lastname" class="form-label">Last Name*</label>
+                                        <label for="lastname" class="form-label">Last Name</label>
                                         <input type="text" class="form-control" id="lastname" name="lastname" value="<?= htmlspecialchars($user['lastname'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="email" class="form-label">Email*</label>
+                                        <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="phone" class="form-label">Phone Number*</label>
+                                        <label for="phone" class="form-label">Phone Number</label>
                                         <input type="tel" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>" required>
                                     </div>
                                 </div>
@@ -94,15 +94,15 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <label for="address" class="form-label">Complete Address*</label>
+                                        <label for="address" class="form-label">Complete Address</label>
                                         <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($user['full_address'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="city" class="form-label">City*</label>
+                                        <label for="city" class="form-label">City</label>
                                         <input type="text" class="form-control" id="city" name="city" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="zipcode" class="form-label">Postal/ZIP Code*</label>
+                                        <label for="zipcode" class="form-label">Postal/ZIP Code</label>
                                         <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" required>
                                     </div>
                                 </div>
@@ -135,8 +135,7 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <!-- Existing COD option -->
-                                        <div class="form-check mb-3">
+                                        <div class="form-check">
                                             <input class="form-check-input" type="radio" name="payment_method" 
                                                 id="payment_cod" value="cod" checked required>
                                             <label class="form-check-label d-flex justify-content-between" for="payment_cod">
@@ -147,19 +146,6 @@ $shipping_fee = 50;
                                                 <span class="ms-3"><i class="fas fa-money-bill-wave text-success"></i></span>
                                             </label>
                                         </div>
-                                        
-                                        <!-- New Stripe payment option -->
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="payment_method" 
-                                                id="payment_stripe" value="stripe" required>
-                                            <label class="form-check-label d-flex justify-content-between" for="payment_stripe">
-                                                <div>
-                                                    <strong>Credit/Debit Card (Stripe)</strong>
-                                                    <p class="mb-0 text-muted small">Secure online payment</p>
-                                                </div>
-                                                <span class="ms-3"><i class="fab fa-cc-stripe text-primary"></i></span>
-                                            </label>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -167,7 +153,7 @@ $shipping_fee = 50;
                     </div>
 
                     <!-- Right column - Order summary -->
-                    <div class="col-md-5">
+                    <div class="col-md-5 pb-3">
                         <div class="card position-sticky" style="top: 150px;">
                             <div class="card-header bg-white">
                                 <h5 class="mb-0">Order Summary</h5>
@@ -194,7 +180,7 @@ $shipping_fee = 50;
                                 </div>
                                 
                                 <div class="d-grid">
-                                    <a href="stripeapi.php" type="submit" class="btn btn-dark py-3">Place Order</a>
+                                    <button type="submit" class="btn btn-dark py-3">Proceed to Payment</button>
                                 </div>
                                 
                                 <div class="text-center mt-3">
@@ -224,3 +210,20 @@ $shipping_fee = 50;
     <script src="js/url-cleaner.js"></script>
 </body>
 </html>
+
+<!-- Add this to your checkout form where payment options should appear -->
+<div class="mb-4">
+    <label for="payment-method" class="form-label">Payment Method</label>
+    <select class="form-select" id="payment-method" name="payment_method" required>
+        <option value="card">Credit/Debit Card</option>
+        <option value="qr">GCash/Maya (QR Code)</option>
+    </select>
+</div>
+
+<div id="card-payment-info" class="mb-4">
+    <p class="small text-muted">You will be redirected to our secure payment gateway to complete your payment.</p>
+</div>
+
+<div id="qr-payment-info" class="mb-4 d-none">
+    <p class="small text-muted">You will be shown QR codes to scan with your GCash or Maya app to complete payment.</p>
+</div>

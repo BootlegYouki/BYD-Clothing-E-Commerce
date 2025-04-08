@@ -41,7 +41,19 @@ if (isset($_POST['signupButton'])) {
              ('$firstname', '$middlename', '$lastname', '$phone_number', '$regemail', '$username', '$full_address', '$zipcode', '$hashedPassword', NOW())";
    
    if (mysqli_query($conn, $query)) {
+     // Get the new user's ID
+     $new_user_id = mysqli_insert_id($conn);
+     
+     // Set all auth session variables, matching the login process
+     $_SESSION['auth'] = true;
+     $_SESSION['auth_role'] = 0; // Default role for new users
+     $_SESSION['auth_user'] = [
+         'user_id' => $new_user_id,
+         'username' => $username,
+         'email' => $regemail
+     ];
      $_SESSION['username'] = $username;
+     
      header("Location: ../index.php?signupSuccess=1");
      exit;
    } else {

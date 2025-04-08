@@ -29,6 +29,9 @@
                     These terms and conditions are governed by applicable laws in our jurisdiction. Any disputes will be handled through appropriate legal channels.</p>
                     <p>By using our website, you acknowledge that you have read, understood, and agreed to these Terms and Conditions.</p>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-lg" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal">I Understand</button>
+                </div>
             </div>
         </div>
     </div>
@@ -76,6 +79,9 @@
                     <p><strong>7. Changes to This Privacy Policy</strong><br>
                     We reserve the right to update this Privacy Policy at any time. Any changes will be posted on this page, and continued use of our website implies acceptance of the revised policy.</p>
                     <p>By using our website, you acknowledge that you have read, understood, and agreed to this Privacy Policy.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary d-flex-block" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal">I Understand</button>
                 </div>
             </div>
         </div>

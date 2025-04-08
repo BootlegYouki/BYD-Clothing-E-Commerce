@@ -1,3 +1,24 @@
+<?php
+// At the top of your file after requiring dbcon.php
+require_once '../admin/config/dbcon.php';
+require_once 'functions/index_product-handler.php'; // Move this line here
+
+// Get homepage settings
+$settings = [];
+$query = "SELECT * FROM homepage_settings";
+$result = mysqli_query($conn, $query);
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $settings[$row['setting_key']] = $row['setting_value'];
+    }
+}
+
+// Helper function to get setting with fallback
+function get_setting($key, $default = '') {
+    global $settings;
+    return isset($settings[$key]) ? $settings[$key] : $default;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +47,8 @@
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
+    <!-- CHATBOT  -->
+    <?php include 'includes/assistant.php'; ?>
     <!-- SHOPPING CART MODAL  -->
     <?php include 'includes/shopcart.php'; ?>
     <!-- REGISTER MODAL  -->
@@ -39,8 +62,6 @@
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-    <!-- CHAT BOT -->
-    <?php include 'includes/assistant.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
   <div class="container-fluid px-3 pb-5">
@@ -48,12 +69,9 @@
       <div class="row align-items-center">
         <!-- Left Column: Text -->
         <div class="col-md-6">
-          <h4>New Arrival</h4>
-          <h1>
-            From casual hangouts to<span> High-energy moments.</span>
-            <br> Versatility at its best.
-          </h1>
-          <p>Our Air-Cool Fabric T-shirt adapts to every occasion and keeps you cool.</p>
+          <h4><?= get_setting('hero_tagline', 'New Arrival') ?></h4>
+          <h1><?= get_setting('hero_heading', 'From casual hangouts to<span> High-energy moments.</span><br> Versatility at its best.') ?></h1>
+          <p><?= get_setting('hero_description', 'Our Air-Cool Fabric T-shirt adapts to every occasion and keeps you cool.') ?></p>
           <button class="btn-body" onclick="window.location.href='shop.php'">Shop Now</button>
           <div class="mt-5">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
@@ -145,438 +163,165 @@
   </div>
 </section>
 <!-- NEW RELEASE SECTION -->
-<section id="newrelease" class="my-5 pb-5">
-    <div class="container text-center mt-5 py-5">
-        <h3>New Release</h3>
-        <hr class="body-hr mx-auto">
-        <p>Unleash the power of style with our Mecha Collection Moto Jerseys.</p>
-    </div>
-    
-    <div class="container-fluid px-md-5 px-2">
-        <!-- Products for larger screens (hidden on small screens) -->
-        <div class="row justify-content-center d-none d-md-flex">
-            <?php
-            require_once '../admin/config/dbcon.php';
-            
-            // Get new release products from database
-            $query = "SELECT p.*, pi.image_url 
-                      FROM products p
-                      LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-                      WHERE p.is_new_release = 1
-                      ORDER BY p.id DESC
-                      LIMIT 4";
-                      
-            $result = mysqli_query($conn, $query);
-            $products = []; // Store products for swiper
-            
-            if(mysqli_num_rows($result) > 0) {
-                while($product = mysqli_fetch_assoc($result)) {
-                    $products[] = $product; // Store for swiper
-                    
-                    // Calculate discounted price if discount_percentage exists
-                    $originalPrice = $product['original_price'];
-                    $discountPercentage = $product['discount_percentage'];
-                    $discountedPrice = $originalPrice;
-                    
-                    if($discountPercentage > 0) {
-                        $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                    }
-                    
-                    // Image URL with fallback to placeholder if not available
-                    $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-            ?>
-                <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-            <?php
-                }
-            } else {
-                echo '<div class="col-12 text-center"><p>No new release products available.</p></div>';
-            }
-            ?>
-        </div>
-        
-        <!-- Swiper for mobile view (hidden on larger screens) -->
-        <div class="swiper-container new-release-swiper d-block d-md-none">
-            <div class="swiper-wrapper">
-                <?php
-                if (!empty($products)) {
-                    foreach ($products as $product) {
-                        // Calculate discounted price if discount_percentage exists
-                        $originalPrice = $product['original_price'];
-                        $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
-                        
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                        }
-                        
-                        // Image URL with fallback to placeholder if not available
-                        $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-                ?>
-                <div class="swiper-slide">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                    }
-                } else {
-                    echo '<div class="swiper-slide text-center"><p>No new release products available.</p></div>';
-                }
-                ?>
-            </div>
-            <div class="swiper-pagination"></div>
-        </div>
-    </div>
-</section>
-<!-- Banner -->
-    <section id="banner">
-      <div class="container px-5">
-        <h1><span>CUSTOM</span> SUBLIMATION<br>SERVICE</h1>
-        <p>We offer fully customized sublimation services:</p>
-        <ul class="list-unstyled">
-          <li><h4>T-shirt</li>
-          <li><h4>Polo Shirt</li>
-          <li><h4>Basketball</li>
-          <li><h4>Jersey</li>
-          <li><h4>Long Sleeves</li>
-        </ul>
-        <button class="btn-body">Learn More</button>
+<?php if(get_setting('show_new_release', '1') === '1'): ?>
+  <section id="newrelease" class="my-5 pb-5">
+      <div class="container text-center mt-5 py-5">
+          <h3><?= get_setting('new_release_title', 'New Release') ?></h3>
+          <hr class="body-hr mx-auto">
+          <p><?= get_setting('new_release_description', 'Unleash the power of style with our Mecha Collection Moto Jerseys.') ?></p>
       </div>
-    </section>
+      
+      <div class="container-fluid px-md-5 px-2">
+          <!-- Products for larger screens (hidden on small screens) -->
+          <div class="row justify-content-center d-none d-md-flex">
+              <?php
+              // Get new release products from database
+              $products = getIndexProducts($conn, [
+                  'is_new_release' => true,
+                  'limit' => 4
+              ]);
+              
+              if(!empty($products)) {
+                  foreach($products as $product) {
+                      echo renderProductCard($product);
+                  }
+              } else {
+                  echo '<div class="col-12 text-center"><p>No new release products available.</p></div>';
+              }
+              ?>
+          </div>
+          
+          <!-- Swiper for mobile view (hidden on larger screens) -->
+          <div class="swiper-container new-release-swiper d-block d-md-none">
+              <div class="swiper-wrapper">
+                  <?php
+                  if (!empty($products)) {
+                      foreach ($products as $product) {
+                          echo renderProductCard($product, true);
+                      }
+                  } else {
+                      echo '<div class="swiper-slide text-center"><p>No new release products available.</p></div>';
+                  }
+                  ?>
+              </div>
+              <div class="swiper-pagination"></div>
+          </div>
+      </div>
+  </section>
+<?php endif; ?>
+<!-- BANNER -->
+<section id="banner">
+  <div class="container px-5">
+    <h1><?= get_setting('banner_title', '<span>CUSTOM</span> SUBLIMATION<br>SERVICE') ?></h1>
+    <p><?= get_setting('banner_description', 'We offer fully customized sublimation services:') ?></p>
+    <ul class="list-unstyled">
+      <?php 
+      $list_items = explode("\n", get_setting('banner_list', 'T-shirt'));
+      foreach($list_items as $item): 
+        $item = trim($item);
+        if(!empty($item)):
+      ?>
+        <li><h4><?= $item ?></h4></li>
+      <?php 
+        endif;
+      endforeach; 
+      ?>
+    </ul>
+    <button class="btn-body">Learn More</button>
+  </div>
+</section>
 <!-- T-SHIRT SECTION  -->
-<section id="t-shirt" class="my-5 pb-5">
-    <div class="container text-center mt-5 py-5">
-        <h3>T-Shirt Collection</h3>
-        <hr class="body-hr mx-auto">
-        <p>Discover stylish designs and unmatched comfort with our latest collection.</p>
-    </div>
-    <div class="container-fluid px-md-5 px-2">
-        <!-- Products for larger screens (hidden on small screens) -->
-        <div class="row justify-content-center d-none d-md-flex">
-            <?php
-            require_once '../admin/config/dbcon.php';
-            
-            $category = 'T-Shirt';
-            $query = "SELECT p.*, pi.image_url 
-                      FROM products p
-                      LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-                      WHERE p.is_featured = 1 AND p.category = '$category'
-                      ORDER BY p.id DESC
-                      LIMIT 4";
-                      
-            $result = mysqli_query($conn, $query);
-            $tshirtProducts = []; // Store products for swiper
-            
-            if(mysqli_num_rows($result) > 0) {
-                while($product = mysqli_fetch_assoc($result)) {
-                    $tshirtProducts[] = $product; // Store for swiper
-                    
-                    // Calculate discounted price if discount_percentage exists
-                    $originalPrice = $product['original_price'];
-                    $discountPercentage = $product['discount_percentage'];
-                    $discountedPrice = $originalPrice;
-                    
-                    if($discountPercentage > 0) {
-                        $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                    }
-                    
-                    // Image URL with fallback to placeholder if not available
-                    $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-            ?>
-                <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-            <?php
-                }
-            } else {
-                echo '<div class="col-12 text-center"><p>No t-shirt products available.</p></div>';
-            }
-            ?>
-        </div>
-        
-        <!-- Swiper for mobile view (hidden on larger screens) -->
-        <div class="swiper-container t-shirt-swiper d-block d-md-none">
-            <div class="swiper-wrapper">
-                <?php
-                if (!empty($tshirtProducts)) {
-                    foreach ($tshirtProducts as $product) {
-                        // Calculate discounted price if discount_percentage exists
-                        $originalPrice = $product['original_price'];
-                        $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
-                        
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                        }
-                        
-                        // Image URL with fallback to placeholder if not available
-                        $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-                ?>
-                <div class="swiper-slide">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                    }
-                } else {
-                    echo '<div class="swiper-slide text-center"><p>No t-shirt products available.</p></div>';
-                }
-                ?>
-            </div>
-            <div class="swiper-pagination"></div>
-        </div>
-    </div>
-</section>
+<?php if(get_setting('show_tshirt', '1') === '1'): ?>
+  <section id="t-shirt" class="my-5 pb-5">
+      <div class="container text-center mt-5 py-5">
+          <h3><?= get_setting('tshirt_title', 'T-Shirt Collection') ?></h3>
+          <hr class="body-hr mx-auto">
+          <p><?= get_setting('tshirt_description', 'Discover stylish designs and unmatched comfort with our latest collection.') ?></p>
+      </div>
+      <div class="container-fluid px-md-5 px-2">
+          <!-- Products for larger screens (hidden on small screens) -->
+          <div class="row justify-content-center d-none d-md-flex">
+              <?php
+              $tshirtProducts = getIndexProducts($conn, [
+                  'category' => 'T-Shirt',
+                  'is_featured' => true,
+                  'limit' => 4
+              ]);
+              
+              if(!empty($tshirtProducts)) {
+                  foreach($tshirtProducts as $product) {
+                      echo renderProductCard($product);
+                  }
+              } else {
+                  echo '<div class="col-12 text-center"><p>No t-shirt products available.</p></div>';
+              }
+              ?>
+          </div>
+          
+          <!-- Swiper for mobile view (hidden on larger screens) -->
+          <div class="swiper-container t-shirt-swiper d-block d-md-none">
+              <div class="swiper-wrapper">
+                  <?php
+                  if (!empty($tshirtProducts)) {
+                      foreach ($tshirtProducts as $product) {
+                          echo renderProductCard($product, true);
+                      }
+                  } else {
+                      echo '<div class="swiper-slide text-center"><p>No t-shirt products available.</p></div>';
+                  }
+                  ?>
+              </div>
+              <div class="swiper-pagination"></div>
+          </div>
+      </div>
+  </section>
+<?php endif; ?>
 <!-- Long Sleeve Section -->
-<section id="longsleeve" class="my-5 pb-5">
-    <div class="container text-center mt-5 py-5">
-        <h3>Long Sleeve Collection</h3>
-        <hr class="body-hr mx-auto">
-        <p>Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.</p>
-    </div>
-    <div class="container-fluid px-md-5 px-2">
-        <!-- Products for larger screens (hidden on small screens) -->
-        <div class="row justify-content-center d-none d-md-flex">
-            <?php
-            require_once '../admin/config/dbcon.php';
-            
-            $category = 'Long Sleeve';
-            $query = "SELECT p.*, pi.image_url 
-                      FROM products p
-                      LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-                      WHERE p.is_featured = 1 AND p.category = '$category'
-                      ORDER BY p.id DESC
-                      LIMIT 4";
-                      
-            $result = mysqli_query($conn, $query);
-            $longsleeveProducts = []; // Store products for swiper
-            
-            if(mysqli_num_rows($result) > 0) {
-                while($product = mysqli_fetch_assoc($result)) {
-                    $longsleeveProducts[] = $product; // Store for swiper
-                    
-                    // Calculate discounted price if discount_percentage exists
-                    $originalPrice = $product['original_price'];
-                    $discountPercentage = $product['discount_percentage'];
-                    $discountedPrice = $originalPrice;
-                    
-                    if($discountPercentage > 0) {
-                        $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                    }
-                    
-                    // Image URL with fallback to placeholder if not available
-                    $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-            ?>
-                <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-            <?php
-                }
-            } else {
-                echo '<div class="col-12 text-center"><p>No long sleeve products available.</p></div>';
-            }
-            ?>
-        </div>
-        
-        <!-- Swiper for mobile view (hidden on larger screens) -->
-        <div class="swiper-container longsleeve-swiper d-block d-md-none">
-            <div class="swiper-wrapper">
-                <?php
-                if (!empty($longsleeveProducts)) {
-                    foreach ($longsleeveProducts as $product) {
-                        // Calculate discounted price if discount_percentage exists
-                        $originalPrice = $product['original_price'];
-                        $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
-                        
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                        }
-                        
-                        // Image URL with fallback to placeholder if not available
-                        $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
-                ?>
-                <div class="swiper-slide">
-                    <div class="product-card">
-                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="product-img-container">
-                            <img class="img-fluid product-img mb-3" src="<?= $imageUrl ?>" alt="<?= $product['name'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
-                                <span class="discount-badge">-<?= $discountPercentage ?>%</span>
-                            <?php endif; ?>
-                        </a>
-                        <div class="product-info">
-                            <div class="star mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['name'] ?>"</h5>
-                            <div class="price-container mb-3">
-                                <?php if($discountPercentage > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <button class="buy-btn" onclick="window.location.href='product-detail.php?id=<?= $product['id'] ?>'">Buy now</button>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                    }
-                } else {
-                    echo '<div class="swiper-slide text-center"><p>No long sleeve products available.</p></div>';
-                }
-                ?>
-            </div>
-            <div class="swiper-pagination"></div>
-        </div>
-    </div>
-</section>
+<?php if(get_setting('show_longsleeve', '1') === '1'): ?>
+  <section id="longsleeve" class="my-5 pb-5">
+      <div class="container text-center mt-5 py-5">
+          <h3><?= get_setting('longsleeve_title', 'Long Sleeve Collection') ?></h3>
+          <hr class="body-hr mx-auto">
+          <p><?= get_setting('longsleeve_description', 'Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.') ?></p>
+      </div>
+      <div class="container-fluid px-md-5 px-2">
+          <!-- Products for larger screens (hidden on small screens) -->
+          <div class="row justify-content-center d-none d-md-flex">
+              <?php
+              $longsleeveProducts = getIndexProducts($conn, [
+                  'category' => 'Long Sleeve',
+                  'is_featured' => true,
+                  'limit' => 4
+              ]);
+              
+              if(!empty($longsleeveProducts)) {
+                  foreach($longsleeveProducts as $product) {
+                      echo renderProductCard($product);
+                  }
+              } else {
+                  echo '<div class="col-12 text-center"><p>No long sleeve products available.</p></div>';
+              }
+              ?>
+          </div>
+          
+          <!-- Swiper for mobile view (hidden on larger screens) -->
+          <div class="swiper-container longsleeve-swiper d-block d-md-none">
+              <div class="swiper-wrapper">
+                  <?php
+                  if (!empty($longsleeveProducts)) {
+                      foreach ($longsleeveProducts as $product) {
+                          echo renderProductCard($product, true);
+                      }
+                  } else {
+                      echo '<div class="swiper-slide text-center"><p>No long sleeve products available.</p></div>';
+                  }
+                  ?>
+              </div>
+              <div class="swiper-pagination"></div>
+          </div>
+      </div>
+  </section>
+<?php endif; ?>
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
     <!-- UTILITY SCRIPTS -->
@@ -587,7 +332,6 @@
     <script src="js/indexscript.js"></script>
     <script src="js/url-cleaner.js"></script>
     <script src="js/assistant.js"></script>
-    <script src="js/shopcart.js"></script>
     <script src="js/shop.js"></script>
 </body>
 </html>
