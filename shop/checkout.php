@@ -56,7 +56,7 @@ $shipping_fee = 50;
             </div>
 
             <!-- Checkout form -->
-            <form id="checkout-form" action="functions/place_order.php" method="POST">
+            <form id="checkout-form" action="functions/process_payment.php" method="POST">
                 <input type="hidden" name="shipping_fee" value="<?= $shipping_fee ?>">
                 <div class="row g-4">
                     <!-- Left column - Customer info -->
@@ -180,7 +180,7 @@ $shipping_fee = 50;
                                 </div>
                                 
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-dark py-3">Place Order</button>
+                                    <button type="submit" class="btn btn-dark py-3">Proceed to Payment</button>
                                 </div>
                                 
                                 <div class="text-center mt-3">
@@ -210,3 +210,20 @@ $shipping_fee = 50;
     <script src="js/url-cleaner.js"></script>
 </body>
 </html>
+
+<!-- Add this to your checkout form where payment options should appear -->
+<div class="mb-4">
+    <label for="payment-method" class="form-label">Payment Method</label>
+    <select class="form-select" id="payment-method" name="payment_method" required>
+        <option value="card">Credit/Debit Card</option>
+        <option value="qr">GCash/Maya (QR Code)</option>
+    </select>
+</div>
+
+<div id="card-payment-info" class="mb-4">
+    <p class="small text-muted">You will be redirected to our secure payment gateway to complete your payment.</p>
+</div>
+
+<div id="qr-payment-info" class="mb-4 d-none">
+    <p class="small text-muted">You will be shown QR codes to scan with your GCash or Maya app to complete payment.</p>
+</div>
