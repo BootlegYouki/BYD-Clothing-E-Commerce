@@ -14,17 +14,17 @@ class PayMongoHelper {
      * 
      * @param bool $isLive Whether to use live or test keys
      */
-    public function __construct($isLive = false) {
-        if ($isLive) {
-            // Live keys
-            $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-            $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-        } else {
-            // Test keys
-            $this->publicKey = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
-            $this->secretKey = 'sk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
-        }
-    }
+    // public function __construct($isLive = false) {
+    //     if ($isLive) {
+    //         // Live keys
+    //         $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+    //         $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+    //     } else {
+    //         // Test keys
+    //         $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
+    //         $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+    //     }
+    // }
 
     /**
      * Make HTTP request to PayMongo API
