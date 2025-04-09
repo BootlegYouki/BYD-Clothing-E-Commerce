@@ -6,25 +6,8 @@
  * It provides methods for creating payment links and retrieving payment information.
  */
 class PayMongoHelper {
-    private $secretKey;
-    private $publicKey;
-    
-    /**
-     * Constructor - initializes API keys
-     * 
-     * @param bool $isLive Whether to use live or test keys
-     */
-    // public function __construct($isLive = false) {
-    //     if ($isLive) {
-    //         // Live keys
-    //         $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-    //         $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-    //     } else {
-    //         // Test keys
-    //         $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
-    //         $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
-    //     }
-    // }
+//    API KEYS HERE 
+    }
 
     /**
      * Make HTTP request to PayMongo API
