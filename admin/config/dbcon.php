@@ -1,4 +1,14 @@
 <?php
+// Load environment variables
+require_once __DIR__ . '/env_loader.php';
+loadEnvFile(__DIR__ . '/../../.env');
+
+// Database connection
+$host = getenv('DB_HOST') ?: 'localhost';
+$username = getenv('DB_USERNAME') ?: 'root';
+$password = getenv('DB_PASSWORD') ?: '';
+$database = getenv('DB_DATABASE') ?: 'byd_clothing_db';
+
 // Define connection parameters
 $local_config = [
     'host' => 'localhost',
