@@ -13,11 +13,25 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Enable error logging
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/payment_errors.log');
+
 // Get payment ID from URL parameters
 $paymentId = $_GET['payment_id'] ?? null;
+$paymentStatus = $_GET['status'] ?? null;
+
+// Log the incoming request
+error_log("Payment return called with ID: $paymentId, Status: $paymentStatus");
 
 // Validate payment ID
-if (!$paymentId) die('Invalid payment');
+if (!$paymentId) {
+    error_log("Invalid payment: No payment_id provided");
+    header('Location: order-confirmation.php?status=failed&reason=invalid_id');
+    exit;
+}
 
 try {
     // Initialize PayMongo helper
@@ -25,17 +39,25 @@ try {
     
     // Fetch payment details from PayMongo API
     $paymentData = $paymongo->getPaymentIntent($paymentId);
+    error_log("Payment data retrieved: " . json_encode($paymentData));
     
-    // Get payment status
-    $paymentStatus = $paymentData['data']['attributes']['status'];
+    // Get payment status from API response
+    $apiPaymentStatus = $paymentData['data']['attributes']['status'] ?? 'unknown';
+    error_log("Payment status from API: $apiPaymentStatus");
 
     // Update order status in database
     $stmt = $conn->prepare("UPDATE orders SET payment_status = ? WHERE payment_id = ?");
-    $stmt->bind_param('ss', $paymentStatus, $paymentId);
-    $stmt->execute();
+    $stmt->bind_param('ss', $apiPaymentStatus, $paymentId);
+    $result = $stmt->execute();
+    
+    if (!$result) {
+        error_log("Database update failed: " . $conn->error);
+    } else {
+        error_log("Database updated successfully for payment ID: $paymentId");
+    }
     
     // If payment is successful, send email receipt
-    if ($paymentStatus == 'paid') {
+    if ($apiPaymentStatus == 'paid') {
         // Get order details from database
         $orderQuery = "SELECT o.*, GROUP_CONCAT(oi.product_name, ' (', oi.size, ') x', oi.quantity SEPARATOR '\n') as items 
                       FROM orders o 
@@ -50,22 +72,26 @@ try {
         
         if ($orderData = $orderResult->fetch_assoc()) {
             // Send email receipt
-            sendOrderConfirmationEmail($orderData);
+            $emailSent = sendOrderConfirmationEmail($orderData);
+            error_log("Email sent: " . ($emailSent ? "Yes" : "No"));
+        } else {
+            error_log("Order data not found for payment ID: $paymentId");
         }
+        
+        // Redirect to confirmation page with success status
+        header('Location: order-confirmation.php?status=success');
+    } else {
+        // Redirect to confirmation page with pending/failed status
+        $redirectStatus = ($apiPaymentStatus == 'pending') ? 'pending' : 'failed';
+        header("Location: order-confirmation.php?status=$redirectStatus");
     }
-
-    // Clear cart data from session
-    unset($_SESSION['cart']);
-    
-    // Redirect to confirmation page with success status
-    header('Location: order-confirmation.php?status=success');
     
 } catch (Exception $e) {
     // Log error for debugging
     error_log("Payment return error: " . $e->getMessage());
     
     // Redirect to confirmation page with failure status if any error occurs
-    header('Location: order-confirmation.php?status=failed');
+    header('Location: order-confirmation.php?status=failed&reason=exception');
 }
 
 /**

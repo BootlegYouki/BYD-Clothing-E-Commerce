@@ -15,9 +15,15 @@ class PayMongoHelper {
      * @param bool $isLive Whether to use live or test keys
      */
     public function __construct($isLive = false) {
-        // Set your test keys here
-        $this->publicKey = 'pk_test_WuLdYroE1TcYB1y49qVXnuQm';
-        $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+        if ($isLive) {
+            // Live keys
+            $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+            $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+        } else {
+            // Test keys
+            $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
+            $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+        }
     }
 
     /**
@@ -44,12 +50,16 @@ class PayMongoHelper {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => strtoupper($method),
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_SSL_VERIFYPEER => false, // Added for testing
+            CURLOPT_SSL_VERIFYPEER => true, // Changed to true for production
         ]);
 
         // Add request body for POST/PUT requests
         if ($data) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            $jsonData = json_encode($data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+            
+            // Log request data for debugging
+            error_log("PayMongo API Request to $url: $jsonData");
         }
 
         // Execute request and get response
@@ -61,8 +71,12 @@ class PayMongoHelper {
 
         // Handle cURL errors
         if ($error) {
+            error_log("PayMongo cURL Error: $error");
             throw new Exception("cURL Error: $error");
         }
+
+        // Log response for debugging
+        error_log("PayMongo API Response ($httpCode): $response");
 
         // Parse JSON response
         $decoded = json_decode($response, true);
@@ -71,6 +85,7 @@ class PayMongoHelper {
         if ($httpCode >= 400) {
             $errorMsg = isset($decoded['errors']) && !empty($decoded['errors']) ? 
                 $decoded['errors'][0]['detail'] : 'API request failed: ' . $response;
+            error_log("PayMongo API Error: $errorMsg");
             throw new Exception($errorMsg);
         }
 
@@ -111,5 +126,19 @@ class PayMongoHelper {
      */
     public function getPaymentIntent($id) {
         return $this->makeRequest('GET', "payment_intents/$id");
+    }
+    
+    /**
+     * Create a payment link with new tab flag
+     * 
+     * @param float $amount Payment amount
+     * @param string $description Payment description
+     * @param array $metadata Additional metadata
+     * @return array Payment link data with new tab flag
+     */
+    public function createPaymentLinkNewTab($amount, $description, $metadata = []) {
+        $paymentLink = $this->createPaymentLink($amount, $description, $metadata);
+        $paymentLink['open_in_new_tab'] = true;
+        return $paymentLink;
     }
 }
