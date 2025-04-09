@@ -21,8 +21,8 @@ class PayMongoHelper {
             $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
         } else {
             // Test keys
-            $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
-            $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+            $this->publicKey = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
+            $this->secretKey = 'sk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
         }
     }
 
