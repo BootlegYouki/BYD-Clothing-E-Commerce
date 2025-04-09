@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 11:34 AM
+-- Generation Time: Apr 09, 2025 at 01:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -81,6 +81,119 @@ INSERT INTO `homepage_settings` (`id`, `setting_key`, `setting_value`, `updated_
 (13, 'longsleeve_title', 'Long Sleeve Collection', '2025-04-06 04:48:10'),
 (14, 'longsleeve_description', 'Our Aircool Riders Jersey is built for everyday rides—lightweight, breathable, and made for ultimate performance.', '2025-04-06 04:48:10'),
 (15, 'show_longsleeve', '1', '2025-04-06 05:10:08');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+CREATE TABLE `orders` (
+  `order_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `firstname` varchar(50) DEFAULT NULL,
+  `lastname` varchar(50) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `zipcode` varchar(20) DEFAULT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_id` varchar(100) DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `shipping_cost` decimal(10,2) DEFAULT NULL,
+  `total_amount` decimal(10,2) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`order_id`, `user_id`, `firstname`, `lastname`, `email`, `phone`, `address`, `city`, `zipcode`, `payment_method`, `payment_id`, `subtotal`, `shipping_cost`, `total_amount`, `status`, `created_at`) VALUES
+(1, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_4K8oBeXZmpmdsPULKHfPVhzK', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:22:38'),
+(2, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_Q3i1NDJV7iZaA9JbP2P4Dqzq', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:24:38'),
+(3, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_sLrqdzk8iNQQx3mhfjpLqN2e', 2160.00, 50.00, 2210.00, 'pending', '2025-04-08 13:32:20'),
+(4, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_z3Cb8ser86p1wpuz6m5mqcaA', 3600.00, 50.00, 3650.00, 'pending', '2025-04-08 13:33:38'),
+(5, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_YctimAV74fD5DqKaqQZFzd6h', 8640.00, 50.00, 8690.00, 'pending', '2025-04-08 13:36:11'),
+(6, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_KMy2nKY9yd7MiGMrhiBT1b7n', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:48:02'),
+(7, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_mZGsiYfVbouTc37BSwQSjGkU', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:57:32'),
+(8, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_N7ixAQSpCkStvjcMH6HPWwDx', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:14:09'),
+(9, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_dnjb66RVzMXgt6odfYE9Q8r1', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:18:17'),
+(10, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_vgF4fqo869nT2n2nMNfhg5gP', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:52:18'),
+(11, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_JsEKUagEFbPm357TqVrCm8yr', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:59:51'),
+(12, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_qX7CbCfhB914BHVuamrUTfxp', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:08:37'),
+(13, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_Ly2uFmBiLej84HjjB81oYaUR', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:09:34'),
+(14, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_t9JbVyxKvCgBGmrLAMGweK3L', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:31:45'),
+(15, 14, 'Jm', 'Reyes', 'ritaga.justine.estrellado@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_FK4rh1XLE5dm24Qebip5b2aX', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:35:35'),
+(16, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_zBZDT78EmZLTZzrhfBJyC4Sf', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:47:37'),
+(17, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_m1Yu7oijD96UmPsHS7RCmNH8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:56:57'),
+(18, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_Eoi2iKWFvGgX5GzWwrgym2fa', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:03:08'),
+(19, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_tAeTFnuvzb1xzYBmQkZgzNDY', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:10:25'),
+(20, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_zg9bMGRW6vwPnoPadb86MRdJ', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:19:46'),
+(21, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_4N9dPxj2474EAVNiruQ3RMzv', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:44:00'),
+(22, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_xba1DXvrCha8q78L4uYPcvgh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 08:00:34'),
+(23, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_J4e3nUwxKy2gVqLuFHWZgLpA', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:22:23'),
+(24, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_q6i5aeDe3MumAv8k9gzDQLgL', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:25:33'),
+(25, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_RTm8aNeGBHmGCtysb1RzAzLh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:29:02'),
+(26, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_JdHcaiPx7vcu5rENYkUC5gj3', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:33:15'),
+(27, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_97jP75hFBj6g7byMhvtXdqD8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:23:35'),
+(28, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', 'Quezon City', '1102', 'paymongo', 'link_G919eXfm588KtKFz5yZ4qy5q', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:52:23');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_items`
+--
+
+CREATE TABLE `order_items` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `product_name` varchar(100) DEFAULT NULL,
+  `size` varchar(20) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price` decimal(10,2) DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_items`
+--
+
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `size`, `quantity`, `price`, `subtotal`) VALUES
+(1, 1, 14, 'GIPSY', 'S', 1, 720.00, 720.00),
+(2, 2, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(3, 3, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(4, 3, 14, 'GIPSY', 'S', 2, 720.00, 1440.00),
+(5, 4, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(6, 4, 14, 'GIPSY', 'S', 4, 720.00, 2880.00),
+(7, 5, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(8, 5, 14, 'GIPSY', 'S', 11, 720.00, 7920.00),
+(9, 6, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(10, 7, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(11, 8, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(12, 9, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(13, 10, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(14, 11, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(15, 12, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(16, 13, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(17, 14, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(18, 15, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(19, 16, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(20, 17, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(21, 18, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(22, 19, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(23, 20, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(24, 21, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(25, 22, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(26, 23, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(27, 24, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(28, 25, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(29, 26, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(30, 27, 14, 'GIPSY', 'M', 1, 720.00, 720.00),
+(31, 28, 14, 'GIPSY', 'M', 1, 720.00, 720.00);
 
 -- --------------------------------------------------------
 
@@ -249,7 +362,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `firstname`, `middlename`, `lastname`, `phone_number`, `email`, `username`, `full_address`, `zipcode`, `password`, `role_as`, `created_at`) VALUES
 (9, 'Mark Darren', 'Ocaya', 'Oandasan', '09682351236', 'darrenjade24@gmail.com', 'Youki', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', '$2y$10$9q4eOlj9f7cI9VtdNtI2lO/890iwwOe5qxlMinImLOBBRd3a7HTs.', 0, '2025-03-13 10:54:49'),
 (11, 'Admin', NULL, 'User', NULL, NULL, 'Admin', NULL, NULL, '$2y$10$UlWm/PGqVkHE9Zt5jIkxrOcjaTY/TTxtT5I88E2VHyxYfhnJ2g.Ly', 1, '2025-03-27 04:05:26'),
-(13, 'asdasd', 'asdasd', 'asdasd', '1293012390123', 'asdasd@gmail.com', 'hello', 'asdasd', 'asdasdasd', '$2y$10$iMMitsyMw64E1VY6WAmgMOoFAGAliAzFmGu6BTYxQHiU1uv9mkbhy', 0, '2025-04-01 12:00:33');
+(13, 'asdasd', 'asdasd', 'asdasd', '1293012390123', 'asdasd@gmail.com', 'hello', 'asdasd', 'asdasdasd', '$2y$10$iMMitsyMw64E1VY6WAmgMOoFAGAliAzFmGu6BTYxQHiU1uv9mkbhy', 0, '2025-04-01 12:00:33'),
+(14, 'Jm', '', 'Reyes', '09244618214', 'jundillmharreyes@gmail.com', 'Jiem', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', '$2y$10$sF8eYR87p0c7lfmEEB7lBOzX4dk6WQ0qWEA0vW4wXaL85wlDNcbmK', 0, '2025-04-07 17:07:05');
 
 -- --------------------------------------------------------
 
@@ -310,6 +424,19 @@ ALTER TABLE `homepage_settings`
   ADD UNIQUE KEY `setting_key` (`setting_key`);
 
 --
+-- Indexes for table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`order_id`);
+
+--
+-- Indexes for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`);
+
+--
 -- Indexes for table `products`
 --
 ALTER TABLE `products`
@@ -368,6 +495,18 @@ ALTER TABLE `homepage_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT for table `order_items`
+--
+ALTER TABLE `order_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+
+--
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
@@ -389,7 +528,7 @@ ALTER TABLE `product_sizes`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user_carts`
@@ -406,6 +545,12 @@ ALTER TABLE `user_conversations`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
 
 --
 -- Constraints for table `product_images`

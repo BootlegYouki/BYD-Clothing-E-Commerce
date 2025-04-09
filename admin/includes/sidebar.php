@@ -2,6 +2,22 @@
 
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
+
+// Include dashboard functions if not already included
+if (!function_exists('getPendingOrdersCount')) {
+    include_once dirname(__FILE__) . '/../functions/dashboard-functions.php';
+}
+
+// Get pending orders count for badge display
+$pending_orders_count = 0;
+if (function_exists('getPendingOrdersCount')) {
+    // Get the database connection
+    include_once dirname(__FILE__) . '/../config/dbcon.php';
+    $pending_orders_count = getPendingOrdersCount($conn);
+}
+
+// Only show badge if there are pending orders
+$badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
 ?>
 <script>
   // This function will be called before the document loads
@@ -173,7 +189,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
           <a class="nav-link <?php echo ($currentPage == 'orders.php') ? 'active' : ''; ?>" href="orders.php">
             <i class="material-symbols-rounded">receipt_long</i>
             <span>Orders</span>
-            <span class="nav-badge">5</span>
+            <?php if ($pending_orders_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $badge_display ?>;"><?= $pending_orders_count ?></span>
+            <?php endif; ?>
           </a>
         </li>
         <li class="nav-item">
@@ -259,7 +277,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                href="orders.php" onclick="closeOffcanvas()">
               <i class="material-symbols-rounded">receipt_long</i>
               <span>Orders</span>
-              <span class="nav-badge">5</span>
+              <?php if ($pending_orders_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $badge_display ?>;"><?= $pending_orders_count ?></span>
+              <?php endif; ?>
             </a>
           </li>
           <li class="nav-item">
