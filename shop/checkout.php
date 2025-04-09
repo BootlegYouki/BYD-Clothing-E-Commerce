@@ -135,16 +135,56 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
+                                        <!-- PayMongo Card Payment -->
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="payment_method" 
+                                                id="payment_card" value="card" checked required>
+                                            <label class="form-check-label d-flex align-items-center" for="payment_card">
+                                                <div>
+                                                    <strong>Credit/Debit Card</strong>
+                                                    <p class="mb-0 text-muted small">Pay securely with your card via PayMongo</p>
+                                                </div>
+                                                <span class="ms-auto"><i class="fas fa-credit-card text-primary"></i></span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- PayMongo E-wallet Payment -->
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="payment_method" 
+                                                id="payment_ewallet" value="ewallet" required>
+                                            <label class="form-check-label d-flex align-items-center" for="payment_ewallet">
+                                                <div>
+                                                    <strong>GCash/Maya</strong>
+                                                    <p class="mb-0 text-muted small">Pay using your e-wallet account</p>
+                                                </div>
+                                                <span class="ms-auto"><i class="fas fa-wallet text-info"></i></span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Cash on Delivery -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="payment_method" 
-                                                id="payment_cod" value="cod" checked required>
-                                            <label class="form-check-label d-flex justify-content-between" for="payment_cod">
+                                                id="payment_cod" value="cod" required>
+                                            <label class="form-check-label d-flex align-items-center" for="payment_cod">
                                                 <div>
                                                     <strong>Cash on Delivery (COD)</strong>
                                                     <p class="mb-0 text-muted small">Pay when you receive your items</p>
                                                 </div>
-                                                <span class="ms-3"><i class="fas fa-money-bill-wave text-success"></i></span>
+                                                <span class="ms-auto"><i class="fas fa-money-bill-wave text-success"></i></span>
                                             </label>
+                                        </div>
+                                        
+                                        <!-- Payment information section -->
+                                        <div id="payment-info-section" class="mt-4 p-3 bg-light rounded">
+                                            <div id="card-payment-info">
+                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to our secure payment gateway to complete your payment. The payment will open in a new tab.</p>
+                                            </div>
+                                            <div id="ewallet-payment-info" class="d-none">
+                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to GCash or Maya to complete your payment. The payment will open in a new tab.</p>
+                                            </div>
+                                            <div id="cod-payment-info" class="d-none">
+                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will pay the full amount when your order is delivered.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -205,25 +245,32 @@ $shipping_fee = 50;
     <script>
     // Store shipping fee as a global constant
     const SHIPPING_FEE = <?= $shipping_fee ?>;
+    
+    // Handle payment method selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle payment info sections based on selected payment method
+        const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+        const paymentInfos = {
+            'card': document.getElementById('card-payment-info'),
+            'ewallet': document.getElementById('ewallet-payment-info'),
+            'cod': document.getElementById('cod-payment-info')
+        };
+        
+        paymentMethods.forEach(method => {
+            method.addEventListener('change', function() {
+                // Hide all payment info sections
+                Object.values(paymentInfos).forEach(info => {
+                    if (info) info.classList.add('d-none');
+                });
+                
+                // Show selected payment info
+                const selectedInfo = paymentInfos[this.value];
+                if (selectedInfo) selectedInfo.classList.remove('d-none');
+            });
+        });
+    });
     </script>
     <script src="js/checkout.js"></script>
     <script src="js/url-cleaner.js"></script>
 </body>
 </html>
-
-<!-- Add this to your checkout form where payment options should appear -->
-<div class="mb-4">
-    <label for="payment-method" class="form-label">Payment Method</label>
-    <select class="form-select" id="payment-method" name="payment_method" required>
-        <option value="card">Credit/Debit Card</option>
-        <option value="qr">GCash/Maya (QR Code)</option>
-    </select>
-</div>
-
-<div id="card-payment-info" class="mb-4">
-    <p class="small text-muted">You will be redirected to our secure payment gateway to complete your payment.</p>
-</div>
-
-<div id="qr-payment-info" class="mb-4 d-none">
-    <p class="small text-muted">You will be shown QR codes to scan with your GCash or Maya app to complete payment.</p>
-</div>

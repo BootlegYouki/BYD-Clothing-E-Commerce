@@ -123,8 +123,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Clear cart before redirecting
                     localStorage.removeItem('shopping-cart');
                     
-                    // Redirect to PayMongo payment page
-                    window.location.href = data.payment_url;
+                    // Open payment URL in a new tab
+                    window.open(data.payment_url, '_blank');
+                    
+                    // Show success message
+                    alert('Payment page opened in a new tab. Please complete your payment there.');
+                    
+                    // Optional: Redirect to order tracking page after a delay
+                    setTimeout(function() {
+                        window.location.href = 'index.php?order_id=' + data.order_id;
+                    }, 3000);
                 } else {
                     throw new Error(data.message || 'Payment processing failed');
                 }

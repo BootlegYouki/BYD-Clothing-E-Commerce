@@ -35,25 +35,31 @@ try {
     // Initialize PayMongo helper
     $paymongo = new PayMongoHelper();
     
-    // Create payment link through PayMongo API
-    $paymentLink = $paymongo->createPaymentLink(
+    // Create payment link through PayMongo API with new tab flag
+    $paymentLink = $paymongo->createPaymentLinkNewTab(
         $formData['total'],
         'Order Payment for '.$formData['firstname'].' '.$formData['lastname'],
         [
             'user_id' => $formData['user_id'],
-            'email' => $formData['email']
+            'email' => $formData['email'],
+            'name' => $formData['firstname'] . ' ' . $formData['lastname'],
+            'phone' => $formData['phone'],
+            'address' => $formData['address'],
+            'city' => $formData['city'],
+            'zipcode' => $formData['zipcode']
         ]
     );
     
     // Store order in database and get order ID
     $orderId = insertOrderToDatabase($conn, $formData, $paymentLink['data']['id']);
     
-    // Return success response with payment URL
+    // Return success response with payment URL and new tab flag
     header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'payment_url' => $paymentLink['data']['attributes']['checkout_url'],
-        'order_id' => $orderId
+        'order_id' => $orderId,
+        'open_in_new_tab' => true
     ]);
     
 } catch (Exception $e) {
