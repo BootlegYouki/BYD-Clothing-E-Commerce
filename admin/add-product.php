@@ -6,6 +6,9 @@ if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
     exit();
 }
 
+// Add this line to include database connection
+include 'config/dbcon.php';
+
 function generateSKU($productName, $category) {
     $prefix = strtoupper(substr($category, 0, 3));
     $shortName = strtoupper(substr(preg_replace("/[^a-zA-Z0-9]/", '', $productName), 0, 4));
@@ -102,14 +105,93 @@ function generateSKU($productName, $category) {
                                 <label for="discount_percentage" class="form-label">Discount Percentage</label>
                                 <input type="number" name="discount_percentage" class="form-control">
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="category" class="form-label">Category</label>
                                 <select name="category" id="category" class="form-control" required>
                                     <option value="">Select Category</option>
-                                    <option value="T-Shirt">T-Shirt</option>
-                                    <option value="Long Sleeve">Long Sleeve</option>
+                                    <?php
+                                    // Fetch existing categories from database
+                                    $category_query = "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category";
+                                    $category_result = mysqli_query($conn, $category_query);
+                                    if(mysqli_num_rows($category_result) > 0) {
+                                        while($category = mysqli_fetch_assoc($category_result)) {
+                                            echo '<option value="'.$category['category'].'">'.$category['category'].'</option>';
+                                        }
+                                    }
+                                    ?>
+                                    <option value="new">+ Add New Category</option>
+                                    <option value="remove" class="text-danger">- Remove Category</option>
                                 </select>
                             </div>
+                            <div class="col-md-6 mb-3" id="new_category_container" style="display: none;">
+                                <label for="new_category" class="form-label">New Category Name</label>
+                                <input type="text" name="new_category" id="new_category" class="form-control" placeholder="Enter new category name">
+                                <button type="button" id="add_category_btn" class="btn btn-success mt-2">Add Category</button>
+                                <div id="add_category_msg" class="mt-2"></div>
+                            </div>
+                            <div class="col-md-6 mb-3" id="remove_category_container" style="display: none;">
+                                <label for="remove_category" class="form-label">Select Category to Remove</label>
+                                <select name="remove_category" id="remove_category" class="form-control">
+                                    <option value="">Select Category to Remove</option>
+                                    <?php
+                                    // Reset the result pointer to beginning
+                                    mysqli_data_seek($category_result, 0);
+                                    if(mysqli_num_rows($category_result) > 0) {
+                                        while($category = mysqli_fetch_assoc($category_result)) {
+                                            echo '<option value="'.$category['category'].'">'.$category['category'].'</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                                <button type="button" id="remove_category_btn" class="btn btn-danger mt-2">Remove Selected Category</button>
+                                <div id="remove_category_msg" class="mt-2"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fabric" class="form-label">Fabric</label>
+                                <select name="fabric" id="fabric" class="form-control">
+                                    <option value="">Select Fabric</option>
+                                    <?php
+                                    // Fetch existing fabric categories from database
+                                    $fabric_query = "SELECT DISTINCT fabric FROM products WHERE fabric IS NOT NULL AND fabric != '' ORDER BY fabric";
+                                    $fabric_result = mysqli_query($conn, $fabric_query);
+                                    if(mysqli_num_rows($fabric_result) > 0) {
+                                        while($fabric = mysqli_fetch_assoc($fabric_result)) {
+                                            echo '<option value="'.$fabric['fabric'].'">'.$fabric['fabric'].'</option>';
+                                        }
+                                    }
+                                    ?>
+                                    <option value="new">+ Add New Fabric</option>
+                                    <option value="remove" class="text-danger">- Remove Fabric</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3" id="new_fabric_container" style="display: none;">
+                                <label for="new_fabric" class="form-label">New Fabric Type</label>
+                                <input type="text" name="new_fabric" id="new_fabric" class="form-control" placeholder="Enter new fabric type">
+                                <button type="button" id="add_fabric_btn" class="btn btn-success mt-2">Add Fabric</button>
+                                <div id="add_fabric_msg" class="mt-2"></div>
+                            </div>
+                            <div class="col-md-6 mb-3" id="remove_fabric_container" style="display: none;">
+                                <label for="remove_fabric" class="form-label">Select Fabric to Remove</label>
+                                <select name="remove_fabric" id="remove_fabric" class="form-control">
+                                    <option value="">Select Fabric to Remove</option>
+                                    <?php
+                                    // Reset the result pointer to beginning
+                                    mysqli_data_seek($fabric_result, 0);
+                                    if(mysqli_num_rows($fabric_result) > 0) {
+                                        while($fabric = mysqli_fetch_assoc($fabric_result)) {
+                                            echo '<option value="'.$fabric['fabric'].'">'.$fabric['fabric'].'</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                                <button type="button" id="remove_fabric_btn" class="btn btn-danger mt-2">Remove Selected Fabric</button>
+                                <div id="remove_fabric_msg" class="mt-2"></div>
+                            </div>
+                        </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <div class="form-check form-switch">
@@ -128,7 +210,7 @@ function generateSKU($productName, $category) {
                             </div>
                             <div class="col-md-12">
                                 <hr>
-                                <h5>Product Images</h5>
+                                <h5 class="mt-4">Product Images</h5>
                                 <div>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -136,7 +218,7 @@ function generateSKU($productName, $category) {
                                             <input type="file" name="primary_image[]" id="primary_image" class="form-control d-none" multiple accept="image/*">
                                             <input type="text" class="form-control" id="primary_image_text" placeholder="No files selected" readonly>
                                             <div class="error-message text-danger"></div>
-                                            <button class="btn btn-coral mt-4" type="button" id="primary_image_btn">Choose Image</button>
+                                            <button class="btn btn-primary mt-4" type="button" id="primary_image_btn">Choose Image</button>
                                             <div id="primary_image_preview" class="mt-2"></div>
                                         </div>
                                         <div class="col-md-6">
@@ -144,13 +226,12 @@ function generateSKU($productName, $category) {
                                             <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
                                             <input type="text" class="form-control" id="additional_images_text" placeholder="No files selected" readonly>
                                             <div class="error-message text-danger"></div>
-                                            <button class="btn btn-coral mt-4" type="button" id="additional_images_btn">Choose Images</button>
+                                            <button class="btn btn-primary mt-4" type="button" id="additional_images_btn">Choose Images</button>
                                             <div id="additional_images_preview" class="mt-2"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="col-md-12 mb-3 mt-4">
                                 <hr>
                                 <h5 class="mt-4">Product Sizes & Stock</h5>
@@ -179,10 +260,13 @@ function generateSKU($productName, $category) {
                                         <label class="form-label">XXL</label>
                                         <input type="number" name="stock[XXL]" class="form-control" min="0" value="0">
                                     </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label">XXXL</label>
+                                        <input type="number" name="stock[XXXL]" class="form-control" min="0" value="0">
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-12">
+                            <div class="col-md-12 d-flex justify-content-end">
                                 <button type="submit" name="add_product" class="btn btn-primary" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">Add Product</button>
                             </div>
                         </div>

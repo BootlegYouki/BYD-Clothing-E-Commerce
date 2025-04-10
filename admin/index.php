@@ -106,7 +106,7 @@ extract($dashboard);
                             </div>
                             <hr class="dark horizontal my-0">
                             <div class="card-footer p-2 ps-3">
-                                <a href="inventory.php?filter=low_stock" class="mb-0 text-sm text-coral">
+                                <a href="products.php" class="mb-0 text-sm text-coral">
                                     View low stock items <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">arrow_forward</i>
                                 </a>
                             </div>

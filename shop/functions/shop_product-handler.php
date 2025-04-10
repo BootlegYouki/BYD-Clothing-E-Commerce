@@ -105,7 +105,7 @@ function getShopProducts($conn, $params = []) {
             ];
             
             // Get available sizes for this product
-            $sizes_query = "SELECT size, stock FROM product_sizes WHERE product_id = {$product['id']} ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')";
+            $sizes_query = "SELECT size, stock FROM product_sizes WHERE product_id = {$product['id']} ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')";
             $sizes_result = mysqli_query($conn, $sizes_query);
             
             $available_sizes = [];
