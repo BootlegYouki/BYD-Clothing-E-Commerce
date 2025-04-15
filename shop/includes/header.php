@@ -79,6 +79,8 @@ $hide_cart = ($current_page == 'checkout.php');
         <?php endif; ?>
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
         <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
+        <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Profile</span></a></li>
+
         </ul>
       </div>
     <?php endif; ?>
