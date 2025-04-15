@@ -37,7 +37,7 @@ function initMap(id, modalType) {
         updateCoordinates(lat, lng);
     }
 
-    // Get user's current location
+    // Get user current location
     function setUserLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -89,18 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
         initMap("editMap", "edit");
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Function to convert lat/lng to street address
 async function reverseGeocode(lat, lng, modalType) {
@@ -202,14 +190,14 @@ async function fetchBarangays(cityCode, modalType) {
 
 // When Add Address Modal is shown
 document.getElementById('addressModal').addEventListener('shown.bs.modal', function () {
-    fetchRegions('add'); // Load regions for Add Address
-    initMap('map'); // Initialize Google Map for Add Address
+    fetchRegions('add'); 
+    initMap('map'); 
 });
 
 // When Edit Address Modal is shown
 document.getElementById('editAddressModal').addEventListener('shown.bs.modal', function () {
-    fetchRegions('edit'); // Load regions for Edit Address
-    initMap('editMap'); // Initialize Google Map for Edit Address
+    fetchRegions('edit'); 
+    initMap('editMap'); 
 });
 
 // Event listener for Region dropdown in Add/Edit Address modals
@@ -235,4 +223,7 @@ document.getElementById("city").addEventListener("change", function () {
 document.getElementById("editCity").addEventListener("change", function () {
     fetchBarangays(this.value, 'edit');
 });
+
+// DATABASE MANIPULATION DITO NA LAGAY//
+
 

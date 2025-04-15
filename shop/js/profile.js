@@ -1,58 +1,81 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Select all buttons with "sidebar-btn" class
-    document.querySelectorAll(".sidebar-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let page = this.getAttribute("data-page"); // Get PHP file path
-            loadContent(page); // Call function to load content
+//Slide bar toggle
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebarButtons = document.querySelectorAll(".sidebar-btn");
+    const contentContainer = document.querySelector(".content");
 
-            // Remove active class from all buttons, then add to the clicked one
-            document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
-            this.classList.add("active");
+    sidebarButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const page = button.getAttribute("data-page");
+
+            sidebarButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+
+            fetch(page)
+                .then(response => response.text())
+                .then(data => {
+                    contentContainer.innerHTML = data;
+
+                    // Conditionally load script for profile_address.php
+                    if (page.includes("profile_address")) {
+                        const oldScript = document.querySelector("#profileAddressScript");
+                        if (oldScript) oldScript.remove(); // prevent duplicate
+
+                        const script = document.createElement("script");
+                        script.id = "profileAddressScript";
+                        script.src = "js/profile_address.js";
+                        document.body.appendChild(script);
+                    }
+                });
         });
     });
 
-    // Handle Purchases <span> click (since it's not a button)
-    document.querySelector("[data-page='includes/order_track.php']").addEventListener("click", function () {
-        loadContent("includes/order_track.php");
-    });
-
-    // Function to load content dynamically
-    function loadContent(page) {
-        fetch(page) // Fetch PHP file
-            .then(response => response.text()) // Convert response to text
-            .then(data => {
-                document.querySelector(".content").innerHTML = data; // Update content
-            })
-            .catch(error => console.error("Error loading content:", error));
-    }
+    // Load profile_user_info.php by default
+    document.querySelector(".sidebar-btn[data-page='includes/profile_user_info.php']").click();
 });
 
 
-function loadContent(page) {
-    fetch(page)
-        .then(response => response.text())
-        .then(data => {
-            let contentContainer = document.querySelector(".content");
-            contentContainer.innerHTML = data; // Load the content
-            
-            // Execute any inline scripts inside the loaded content
-            let scripts = contentContainer.getElementsByTagName("script");
-            for (let i = 0; i < scripts.length; i++) {
-                let newScript = document.createElement("script");
-                newScript.innerHTML = scripts[i].innerHTML;
-                document.body.appendChild(newScript);
-            }
 
-            // Reinitialize any required functions (example: map, dropdowns)
-            if (page.includes("profile_address.php")) {
-                initMap("editMap", "edit"); // Reinitialize map for Edit Address
-            }
-        })
-        .catch(error => console.error("Error loading content:", error));
+document.querySelectorAll(".sidebar-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        // Remove active class from all buttons
+        document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
+        this.classList.add("active");
 
+        const page = this.getAttribute("data-page");
 
-        
-}
+        fetch(page)
+            .then(res => {
+                if (!res.ok) throw new Error("Page not found");
+                return res.text();
+            })
+            .then(data => {
+                document.querySelector(".content").innerHTML = data;
 
+                  // For Profile page: re-initialize scripts if needed
+                  if (page.includes("profile_user_info")) {
+                    const script = document.createElement("script");
+                    script.src = "js/profile_user_info.js";
+                    document.body.appendChild(script);
+                }
 
+                // For address page: re-initialize scripts if needed
+                if (page.includes("profile_address")) {
+                    const script = document.createElement("script");
+                    script.src = "js/profile_address.js";
+                    document.body.appendChild(script);
+                }
 
+                 // For Change Password page: re-initialize scripts if needed
+                if (page.includes("profile_change_password")) {
+                    const script = document.createElement("script");
+                    script.src = "js/profile_change_password.js";
+                    document.body.appendChild(script);
+                }
+                
+
+            })
+            .catch(err => {
+                document.querySelector(".content").innerHTML = `<p class="text-danger">Error loading page: ${err.message}</p>`;
+            });
+    });
+});

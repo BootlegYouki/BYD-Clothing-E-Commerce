@@ -66,23 +66,28 @@ $hide_cart = ($current_page == 'checkout.php');
       </a>
     <?php else: ?>
       <div class="nav-item dropdown me-lg-3">
-        <a class="dropdown-toggle nav-icon d-flex align-items-center text-decoration-none d-lg-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bx bx-user fs-4"></i>
-          <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
-        </a>
-        <ul class="dropdown-menu">
-        <?php if ($is_admin): ?>
-          <li><a class="dropdown-item" href="../../admin/index.php" target="_blank">
-          <i class="bx bx-cog me-2"></i>Admin Panel
-          </a></li>
-          <li><hr class="dropdown-divider"></li>
-        <?php endif; ?>
-        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-        <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
-        <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Profile</span></a></li>
+  <a class="dropdown-toggle nav-icon d-flex align-items-center text-decoration-none d-lg-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bx bx-user fs-4"></i>
+    <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
+  </a>
+  <ul class="dropdown-menu">
+    <?php if ($is_admin): ?>
+      <li><a class="dropdown-item" href="../../admin/index.php" target="_blank">
+        <i class="bx bx-cog me-2"></i>Admin Panel
+      </a></li>
+      <li><hr class="dropdown-divider"></li>
+    <?php endif; ?>
 
-        </ul>
-      </div>
+    <li><a class="dropdown-item" href="profile.php">
+      <i class="bx bx-user me-2"></i>Profile
+    </a></li>
+
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+      <i class="bx bx-log-out me-2"></i>Logout
+    </a></li>
+  </ul>
+</div>
+
     <?php endif; ?>
     
     <?php if (!$is_admin): ?>
