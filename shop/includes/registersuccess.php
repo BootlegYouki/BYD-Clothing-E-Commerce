@@ -15,3 +15,5 @@
     </div>
   </div>
 </div>
+
+<script src="js/url-cleaner.js"></script>

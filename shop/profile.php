@@ -17,9 +17,6 @@
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/profile.css">
-  
-
-
 </head>
 <body>
     <!-- NAVBAR -->
@@ -37,70 +34,58 @@
     <!-- SHOP CART -->
     <?php include 'includes/shopcart.php'; ?>
 
+    <section id="profile" class="my-5 py-5">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h2>Profile</h2>
+                    <hr class="body-hr mx-auto">
+                </div>
+            </div>
 
+            <div class="row g-4">
+                <!-- Sidebar -->
+                <div class="col-md-4 col-lg-3">
+                    <div class="sidebar p-3 shadow-sm">
+                        <h2 class="d-flex align-items-center justify-content-between mb-3 fw-bold">
+                            <a class="text-dark text-decoration-none d-flex align-items-center w-100" data-bs-toggle="collapse" href="#accountMenu" role="button" aria-expanded="false">
+                                <i class="fas fa-user-circle me-2"></i> <span class="fs-6">My Account</span> 
+                                <i class="fa fa-chevron-down ms-auto"></i>
+                            </a>
+                        </h2>
 
- 
+                        <!-- Collapsible Menu -->
+                        <div class="collapse show" id="accountMenu"> 
+                            <div class="d-flex flex-column">
+                                <button class="btn sidebar-btn active" data-page="includes/profile_user_info.php">Profile</button>
+                                <button class="btn sidebar-btn" data-page="includes/profile_address.php">Address</button>
+                                <button class="btn sidebar-btn" data-page="includes/profile_changePass.php">Change Password</button>
+                                <button class="btn sidebar-btn" data-page="includes/order_track.php">Orders</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-
-    
-
-    <!-- BANNER -->
-<!--     <section class="top-image-container">
-        <img src="img/logo/Banner.png" alt="Banner" class="top-image">
-      </section>     -->  
-
-<!-- Sidebar & Main Content Wrapper -->
-<section class="d-flex mt-5">
-    <!-- Sidebar -->
-    <div class="sidebar bg-light p-3 shadow-sm mt-5" style="width: 250px; min-height: 100vh;">
-        <h2 class="d-flex align-items-center justify-content-between">
-            <a class="text-dark text-decoration-none d-flex align-items-center w-100" data-bs-toggle="collapse" href="#accountMenu" role="button" aria-expanded="false">
-                <i class="fas fa-user-circle me-2"></i> <span>My Account</span> 
-                <i class="fa fa-chevron-down ms-auto"></i>
-            </a>
-        </h2>
-
-        <!-- Collapsible Menu -->
-        <div class="collapse show" id="accountMenu"> 
-            <div class="d-flex flex-column">
-                <button class="btn sidebar-btn active" data-page="includes/profile_user_info.php">Profile</button>
-                <button class="btn sidebar-btn" data-page="includes/profile_address.php">Address</button>
-                <button class="btn sidebar-btn" data-page="includes/profile_changePass.php">Change Password</button>
+                <!-- Main Content Section -->
+                <div class="col-md-8 col-lg-9">
+                    <div class="content shadow bg-white rounded">
+                        <?php include 'includes/profile_user_info.php'; ?>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Purchases -->
-        <h2 class="btn sidebar-btn mt-3 d-flex align-items-center custom-font-size"data-page="includes/order_track.php">
-            <i class=" fas fa-shopping-cart me-2"></i> <span>Purchases</span>
-        </h2>
-    </div>
-
-    <!-- Main Content Section (Now inside flex container) -->
-    <div class="p-4 flex-grow-1 mt-5">
-        <div class="content shadow bg-white rounded">
-            <?php include 'includes/order_track.php'; ?>
-        </div>
-    </div>
-</section>
-
+    </section>
 
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
     <!--SCRIPT-->
     <script src="js/indexscript.js"></script>
     <script src="js/profile.js"></script>
-
-
-    <!-- SCRIPTS -->
   
     <!-- Google Maps API (Enable Places Library) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
 
     <!-- BOOTSTRAP JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
 </body>
 </html>

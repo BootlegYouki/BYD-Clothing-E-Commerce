@@ -1,19 +1,16 @@
 
- <!-- CUSTOM CSS -->
- <link rel="stylesheet" href="css/important.css">
-    <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/profile.css">
+<!-- CUSTOM CSS -->
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/profile_user_info.css">
 
-
-    
-    <div class="container mt-4">
+<div class="container mt-4">
     <h3>Profile Details</h3>
     <p>Manage your profile information here.</p>
 
     <p>Username: <span>BYD_tester</span></p>
 
     <label for="fullname" class="mb-1">Fullname</label>
-    <div class="input-group mb-3" style="max-width: 1000px; width: 960px;">
+    <div class="input-group mb-3">
         <input type="text" class="form-control" id="fullname" disabled>
     </div>
 
@@ -54,13 +51,8 @@
     </div>
 </div>
 
-
-
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
 <script src="js/profile_user_info.js"></script>
 <script src="js/url-cleaner.js"></script>
-

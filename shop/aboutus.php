@@ -14,26 +14,23 @@
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- CUSTOM CSS -->
-    <link rel="stylesheet" href="css/aboutus.css">
-    <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/important.css">
-    <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/shopcart.css">
-
-
+    <link rel="stylesheet" href="css/aboutus.css">
+    <link rel="stylesheet" href="css/headerfooter.css">
 </head>
 <body>
-   <!-- NAVBAR -->
-   <?php include 'includes/header.php'; ?>
+    <!-- NAVBAR -->
+    <?php include 'includes/header.php'; ?>
     <!-- REGISTER MODAL  -->
      <?php include 'includes/register.php'; ?>
     <!-- LOGIN MODAL  -->
     <?php include 'includes/login.php'; ?>
+    <!-- LOGOUT MODAL  -->
+    <?php include 'includes/logout.php'; ?>
     <!-- SUCCESS MODAL  -->
     <?php include 'includes/loginsuccess.php'; ?>
     <?php include 'includes/registersuccess.php'; ?>
-    <!-- FAILED MODAL  -->
-    <?php include 'includes/failedmodal.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
@@ -41,9 +38,8 @@
 
 
     <section class="top-image-container">
-        <img src="img/logo/BANNER LOGO.jpg" alt="Banner" class="top-image">
+        <img src="img/logo/Banner.png" alt="Banner" class="top-image">
       </section>      
-
     <section id="contact-details">
 <div class="details">
     <span>GET IN TOUCH</span>
@@ -71,38 +67,33 @@
 </div>
 </section>
 
-<section id="form-details">
-    <form>
+<section id="form-details" class="container">
+  <div class="row">
+    <div class="col-md-6 mb-md-0">
+      <form class="sublimation-form mx-auto">
         <span>LEAVE US A MESSAGE</span>    
-    <h2>SEND US YOUR DESIGN</h2>
-    <input type="text" placeholder="E-mail"class="deets">
-    <input type="text" placeholder="Subject"class="deets">
-    <textarea name="" id="text-a" cols="30" rows="10" placeholder="Your Message"></textarea>
-    <button class="message">Submit</button>
-
-</form>
-<div class="custom1">
-<img src="img/t-shirt/ad(3).jpg">
-
-
-</div>
-
-    </section>
+        <h2>SEND US YOUR DESIGN</h2>
+        <input type="text" placeholder="E-mail" class="deets">
+        <input type="text" placeholder="Subject" class="deets">
+        <textarea name="" id="text-a" cols="30" rows="10" placeholder="Your Message"></textarea>
+        <button class="message btn-body">Submit</button>
+      </form>
+    </div>
+    
+    <!-- Right Column: Image -->
+    <div class="col-md-6 pt-4 mt-2">
+      <div class="custom1">
+        <img src="img/sublimation.jpg" alt="sublimation">
+      </div>
+    </div>
+  </div>
+</section>
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
 
     <!--SCRIPT-->
     <script src="js/shopcart.js"></script>
-    <script src =script1.js></script>
-    <!-- SCRIPTS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <!-- BOOTSTRAP JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaqYfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/url-cleaner.js"></script>
 </body>
 </html>

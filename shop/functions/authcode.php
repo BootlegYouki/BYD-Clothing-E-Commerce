@@ -3,15 +3,15 @@ session_start();
 include '../../admin/config/dbcon.php';
 
 /* HELPER FUNCTIONS FOR LOGIN */
-function isEmailRegistered($conn, $email) {
-    $safeEmail = mysqli_real_escape_string($conn, $email);
-    $query = "SELECT * FROM users WHERE email='$safeEmail' LIMIT 1";
+function getUserByIdentifier($conn, $identifier) {
+    $safeIdentifier = mysqli_real_escape_string($conn, $identifier);
+    $query = "SELECT * FROM users WHERE email='$safeIdentifier' OR username='$safeIdentifier' LIMIT 1";
     $result = mysqli_query($conn, $query);
     return (mysqli_num_rows($result) > 0) ? $result : false;
 }
 
 function displayInvalidCredentials() {
-   header("Location: ../index.php?loginFailed=1");
+   header("Location: ../index?loginFailed=1");
    exit;
 }
 
@@ -41,7 +41,19 @@ if (isset($_POST['signupButton'])) {
              ('$firstname', '$middlename', '$lastname', '$phone_number', '$regemail', '$username', '$full_address', '$zipcode', '$hashedPassword', NOW())";
    
    if (mysqli_query($conn, $query)) {
+     // Get the new user's ID
+     $new_user_id = mysqli_insert_id($conn);
+     
+     // Set all auth session variables, matching the login process
+     $_SESSION['auth'] = true;
+     $_SESSION['auth_role'] = 0; // Default role for new users
+     $_SESSION['auth_user'] = [
+         'user_id' => $new_user_id,
+         'username' => $username,
+         'email' => $regemail
+     ];
      $_SESSION['username'] = $username;
+     
      header("Location: ../index.php?signupSuccess=1");
      exit;
    } else {
@@ -51,10 +63,10 @@ if (isset($_POST['signupButton'])) {
 }
 else if (isset($_POST['loginButton'])) {
     // Login process
-    $loginemail    = mysqli_real_escape_string($conn, $_POST['loginemail']);
+    $loginidentifier = mysqli_real_escape_string($conn, $_POST['loginidentifier']);
     $loginpassword = mysqli_real_escape_string($conn, $_POST['loginpassword']);
     
-    $result = isEmailRegistered($conn, $loginemail);
+    $result = getUserByIdentifier($conn, $loginidentifier);
     if (!$result) {
         displayInvalidCredentials();
     }
@@ -64,8 +76,24 @@ else if (isset($_POST['loginButton'])) {
         displayInvalidCredentials();
     }
     
-    $_SESSION['username'] = $user['username'];
-    header("Location: ../index.php?loginSuccess=1");
+    $_SESSION['auth'] = true;
+    $_SESSION['auth_role'] = $user['role_as'];
+    $_SESSION['auth_user'] = [
+        'user_id' => $user['id'],
+        'username' => $user['username'],
+        'email' => $user['email']
+    ];
+    
+    if($user['role_as'] == 1) {
+        $_SESSION['username'] = $user['username'];
+        header("Location: ../index?loginSuccess=1");
+    }
+    else {
+        $_SESSION['username'] = $user['username'];
+        header("Location: ../index?loginSuccess=1");
+    }
     exit;
 }
 ?>
+
+<script src="../js/url-cleaner.js"></script>

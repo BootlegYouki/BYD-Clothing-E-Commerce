@@ -1,73 +1,72 @@
-/* Sidebar Buttons */
+/* General Profile Styling */
+.content {
+    border-radius: 12px;
+    padding: 25px;
+    background-color: #fff;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    border-radius: 12px;
+    background-color: #f8f9fa !important;
+}
+
 .sidebar-btn {
-    display: block;
-    width: 100%;
+    border-radius: 25px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
     text-align: left;
-    background: transparent;
-    border: none;
     padding: 10px 15px;
-    font-size: 16px;
-    color: black !important; /* Default text color */
-    position: relative;
-    transition: background 0.3s, color 0.3s;
-    overflow: hidden;
+    font-weight: 500;
 }
 
-/* Active Button */
-.sidebar-btn.active {
-    background-color: #000; 
-    color: white !important; /* Active state */
-}
-
-/* Underline Animation */
-.sidebar-btn::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    background: coral;
-    bottom: 0;
-    left: 50%;
-    transition: all 0.3s ease-in-out;
-    transform: translateX(-50%);
-}
-
-/* Hover Effect */
 .sidebar-btn:hover {
-    background-color: black !important; 
-    color: white !important; /* White text when hovered */
+    background: linear-gradient(to right, #ff6347, #ff4500);
+    color: white;
+    box-shadow: 0 5px 12px rgba(255, 99, 71, 0.4);
+    transform: translateY(-2px);
 }
 
-.sidebar-btn:hover::after {
-    width: 100%; /* Expands underline */
+.sidebar-btn.active {
+    background: linear-gradient(to right, #ff7f50, #ff6347);
+    color: white;
+    box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
 }
 
-.collapse {
-    transition: height 0.3s ease;
+/* Custom Font Size for Purchases Button */
+.custom-font-size {
+    font-size: 1rem;
+    font-weight: 500;
 }
 
+/* Button Styling for all profile pages */
+.btn-con, .btn-body {
+    background: linear-gradient(to right, #ff7f50, #ff6347);
+    color: white;
+    border-radius: 25px;
+    padding: 8px 20px;
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
+}
 
+.btn-con:hover, .btn-body:hover {
+    background: linear-gradient(to right, #ff6347, #ff4500);
+    color: white;
+    box-shadow: 0 5px 12px rgba(255, 99, 71, 0.4);
+    transform: translateY(-2px);
+}
 
-/* Responsive Adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        position: relative;
+        width: 100% !important;
+        min-height: auto !important;
+        margin-bottom: 20px;
     }
-    .content {
-        margin-left: 0;
+    
+    section.d-flex {
+        flex-direction: column;
     }
-}
-
-/* Content Box Styling */
-.content {
-    background: #fff;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    padding: 20px;
-}
-.custom-font-size {
-    font-size: 29px;
-    text:dark;
-    text-decoration:none;
 }
