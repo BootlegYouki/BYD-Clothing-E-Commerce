@@ -1,0 +1,75 @@
+
+/* Centering the modal */
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Close button position */
+.modal-header .close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 1.5rem;
+    border: none;
+    background: transparent;
+}
+
+/* Star Rating Styles */
+#star-rating {
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.star {
+    cursor: pointer;
+    color: #ccc;
+    transition: color 0.3s;
+}
+
+.star:hover,
+.star.active {
+    color: gold;
+}
+
+#orderTabs .nav-link {
+    color: black; /* Set text color to black by default */
+}
+
+#orderTabs .nav-link.active {
+    background-color: black;
+    color: white; /* Ensure the text on the active tab is white */
+}
+
+.move-up {
+    margin-top: -10px; 
+    
+
+}
+
+#btn-dynamic {
+    background-color: #000;
+    color: white;
+    border-color: #000;
+
+}
+
+.btn-1, .btn-2{
+    background-color: #000;
+    color: white;
+    border-color: #000;
+}
+
+.btn-2:hover{
+    background-color: coral;
+  
+}
+
+#btn-contact-seller{
+    background-color: coral;
+    color: white;
+    border: none;
+}
