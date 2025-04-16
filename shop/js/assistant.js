@@ -650,6 +650,7 @@ async function regenerateResponse(messageId) {
             let fullMessage = "";
             const streamingContent = document.getElementById(`${newMessageId}-content`);
             let isFirstChunk = true;
+            currentController = null;
             
             while (true) {
                 const { done, value } = await reader.read();
@@ -787,6 +788,7 @@ async function refreshProductData() {
 
 //BASIC FUNCTIONS
 function sendORstop() {
+    // Check if there's an active generation happening
     if (currentController && !currentController.signal.aborted) {
         // Stop the current response generation
         currentController.abort();
@@ -807,6 +809,7 @@ function sendORstop() {
         // Re-enable the input field
         document.getElementById('userInput').disabled = false;
     } else {
+        // No active generation, just send the message
         sendMessage();
     }
 }
