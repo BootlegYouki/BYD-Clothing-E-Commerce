@@ -11,12 +11,6 @@ $user_id = $_SESSION['auth_user']['user_id'] ?? 1;
 $name = $_SESSION['auth_user']['name'] ?? 'Admin User';
 $email = $_SESSION['auth_user']['email'] ?? 'admin@example.com';
 $phone = $_SESSION['auth_user']['phone'] ?? '';
-
-// You would typically fetch more details from the database here
-// include 'config/dbcon.php';
-// $user_query = "SELECT * FROM users WHERE id = '$user_id'";
-// $user_result = mysqli_query($conn, $user_query);
-// $user_data = mysqli_fetch_assoc($user_result);
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -46,8 +46,9 @@ try {
     error_log("Payment status from API: $apiPaymentStatus");
 
     // Update order status in database
-    $stmt = $conn->prepare("UPDATE orders SET payment_status = ? WHERE payment_id = ?");
-    $stmt->bind_param('ss', $apiPaymentStatus, $paymentId);
+    $stmt = $conn->prepare("UPDATE orders SET payment_status = ?, status = ? WHERE payment_id = ?");
+    $orderStatus = ($apiPaymentStatus == 'paid') ? 'to_ship' : 'pending';
+    $stmt->bind_param('sss', $apiPaymentStatus, $orderStatus, $paymentId);
     $result = $stmt->execute();
     
     if (!$result) {
@@ -71,6 +72,9 @@ try {
         $orderResult = $orderStmt->get_result();
         
         if ($orderData = $orderResult->fetch_assoc()) {
+            // Store order ID in session for reference
+            $_SESSION['last_order_id'] = $orderData['id'];
+            
             // Send email receipt
             $emailSent = sendOrderConfirmationEmail($orderData);
             error_log("Email sent: " . ($emailSent ? "Yes" : "No"));

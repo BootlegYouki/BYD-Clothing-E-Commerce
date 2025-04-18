@@ -4,8 +4,8 @@ require_once '../../admin/config/dbcon.php';
 
 // Get T-shirt products with stock by size
 $tshirt_query = "SELECT p.*, 
-                    GROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')) as sizes,
-                    GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')) as size_stock,
+                    GROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as sizes,
+                    GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as size_stock,
                     DATE(p.created_at) as created_date,
                     CURRENT_DATE() as today_date,
                     DATEDIFF(CURRENT_DATE(), DATE(p.created_at)) as days_since_creation
@@ -17,8 +17,8 @@ $tshirt_result = mysqli_query($conn, $tshirt_query);
 
 // Get Long Sleeve products with stock by size
 $longslv_query = "SELECT p.*, 
-                    GROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')) as sizes,
-                    GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')) as size_stock,
+                    GGROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as sizes,
+GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as size_stock,
                     DATE(p.created_at) as created_date,
                     CURRENT_DATE() as today_date,
                     DATEDIFF(CURRENT_DATE(), DATE(p.created_at)) as days_since_creation

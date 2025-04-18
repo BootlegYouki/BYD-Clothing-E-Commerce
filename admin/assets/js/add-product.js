@@ -247,8 +247,302 @@ function updateSKU() {
     document.getElementById('sku').value = sku;
 }
 
-// Set page title based on current page
+// Fabric dropdown functionality
 document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('category');
+    const newCategoryContainer = document.getElementById('new_category_container');
+    const newCategoryInput = document.getElementById('new_category');
+    const addCategoryBtn = document.getElementById('add_category_btn');
+    const removeCategoryContainer = document.getElementById('remove_category_container');
+    const removeCategorySelect = document.getElementById('remove_category');
+    const removeCategoryBtn = document.getElementById('remove_category_btn');
+    
+    if(categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            if(this.value === 'new') {
+                newCategoryContainer.style.display = 'block';
+                removeCategoryContainer.style.display = 'none';
+                // Don't add required here if it causes validation issues
+                // newCategoryInput.setAttribute('required', 'required');
+                newCategoryInput.focus();
+            } else if(this.value === 'remove') {
+                newCategoryContainer.style.display = 'none';
+                removeCategoryContainer.style.display = 'block';
+                // Make sure to remove required when hiding
+                if(newCategoryInput.hasAttribute('required')) {
+                    newCategoryInput.removeAttribute('required');
+                }
+                newCategoryInput.value = '';
+            } else {
+                newCategoryContainer.style.display = 'none';
+                removeCategoryContainer.style.display = 'none';
+                // Make sure to remove required when hiding
+                if(newCategoryInput.hasAttribute('required')) {
+                    newCategoryInput.removeAttribute('required');
+                }
+                newCategoryInput.value = '';
+                
+                // Update SKU when category changes
+                updateSKU();
+            }
+        });
+    }
+    
+    // Handle add category button
+    if(addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', function() {
+            const newCategoryValue = newCategoryInput.value.trim();
+            const msgContainer = document.getElementById('add_category_msg');
+            
+            if(!newCategoryValue) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">Please enter a category name</div>';
+                return;
+            }
+            
+            // Check if category already exists in the dropdown
+            let categoryExists = false;
+            Array.from(categorySelect.options).forEach(option => {
+                if(option.value === newCategoryValue) {
+                    categoryExists = true;
+                }
+            });
+            
+            if(categoryExists) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">This category already exists</div>';
+                return;
+            }
+            
+            // Add the new category to both dropdowns
+            const newOption = document.createElement('option');
+            newOption.value = newCategoryValue;
+            newOption.text = newCategoryValue;
+            
+            // Insert before the "+ Add New Category" option
+            const addNewIndex = Array.from(categorySelect.options).findIndex(option => option.value === 'new');
+            categorySelect.add(newOption.cloneNode(true), addNewIndex);
+            
+            // Add to the remove category dropdown as well
+            if(removeCategorySelect) {
+                removeCategorySelect.add(newOption.cloneNode(true));
+            }
+            
+            // Set the main dropdown to the new category
+            categorySelect.value = newCategoryValue;
+            
+            // Reset the new category input and hide the container
+            newCategoryInput.value = '';
+            newCategoryContainer.style.display = 'none';
+            
+            // Update SKU based on new category
+            updateSKU();
+            
+            // Show success message
+            msgContainer.innerHTML = '<div class="alert alert-success">New category added successfully</div>';
+            
+            // Hide container after a delay
+            setTimeout(() => {
+                newCategoryContainer.style.display = 'none';
+                msgContainer.innerHTML = '';
+            }, 2000);
+        });
+    }
+    
+    // Handle category removal
+    if(removeCategoryBtn) {
+        removeCategoryBtn.addEventListener('click', function() {
+            const selectedCategory = removeCategorySelect.value;
+            const msgContainer = document.getElementById('remove_category_msg');
+            
+            if(!selectedCategory) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">Please select a category to remove</div>';
+                return;
+            }
+            
+            // Confirm before removal
+            if(!confirm(`Are you sure you want to remove "${selectedCategory}" category? All products in this category will be set to "Uncategorized".`)) {
+                return;
+            }
+            
+            // Send AJAX request to remove the category
+            fetch('functions/remove-category.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `category=${encodeURIComponent(selectedCategory)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    msgContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                    
+                    // Remove the category option from both dropdowns
+                    const options = document.querySelectorAll(`option[value="${selectedCategory}"]`);
+                    options.forEach(option => option.remove());
+                    
+                    // Reset selects
+                    categorySelect.value = '';
+                    removeCategorySelect.value = '';
+                    
+                    // Hide the removal container after successful removal
+                    setTimeout(() => {
+                        removeCategoryContainer.style.display = 'none';
+                    }, 2000);
+                } else {
+                    msgContainer.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                msgContainer.innerHTML = '<div class="alert alert-danger">An error occurred while removing the category</div>';
+            });
+        });
+    }
+
+    // Fabric dropdown functionality
+    const fabricSelect = document.getElementById('fabric');
+    const newFabricContainer = document.getElementById('new_fabric_container');
+    const newFabricInput = document.getElementById('new_fabric');
+    const addFabricBtn = document.getElementById('add_fabric_btn');
+    const removeFabricContainer = document.getElementById('remove_fabric_container');
+    const removeFabricSelect = document.getElementById('remove_fabric');
+    const removeFabricBtn = document.getElementById('remove_fabric_btn');
+    
+    if(fabricSelect) {
+        fabricSelect.addEventListener('change', function() {
+            if(this.value === 'new') {
+                newFabricContainer.style.display = 'block';
+                removeFabricContainer.style.display = 'none';
+                newFabricInput.focus();
+            } else if(this.value === 'remove') {
+                newFabricContainer.style.display = 'none';
+                removeFabricContainer.style.display = 'block';
+                // Make sure to remove required when hiding
+                if(newFabricInput.hasAttribute('required')) {
+                    newFabricInput.removeAttribute('required');
+                }
+                newFabricInput.value = '';
+            } else {
+                newFabricContainer.style.display = 'none';
+                removeFabricContainer.style.display = 'none';
+                // Make sure to remove required when hiding
+                if(newFabricInput.hasAttribute('required')) {
+                    newFabricInput.removeAttribute('required');
+                }
+                newFabricInput.value = '';
+            }
+        });
+    }
+    
+    // Handle add fabric button
+    if(addFabricBtn) {
+        addFabricBtn.addEventListener('click', function() {
+            const newFabricValue = newFabricInput.value.trim();
+            const msgContainer = document.getElementById('add_fabric_msg');
+            
+            if(!newFabricValue) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">Please enter a fabric type</div>';
+                return;
+            }
+            
+            // Check if fabric already exists in the dropdown
+            let fabricExists = false;
+            Array.from(fabricSelect.options).forEach(option => {
+                if(option.value === newFabricValue) {
+                    fabricExists = true;
+                }
+            });
+            
+            if(fabricExists) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">This fabric already exists</div>';
+                return;
+            }
+            
+            // Add the new fabric to both dropdowns
+            const newOption = document.createElement('option');
+            newOption.value = newFabricValue;
+            newOption.text = newFabricValue;
+            
+            // Insert before the "+ Add New Fabric" option
+            const addNewIndex = Array.from(fabricSelect.options).findIndex(option => option.value === 'new');
+            fabricSelect.add(newOption.cloneNode(true), addNewIndex);
+            
+            // Add to the remove fabric dropdown as well
+            if(removeFabricSelect) {
+                removeFabricSelect.add(newOption.cloneNode(true));
+            }
+            
+            // Set the main dropdown to the new fabric
+            fabricSelect.value = newFabricValue;
+            
+            // Reset the new fabric input and hide the container
+            newFabricInput.value = '';
+            newFabricContainer.style.display = 'none';
+            
+            // Show success message
+            msgContainer.innerHTML = '<div class="alert alert-success">New fabric added successfully</div>';
+            
+            // Hide container after a delay
+            setTimeout(() => {
+                newFabricContainer.style.display = 'none';
+                msgContainer.innerHTML = '';
+            }, 2000);
+        });
+    }
+    
+    // Handle fabric removal
+    if(removeFabricBtn) {
+        removeFabricBtn.addEventListener('click', function() {
+            const selectedFabric = removeFabricSelect.value;
+            const msgContainer = document.getElementById('remove_fabric_msg');
+            
+            if(!selectedFabric) {
+                msgContainer.innerHTML = '<div class="alert alert-warning">Please select a fabric to remove</div>';
+                return;
+            }
+            
+            // Confirm before removal
+            if(!confirm(`Are you sure you want to remove "${selectedFabric}" fabric? This will affect all products using this fabric.`)) {
+                return;
+            }
+            
+            // Send AJAX request to remove the fabric
+            fetch('functions/remove-fabric.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `fabric=${encodeURIComponent(selectedFabric)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    msgContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                    
+                    // Remove the fabric option from both dropdowns
+                    const options = document.querySelectorAll(`option[value="${selectedFabric}"]`);
+                    options.forEach(option => option.remove());
+                    
+                    // Reset selects
+                    fabricSelect.value = '';
+                    removeFabricSelect.value = '';
+                    
+                    // Hide the removal container after successful removal
+                    setTimeout(() => {
+                        removeFabricContainer.style.display = 'none';
+                    }, 2000);
+                } else {
+                    msgContainer.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                msgContainer.innerHTML = '<div class="alert alert-danger">An error occurred while removing the fabric</div>';
+            });
+        });
+    }
+
+    // Set page title based on current page
     // Get the current page from PHP
     const currentPagePath = window.location.pathname;
     const currentPage = currentPagePath.split('/').pop().replace('.php', '');
@@ -278,5 +572,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (successAlert) successAlert.remove();
             }, 150);
         }, 3000);
+    }
+    const productForm = document.querySelector('form[action="functions/code.php"]');
+    if (productForm) {
+        productForm.addEventListener('submit', function(event) {
+            // Remove required attribute from all inputs in hidden containers
+            const hiddenContainers = document.querySelectorAll('[style*="display: none"]');
+            hiddenContainers.forEach(container => {
+                const requiredInputs = container.querySelectorAll('[required]');
+                requiredInputs.forEach(input => {
+                    input.removeAttribute('required');
+                });
+            });
+        });
     }
 });

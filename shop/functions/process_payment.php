@@ -119,7 +119,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         // Bind parameters to prepared statement
         mysqli_stmt_bind_param(
             $stmt, 
-            "isssssssssddss", 
+            "isssssssssddds", 
             $data['user_id'],
             $data['firstname'],
             $data['lastname'],

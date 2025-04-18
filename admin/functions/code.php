@@ -10,7 +10,32 @@ if(isset($_POST['add_product'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
     $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
-    $category = mysqli_real_escape_string($conn, $_POST['category']);
+
+    // Process category selection or new category entry
+    $category = '';
+    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
+        // New category was entered
+        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
+    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
+        // Existing category was selected
+        $category = mysqli_real_escape_string($conn, $_POST['category']);
+    } else {
+        // Default category if none selected
+        $category = 'Uncategorized';
+    }
+
+    // Process fabric selection or new fabric entry
+    $fabric = '';
+    if(isset($_POST['fabric'])) {
+        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
+            // New fabric was entered
+            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
+        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
+            // Existing fabric was selected
+            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
+        }
+    }
+    
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
     $is_new_release = isset($_POST['is_new_release']) ? 1 : 0;
     $stock = $_POST['stock'];
@@ -26,9 +51,9 @@ if(isset($_POST['add_product'])) {
     mysqli_begin_transaction($conn);
     
     try {
-        // Insert into products table
-        $product_query = "INSERT INTO products (sku, name, description, original_price, discount_percentage, category, is_featured, is_new_release) 
-                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', '$category', '$is_featured', '$is_new_release')";
+        // Insert into products table - updated to include fabric column
+        $product_query = "INSERT INTO products (sku, name, description, original_price, discount_percentage, category, fabric, is_featured, is_new_release) 
+                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', '$category', '$fabric', '$is_featured', '$is_new_release')";
         $product_result = mysqli_query($conn, $product_query);
         
         if(!$product_result) {
@@ -90,8 +115,8 @@ if(isset($_POST['add_product'])) {
             }
         }
         
-        // Add sizes and stock
-        $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        // Add sizes and stock - Updated to include XXXL
+        $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
         foreach($sizes as $size) {
             $stock_qty = isset($stock[$size]) ? (int)$stock[$size] : 0;
             $size_query = "INSERT INTO product_sizes (product_id, size, stock) VALUES ('$product_id', '$size', '$stock_qty')";
@@ -198,7 +223,32 @@ if(isset($_POST['update_product'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
     $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
-    $category = mysqli_real_escape_string($conn, $_POST['category']);
+    
+    // Process category selection or new category entry
+    $category = '';
+    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
+        // New category was entered
+        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
+    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
+        // Existing category was selected
+        $category = mysqli_real_escape_string($conn, $_POST['category']);
+    } else {
+        // Default category if none selected
+        $category = 'Uncategorized';
+    }
+    
+    // Process fabric selection or new fabric entry
+    $fabric = '';
+    if(isset($_POST['fabric'])) {
+        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
+            // New fabric was entered
+            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
+        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
+            // Existing fabric was selected
+            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
+        }
+    }
+    
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
     $is_new_release = isset($_POST['is_new_release']) ? 1 : 0;
     $stock = $_POST['stock'];
@@ -241,7 +291,7 @@ if(isset($_POST['update_product'])) {
                 }
             }
         }
-        // Update product in products table
+        // Update product in products table - updated to include fabric
         $product_query = "UPDATE products SET 
                             sku = '$sku', 
                             name = '$name', 
@@ -249,6 +299,7 @@ if(isset($_POST['update_product'])) {
                             original_price = '$original_price', 
                             discount_percentage = '$discount_percentage', 
                             category = '$category',
+                            fabric = '$fabric',
                             is_featured = '$is_featured',
                             is_new_release = '$is_new_release'
                           WHERE id = '$product_id'";
@@ -259,8 +310,8 @@ if(isset($_POST['update_product'])) {
             throw new Exception("Error updating product: " . mysqli_error($conn));
         }
         
-        // Update stock information
-        $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        // Update stock information - Updated to include XXXL
+        $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
         foreach($sizes as $size) {
             $stock_qty = isset($stock[$size]) ? (int)$stock[$size] : 0;
             
@@ -373,34 +424,6 @@ if(isset($_POST['update_product'])) {
         $_SESSION['message'] = "Something went wrong: " . $e->getMessage();
         header('Location: ../edit-product.php?id=' . $product_id);
         exit();
-    }
-}
-
-if (!empty($_POST['deleted_images'])) {
-    $deleted_image_ids = explode(',', $_POST['deleted_images']);
-    
-    foreach ($deleted_image_ids as $image_id) {
-        $image_id = mysqli_real_escape_string($conn, $image_id);
-        
-        // Get image path before deleting
-        $image_query = "SELECT image_url FROM product_images WHERE id = '$image_id'";
-        $image_result = mysqli_query($conn, $image_query);
-        
-        if (mysqli_num_rows($image_result) > 0) {
-            $image = mysqli_fetch_assoc($image_result);
-            $image_path = '../../' . $image['image_url'];
-            
-            // Delete from database
-            $delete_query = "DELETE FROM product_images WHERE id = '$image_id'";
-            if (!mysqli_query($conn, $delete_query)) {
-                throw new Exception("Error deleting image: " . mysqli_error($conn));
-            }
-            
-            // Try to delete the physical file
-            if (file_exists($image_path)) {
-                unlink($image_path);
-            }
-        }
     }
 }
 ?>

@@ -16,13 +16,13 @@ class PayMongoHelper {
      */
     public function __construct($isLive = false) {
         if ($isLive) {
-            // Live keys - use environment variables or config file
-            $this->publicKey = getenv('PAYMONGO_LIVE_PUBLIC_KEY') ?: 'pk_live_placeholder';
-            $this->secretKey = getenv('PAYMONGO_LIVE_SECRET_KEY') ?: 'sk_live_placeholder';
+            // Live keys
+            $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+            $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
         } else {
-            // Test keys - use environment variables or config file
-            $this->publicKey = getenv('PAYMONGO_TEST_PUBLIC_KEY') ?: 'pk_test_placeholder';
-            $this->secretKey = getenv('PAYMONGO_TEST_SECRET_KEY') ?: 'sk_test_placeholder';
+            // Test keys
+            $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
+            $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
         }
     }
 
@@ -140,5 +140,51 @@ class PayMongoHelper {
         $paymentLink = $this->createPaymentLink($amount, $description, $metadata);
         $paymentLink['open_in_new_tab'] = true;
         return $paymentLink;
+    }
+
+    /**
+     * Create a payment intent
+     * 
+     * @param float $amount Payment amount
+     * @param array $metadata Additional metadata
+     * @return array Payment intent data
+     */
+    public function createPaymentIntent($amount, $metadata = []) {
+        // Convert amount to cents (PayMongo requires amount in smallest currency unit)
+        $amountInCents = round($amount * 100);
+        
+        // Create payment intent request
+        return $this->makeRequest('POST', 'payment_intents', [
+            'data' => [
+                'attributes' => [
+                    'amount' => $amountInCents,
+                    'payment_method_allowed' => ['card', 'paymaya', 'gcash'],
+                    'payment_method_options' => [
+                        'card' => ['request_three_d_secure' => 'any']
+                    ],
+                    'currency' => 'PHP',
+                    'capture_type' => 'automatic',
+                    'metadata' => $metadata
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Create a webhook for payment events
+     * 
+     * @param string $url Webhook URL
+     * @param array $events Events to listen for
+     * @return array Webhook data
+     */
+    public function createWebhook($url, $events = ['payment.paid', 'payment.failed']) {
+        return $this->makeRequest('POST', 'webhooks', [
+            'data' => [
+                'attributes' => [
+                    'url' => $url,
+                    'events' => $events
+                ]
+            ]
+        ]);
     }
 }

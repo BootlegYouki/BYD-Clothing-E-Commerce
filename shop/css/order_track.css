@@ -1,0 +1,249 @@
+
+/* Centering the modal */
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Close button position */
+.modal-header .close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 1.5rem;
+    border: none;
+    background: transparent;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+
+/* Star Rating Styles */
+#star-rating {
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.star {
+    cursor: pointer;
+    color: #ccc;
+    transition: color 0.3s;
+    margin: 0 5px;
+}
+
+.star:hover,
+.star.active {
+    color: gold;
+}
+
+/* Order Tabs */
+#orderTabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
+}
+
+#orderTabs .nav-link {
+    color: #212529;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 5px;
+    border-radius: 0;
+    transition: all 0.3s;
+}
+
+#orderTabs .nav-link.active {
+    background-color: #000;
+    color: white;
+    border-radius: 5px 5px 0 0;
+}
+
+#orderTabs .nav-link:hover:not(.active) {
+    background-color: #f8f9fa;
+    color: coral;
+}
+
+/* Spacing Adjustment */
+.move-up {
+    margin-top: -10px;
+}
+
+/* Button Styling */
+#btn-dynamic, .btn-1, .btn-2 {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.btn-2:hover, #btn-dynamic:hover {
+    background-color: coral;
+    transform: scale(1.05);
+}
+
+#btn-contact-seller {
+    background-color: coral;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+#btn-contact-seller:hover {
+    background-color: #ff7f50;
+    transform: scale(1.05);
+}
+
+/* Order Cards */
+.order-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+}
+
+.order-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.order-header {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.order-body {
+    padding: 15px;
+}
+
+.order-footer {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-to-pay {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-to-ship {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-to-receive {
+    background-color: #6610f2;
+    color: white;
+}
+
+.status-completed {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-to-review {
+    background-color: #fd7e14;
+    color: white;
+}
+
+/* Order Track Styling */
+.nav-pills .nav-link {
+    color: #333;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(to right, #ff7f50, #ff6347);
+    color: white;
+    box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Star Rating */
+#star-rating {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+#star-rating .star {
+    transition: color 0.2s ease;
+    margin: 0 5px;
+}
+
+#star-rating .star:hover,
+#star-rating .star.active {
+    color: #ffb800;
+}
+
+/* Order Card */
+.order-card {
+    border-radius: 12px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.order-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+}
+
+.order-header {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.order-body {
+    padding: 15px;
+}
+
+.order-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+}

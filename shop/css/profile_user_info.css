@@ -1,0 +1,88 @@
+
+
+   
+/* Save Profile Button */
+#saveProfile {
+    display: none;    
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    border: none;
+    background-color: #000;
+    color: white;
+    padding: 13px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.5s ease, background-color 0.5s ease;
+}
+
+#saveProfile:hover {
+    background-color: coral;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Edit Profile Link */
+#editProfile {
+    color: #000;
+    transition: color 0.3s ease;
+}
+
+#editProfile:hover {
+    color: coral;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 5px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Success Modal */
+.modal-content {
+    border-radius: 12px;
+    max-width: 400px;
+    margin: auto;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.btn-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: transparent;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.error-message {
+    margin-top: -20px;
+    color: #dc3545;
+    font-size: 0.8rem;
+}
+
+/* Success Icon */
+.fa-check-circle {
+    color: #28a745;
+    font-size: 50px;
+    margin-bottom: 15px;
+}

@@ -136,6 +136,12 @@ a {
   color: var(--primary);
 }
 
+.form-control:focus, .form-select:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: coral;
+}
+
 /* SIDEBAR STYLES */
 .sidebar {
   position: fixed;
@@ -357,6 +363,37 @@ a {
   background-color: transparent;
   transition: all 0.25s ease;
   color: #FF7F50;
+}
+
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+  color: coral;
+  background-color: var(--bs-btn-active-bg);
+  border-color: coral;
+}
+
+.btn-primary-modal{
+  color: white !important;
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: var(--box-shadow-sm);
+} 
+.btn-secondary-modal{
+  color: white !important;
+  background: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+  box-shadow: var(--box-shadow-sm);
+} 
+
+.btn-primary-modal:hover{
+  transform: translateY(-2px);
+}
+.btn-secondary-modal:hover{
+  transform: translateY(-2px);
+} 
+.btn-primary-modal:active {
+  color: coral;
+  background-color: var(--bs-btn-active-bg);
+  border-color: coral;
 }
 
 .btn-outline-coral:hover, 

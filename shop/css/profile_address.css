@@ -1,0 +1,151 @@
+
+
+/* Top Section */
+.topside {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Address Details */
+.address-deets {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.right-side {
+    text-align: right;
+    display: flex;
+    align-items: center;
+}
+
+.right-side a {
+    text-decoration: none;
+    color: #000;
+    margin-bottom: 5px;
+    transition: color 0.3s;
+}
+
+.right-side a:hover {
+    color: coral;
+}
+
+/* Button Styling */
+.btn-body {
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    border: none;
+    background-color: #000;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease;
+}
+
+.btn-body:hover {
+    background-color: coral;
+    transform: scale(1.05);
+}
+
+/* Container Styling */
+.container {
+    border-radius: 20px;
+}
+
+/* Address Text */
+.address-deets p {
+    margin-bottom: 2px; 
+    font-size: 15px;
+    line-height: 1.2;
+}
+
+/* Vertical Separator */
+.vertical-separator {
+    width: 1px;
+    height: 15px;
+    background-color: #dee2e6;
+    margin: 0 10px;
+}
+
+/* Main Info Section */
+.main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+/* Same Row Elements */
+.same-row {
+    display: flex;
+    align-items: center;
+}
+
+/* Modal Styling */
+.modal-md, .modal-dialog {
+    max-width: 600px; 
+    max-height: 90vh;
+    overflow-y: auto; 
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Submit Buttons */
+#btn_submit, #btn-submit1 {
+    background-color: #000;
+    border: none;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+#btn_submit:hover, #btn-submit1:hover {
+    background-color: coral;
+}
+
+/* Default Address Button */
+#st_def {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #212529;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#st_def:hover {
+    background-color: #000;
+    color: white;
+}
+
+/* Default Label */
+button[disabled] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: not-allowed;
+}
+
+/* Address Container */
+.contain {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.left-side {
+    padding: 10px 0;
+}
+
+.ad_deets {
+    color: #495057;
+}

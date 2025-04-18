@@ -110,10 +110,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 const responseText = await response.text();
                 console.log('Raw API response:', responseText);
                 
-                // Parse the JSON response
+                // Parse the JSON response - handle potential double JSON issue
                 let data;
                 try {
-                    data = JSON.parse(responseText);
+                    // Check if response contains multiple JSON objects
+                    if (responseText.includes('}{')) {
+                        // Take only the first JSON object
+                        const firstJsonEnd = responseText.indexOf('}{') + 1;
+                        const firstJsonPart = responseText.substring(0, firstJsonEnd);
+                        console.log('Parsing first JSON part:', firstJsonPart);
+                        data = JSON.parse(firstJsonPart);
+                    } else {
+                        data = JSON.parse(responseText);
+                    }
                 } catch (e) {
                     throw new Error('Invalid JSON response from server: ' + responseText);
                 }
@@ -123,16 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Clear cart before redirecting
                     localStorage.removeItem('shopping-cart');
                     
+                    // Store the order ID in session storage for retrieval after payment
+                    sessionStorage.setItem('pending_order_id', data.order_id);
+                    
                     // Open payment URL in a new tab
                     window.open(data.payment_url, '_blank');
                     
-                    // Show success message
-                    alert('Payment page opened in a new tab. Please complete your payment there.');
-                    
-                    // Optional: Redirect to order tracking page after a delay
-                    setTimeout(function() {
-                        window.location.href = 'index.php?order_id=' + data.order_id;
-                    }, 3000);
+                    // Redirect the current page to homepage
+                    window.location.href = data.redirect_url || 'index.php';
                 } else {
                     throw new Error(data.message || 'Payment processing failed');
                 }

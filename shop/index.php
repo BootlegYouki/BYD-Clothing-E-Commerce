@@ -322,16 +322,16 @@ function get_setting($key, $default = '') {
       </div>
   </section>
 <?php endif; ?>
-    <!-- FOOTER -->
-    <?php include 'includes/footer.php'; ?>
-    <!-- UTILITY SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- SCRIPT -->
-    <script src="js/indexscript.js"></script>
-    <script src="js/url-cleaner.js"></script>
-    <script src="js/assistant.js"></script>
-    <script src="js/shop.js"></script>
+<!-- FOOTER -->
+<?php include 'includes/footer.php'; ?>
+<!-- UTILITY SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<!-- SCRIPT -->
+<script src="js/indexscript.js"></script>
+<script src="js/url-cleaner.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/shop.js"></script>
 </body>
 </html>

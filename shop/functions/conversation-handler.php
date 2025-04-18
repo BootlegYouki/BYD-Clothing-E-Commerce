@@ -44,6 +44,9 @@ function saveConversation($conn, $userId, $conversation) {
     // The conversation is already a PHP array, so we just need to encode it once
     $conversationJson = json_encode($conversation);
     
+    // Debug output to see what's being saved
+    error_log("Saving conversation for user $userId: " . substr($conversationJson, 0, 100) . "...");
+    
     // Check if user already has a conversation
     $checkQuery = "SELECT * FROM user_conversations WHERE user_id = ?";
     $stmt = mysqli_prepare($conn, $checkQuery);
@@ -60,6 +63,7 @@ function saveConversation($conn, $userId, $conversation) {
         if (mysqli_stmt_execute($stmt)) {
             echo json_encode(['status' => 'success', 'message' => 'Conversation updated']);
         } else {
+            error_log("MySQL error: " . mysqli_error($conn));
             echo json_encode(['status' => 'error', 'message' => 'Failed to update conversation: ' . mysqli_error($conn)]);
         }
     } else {
@@ -71,6 +75,7 @@ function saveConversation($conn, $userId, $conversation) {
         if (mysqli_stmt_execute($stmt)) {
             echo json_encode(['status' => 'success', 'message' => 'Conversation saved']);
         } else {
+            error_log("MySQL error: " . mysqli_error($conn));
             echo json_encode(['status' => 'error', 'message' => 'Failed to save conversation: ' . mysqli_error($conn)]);
         }
     }

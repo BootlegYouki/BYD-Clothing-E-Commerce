@@ -30,7 +30,9 @@ function getShopProducts($conn, $params = []) {
         // Add search filter if specified
         if (!empty($search_query)) {
             $search_query = mysqli_real_escape_string($conn, $search_query);
-            $base_query .= " AND (p.name LIKE '%$search_query%' OR p.description LIKE '%$search_query%' OR p.category LIKE '%$search_query%')";
+            $base_query .= " AND (p.name LIKE '$search_query%' OR p.name LIKE '% $search_query%' OR 
+                                 p.description LIKE '$search_query%' OR p.description LIKE '% $search_query%' OR 
+                                 p.category LIKE '$search_query%' OR p.category LIKE '% $search_query%')";
         }
     }
     
@@ -105,7 +107,7 @@ function getShopProducts($conn, $params = []) {
             ];
             
             // Get available sizes for this product
-            $sizes_query = "SELECT size, stock FROM product_sizes WHERE product_id = {$product['id']} ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', 'XXL')";
+            $sizes_query = "SELECT size, stock FROM product_sizes WHERE product_id = {$product['id']} ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')";
             $sizes_result = mysqli_query($conn, $sizes_query);
             
             $available_sizes = [];
