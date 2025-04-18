@@ -89,9 +89,13 @@ async function saveConversation() {
         localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
         
         const isLoggedIn = await checkUserAuth();
-        if (!isLoggedIn) return false;
+        if (!isLoggedIn) {
+            console.log('User not logged in, saving only to local storage');
+            return false;
+        }
 
-        // Save to server
+        // Save to server - add proper error handling and logging
+        console.log('Saving conversation to server:', conversationHistory);
         const response = await fetch('../shop/functions/conversation-handler.php', {
             method: 'POST',
             headers: {
@@ -104,12 +108,19 @@ async function saveConversation() {
         });
 
         const data = await response.json();
-        return data.status === 'success';
+        console.log('Server response:', data);
+        
+        if (data.status !== 'success') {
+            console.error('Error saving conversation:', data.message);
+            return false;
+        }
+        
+        return true;
     } catch (error) {
-        console.error('Error saving conversation:', error);
+        console.error('Exception saving conversation:', error);
         return false;
     }
-}   
+} 
 async function clearServerConversation() {
     try {
         const isLoggedIn = await checkUserAuth();
@@ -263,11 +274,14 @@ IMPORTANT DISPLAY INSTRUCTIONS:
     return basePrompt;
 }
 async function initializeBot() {
+    // First, check if user is logged in
+    const isLoggedIn = await checkUserAuth();
+    
     // Check if conversation is already loaded in session storage
     const conversationLoaded = sessionStorage.getItem('conversationLoaded');
     
-    // If conversation already loaded in this session, just restore UI
-    if (conversationLoaded === 'true') {
+    // If conversation already loaded in this session AND user is logged in, restore UI
+    if (conversationLoaded === 'true' && isLoggedIn) {
         try {
             // Get saved messages to restore UI
             const savedConversation = JSON.parse(localStorage.getItem('conversationHistory'));
@@ -299,6 +313,10 @@ async function initializeBot() {
         } catch (error) {
             console.error('Error restoring chat UI from session:', error);
         }
+    } else if (!isLoggedIn) {
+        // User is not logged in, clear any existing conversation data
+        localStorage.removeItem('conversationHistory');
+        sessionStorage.removeItem('conversationLoaded');
     }
 
     // Original initialization code continues here
@@ -306,7 +324,8 @@ async function initializeBot() {
         // Create initial basic system prompt without product data
         const baseSystemPrompt = await createDynamicSystemPrompt(false);
         
-        const savedConversation = await loadConversation();
+        // Only try to load conversation from server if logged in
+        const savedConversation = isLoggedIn ? await loadConversation() : null;
 
         if (savedConversation) {
             conversationHistory = savedConversation;
@@ -631,6 +650,7 @@ async function regenerateResponse(messageId) {
             let fullMessage = "";
             const streamingContent = document.getElementById(`${newMessageId}-content`);
             let isFirstChunk = true;
+            currentController = null;
             
             while (true) {
                 const { done, value } = await reader.read();
@@ -768,6 +788,7 @@ async function refreshProductData() {
 
 //BASIC FUNCTIONS
 function sendORstop() {
+    // Check if there's an active generation happening
     if (currentController && !currentController.signal.aborted) {
         // Stop the current response generation
         currentController.abort();
@@ -788,6 +809,7 @@ function sendORstop() {
         // Re-enable the input field
         document.getElementById('userInput').disabled = false;
     } else {
+        // No active generation, just send the message
         sendMessage();
     }
 }
