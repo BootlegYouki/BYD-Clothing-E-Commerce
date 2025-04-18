@@ -25,7 +25,6 @@ $formData = [
     'email' => $_POST['email'],
     'phone' => $_POST['phone'],
     'address' => $_POST['address'],
-    'city' => $_POST['city'],
     'zipcode' => $_POST['zipcode'],
     'total' => floatval($_POST['total']),
     'cart_items' => json_decode($_POST['cart_items'], true)
@@ -45,7 +44,6 @@ try {
             'name' => $formData['firstname'] . ' ' . $formData['lastname'],
             'phone' => $formData['phone'],
             'address' => $formData['address'],
-            'city' => $formData['city'],
             'zipcode' => $formData['zipcode']
         ]
     );
@@ -93,7 +91,6 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             email, 
             phone, 
             address, 
-            city, 
             zipcode, 
             payment_method, 
             payment_id, 
@@ -101,7 +98,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             shipping_cost, 
             total_amount, 
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = mysqli_prepare($conn, $order_query);
         
@@ -116,17 +113,16 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         $payment_method = 'paymongo';
         $status = 'pending'; // Initial status
         
-        // Bind parameters to prepared statement
+        // Bind parameters to prepared statement - removed city parameter
         mysqli_stmt_bind_param(
             $stmt, 
-            "isssssssssddds", 
+            "issssssssddds", 
             $data['user_id'],
             $data['firstname'],
             $data['lastname'],
             $data['email'],
             $data['phone'],
             $data['address'],
-            $data['city'],
             $data['zipcode'],
             $payment_method,
             $paymentId,

@@ -80,7 +80,9 @@ $current_breadcrumb = isset($breadcrumbs[$current_page]) ? $breadcrumbs[$current
           <i class="material-symbols-rounded">person</i>
         </div>
         <div>
-          <span class="d-lg-block d-none mb-0 text-sm text-dark">Admin</span>
+          <span class="d-lg-block d-none mb-0 text-sm text-dark">
+            <?php echo htmlspecialchars($_SESSION['auth_user']['username']); ?>
+          </span>
         </div>
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">

@@ -134,7 +134,7 @@ $categories = getAllCategories($conn);
                 <!-- Mobile product count -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="mobile-products-count" class="text-muted"><?= $total_items ?> products</span>
-                    <?php if (!empty($category_filter) || !empty($search_query)): ?>
+                    <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)): ?>
                         <a href="shop.php" class="clear-filter btn btn-sm btn-outline-danger">
                             <i class="fa fa-times-circle me-1"></i>Clear Filter
                         </a>
@@ -150,7 +150,7 @@ $categories = getAllCategories($conn);
                         <div class="d-flex flex-wrap gap-2">
                             <?php foreach($categories as $category): ?>
                                 <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
-                                   class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm">
+                                class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm">
                                     <?= htmlspecialchars($category) ?>
                                 </a>
                             <?php endforeach; ?>
@@ -480,13 +480,6 @@ $categories = getAllCategories($conn);
                     }
                 }
             }, 300);
-            
-            // Remove the view_product parameter from URL to prevent reopening on refresh
-            if (history.pushState) {
-                let newUrl = new URL(window.location.href);
-                newUrl.searchParams.delete('view_product');
-                window.history.pushState({path: newUrl.toString()}, '', newUrl.toString());
-            }
         }
     }
 });

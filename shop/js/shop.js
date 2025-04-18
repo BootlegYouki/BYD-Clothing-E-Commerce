@@ -1,11 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Swiper
     const shopSwiper = new Swiper('.shop-swiper', {
-        direction: 'vertical', // Change direction to vertical
         slidesPerView: 1,
         spaceBetween: 30,
-        height: 600, // Set a fixed height for the container
-        mousewheel: true, // Enable mousewheel scrolling
         pagination: {
             el: '.swiper-pagination',
             clickable: true,

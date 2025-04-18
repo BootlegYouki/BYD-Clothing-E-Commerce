@@ -358,11 +358,54 @@ async function initializeBot() {
                 `;
             }
         } else {
-            // If no conversation found, create a new one with minimal tokens
-            conversationHistory = [
-                {"role": "system", "content": baseSystemPrompt},
-                {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
-            ];
+            // If no conversation found, create a new one with dynamic greeting
+            try {
+                // Try to get username
+                let username = null;
+                const userResponse = await fetch('../shop/functions/get-username.php');
+                const userData = await userResponse.json();
+                if (userData.status === 'success' && userData.username) {
+                    username = userData.username;
+                }
+                
+                // Get dynamic greeting
+                const greeting = getDynamicGreeting(username);
+                
+                // Create new conversation with dynamic greeting
+                conversationHistory = [
+                    {"role": "system", "content": baseSystemPrompt},
+                    {"role": "assistant", "content": greeting}
+                ];
+                
+                // Update the UI to show the greeting
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>${greeting}</p>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error getting username:', error);
+                // Fallback to generic greeting
+                const genericGreeting = getDynamicGreeting();
+                conversationHistory = [
+                    {"role": "system", "content": baseSystemPrompt},
+                    {"role": "assistant", "content": genericGreeting}
+                ];
+                
+                // Update UI with generic greeting
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>${genericGreeting}</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
         
         // Mark that we've loaded the conversation for this session
@@ -370,13 +413,25 @@ async function initializeBot() {
         
     } catch (error) {
         console.error('Error initializing bot:', error);
-        // Use base system prompt on error
+        // Use base system prompt on error with dynamic greeting
+        const genericGreeting = getDynamicGreeting();
         conversationHistory = [
             {"role": "system", "content": await createDynamicSystemPrompt(false)},
-            {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+            {"role": "assistant", "content": genericGreeting}
         ];
+        
+        // Update UI with generic greeting on error
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>${genericGreeting}</p>
+                </div>
+            </div>
+        `;
     }
 }
+
 async function sendMessage() {
     const inputElem = document.getElementById('userInput');
     if (!inputElem.value.trim()) return;
@@ -787,6 +842,26 @@ async function refreshProductData() {
 }
 
 //BASIC FUNCTIONS
+
+function getDynamicGreeting(username = null) {
+    const hour = new Date().getHours();
+    let greeting = "";
+    
+    if (hour >= 5 && hour < 12) {
+        greeting = "Good morning";
+    } else if (hour >= 12 && hour < 18) {
+        greeting = "Good afternoon";
+    } else {
+        greeting = "Good evening";
+    }
+    
+    if (username) {
+        return `${greeting}, ${username}! How can I help you with BYD-CLOTHING products today?`;
+    } else {
+        return `${greeting}! How can I help you with BYD-CLOTHING products today?`;
+    }
+}
+
 function sendORstop() {
     // Check if there's an active generation happening
     if (currentController && !currentController.signal.aborted) {
@@ -814,12 +889,27 @@ function sendORstop() {
     }
 }
 async function clearChat() {
-    // Clear UI
+    // Get the username if available
+    let username = null;
+    try {
+        const response = await fetch('../shop/functions/get-username.php');
+        const data = await response.json();
+        if (data.status === 'success' && data.username) {
+            username = data.username;
+        }
+    } catch (error) {
+        console.error('Error getting username:', error);
+    }
+    
+    // Get dynamic greeting
+    const greeting = getDynamicGreeting(username);
+    
+    // Clear UI with dynamic greeting
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = `
         <div class="message bot-message">
             <div class="message-content">
-                <p>Hi there! How can I help you with BYD-CLOTHING products today?</p>
+                <p>${greeting}</p>
             </div>
         </div>
     `;
@@ -835,7 +925,7 @@ async function clearChat() {
     const baseSystemPrompt = await createDynamicSystemPrompt(false);
     conversationHistory = [
         {"role": "system", "content": baseSystemPrompt},
-        {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+        {"role": "assistant", "content": greeting}
     ];
     
     // Mark as new conversation
@@ -844,4 +934,5 @@ async function clearChat() {
     // Save the new empty conversation
     saveConversation();
 }
+
 

@@ -227,7 +227,7 @@ function get_setting($key, $default = '') {
       endforeach; 
       ?>
     </ul>
-    <button class="btn-body">Learn More</button>
+    <button class="btn-body" onclick="window.location.href='aboutus.php'">Learn More</button>
   </div>
 </section>
 <!-- T-SHIRT SECTION  -->

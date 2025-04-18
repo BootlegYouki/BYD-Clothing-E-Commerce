@@ -27,6 +27,10 @@ if (isset($_POST['signupButton'])) {
    $zipcode         = mysqli_real_escape_string($conn, $_POST['zipcode']);
    $password        = mysqli_real_escape_string($conn, $_POST['password']);
    $confirm_password= mysqli_real_escape_string($conn, $_POST['confirm_password']);
+   
+   // Get latitude and longitude coordinates
+   $latitude        = !empty($_POST['latitude']) ? mysqli_real_escape_string($conn, $_POST['latitude']) : null;
+   $longitude       = !empty($_POST['longitude']) ? mysqli_real_escape_string($conn, $_POST['longitude']) : null;
 
    if ($password !== $confirm_password) {
        echo "Passwords do not match.";
@@ -36,9 +40,9 @@ if (isset($_POST['signupButton'])) {
    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
    
    $query = "INSERT INTO users 
-             (firstname, middlename, lastname, phone_number, email, username, full_address, zipcode, password, created_at) 
+             (firstname, middlename, lastname, phone_number, email, username, full_address, latitude, longitude, zipcode, password, created_at) 
              VALUES 
-             ('$firstname', '$middlename', '$lastname', '$phone_number', '$regemail', '$username', '$full_address', '$zipcode', '$hashedPassword', NOW())";
+             ('$firstname', '$middlename', '$lastname', '$phone_number', '$regemail', '$username', '$full_address', $latitude, $longitude, '$zipcode', '$hashedPassword', NOW())";
    
    if (mysqli_query($conn, $query)) {
      // Get the new user's ID
@@ -62,7 +66,7 @@ if (isset($_POST['signupButton'])) {
    }
 }
 else if (isset($_POST['loginButton'])) {
-    // Login process
+    // Login process - unchanged
     $loginidentifier = mysqli_real_escape_string($conn, $_POST['loginidentifier']);
     $loginpassword = mysqli_real_escape_string($conn, $_POST['loginpassword']);
     
