@@ -11,8 +11,39 @@ session_start();
 $status = $_GET['status'] ?? 'pending';
 $reason = $_GET['reason'] ?? '';
 
-// Get order ID if available
-$orderId = $_SESSION['last_order_id'] ?? 'N/A';
+// Get payment ID and order ID if available
+$paymentId = $_GET['payment_id'] ?? null;
+$orderId = $_SESSION['last_order_id'] ?? $_GET['order_id'] ?? 'N/A';
+
+// If we have a payment ID, verify the payment status with PayMongo
+if ($paymentId) {
+    try {
+        require_once 'functions/PayMongoHelper.php';
+        $paymongo = new PayMongoHelper();
+        $paymentData = $paymongo->getPaymentIntent($paymentId);
+        
+        // Update status based on payment data
+        $apiStatus = $paymentData['data']['attributes']['status'] ?? 'unknown';
+        
+        if ($apiStatus === 'succeeded') {
+            $status = 'success';
+            
+            // Update order status in database
+            require_once '../admin/config/dbcon.php';
+            $stmt = $conn->prepare("UPDATE orders SET payment_status = 'paid', status = 'processing' WHERE payment_id = ?");
+            $stmt->bind_param('s', $paymentId);
+            $stmt->execute();
+        } elseif ($apiStatus === 'awaiting_payment_method') {
+            $status = 'pending';
+        } else {
+            $status = 'failed';
+            $reason = 'Payment verification failed: ' . $apiStatus;
+        }
+    } catch (Exception $e) {
+        error_log("Payment verification error: " . $e->getMessage());
+        // Don't change status if verification fails
+    }
+}
 
 // Page title based on status
 $pageTitle = "Order Confirmation";

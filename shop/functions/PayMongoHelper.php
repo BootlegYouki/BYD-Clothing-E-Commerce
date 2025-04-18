@@ -141,4 +141,50 @@ class PayMongoHelper {
         $paymentLink['open_in_new_tab'] = true;
         return $paymentLink;
     }
+
+    /**
+     * Create a payment intent
+     * 
+     * @param float $amount Payment amount
+     * @param array $metadata Additional metadata
+     * @return array Payment intent data
+     */
+    public function createPaymentIntent($amount, $metadata = []) {
+        // Convert amount to cents (PayMongo requires amount in smallest currency unit)
+        $amountInCents = round($amount * 100);
+        
+        // Create payment intent request
+        return $this->makeRequest('POST', 'payment_intents', [
+            'data' => [
+                'attributes' => [
+                    'amount' => $amountInCents,
+                    'payment_method_allowed' => ['card', 'paymaya', 'gcash'],
+                    'payment_method_options' => [
+                        'card' => ['request_three_d_secure' => 'any']
+                    ],
+                    'currency' => 'PHP',
+                    'capture_type' => 'automatic',
+                    'metadata' => $metadata
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Create a webhook for payment events
+     * 
+     * @param string $url Webhook URL
+     * @param array $events Events to listen for
+     * @return array Webhook data
+     */
+    public function createWebhook($url, $events = ['payment.paid', 'payment.failed']) {
+        return $this->makeRequest('POST', 'webhooks', [
+            'data' => [
+                'attributes' => [
+                    'url' => $url,
+                    'events' => $events
+                ]
+            ]
+        ]);
+    }
 }
