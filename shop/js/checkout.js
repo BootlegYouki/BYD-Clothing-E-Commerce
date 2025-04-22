@@ -135,11 +135,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Store the order ID in session storage for retrieval after payment
                     sessionStorage.setItem('pending_order_id', data.order_id);
                     
-                    // Open payment URL in a new tab
-                    window.open(data.payment_url, '_blank');
+                    // Replace this line that opens in a new tab
+                    // window.open(data.payment_url, '_blank');
                     
-                    // Redirect the current page to homepage
-                    window.location.href = data.redirect_url || 'index.php';
+                    // Instead, redirect directly to the payment URL in the same tab
+                    window.location.href = data.payment_url;
+                    
+                    // Remove this line since we're already redirecting
+                    // window.location.href = data.redirect_url || 'index.php';
                 } else {
                     throw new Error(data.message || 'Payment processing failed');
                 }
@@ -152,4 +155,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+});
+
+// Find the section that handles the form submission and AJAX response
+// Look for code similar to this:
+
+// After receiving the response from process_payment.php
+$.ajax({
+    // ... existing AJAX settings ...
+    success: function(response) {
+        if (response.success) {
+            // Instead of using window.open, use window.location.href
+            window.location.href = response.payment_url;
+            
+            // Remove any code that might be using window.open like:
+            // if (response.open_in_new_tab) {
+            //     window.open(response.payment_url, '_blank');
+            // } else {
+            //     window.location.href = response.payment_url;
+            // }
+        } else {
+            // Error handling
+        }
+    },
+    // ... rest of AJAX settings ...
 });

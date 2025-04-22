@@ -135,27 +135,15 @@ $shipping_fee = 50;
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <!-- PayMongo Card Payment -->
-                                        <div class="form-check mb-3">
-                                            <input class="form-check-input" type="radio" name="payment_method" 
-                                                id="payment_card" value="card" checked required>
-                                            <label class="form-check-label d-flex align-items-center" for="payment_card">
-                                                <div>
-                                                    <strong>Credit/Debit Card</strong>
-                                                    <p class="mb-0 text-muted small">Pay securely with your card via PayMongo</p>
-                                                </div>
-                                                <span class="ms-auto"><i class="fas fa-credit-card text-primary"></i></span>
-                                            </label>
-                                        </div>
                                         
-                                        <!-- PayMongo E-wallet Payment -->
+                                        <!-- PayMongo Online Payment -->
                                         <div class="form-check mb-3">
                                             <input class="form-check-input" type="radio" name="payment_method" 
                                                 id="payment_ewallet" value="ewallet" required>
                                             <label class="form-check-label d-flex align-items-center" for="payment_ewallet">
                                                 <div>
-                                                    <strong>GCash/Maya</strong>
-                                                    <p class="mb-0 text-muted small">Pay using your e-wallet account</p>
+                                                    <strong>Pay Online</strong>
+                                                    <p class="mb-0 text-muted small">Pay using your e-wallet account or card</p>
                                                 </div>
                                                 <span class="ms-auto"><i class="fas fa-wallet text-info"></i></span>
                                             </label>
@@ -176,9 +164,6 @@ $shipping_fee = 50;
                                         
                                         <!-- Payment information section -->
                                         <div id="payment-info-section" class="mt-4 p-3 bg-light rounded">
-                                            <div id="card-payment-info">
-                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to our secure payment gateway to complete your payment. The payment will open in a new tab.</p>
-                                            </div>
                                             <div id="ewallet-payment-info" class="d-none">
                                                 <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to GCash or Maya to complete your payment. The payment will open in a new tab.</p>
                                             </div>
