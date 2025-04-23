@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 18, 2025 at 10:45 PM
+-- Generation Time: Apr 23, 2025 at 04:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -90,6 +90,7 @@ INSERT INTO `homepage_settings` (`id`, `setting_key`, `setting_value`, `updated_
 
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
+  `order_number` varchar(255) NOT NULL,
   `user_id` int(11) NOT NULL,
   `firstname` varchar(50) DEFAULT NULL,
   `lastname` varchar(50) DEFAULT NULL,
@@ -110,51 +111,59 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `user_id`, `firstname`, `lastname`, `email`, `phone`, `address`, `zipcode`, `payment_method`, `payment_id`, `subtotal`, `shipping_cost`, `total_amount`, `status`, `created_at`) VALUES
-(1, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_4K8oBeXZmpmdsPULKHfPVhzK', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:22:38'),
-(2, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Q3i1NDJV7iZaA9JbP2P4Dqzq', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:24:38'),
-(3, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_sLrqdzk8iNQQx3mhfjpLqN2e', 2160.00, 50.00, 2210.00, 'pending', '2025-04-08 13:32:20'),
-(4, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_z3Cb8ser86p1wpuz6m5mqcaA', 3600.00, 50.00, 3650.00, 'pending', '2025-04-08 13:33:38'),
-(5, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_YctimAV74fD5DqKaqQZFzd6h', 8640.00, 50.00, 8690.00, 'pending', '2025-04-08 13:36:11'),
-(6, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_KMy2nKY9yd7MiGMrhiBT1b7n', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:48:02'),
-(7, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_mZGsiYfVbouTc37BSwQSjGkU', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:57:32'),
-(8, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_N7ixAQSpCkStvjcMH6HPWwDx', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:14:09'),
-(9, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_dnjb66RVzMXgt6odfYE9Q8r1', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:18:17'),
-(10, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_vgF4fqo869nT2n2nMNfhg5gP', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:52:18'),
-(11, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_JsEKUagEFbPm357TqVrCm8yr', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:59:51'),
-(12, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_qX7CbCfhB914BHVuamrUTfxp', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:08:37'),
-(13, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Ly2uFmBiLej84HjjB81oYaUR', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:09:34'),
-(14, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_t9JbVyxKvCgBGmrLAMGweK3L', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:31:45'),
-(15, 14, 'Jm', 'Reyes', 'ritaga.justine.estrellado@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_FK4rh1XLE5dm24Qebip5b2aX', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:35:35'),
-(16, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_zBZDT78EmZLTZzrhfBJyC4Sf', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:47:37'),
-(17, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_m1Yu7oijD96UmPsHS7RCmNH8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:56:57'),
-(18, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Eoi2iKWFvGgX5GzWwrgym2fa', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:03:08'),
-(19, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_tAeTFnuvzb1xzYBmQkZgzNDY', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:10:25'),
-(20, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_zg9bMGRW6vwPnoPadb86MRdJ', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:19:46'),
-(21, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_4N9dPxj2474EAVNiruQ3RMzv', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:44:00'),
-(22, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_xba1DXvrCha8q78L4uYPcvgh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 08:00:34'),
-(23, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_J4e3nUwxKy2gVqLuFHWZgLpA', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:22:23'),
-(24, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_q6i5aeDe3MumAv8k9gzDQLgL', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:25:33'),
-(25, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_RTm8aNeGBHmGCtysb1RzAzLh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:29:02'),
-(26, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_JdHcaiPx7vcu5rENYkUC5gj3', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:33:15'),
-(27, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_97jP75hFBj6g7byMhvtXdqD8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:23:35'),
-(28, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_G919eXfm588KtKFz5yZ4qy5q', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:52:23'),
-(29, 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_j9vmkeVUpW4NCsRHTZRQjbXP', 2700.00, 50.00, 2750.00, 'pending', '2025-04-09 14:22:49'),
-(30, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_DLqCYR5EAub96Ba1RgKwxqRY', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:30:23'),
-(31, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_P87E1QYbEvaxxfdrbkS3urcn', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:35:00'),
-(32, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_UMXwmPuSWmLSQvfZkLBuMSvL', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:48:41'),
-(33, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_NnpsxtkexZbH18kDACqKKRzP', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:55:50'),
-(34, 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_TY2BunpqTWsB29cMWX32HwP6', 900.00, 50.00, 950.00, 'pending', '2025-04-11 00:44:10'),
-(35, 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_TKi1ZrsfkfgDxALXXNFnvAzp', 900.00, 50.00, 950.00, 'pending', '2025-04-11 00:44:58'),
-(36, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_9BejAZhQX67guxeQJkifHHin', 1800.00, 50.00, 1850.00, 'pending', '2025-04-11 03:46:29'),
-(37, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_Mg3voLXtmK1B8v9aqcjusbdf', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:17:47'),
-(38, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_nXS4RdpQK7Nq4Hu87RmZ5LY1', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:17:57'),
-(39, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_NoJ7bGEBYTQeDgnTDHiGppVm', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:18:48'),
-(40, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_tn8ALLyMJMssB83XwxKkz3Le', 850.00, 50.00, 900.00, 'pending', '2025-04-16 01:07:59'),
-(41, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_D8EoS9a9SJ777iym5SR83bPB', 850.00, 50.00, 900.00, 'pending', '2025-04-16 03:36:19'),
-(42, 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_3TZTjCKZkSLkoGpvMeeyLhAD', 344.00, 50.00, 394.00, 'pending', '2025-04-16 03:37:45'),
-(43, 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_Q8JY2FFUwusrD2KccZhgFyQq', 850.00, 50.00, 900.00, 'pending', '2025-04-16 04:28:07'),
-(49, 19, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', '1125', 'paymongo', 'link_u953yCJB8QV7X97qDyZwz8zx', 3400.00, 50.00, 3450.00, 'pending', '2025-04-18 18:25:29');
+INSERT INTO `orders` (`order_id`, `order_number`, `user_id`, `firstname`, `lastname`, `email`, `phone`, `address`, `zipcode`, `payment_method`, `payment_id`, `subtotal`, `shipping_cost`, `total_amount`, `status`, `created_at`) VALUES
+(1, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_4K8oBeXZmpmdsPULKHfPVhzK', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:22:38'),
+(2, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Q3i1NDJV7iZaA9JbP2P4Dqzq', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:24:38'),
+(3, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_sLrqdzk8iNQQx3mhfjpLqN2e', 2160.00, 50.00, 2210.00, 'pending', '2025-04-08 13:32:20'),
+(4, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_z3Cb8ser86p1wpuz6m5mqcaA', 3600.00, 50.00, 3650.00, 'pending', '2025-04-08 13:33:38'),
+(5, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_YctimAV74fD5DqKaqQZFzd6h', 8640.00, 50.00, 8690.00, 'pending', '2025-04-08 13:36:11'),
+(6, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_KMy2nKY9yd7MiGMrhiBT1b7n', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:48:02'),
+(7, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_mZGsiYfVbouTc37BSwQSjGkU', 720.00, 50.00, 770.00, 'pending', '2025-04-08 13:57:32'),
+(8, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_N7ixAQSpCkStvjcMH6HPWwDx', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:14:09'),
+(9, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_dnjb66RVzMXgt6odfYE9Q8r1', 720.00, 50.00, 770.00, 'pending', '2025-04-08 14:18:17'),
+(10, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_vgF4fqo869nT2n2nMNfhg5gP', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:52:18'),
+(11, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_JsEKUagEFbPm357TqVrCm8yr', 720.00, 50.00, 770.00, 'pending', '2025-04-09 02:59:51'),
+(12, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_qX7CbCfhB914BHVuamrUTfxp', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:08:37'),
+(13, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Ly2uFmBiLej84HjjB81oYaUR', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:09:34'),
+(14, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_t9JbVyxKvCgBGmrLAMGweK3L', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:31:45'),
+(15, '', 14, 'Jm', 'Reyes', 'ritaga.justine.estrellado@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_FK4rh1XLE5dm24Qebip5b2aX', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:35:35'),
+(16, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_zBZDT78EmZLTZzrhfBJyC4Sf', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:47:37'),
+(17, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_m1Yu7oijD96UmPsHS7RCmNH8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 03:56:57'),
+(18, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_Eoi2iKWFvGgX5GzWwrgym2fa', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:03:08'),
+(19, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_tAeTFnuvzb1xzYBmQkZgzNDY', 720.00, 50.00, 770.00, 'pending', '2025-04-09 04:10:25'),
+(20, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_zg9bMGRW6vwPnoPadb86MRdJ', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:19:46'),
+(21, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_4N9dPxj2474EAVNiruQ3RMzv', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:44:00'),
+(22, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_xba1DXvrCha8q78L4uYPcvgh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 08:00:34'),
+(23, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_J4e3nUwxKy2gVqLuFHWZgLpA', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:22:23'),
+(24, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_q6i5aeDe3MumAv8k9gzDQLgL', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:25:33'),
+(25, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_RTm8aNeGBHmGCtysb1RzAzLh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:29:02'),
+(26, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_JdHcaiPx7vcu5rENYkUC5gj3', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:33:15'),
+(27, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_97jP75hFBj6g7byMhvtXdqD8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:23:35'),
+(28, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_G919eXfm588KtKFz5yZ4qy5q', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:52:23'),
+(29, '', 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_j9vmkeVUpW4NCsRHTZRQjbXP', 2700.00, 50.00, 2750.00, 'pending', '2025-04-09 14:22:49'),
+(30, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_DLqCYR5EAub96Ba1RgKwxqRY', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:30:23'),
+(31, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_P87E1QYbEvaxxfdrbkS3urcn', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:35:00'),
+(32, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_UMXwmPuSWmLSQvfZkLBuMSvL', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:48:41'),
+(33, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_NnpsxtkexZbH18kDACqKKRzP', 900.00, 50.00, 950.00, 'pending', '2025-04-09 14:55:50'),
+(34, '', 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_TY2BunpqTWsB29cMWX32HwP6', 900.00, 50.00, 950.00, 'pending', '2025-04-11 00:44:10'),
+(35, '', 9, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Blk. 2 Lt.2 Sta. Clara Villas, Brgy. Nagkaisang Nayon Novaliches Quezon City', '1125', 'paymongo', 'link_TKi1ZrsfkfgDxALXXNFnvAzp', 900.00, 50.00, 950.00, 'pending', '2025-04-11 00:44:58'),
+(36, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_9BejAZhQX67guxeQJkifHHin', 1800.00, 50.00, 1850.00, 'pending', '2025-04-11 03:46:29'),
+(37, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_Mg3voLXtmK1B8v9aqcjusbdf', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:17:47'),
+(38, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_nXS4RdpQK7Nq4Hu87RmZ5LY1', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:17:57'),
+(39, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_NoJ7bGEBYTQeDgnTDHiGppVm', 500.00, 50.00, 550.00, 'pending', '2025-04-12 07:18:48'),
+(40, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_tn8ALLyMJMssB83XwxKkz3Le', 850.00, 50.00, 900.00, 'pending', '2025-04-16 01:07:59'),
+(41, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_D8EoS9a9SJ777iym5SR83bPB', 850.00, 50.00, 900.00, 'pending', '2025-04-16 03:36:19'),
+(42, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_3TZTjCKZkSLkoGpvMeeyLhAD', 344.00, 50.00, 394.00, 'pending', '2025-04-16 03:37:45'),
+(43, '', 15, 'Jm', 'Reyes', 'reyesjundillmharcalagahan@gmail.com', '096258441', '20 f Sampaguita St ', '1106', 'paymongo', 'link_Q8JY2FFUwusrD2KccZhgFyQq', 850.00, 50.00, 900.00, 'pending', '2025-04-16 04:28:07'),
+(49, '', 19, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', '1125', 'paymongo', 'link_u953yCJB8QV7X97qDyZwz8zx', 3400.00, 50.00, 3450.00, 'pending', '2025-04-18 18:25:29'),
+(50, '', 14, '', '', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '', 'paymongo', NULL, 850.00, 50.00, 900.00, 'pending', '2025-04-22 17:01:34'),
+(51, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_qu3hhMj1mBdgQF147XakSTYQ', 850.00, 50.00, 900.00, 'pending', '2025-04-22 17:20:05'),
+(52, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_JkVg6VKVj9ZU4sMY5yz64jys', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:26:27'),
+(53, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_EvqKbQGa3o1sRmB7w4oYuC1R', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:26:34'),
+(54, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_xPHquioTEkuoYsR3AQhbLSkW', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:27:01'),
+(55, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_pKa6KgUgfEX9S1fF6yUzgdBE', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:27:36'),
+(56, '', 21, 'Oreo ', 'Reyes', 'rjm89712@gmail.com', '09235671231', 'Novaliches Quezon City', '1125', 'paymongo', 'cs_kgzTLorX3GcyQbMrTt5BnTSB', 549.00, 50.00, 599.00, 'pending', '2025-04-23 01:47:57'),
+(57, '', 21, 'Oreo ', 'Reyes', 'rjm89712@gmail.com', '09235671231', 'Novaliches Quezon City', '1125', 'paymongo', 'cs_BuvV7SFuiSZvyGWsBLY5GjaW', 850.00, 50.00, 900.00, 'pending', '2025-04-23 02:12:38');
 
 -- --------------------------------------------------------
 
@@ -235,7 +244,29 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `size
 (55, 48, 36, 'GUL', 'M', 2, 850.00, 1700.00),
 (56, 48, 35, 'TEAL', 'M', 1, 850.00, 850.00),
 (57, 49, 36, 'GUL', 'M', 2, 850.00, 1700.00),
-(58, 49, 35, 'TEAL', 'M', 2, 850.00, 1700.00);
+(58, 49, 35, 'TEAL', 'M', 2, 850.00, 1700.00),
+(59, 50, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(60, 51, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(61, 52, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(62, 53, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(63, 54, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(64, 55, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(65, 56, 32, 'TALE', 'M', 1, 549.00, 549.00),
+(66, 57, 35, 'TEAL', 'M', 1, 850.00, 850.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `otp_verification`
+--
+
+CREATE TABLE `otp_verification` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `otp` varchar(6) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -430,19 +461,21 @@ CREATE TABLE `users` (
   `alt_full_address` varchar(255) DEFAULT NULL,
   `alt_zipcode` varchar(20) DEFAULT NULL,
   `alt_latitude` decimal(10,8) DEFAULT NULL,
-  `alt_longitude` decimal(11,8) DEFAULT NULL
+  `alt_longitude` decimal(11,8) DEFAULT NULL,
+  `email_verified` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `firstname`, `middlename`, `lastname`, `phone_number`, `email`, `username`, `full_address`, `latitude`, `longitude`, `zipcode`, `password`, `role_as`, `created_at`, `alt_full_address`, `alt_zipcode`, `alt_latitude`, `alt_longitude`) VALUES
-(11, 'Admin', NULL, 'User', NULL, NULL, 'Admin', NULL, NULL, NULL, NULL, '$2y$10$mTiynyWP6EOnbDGRhf369eaj8WmWiBrhkAFSblL9ed8RTGCitUGcy', 1, '2025-03-27 04:05:26', NULL, NULL, NULL, NULL),
-(13, 'asdasd', 'asdasd', 'asdasd', '1293012390123', 'asdasd@gmail.com', 'hello', 'asdasd', NULL, NULL, 'asdasdasd', '$2y$10$iMMitsyMw64E1VY6WAmgMOoFAGAliAzFmGu6BTYxQHiU1uv9mkbhy', 0, '2025-04-01 12:00:33', NULL, NULL, NULL, NULL),
-(14, 'Jm', '', 'Reyes', '09244618214', 'jundillmharreyes@gmail.com', 'Jiem', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', NULL, NULL, '1102', '$2y$10$sF8eYR87p0c7lfmEEB7lBOzX4dk6WQ0qWEA0vW4wXaL85wlDNcbmK', 0, '2025-04-07 17:07:05', NULL, NULL, NULL, NULL),
-(15, 'Jm', '', 'Reyes', '096258441', 'reyesjundillmharcalagahan@gmail.com', 'Jm', '20 f Sampaguita St ', NULL, NULL, '1106', '$2y$10$RY2G.XbeacoV8Q1M/.53G.fPADwL6RvUzP7fNx/rGAu2/mLCOTVme', 0, '2025-04-09 14:28:39', NULL, NULL, NULL, NULL),
-(19, 'Mark Darren', 'Ocaya', 'Oandasan', '09682351236', 'darrenjade24@gmail.com', 'Youki', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', 14.71268095, 121.03260040, '1125', '$2y$10$CwXMAP6HOawdtEGS73URXOVcRugVHvZhcRC3WfonGQIUN5rMpeIZW', 0, '2025-04-18 15:36:01', NULL, NULL, NULL, NULL);
+INSERT INTO `users` (`id`, `firstname`, `middlename`, `lastname`, `phone_number`, `email`, `username`, `full_address`, `latitude`, `longitude`, `zipcode`, `password`, `role_as`, `created_at`, `alt_full_address`, `alt_zipcode`, `alt_latitude`, `alt_longitude`, `email_verified`) VALUES
+(11, 'Admin', NULL, 'User', NULL, NULL, 'Admin', NULL, NULL, NULL, NULL, '$2y$10$mTiynyWP6EOnbDGRhf369eaj8WmWiBrhkAFSblL9ed8RTGCitUGcy', 1, '2025-03-27 04:05:26', NULL, NULL, NULL, NULL, 0),
+(13, 'asdasd', 'asdasd', 'asdasd', '1293012390123', 'asdasd@gmail.com', 'hello', 'asdasd', NULL, NULL, 'asdasdasd', '$2y$10$iMMitsyMw64E1VY6WAmgMOoFAGAliAzFmGu6BTYxQHiU1uv9mkbhy', 0, '2025-04-01 12:00:33', NULL, NULL, NULL, NULL, 0),
+(14, 'Jm', '', 'Reyes', '09244618214', 'jundillmharreyes@gmail.com', 'Jiem', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', NULL, NULL, '1102', '$2y$10$sF8eYR87p0c7lfmEEB7lBOzX4dk6WQ0qWEA0vW4wXaL85wlDNcbmK', 0, '2025-04-07 17:07:05', NULL, NULL, NULL, NULL, 0),
+(15, 'Jm', '', 'Reyes', '096258441', 'reyesjundillmharcalagahan@gmail.com', 'Jm', '20 f Sampaguita St ', NULL, NULL, '1106', '$2y$10$RY2G.XbeacoV8Q1M/.53G.fPADwL6RvUzP7fNx/rGAu2/mLCOTVme', 0, '2025-04-09 14:28:39', NULL, NULL, NULL, NULL, 0),
+(19, 'Mark Darren', 'Ocaya', 'Oandasan', '09682351236', 'darrenjade24@gmail.com', 'Youki', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', 14.71268095, 121.03260040, '1125', '$2y$10$CwXMAP6HOawdtEGS73URXOVcRugVHvZhcRC3WfonGQIUN5rMpeIZW', 0, '2025-04-18 15:36:01', NULL, NULL, NULL, NULL, 0),
+(21, 'Oreo ', '', 'Reyes', '09235671231', 'rjm89712@gmail.com', 'Oreo', 'Novaliches Quezon City', NULL, NULL, '1125', '$2y$10$kagORR2PBdsDaAU2.H9eCuRc.TqfzBX2uTaXrRMg/J4CVbEZ3JzrG', 0, '2025-04-23 01:44:57', NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -509,6 +542,13 @@ ALTER TABLE `order_items`
   ADD KEY `order_id` (`order_id`);
 
 --
+-- Indexes for table `otp_verification`
+--
+ALTER TABLE `otp_verification`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `email_index` (`email`);
+
+--
 -- Indexes for table `products`
 --
 ALTER TABLE `products`
@@ -570,13 +610,19 @@ ALTER TABLE `homepage_settings`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+
+--
+-- AUTO_INCREMENT for table `otp_verification`
+--
+ALTER TABLE `otp_verification`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -600,7 +646,7 @@ ALTER TABLE `product_sizes`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `user_carts`
@@ -617,12 +663,6 @@ ALTER TABLE `user_conversations`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `order_items`
---
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
 
 --
 -- Constraints for table `product_images`
