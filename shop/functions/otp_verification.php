@@ -1,132 +1,101 @@
 <?php
-/**
- * OTP Verification Functions
- */
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-// Generate a random OTP code
-function generateOTP($length = 6) {
-    $otp = '';
-    for ($i = 0; $i < $length; $i++) {
-        $otp .= mt_rand(0, 9);
-    }
-    return $otp;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+// Function to generate a 6-digit OTP
+function generateOTP() {
+    return sprintf("%06d", mt_rand(1, 999999));
 }
 
-// Send OTP via email
+// Function to save OTP in the database
+function storeOTP($conn, $email, $otp) {
+    // First, invalidate any existing OTPs for this email
+    $invalidate_query = "UPDATE otp_verification SET is_expired = 1 WHERE email = ?";
+    $stmt = $conn->prepare($invalidate_query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    
+    // Now insert the new OTP
+    $insert_query = "INSERT INTO otp_verification (email, otp, created_at, expiry_time) 
+                     VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
+    $stmt = $conn->prepare($insert_query);
+    $stmt->bind_param("ss", $email, $otp);
+    return $stmt->execute();
+}
+
+// Function to send OTP via email
 function sendOTPEmail($email, $otp, $firstname) {
-    // For testing purposes, store OTP in session
-    $_SESSION['test_otp'] = $otp;
-    
-    // Log the OTP for debugging
-    error_log("OTP for $email: $otp");
-    
-    // Display the OTP on screen for testing (remove in production)
-    echo "<script>alert('Your OTP is: $otp\\nThis is shown for testing only.');</script>";
-    
-    // Return true to simulate successful sending
-    return true;
-    
-    /* 
-    // Uncomment and configure this code when ready to use real email sending
-    
-    // Use PHPMailer for reliable email delivery
-    require '../vendor/autoload.php';
-    
-    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-    
     try {
+        $mail = new PHPMailer(true);
+        
         // Server settings
+        $mail->SMTPDebug = 0; // Set to 0 in production
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Replace with your SMTP server
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'your-email@gmail.com'; // Replace with your email
-        $mail->Password   = 'your-app-password'; // Replace with your app password
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'darrenjade24@gmail.com'; // Your email
+        $mail->Password = 'ezyz zcbe lzmx xzgr'; // Your app password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
         
         // Recipients
-        $mail->setFrom('noreply@bydclothing.com', 'BYD Clothing');
+        $mail->setFrom('darrenjade24@gmail.com', 'BYD Clothing');
         $mail->addAddress($email);
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = "BYD Clothing - Email Verification Code";
+        $mail->Subject = 'Your Email Verification Code';
         
-        $message = "
-        <html>
-        <head>
-            <title>Email Verification</title>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; }
-                .header { background-color: #000; color: #fff; padding: 15px; text-align: center; }
-                .content { padding: 20px; }
-                .otp-code { font-size: 24px; font-weight: bold; text-align: center; 
-                            padding: 10px; margin: 20px 0; background-color: #f4f4f4; }
-                .footer { background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; }
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <div class='header'>
-                    <h1>Email Verification</h1>
-                </div>
-                <div class='content'>
-                    <p>Hello " . htmlspecialchars($firstname) . ",</p>
-                    <p>Thank you for registering with BYD Clothing. To complete your registration, please use the verification code below:</p>
-                    
-                    <div class='otp-code'>" . $otp . "</div>
-                    
-                    <p>This code will expire in 15 minutes.</p>
-                    <p>If you did not request this code, please ignore this email.</p>
-                </div>
-                <div class='footer'>
-                    <p>&copy; " . date('Y') . " BYD Clothing. All rights reserved.</p>
-                </div>
+        // Email body with professional formatting
+        $mail->Body = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="color: #ff7f50;">BYD Clothing</h1>
             </div>
-        </body>
-        </html>
-        ";
+            <h2 style="color: #ff7f50;">Email Verification</h2>
+            <p>Hello ' . htmlspecialchars($firstname) . ',</p>
+            <p>Thank you for creating an account with BYD Clothing. To complete your registration, please use the verification code below:</p>
+            <div style="background-color: #f7f7f7; padding: 15px; text-align: center; margin: 20px 0; border-radius: 5px;">
+                <h2 style="color: #ff7f50; margin: 0; letter-spacing: 5px;">' . $otp . '</h2>
+            </div>
+            <p>This code will expire in 15 minutes.</p>
+            <p>If you did not create an account with us, please ignore this email.</p>
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+                <p>© ' . date('Y') . ' BYD Clothing. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </div>';
         
-        $mail->Body = $message;
+        $mail->AltBody = "Hello $firstname,\n\nYour verification code is: $otp\n\nThis code will expire in 15 minutes.\n\nBYD Clothing";
         
-        $mail->send();
-        return true;
+        return $mail->send();
     } catch (Exception $e) {
-        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        error_log("Email sending failed: " . $e->getMessage());
         return false;
     }
-    */
 }
 
-// Store OTP in database
-function storeOTP($conn, $email, $otp) {
-    // Delete any existing OTP for this email
-    $delete_query = "DELETE FROM otp_verification WHERE email = '$email'";
-    mysqli_query($conn, $delete_query);
+// Function to validate OTP
+function validateOTP($conn, $email, $otp) {
+    $query = "SELECT * FROM otp_verification WHERE email = ? AND otp = ? AND is_expired = 0 AND expiry_time > NOW()";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $email, $otp);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    // Insert new OTP with expiration time (15 minutes from now)
-    $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-    $insert_query = "INSERT INTO otp_verification (email, otp, expires_at) VALUES ('$email', '$otp', '$expiry')";
-    return mysqli_query($conn, $insert_query);
-}
-
-// Verify OTP
-function verifyOTP($conn, $email, $otp) {
-    $query = "SELECT * FROM otp_verification WHERE email = '$email' AND otp = '$otp' AND expiry > NOW()";
-    $result = mysqli_query($conn, $query);
-    
-    if (mysqli_num_rows($result) > 0) {
-        // OTP is valid, update user's email_verified status
-        $update_query = "UPDATE users SET email_verified = 1 WHERE email = '$email'";
-        $update_result = mysqli_query($conn, $update_query);
+    if ($result->num_rows > 0) {
+        // Mark OTP as expired after successful validation
+        $update_query = "UPDATE otp_verification SET is_expired = 1 WHERE email = ? AND otp = ?";
+        $update_stmt = $conn->prepare($update_query);
+        $update_stmt->bind_param("ss", $email, $otp);
+        $update_stmt->execute();
         
-        // Delete the used OTP
-        $delete_query = "DELETE FROM otp_verification WHERE email = '$email'";
-        mysqli_query($conn, $delete_query);
-        
-        return $update_result;
+        return true;
     }
     
     return false;
 }
+?>

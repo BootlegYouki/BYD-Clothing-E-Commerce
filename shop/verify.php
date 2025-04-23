@@ -1,143 +1,121 @@
 <?php
 session_start();
-require_once '../admin/config/dbcon.php';
-require_once 'functions/otp_verification.php';
+include '../admin/config/dbcon.php';
+include 'functions/otp_verification.php';
 
-// Check if user is already logged in
-if (isset($_SESSION['auth']) && $_SESSION['auth'] === true) {
+// Check if user email exists in session
+if (!isset($_SESSION['verify_email'])) {
     header("Location: index.php");
     exit();
 }
 
-$email = $_SESSION['verify_email'] ?? '';
-$firstname = $_SESSION['verify_firstname'] ?? '';
-$message = '';
-$messageType = 'danger';
-
-// If no email in session, redirect to login
-if (empty($email)) {
-    header("Location: index.php");
-    exit();
-}
-
-// For testing - get the OTP from database
-$test_otp = '';
-if (isset($conn)) {
-    $query = "SELECT otp FROM otp_verification WHERE email = '$email' ORDER BY created_at DESC LIMIT 1";
-    $result = mysqli_query($conn, $query);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $test_otp = $row['otp'];
-    }
-}
-
-// Handle messages based on URL parameters
-if(isset($_GET['invalidOTP'])) {
-    $message = "Invalid or expired verification code. Please try again.";
-} elseif(isset($_GET['resendSuccess'])) {
-    $message = "A new verification code has been sent to your email.";
-    $messageType = 'info';
-} elseif(isset($_GET['resendFailed'])) {
-    $message = "Failed to send verification code. Please try again.";
-} elseif(isset($_GET['verifyRequired'])) {
-    $message = "Please verify your email before logging in.";
-    $messageType = 'warning';
-}
+$email = $_SESSION['verify_email'];
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification - BYD Clothing</title>
-    <!-- BOOTSTRAP CSS/JS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
-    <!-- ICONSCSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- CUSTOM CSS -->
-    <link rel="stylesheet" href="css/important.css">
-    <link rel="stylesheet" href="css/headerfooter.css">
+    <title>Verify Your Email - BYD Clothing</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
         .verification-container {
             max-width: 500px;
             margin: 0 auto;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .otp-input {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .otp-input input {
+            width: 50px;
+            height: 50px;
+            margin: 0 5px;
+            text-align: center;
+            font-size: 24px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         .btn-verify {
             background-color: #ff7f50;
-            color: white;
             border: none;
+            width: 100%;
+            padding: 12px;
+            font-weight: bold;
         }
         .btn-verify:hover {
             background-color: #ff6b3d;
         }
-        .resend-link {
-            color: #ff7f50;
-            text-decoration: none;
-        }
-        .resend-link:hover {
-            text-decoration: underline;
-        }
-        .test-otp {
-            background-color: #f8f9fa;
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 5px;
+        .resend {
             text-align: center;
+            margin-top: 20px;
+        }
+        .alert {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-
-    <section class="my-5 py-5">
-        <div class="container mt-5">
-            <div class="verification-container">
-                <h2 class="text-center mb-4">Email Verification</h2>
+    <div class="container">
+        <div class="verification-container">
+            <div class="logo">
+                <h2>BYD Clothing</h2>
+            </div>
+            
+            <?php if(isset($_GET['invalidOTP'])): ?>
+            <div class="alert alert-danger">
+                Invalid verification code. Please try again.
+            </div>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['resendSuccess'])): ?>
+            <div class="alert alert-success">
+                A new verification code has been sent to your email.
+            </div>
+            <?php endif; ?>
+            
+            <?php if(isset($_GET['resendFailed'])): ?>
+            <div class="alert alert-danger">
+                Failed to send verification code. Please try again.
+            </div>
+            <?php endif; ?>
+            
+            <h4 class="text-center">Verify Your Email</h4>
+            <p class="text-center">We've sent a verification code to <strong><?php echo htmlspecialchars($email); ?></strong></p>
+            
+            <form action="functions/authcode.php" method="POST">
+                <div class="form-group">
+                    <label for="otp">Enter Verification Code</label>
+                    <input type="text" class="form-control form-control-lg" id="otp" name="otp" maxlength="6" required>
+                </div>
                 
-                <?php if (!empty($message)): ?>
-                    <div class="alert alert-<?= $messageType ?>">
-                        <?= $message ?>
-                    </div>
-                <?php endif; ?>
-                
-                <p class="text-center">We've sent a verification code to <strong><?= htmlspecialchars($email) ?></strong></p>
-                <p class="text-center">Please enter the 6-digit code below:</p>
-                
-                <form method="POST" action="functions/authcode.php">
-                    <div class="mb-4">
-                        <input type="text" name="otp" class="form-control form-control-lg text-center" 
-                               maxlength="6" placeholder="Enter 6-digit code" required>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" name="verify_otp" class="btn btn-verify">Verify Email</button>
-                    </div>
+                <button type="submit" name="verify_otp" class="btn btn-primary btn-verify">Verify Email</button>
+            </form>
+            
+            <div class="resend">
+                <p>Didn't receive the code?</p>
+                <form action="functions/authcode.php" method="POST">
+                    <button type="submit" name="resend_otp" class="btn btn-link">Resend Code</button>
                 </form>
-                
-                <div class="text-center mt-4">
-                    <p>Didn't receive the code?</p>
-                    <form method="POST" action="functions/authcode.php">
-                        <button type="submit" name="resend_otp" class="btn btn-link resend-link">Resend Code</button>
-                    </form>
-                </div>
-                
-                <?php if (!empty($test_otp)): ?>
-                <!-- For testing purposes only - remove in production -->
-                <div class="test-otp mt-4">
-                    <p class="mb-0"><small>For testing: Your OTP is <strong><?= $test_otp ?></strong></small></p>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
-    </section>
-    
-    <!-- BOOTSTRAP JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
