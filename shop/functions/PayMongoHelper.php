@@ -16,13 +16,13 @@ class PayMongoHelper {
      */
     public function __construct($isLive = false) {
         if ($isLive) {
-            // Live keys
-            $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-            $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+            // Live keys from environment variables
+            $this->publicKey = $_ENV['PAYMONGO_PUBLIC_KEY_LIVE'];
+            $this->secretKey = $_ENV['PAYMONGO_SECRET_KEY_LIVE'];
         } else {
-            // Test keys
-            $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
-            $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+            // Test keys from environment variables
+            $this->publicKey = $_ENV['PAYMONGO_PUBLIC_KEY_TEST'];
+            $this->secretKey = $_ENV['PAYMONGO_SECRET_KEY_TEST'];
         }
     }
 
