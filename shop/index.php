@@ -334,68 +334,7 @@ function get_setting($key, $default = '') {
 <script src="js/assistant.js"></script>
 <script src="js/shop.js"></script>
 
-<!-- Admin Login Success Modal -->
-<div class="modal fade" id="adminLoginSuccessModal" tabindex="-1" aria-labelledby="adminLoginSuccessModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center border-bottom-0">
-        <i class="fas fa-user-shield" style="font-size: 4rem; margin-bottom: 1rem; color: #FF7F50;"></i>
-        <h4>Admin Login Successful!</h4>
-        <p>Welcome back, <?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Admin'; ?>!</p>
-      </div>
-      <div class="modal-footer justify-content-center border-top-0">
-        <a href="../admin/index.php" class="btn" style="background-color: #FF7F50; color: white;">Go to Dashboard</a>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Script to show admin login modal -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    <?php if(isset($_SESSION['admin_login_success']) || isset($_GET['adminLogin'])): ?>
-    var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
-    adminLoginModal.show();
-    
-    <?php 
-    // Clear the flag after showing the modal
-    unset($_SESSION['admin_login_success']);
-    endif; ?>
-});
-</script>
-
-<!-- Registration Success Modal -->
-<div class="modal fade" id="registrationSuccessModal" tabindex="-1" aria-labelledby="registrationSuccessModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center border-bottom-0">
-        <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 1rem; color: #FF7F50;"></i>
-        <h4>Welcome to BYD Clothing!</h4>
-        <p>Your account has been created successfully and you are now logged in.</p>
-        <p>Thank you for joining us!</p>
-      </div>
-      <div class="modal-footer justify-content-center border-top-0">
-        <button type="button" class="btn" style="background-color: #FF7F50; color: white;" data-bs-dismiss="modal">Start Shopping</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Script to show modal on page load if registration was successful -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    <?php if(isset($_GET['registrationSuccess']) && isset($_SESSION['registration_success'])): ?>
-    var registrationModal = new bootstrap.Modal(document.getElementById('registrationSuccessModal'));
-    registrationModal.show();
-    <?php 
-    // Clear the flag after showing the modal
-    unset($_SESSION['registration_success']);
-    endif; ?>
-});
-</script>
 <!-- Payment Status Modal -->
 <div class="modal fade" id="paymentStatusModal" tabindex="-1" aria-labelledby="paymentStatusModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

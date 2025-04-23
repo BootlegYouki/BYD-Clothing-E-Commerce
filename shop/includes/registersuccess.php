@@ -1,19 +1,29 @@
-<!-- SUCCESS MODAL -->
+<!-- Registration Success Modal -->
 <div class="modal fade" id="registersuccessmodal" tabindex="-1" aria-labelledby="registersuccessmodalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <div class="modal-header">
-        <h5 class="modal-title" id="registersuccessmodalLabel">Sign Up Successful!</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content">
+      <div class="modal-body text-center border-bottom-0">
+        <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 1rem; color: #FF7F50;"></i>
+        <h4>Welcome to BYD Clothing!</h4>
+        <p>Your account has been created successfully and you are now logged in.</p>
+        <p>Thank you for joining us!</p>
       </div>
-      <div class="modal-body">
-        <p>Your account has been created successfully.</p>
-      </div>
-      <div class="modal-footer">
-        <a href="index.php" class="btn btn-primary">OK</a>
+      <div class="modal-footer justify-content-center border-top-0">
+        <button type="button" class="btn" style="background-color: #FF7F50; color: white;" data-bs-dismiss="modal">Start Shopping</button>
       </div>
     </div>
   </div>
 </div>
 
-<script src="js/url-cleaner.js"></script>
+<!-- Script to show modal on page load if registration was successful -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if(isset($_GET['registrationSuccess']) && isset($_SESSION['registration_success'])): ?>
+    var registrationModal = new bootstrap.Modal(document.getElementById('registersuccessmodal'));
+    registrationModal.show();
+    <?php 
+    // Clear the flag after showing the modal
+    unset($_SESSION['registration_success']);
+    endif; ?>
+});
+</script>
