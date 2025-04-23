@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 23, 2025 at 04:23 AM
+-- Generation Time: Apr 23, 2025 at 06:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -135,8 +135,8 @@ INSERT INTO `orders` (`order_id`, `order_number`, `user_id`, `firstname`, `lastn
 (21, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_4N9dPxj2474EAVNiruQ3RMzv', 720.00, 50.00, 770.00, 'pending', '2025-04-09 07:44:00'),
 (22, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_xba1DXvrCha8q78L4uYPcvgh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 08:00:34'),
 (23, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_J4e3nUwxKy2gVqLuFHWZgLpA', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:22:23'),
-(24, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_q6i5aeDe3MumAv8k9gzDQLgL', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:25:33'),
-(25, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_RTm8aNeGBHmGCtysb1RzAzLh', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:29:02'),
+(24, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_q6i5aeDe3MumAv8k9gzDQLgL', 720.00, 50.00, 770.00, 'pending', '2025-05-09 09:25:33'),
+(25, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_RTm8aNeGBHmGCtysb1RzAzLh', 720.00, 50.00, 770.00, 'pending', '2025-05-09 09:29:02'),
 (26, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_JdHcaiPx7vcu5rENYkUC5gj3', 720.00, 50.00, 770.00, 'pending', '2025-04-09 09:33:15'),
 (27, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_97jP75hFBj6g7byMhvtXdqD8', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:23:35'),
 (28, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'link_G919eXfm588KtKFz5yZ4qy5q', 720.00, 50.00, 770.00, 'pending', '2025-04-09 10:52:23'),
@@ -163,7 +163,8 @@ INSERT INTO `orders` (`order_id`, `order_number`, `user_id`, `firstname`, `lastn
 (54, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_xPHquioTEkuoYsR3AQhbLSkW', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:27:01'),
 (55, '', 14, 'Jm', 'Reyes', 'jundillmharreyes@gmail.com', '09244618214', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', '1102', 'paymongo', 'cs_pKa6KgUgfEX9S1fF6yUzgdBE', 850.00, 50.00, 900.00, 'pending', '2025-04-23 01:27:36'),
 (56, '', 21, 'Oreo ', 'Reyes', 'rjm89712@gmail.com', '09235671231', 'Novaliches Quezon City', '1125', 'paymongo', 'cs_kgzTLorX3GcyQbMrTt5BnTSB', 549.00, 50.00, 599.00, 'pending', '2025-04-23 01:47:57'),
-(57, '', 21, 'Oreo ', 'Reyes', 'rjm89712@gmail.com', '09235671231', 'Novaliches Quezon City', '1125', 'paymongo', 'cs_BuvV7SFuiSZvyGWsBLY5GjaW', 850.00, 50.00, 900.00, 'pending', '2025-04-23 02:12:38');
+(57, '', 21, 'Oreo ', 'Reyes', 'rjm89712@gmail.com', '09235671231', 'Novaliches Quezon City', '1125', 'paymongo', 'cs_BuvV7SFuiSZvyGWsBLY5GjaW', 850.00, 50.00, 900.00, 'pending', '2025-04-23 02:12:38'),
+(59, '', 19, 'Mark Darren', 'Oandasan', 'darrenjade24@gmail.com', '09682351236', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', '1125', 'paymongo', 'cs_ugAPgszf2jPF7uf8yFpRrmkK', 850.00, 50.00, 900.00, 'pending', '2025-04-23 02:34:37');
 
 -- --------------------------------------------------------
 
@@ -252,7 +253,9 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `product_name`, `size
 (63, 54, 35, 'TEAL', 'M', 1, 850.00, 850.00),
 (64, 55, 35, 'TEAL', 'M', 1, 850.00, 850.00),
 (65, 56, 32, 'TALE', 'M', 1, 549.00, 549.00),
-(66, 57, 35, 'TEAL', 'M', 1, 850.00, 850.00);
+(66, 57, 35, 'TEAL', 'M', 1, 850.00, 850.00),
+(67, 58, 36, 'GUL', 'M', 1, 850.00, 850.00),
+(68, 59, 36, 'GUL', 'M', 1, 850.00, 850.00);
 
 -- --------------------------------------------------------
 
@@ -268,6 +271,13 @@ CREATE TABLE `otp_verification` (
   `expires_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `otp_verification`
+--
+
+INSERT INTO `otp_verification` (`id`, `email`, `otp`, `created_at`, `expires_at`) VALUES
+(6, '', '194663', '2025-04-23 02:37:27', '2025-04-22 20:52:27');
+
 -- --------------------------------------------------------
 
 --
@@ -282,6 +292,7 @@ CREATE TABLE `products` (
   `original_price` decimal(10,2) NOT NULL,
   `discount_percentage` int(10) DEFAULT 0,
   `category` enum('T-Shirt','Long Sleeve') NOT NULL,
+  `fabric` varchar(100) DEFAULT NULL,
   `is_featured` tinyint(1) DEFAULT 0,
   `is_new_release` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -292,17 +303,17 @@ CREATE TABLE `products` (
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `sku`, `name`, `description`, `original_price`, `discount_percentage`, `category`, `is_featured`, `is_new_release`, `created_at`, `updated_at`) VALUES
-(23, 'T-S-DANE-510', 'Danel Shirt', 'wow sugoi i wuv bibi', 9999999.00, 100, 'T-Shirt', 0, 0, '2025-03-30 13:22:39', '2025-04-16 00:50:18'),
-(29, 'LON-MARC-632', 'MARC', 'LONG-SLEEVES- \"MARCâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', 0, 0, '2025-04-16 00:43:48', '2025-04-16 00:44:38'),
-(30, 'T-S-RETA-539', 'RETAIN', 'T-SHIRT - \"RETAINâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', 1, 1, '2025-04-16 00:47:33', '2025-04-16 04:35:55'),
-(31, 'T-S-VALE-521', 'VALE', 'T-SHIRT - \"VALEâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', 1, 1, '2025-04-16 00:50:01', '2025-04-16 04:35:55'),
-(32, 'T-S-TALE-545', 'TALE', 'T-SHIRT - \"TEALâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 549.00, 0, 'T-Shirt', 1, 1, '2025-04-16 00:52:14', '2025-04-16 04:35:54'),
-(33, 'T-S-TOYO-908', 'TOYO', 'T-SHIRT - \"TOYOâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', 1, 1, '2025-04-16 00:54:20', '2025-04-16 04:35:54'),
-(34, 'LON-SEUD-374', 'SEUD', 'LONG-SLEEVES- _SEUDâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 344.00, 0, 'Long Sleeve', 1, 0, '2025-04-16 00:57:34', '2025-04-16 04:35:31'),
-(35, 'LON-TEAL-825', 'TEAL', 'LONG-SLEEVES- \"TEALâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', 1, 0, '2025-04-16 00:59:29', '2025-04-16 04:35:30'),
-(36, 'LON-GUL-430', 'GUL', 'LONG-SLEEVES- \"GULâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', 0, 0, '2025-04-16 01:02:59', '2025-04-16 01:02:59'),
-(38, 'T-S-TEST-647', 'Test', 'testtestadasdasdasasd', 1000.00, 20, 'T-Shirt', 0, 0, '2025-04-16 04:36:28', '2025-04-16 04:36:28');
+INSERT INTO `products` (`id`, `sku`, `name`, `description`, `original_price`, `discount_percentage`, `category`, `fabric`, `is_featured`, `is_new_release`, `created_at`, `updated_at`) VALUES
+(23, 'T-S-DANE-510', 'Danel Shirt', 'wow sugoi i wuv bibi', 9999999.00, 100, 'T-Shirt', NULL, 0, 0, '2025-03-30 13:22:39', '2025-04-16 00:50:18'),
+(29, 'LON-MARC-632', 'MARC', 'LONG-SLEEVES- \"MARCâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', NULL, 0, 0, '2025-04-16 00:43:48', '2025-04-16 00:44:38'),
+(30, 'T-S-RETA-539', 'RETAIN', 'T-SHIRT - \"RETAINâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', NULL, 1, 1, '2025-04-16 00:47:33', '2025-04-16 04:35:55'),
+(31, 'T-S-VALE-521', 'VALE', 'T-SHIRT - \"VALEâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', NULL, 1, 1, '2025-04-16 00:50:01', '2025-04-16 04:35:55'),
+(32, 'T-S-TALE-545', 'TALE', 'T-SHIRT - \"TEALâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 549.00, 0, 'T-Shirt', NULL, 1, 1, '2025-04-16 00:52:14', '2025-04-16 04:35:54'),
+(33, 'T-S-TOYO-908', 'TOYO', 'T-SHIRT - \"TOYOâ€ Design AIRCOOL & DRIFIT Fabric - BEYOND DOUBT CLOTHING', 599.00, 0, 'T-Shirt', NULL, 1, 1, '2025-04-16 00:54:20', '2025-04-16 04:35:54'),
+(34, 'LON-SEUD-374', 'SEUD', 'LONG-SLEEVES- _SEUDâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 344.00, 0, 'Long Sleeve', NULL, 1, 0, '2025-04-16 00:57:34', '2025-04-16 04:35:31'),
+(35, 'LON-TEAL-825', 'TEAL', 'LONG-SLEEVES- \"TEALâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', NULL, 1, 0, '2025-04-16 00:59:29', '2025-04-16 04:35:30'),
+(36, 'LON-GUL-430', 'GUL', 'LONG-SLEEVES- \"GULâ€ Design AIRCOOL Moto Jersey - BEYOND DOUBT CLOTHING', 850.00, 0, 'Long Sleeve', NULL, 0, 0, '2025-04-16 01:02:59', '2025-04-16 01:02:59'),
+(38, 'T-S-TEST-647', 'Test', 'testtestadasdasdasasd', 1000.00, 20, 'T-Shirt', NULL, 0, 0, '2025-04-16 04:36:28', '2025-04-16 04:36:28');
 
 -- --------------------------------------------------------
 
@@ -470,11 +481,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `firstname`, `middlename`, `lastname`, `phone_number`, `email`, `username`, `full_address`, `latitude`, `longitude`, `zipcode`, `password`, `role_as`, `created_at`, `alt_full_address`, `alt_zipcode`, `alt_latitude`, `alt_longitude`, `email_verified`) VALUES
-(11, 'Admin', NULL, 'User', NULL, NULL, 'Admin', NULL, NULL, NULL, NULL, '$2y$10$mTiynyWP6EOnbDGRhf369eaj8WmWiBrhkAFSblL9ed8RTGCitUGcy', 1, '2025-03-27 04:05:26', NULL, NULL, NULL, NULL, 0),
+(11, 'Admin', NULL, 'User', NULL, NULL, 'Admin', NULL, NULL, NULL, NULL, '$2y$10$mTiynyWP6EOnbDGRhf369eaj8WmWiBrhkAFSblL9ed8RTGCitUGcy', 1, '2025-03-27 04:05:26', NULL, NULL, NULL, NULL, 1),
 (13, 'asdasd', 'asdasd', 'asdasd', '1293012390123', 'asdasd@gmail.com', 'hello', 'asdasd', NULL, NULL, 'asdasdasd', '$2y$10$iMMitsyMw64E1VY6WAmgMOoFAGAliAzFmGu6BTYxQHiU1uv9mkbhy', 0, '2025-04-01 12:00:33', NULL, NULL, NULL, NULL, 0),
 (14, 'Jm', '', 'Reyes', '09244618214', 'jundillmharreyes@gmail.com', 'Jiem', '36 Bayanihan Drive, Sitio Maligaya, Bahay Toro', NULL, NULL, '1102', '$2y$10$sF8eYR87p0c7lfmEEB7lBOzX4dk6WQ0qWEA0vW4wXaL85wlDNcbmK', 0, '2025-04-07 17:07:05', NULL, NULL, NULL, NULL, 0),
 (15, 'Jm', '', 'Reyes', '096258441', 'reyesjundillmharcalagahan@gmail.com', 'Jm', '20 f Sampaguita St ', NULL, NULL, '1106', '$2y$10$RY2G.XbeacoV8Q1M/.53G.fPADwL6RvUzP7fNx/rGAu2/mLCOTVme', 0, '2025-04-09 14:28:39', NULL, NULL, NULL, NULL, 0),
-(19, 'Mark Darren', 'Ocaya', 'Oandasan', '09682351236', 'darrenjade24@gmail.com', 'Youki', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', 14.71268095, 121.03260040, '1125', '$2y$10$CwXMAP6HOawdtEGS73URXOVcRugVHvZhcRC3WfonGQIUN5rMpeIZW', 0, '2025-04-18 15:36:01', NULL, NULL, NULL, NULL, 0),
+(19, 'Mark Darren', 'Ocaya', 'Oandasan', '09682351236', 'darrenjade24@gmail.com', 'Youki', 'Santa Clara Drive, Nagkaisang Nayon, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1125, Philippines', 14.71268095, 121.03260040, '1125', '$2y$10$CwXMAP6HOawdtEGS73URXOVcRugVHvZhcRC3WfonGQIUN5rMpeIZW', 0, '2025-04-18 15:36:01', NULL, NULL, NULL, NULL, 1),
 (21, 'Oreo ', '', 'Reyes', '09235671231', 'rjm89712@gmail.com', 'Oreo', 'Novaliches Quezon City', NULL, NULL, '1125', '$2y$10$kagORR2PBdsDaAU2.H9eCuRc.TqfzBX2uTaXrRMg/J4CVbEZ3JzrG', 0, '2025-04-23 01:44:57', NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
@@ -610,19 +621,19 @@ ALTER TABLE `homepage_settings`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `otp_verification`
 --
 ALTER TABLE `otp_verification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `products`

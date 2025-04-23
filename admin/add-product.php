@@ -192,22 +192,24 @@ function generateSKU($productName, $category) {
                                 <div id="remove_fabric_msg" class="mt-2"></div>
                             </div>
                         </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input mt-2" type="checkbox" id="is_new_release" name="is_new_release" value="1">
-                                        <label class="form-check-label mt-1" for="is_new_release">New Release</label>
-                                    </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input mt-2" type="checkbox" id="is_new_release" name="is_new_release" value="1">
+                                    <label class="form-check-label mt-1" for="is_new_release">New Release</label>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input mt-2" type="checkbox" id="is_featured" name="is_featured" value="1">
-                                        <label class="form-check-label mt-1" for="is_featured">Featured Product</label>
-                                    </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input mt-2" type="checkbox" id="is_featured" name="is_featured" value="1">
+                                    <label class="form-check-label mt-1" for="is_featured">Featured Product</label>
                                 </div>
                             </div>
+                        </div>
                             <div class="col-md-12">
                                 <hr>
                                 <h5 class="mt-4">Product Images</h5>
