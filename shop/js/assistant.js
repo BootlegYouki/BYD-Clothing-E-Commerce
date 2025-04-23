@@ -2,7 +2,7 @@ let currentController = null;
 let currentMessageId = null;
 let latestBotMessageId = null;
 let conversationHistory;
-const chatbot = "deepseek/deepseek-chat-v3-0324:free";
+const chatbot = "deepseek/deepseek-chat-v3-0324";
 //OPEN CHATBOT
 document.addEventListener('DOMContentLoaded', function() {
     initializeBot();
