@@ -1,66 +1,14 @@
 <?php
-// Define connection parameters
-$local_config = [
-    'host' => 'localhost',
-    'username' => 'root',
-    'password' => '',
-    'database' => 'dbecomm'
-];
+    $host = "v02yrnuhptcod7dk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com";
+    $username = "pwuqrmmg86eufl2s";
+    $password = "m3tz7k2rogpfrdls";
+    $database = "c3248bm8zvavug0p";
 
-$remote_config = [
-    'host' => 'sql206.infinityfree.com',
-    'username' => 'if0_38370362',
-    'password' => 'Vj4Ur3D61Hb',
-    'database' => 'if0_38370362_dbecomm'
-];
+    // Create connection
+    $conn = mysqli_connect($host, $username, $password, $database);
 
-function try_connection($config) {
-    // Try to establish the connection
-    $conn = @mysqli_connect(
-        $config['host'], 
-        $config['username'], 
-        $config['password'], 
-        $config['database']
-    );
-    
-    // If connection failed, log the error for debugging
+    // Check connection
     if (!$conn) {
-        error_log("Connection failed to {$config['host']}: " . mysqli_connect_error());
+        die("Connection failed: " . mysqli_connect_error());
     }
-    
-    return $conn;
-}
-
-// Try local connection first if we're on localhost
-if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
-    $conn = try_connection($local_config);
-    
-    // If local connection fails, try remote connection
-    if (!$conn) {
-        $conn = try_connection($remote_config);
-        if ($conn) {
-            error_log("Local connection failed, using remote connection");
-        }
-    } else {
-        error_log("Using local database connection");
-    }
-} 
-else {
-    $conn = try_connection($remote_config);
-    
-    // If remote connection fails, try local connection
-    if (!$conn) {
-        $conn = try_connection($local_config);
-        if ($conn) {
-            error_log("Remote connection failed, using local connection");
-        }
-    } else {
-        error_log("Using remote database connection");
-    }
-}
-
-// If both connections fail, show error
-if (!$conn) {
-    die("Connection failed: Unable to connect to either local or remote database.");
-}
 ?>
