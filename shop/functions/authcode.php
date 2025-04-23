@@ -12,7 +12,7 @@ function getUserByIdentifier($conn, $identifier) {
 }
 
 function displayInvalidCredentials() {
-   header("Location: ../index?loginFailed=1");
+   header("Location: ../index.php?loginFailed=1");
    exit;
 }
 
