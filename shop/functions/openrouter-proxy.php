@@ -8,7 +8,7 @@ header('Connection: keep-alive');
 header('X-Accel-Buffering: no'); // Prevents buffering for Nginx
 
 // Get API key from environment variables
-$api_key = $_ENV['OPENROUTER_API_KEY'];
+$api_key = getEnvVar('OPENROUTER_API_KEY');
 
 // Get the incoming request
 $input = json_decode(file_get_contents('php://input'), true);
