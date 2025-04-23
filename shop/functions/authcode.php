@@ -16,6 +16,26 @@ function displayInvalidCredentials() {
    exit;
 }
 
+function isAjaxRequest() {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+}
+
+function sendJsonResponse($status, $message, $data = []) {
+    $response = [
+        'status' => $status,
+        'message' => $message
+    ];
+    
+    if (!empty($data)) {
+        $response = array_merge($response, $data);
+    }
+    
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
 /* PROCESS REQUEST */
 if (isset($_POST['signupButton'])) {
    $firstname       = mysqli_real_escape_string($conn, $_POST['firstname']);
@@ -90,7 +110,11 @@ else if (isset($_POST['loginButton'])) {
     
     $result = getUserByIdentifier($conn, $loginidentifier);
     if (!$result) {
-        displayInvalidCredentials();
+        if (isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid username or email address.');
+        } else {
+            displayInvalidCredentials();
+        }
     }
     
     $user = mysqli_fetch_assoc($result);
@@ -104,16 +128,28 @@ else if (isset($_POST['loginButton'])) {
             $_SESSION['verify_email'] = $user['email'];
             $_SESSION['verify_firstname'] = $user['firstname'];
             
-            header("Location: ../verify.php?verifyRequired=1");
-            exit();
+            if (isAjaxRequest()) {
+                sendJsonResponse('error', 'Please verify your email address first. A new verification code has been sent to your email.');
+            } else {
+                header("Location: ../verify.php?verifyRequired=1");
+                exit();
+            }
         } else {
-            header("Location: ../index.php?emailFailed=1");
-            exit();
+            if (isAjaxRequest()) {
+                sendJsonResponse('error', 'Failed to send verification email. Please try again later.');
+            } else {
+                header("Location: ../index.php?emailFailed=1");
+                exit();
+            }
         }
     }
     
     if (!password_verify($loginpassword, $user['password'])) {
-        displayInvalidCredentials();
+        if (isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid password. Please try again.');
+        } else {
+            displayInvalidCredentials();
+        }
     }
     
     // Set session variables for authentication
@@ -131,14 +167,22 @@ else if (isset($_POST['loginButton'])) {
         $_SESSION['admin_auth'] = true;
         $_SESSION['admin_login_success'] = true; // Flag for showing admin login modal
         
-        // Redirect to index page to show the modal first
-        header("Location: ../index.php?adminLogin=1");
-        exit();
+        if (isAjaxRequest()) {
+            sendJsonResponse('success', 'Login successful. Redirecting to admin area.', ['role' => 1]);
+        } else {
+            // Redirect to index page to show the modal first
+            header("Location: ../index.php?adminLogin=1");
+            exit();
+        }
     }
     else {
         // Regular user - redirect to shop homepage
-        header("Location: ../index.php?loginSuccess=1");
-        exit();
+        if (isAjaxRequest()) {
+            sendJsonResponse('success', 'Login successful.', ['role' => 0]);
+        } else {
+            header("Location: ../index.php?loginSuccess=1");
+            exit();
+        }
     }
 }
 

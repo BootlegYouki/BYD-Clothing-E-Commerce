@@ -5,6 +5,11 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
+if (file_exists(__DIR__ . '/../../.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+    $dotenv->load();
+} 
+
 // Function to generate a 6-digit OTP
 function generateOTP() {
     return sprintf("%06d", mt_rand(1, 999999));
@@ -34,15 +39,15 @@ function sendOTPEmail($email, $otp, $firstname) {
         // Server settings
         $mail->SMTPDebug = 0; // Set to 0 in production
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'darrenjade24@gmail.com'; // Your email
-        $mail->Password = 'ezyz zcbe lzmx xzgr'; // Your app password
+        $mail->Username = $_ENV['SMTP_USERNAME'] ?? '';
+        $mail->Password = $_ENV['SMTP_PASSWORD'] ?? '';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $mail->Port = $_ENV['SMTP_PORT'] ?? 587;
         
         // Recipients
-        $mail->setFrom('darrenjade24@gmail.com', 'BYD Clothing');
+        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'] ?? '', $_ENV['SMTP_FROM_NAME'] ?? 'BYD Clothing');
         $mail->addAddress($email);
         
         // Content

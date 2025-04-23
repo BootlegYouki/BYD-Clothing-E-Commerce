@@ -1,4 +1,4 @@
-    <!-- LOGIN MODAL  -->
+<!-- LOGIN MODAL  -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content rounded-4">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="col-12">
                   <div class="d-grid">
-                    <button type="submit" name="loginButton" class="btn-modal btn-lg">Login now</button>
+                    <button type="submit" name="loginButton" id="loginButton" class="btn-modal btn-lg">Login now</button>
                   </div>
                 </div>
               </div>
@@ -75,14 +75,82 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Handle login form submission
+  // Handle login form submission with AJAX
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
-      // Store a flag in sessionStorage if this login was initiated from checkout
-      if (document.getElementById('checkout-login-message')) {
-        sessionStorage.setItem('redirectToCheckout', 'true');
+      e.preventDefault(); // Prevent the default form submission
+      
+      // Check if form is valid
+      if (!loginForm.checkValidity()) {
+        e.stopPropagation();
+        loginForm.classList.add('was-validated');
+        return;
       }
+
+      // Show loading state
+      document.getElementById('loginButton').innerHTML = 'Logging in...';
+      document.getElementById('loginButton').disabled = true;
+      
+      // Get form data
+      const loginIdentifier = document.getElementById('loginidentifier').value;
+      const loginPassword = document.getElementById('loginpassword').value;
+      
+      // Create AJAX request
+      fetch('functions/authcode.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'loginButton=1&loginidentifier=' + encodeURIComponent(loginIdentifier) + 
+              '&loginpassword=' + encodeURIComponent(loginPassword)
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Reset button state
+        document.getElementById('loginButton').innerHTML = 'Login now';
+        document.getElementById('loginButton').disabled = false;
+        
+        if (data.status === 'success') {
+          // Login successful
+          const errorMessage = document.getElementById('loginErrorMessage');
+          errorMessage.classList.add('d-none');
+          
+          // Store checkout flag if needed
+          if (document.getElementById('checkout-login-message')) {
+            sessionStorage.setItem('redirectToCheckout', 'true');
+          }
+          
+          // Redirect or reload based on role
+          if (data.role === 1) {
+            // Admin user
+            window.location.href = 'index.php?adminLogin=1';
+          } else {
+            // Regular user
+            if (sessionStorage.getItem('redirectToCheckout') === 'true') {
+              sessionStorage.removeItem('redirectToCheckout');
+              window.location.href = 'checkout.php';
+            } else {
+              window.location.href = 'index.php?loginSuccess=1';
+            }
+          }
+        } else {
+          // Login failed
+          const errorMessage = document.getElementById('loginErrorMessage');
+          errorMessage.textContent = data.message || 'Invalid Login Credentials. Please try again.';
+          errorMessage.classList.remove('d-none');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loginButton').innerHTML = 'Login now';
+        document.getElementById('loginButton').disabled = false;
+        
+        const errorMessage = document.getElementById('loginErrorMessage');
+        errorMessage.textContent = 'An error occurred during login. Please try again.';
+        errorMessage.classList.remove('d-none');
+      });
     });
   }
   
