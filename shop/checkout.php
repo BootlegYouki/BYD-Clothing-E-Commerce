@@ -46,7 +46,7 @@ $shipping_fee = 50;
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
     
-    <section id="checkout" class="mt-5 pt-5">
+    <section id="checkout" class="my-5 py-5">
         <div class="container mt-5">
             <div class="row">
                 <div class="col-12 text-center mb-4">
@@ -98,7 +98,7 @@ $shipping_fee = 50;
                                         <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($user['full_address'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="zipcode" class="form-label">ZIP Code</label>
+                                        <label for="zipcode" class="form-label">Postal/ZIP Code</label>
                                         <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" required>
                                     </div>
                                 </div>
@@ -123,11 +123,41 @@ $shipping_fee = 50;
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Payment Method</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        
+                                        <!-- PayMongo Online Payment -->
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="payment_method" 
+                                                id="payment_ewallet" value="ewallet" required>
+                                            <label class="form-check-label d-flex align-items-center" for="payment_ewallet">
+                                                <div>
+                                                    <strong>Pay Online</strong>
+                                                    <p class="mb-0 text-muted small">Pay using your e-wallet account or card</p>
+                                                </div>
+                                                <span class="ms-auto"><i class="fas fa-credit-card text-info"></i></span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Payment information section -->
+                                            <div id="ewallet-payment-info" class="d-none">
+                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to PayMongo payment gateway to complete your payment.</p>     
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Right column - Order summary -->
                     <div class="col-md-5 pb-3">
-                        <div class="card position-sticky mb-2" style="top: 150px;">
+                        <div class="card position-sticky" style="top: 150px;">
                             <div class="card-header bg-white">
                                 <h5 class="mb-0">Order Summary</h5>
                             </div>
@@ -168,6 +198,9 @@ $shipping_fee = 50;
             </form>
         </div>
     </section>
+
+    <!-- FOOTER -->
+    <?php include 'includes/footer.php'; ?>
     
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -175,6 +208,30 @@ $shipping_fee = 50;
     <script>
     // Store shipping fee as a global constant
     const SHIPPING_FEE = <?= $shipping_fee ?>;
+    
+    // Handle payment method selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle payment info sections based on selected payment method
+        const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+        const paymentInfos = {
+            'card': document.getElementById('card-payment-info'),
+            'ewallet': document.getElementById('ewallet-payment-info'),
+            'cod': document.getElementById('cod-payment-info')
+        };
+        
+        paymentMethods.forEach(method => {
+            method.addEventListener('change', function() {
+                // Hide all payment info sections
+                Object.values(paymentInfos).forEach(info => {
+                    if (info) info.classList.add('d-none');
+                });
+                
+                // Show selected payment info
+                const selectedInfo = paymentInfos[this.value];
+                if (selectedInfo) selectedInfo.classList.remove('d-none');
+            });
+        });
+    });
     </script>
     <script src="js/checkout.js"></script>
     <script src="js/url-cleaner.js"></script>
