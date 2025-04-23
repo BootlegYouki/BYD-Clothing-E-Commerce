@@ -1,3 +1,4 @@
 <?php
-asdasdasdasd
+header("Location: shop/index.php");
+exit;
 ?>
