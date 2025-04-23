@@ -89,9 +89,13 @@ async function saveConversation() {
         localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
         
         const isLoggedIn = await checkUserAuth();
-        if (!isLoggedIn) return false;
+        if (!isLoggedIn) {
+            console.log('User not logged in, saving only to local storage');
+            return false;
+        }
 
-        // Save to server
+        // Save to server - add proper error handling and logging
+        console.log('Saving conversation to server:', conversationHistory);
         const response = await fetch('../shop/functions/conversation-handler.php', {
             method: 'POST',
             headers: {
@@ -104,12 +108,19 @@ async function saveConversation() {
         });
 
         const data = await response.json();
-        return data.status === 'success';
+        console.log('Server response:', data);
+        
+        if (data.status !== 'success') {
+            console.error('Error saving conversation:', data.message);
+            return false;
+        }
+        
+        return true;
     } catch (error) {
-        console.error('Error saving conversation:', error);
+        console.error('Exception saving conversation:', error);
         return false;
     }
-}   
+} 
 async function clearServerConversation() {
     try {
         const isLoggedIn = await checkUserAuth();
@@ -263,11 +274,14 @@ IMPORTANT DISPLAY INSTRUCTIONS:
     return basePrompt;
 }
 async function initializeBot() {
+    // First, check if user is logged in
+    const isLoggedIn = await checkUserAuth();
+    
     // Check if conversation is already loaded in session storage
     const conversationLoaded = sessionStorage.getItem('conversationLoaded');
     
-    // If conversation already loaded in this session, just restore UI
-    if (conversationLoaded === 'true') {
+    // If conversation already loaded in this session AND user is logged in, restore UI
+    if (conversationLoaded === 'true' && isLoggedIn) {
         try {
             // Get saved messages to restore UI
             const savedConversation = JSON.parse(localStorage.getItem('conversationHistory'));
@@ -299,6 +313,10 @@ async function initializeBot() {
         } catch (error) {
             console.error('Error restoring chat UI from session:', error);
         }
+    } else if (!isLoggedIn) {
+        // User is not logged in, clear any existing conversation data
+        localStorage.removeItem('conversationHistory');
+        sessionStorage.removeItem('conversationLoaded');
     }
 
     // Original initialization code continues here
@@ -306,7 +324,8 @@ async function initializeBot() {
         // Create initial basic system prompt without product data
         const baseSystemPrompt = await createDynamicSystemPrompt(false);
         
-        const savedConversation = await loadConversation();
+        // Only try to load conversation from server if logged in
+        const savedConversation = isLoggedIn ? await loadConversation() : null;
 
         if (savedConversation) {
             conversationHistory = savedConversation;
@@ -339,11 +358,54 @@ async function initializeBot() {
                 `;
             }
         } else {
-            // If no conversation found, create a new one with minimal tokens
-            conversationHistory = [
-                {"role": "system", "content": baseSystemPrompt},
-                {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
-            ];
+            // If no conversation found, create a new one with dynamic greeting
+            try {
+                // Try to get username
+                let username = null;
+                const userResponse = await fetch('../shop/functions/get-username.php');
+                const userData = await userResponse.json();
+                if (userData.status === 'success' && userData.username) {
+                    username = userData.username;
+                }
+                
+                // Get dynamic greeting
+                const greeting = getDynamicGreeting(username);
+                
+                // Create new conversation with dynamic greeting
+                conversationHistory = [
+                    {"role": "system", "content": baseSystemPrompt},
+                    {"role": "assistant", "content": greeting}
+                ];
+                
+                // Update the UI to show the greeting
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>${greeting}</p>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error getting username:', error);
+                // Fallback to generic greeting
+                const genericGreeting = getDynamicGreeting();
+                conversationHistory = [
+                    {"role": "system", "content": baseSystemPrompt},
+                    {"role": "assistant", "content": genericGreeting}
+                ];
+                
+                // Update UI with generic greeting
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>${genericGreeting}</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
         
         // Mark that we've loaded the conversation for this session
@@ -351,13 +413,25 @@ async function initializeBot() {
         
     } catch (error) {
         console.error('Error initializing bot:', error);
-        // Use base system prompt on error
+        // Use base system prompt on error with dynamic greeting
+        const genericGreeting = getDynamicGreeting();
         conversationHistory = [
             {"role": "system", "content": await createDynamicSystemPrompt(false)},
-            {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+            {"role": "assistant", "content": genericGreeting}
         ];
+        
+        // Update UI with generic greeting on error
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>${genericGreeting}</p>
+                </div>
+            </div>
+        `;
     }
 }
+
 async function sendMessage() {
     const inputElem = document.getElementById('userInput');
     if (!inputElem.value.trim()) return;
@@ -631,6 +705,7 @@ async function regenerateResponse(messageId) {
             let fullMessage = "";
             const streamingContent = document.getElementById(`${newMessageId}-content`);
             let isFirstChunk = true;
+            currentController = null;
             
             while (true) {
                 const { done, value } = await reader.read();
@@ -767,7 +842,28 @@ async function refreshProductData() {
 }
 
 //BASIC FUNCTIONS
+
+function getDynamicGreeting(username = null) {
+    const hour = new Date().getHours();
+    let greeting = "";
+    
+    if (hour >= 5 && hour < 12) {
+        greeting = "Good morning";
+    } else if (hour >= 12 && hour < 18) {
+        greeting = "Good afternoon";
+    } else {
+        greeting = "Good evening";
+    }
+    
+    if (username) {
+        return `${greeting}, ${username}! How can I help you with BYD-CLOTHING products today?`;
+    } else {
+        return `${greeting}! How can I help you with BYD-CLOTHING products today?`;
+    }
+}
+
 function sendORstop() {
+    // Check if there's an active generation happening
     if (currentController && !currentController.signal.aborted) {
         // Stop the current response generation
         currentController.abort();
@@ -788,16 +884,32 @@ function sendORstop() {
         // Re-enable the input field
         document.getElementById('userInput').disabled = false;
     } else {
+        // No active generation, just send the message
         sendMessage();
     }
 }
 async function clearChat() {
-    // Clear UI
+    // Get the username if available
+    let username = null;
+    try {
+        const response = await fetch('../shop/functions/get-username.php');
+        const data = await response.json();
+        if (data.status === 'success' && data.username) {
+            username = data.username;
+        }
+    } catch (error) {
+        console.error('Error getting username:', error);
+    }
+    
+    // Get dynamic greeting
+    const greeting = getDynamicGreeting(username);
+    
+    // Clear UI with dynamic greeting
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = `
         <div class="message bot-message">
             <div class="message-content">
-                <p>Hi there! How can I help you with BYD-CLOTHING products today?</p>
+                <p>${greeting}</p>
             </div>
         </div>
     `;
@@ -813,7 +925,7 @@ async function clearChat() {
     const baseSystemPrompt = await createDynamicSystemPrompt(false);
     conversationHistory = [
         {"role": "system", "content": baseSystemPrompt},
-        {"role": "assistant", "content": "Hi there! How can I help you with BYD-CLOTHING products today?"}
+        {"role": "assistant", "content": greeting}
     ];
     
     // Mark as new conversation
@@ -822,4 +934,5 @@ async function clearChat() {
     // Save the new empty conversation
     saveConversation();
 }
+
 

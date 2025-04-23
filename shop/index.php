@@ -415,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
+
 // Check for payment status in URL parameters
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);

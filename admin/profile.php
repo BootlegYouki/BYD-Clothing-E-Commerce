@@ -1,17 +1,91 @@
 <?php
 session_start();
+require_once '../admin/config/dbcon.php';
+
 // Check if user is logged in and is an admin
 if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
     header("Location: ../shop/index");
     exit();
 }
 
-// Get admin user information from session
-$user_id = $_SESSION['auth_user']['user_id'] ?? 1;
-$name = $_SESSION['auth_user']['name'] ?? 'Admin User';
-$email = $_SESSION['auth_user']['email'] ?? 'admin@example.com';
-$phone = $_SESSION['auth_user']['phone'] ?? '';
+// Get admin information from database
+$admin_id = $_SESSION['auth_user']['user_id'];
+$query = "SELECT * FROM users WHERE id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $admin_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin_data = $result->fetch_assoc();
+$stmt->close();
+
+// Process profile update
+if(isset($_POST['update_profile'])) {
+    $name = $_POST['name'];
+    
+    $query = "UPDATE users SET username = ? WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("si", $name, $admin_id);
+    
+    if($stmt->execute()) {
+        $_SESSION['auth_user']['username'] = $name;
+        $_SESSION['message'] = "Profile updated successfully.";
+    } else {
+        $_SESSION['error'] = "Failed to update profile.";
+    }
+    $stmt->close();
+    
+    // Redirect to refresh the page
+    header("Location: profile.php");
+    exit();
+}
+
+// Process password update
+if(isset($_POST['update_password'])) {
+    $current_password = $_POST['current_password'];
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+    
+    // Simplified password validation - just check for minimum 8 characters
+    if($new_password !== $confirm_password) {
+        $_SESSION['error'] = "New passwords do not match.";
+    } 
+    elseif(strlen($new_password) < 8) {
+        $_SESSION['error'] = "Password must be at least 8 characters long.";
+    }
+    else {
+        // Check if current password is correct
+        $query = "SELECT password FROM users WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $admin_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if(password_verify($current_password, $user['password'])) {
+            // Update password
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+            $query = "UPDATE users SET password = ? WHERE id = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("si", $hashed_password, $admin_id);
+            
+            if($stmt->execute()) {
+                $_SESSION['message'] = "Password updated successfully.";
+            } else {
+                $_SESSION['error'] = "Failed to update password.";
+            }
+            $stmt->close();
+        } else {
+            $_SESSION['error'] = "Current password is incorrect.";
+        }
+    }
+    
+    // Redirect to refresh the page
+    header("Location: profile.php");
+    exit();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +128,22 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
         </script>
         <?php unset($_SESSION['message']); ?>
     <?php endif; ?>
+    
+    <?php if(isset($_SESSION['error'])) : ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alert">
+            <strong>Error!</strong> <?= $_SESSION['error']; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <script>
+            setTimeout(function() {
+                document.getElementById('error-alert').classList.remove('show');
+                setTimeout(function() {
+                    document.getElementById('error-alert')?.remove();
+                }, 150);
+            }, 3000);
+        </script>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
     <div class="row">
         <!-- Profile Information Card -->
@@ -76,28 +166,8 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
                         <div class="avatar rounded-circle bg-light mx-auto d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
                             <i class="material-symbols-rounded" style="font-size: 48px;">person</i>
                         </div>
-                        <h5 class="mt-3 mb-0"><?= htmlspecialchars($name) ?></h5>
+                        <h5 class="mt-3 mb-0"><?php echo htmlspecialchars($admin_data['username']); ?></h5>
                         <p class="text-muted mb-0">Administrator</p>
-                    </div>
-                    
-                    <div class="info-item d-flex align-items-center mb-3">
-                        <div class="icon bg-gradient-primary text-white me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; border-radius: 8px;">
-                            <i class="material-symbols-rounded">email</i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-muted mb-0">Email</p>
-                            <h6 class="mb-0"><?= htmlspecialchars($email) ?></h6>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item d-flex align-items-center mb-3">
-                        <div class="icon bg-gradient-primary text-white me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; border-radius: 8px;">
-                            <i class="material-symbols-rounded">phone</i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-muted mb-0">Phone</p>
-                            <h6 class="mb-0"><?= $phone ? htmlspecialchars($phone) : 'Not provided' ?></h6>
-                        </div>
                     </div>
                     
                     <div class="info-item d-flex align-items-center">
@@ -129,26 +199,14 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
                 </div>
                 
                 <div class="card-body">
-                    <form action="#" method="POST">
+                    <form action="profile.php" method="POST">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" name="name" value="<?= htmlspecialchars($name) ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($email) ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone</label>
-                                <input type="tel" class="form-control" name="phone" value="<?= htmlspecialchars($phone) ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Profile Image</label>
-                                <input type="file" class="form-control" name="profile_image">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($admin_data['username']); ?>" required>
                             </div>
                             <div class="col-md-12 mt-4">
-                                <button type="submit" class="btn btn-primary" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">
+                                <button type="submit" name="update_profile" class="btn btn-primary" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">
                                     <i class="material-symbols-rounded me-1" style="vertical-align: middle;">save</i>
                                     Save Changes
                                 </button>
@@ -173,7 +231,7 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
                 </div>
                 
                 <div class="card-body">
-                    <form action="#" method="POST">
+                    <form action="profile.php" method="POST">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Current Password</label>
@@ -192,12 +250,12 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
                                 <div class="alert alert-info d-flex align-items-center" role="alert">
                                     <i class="material-symbols-rounded me-2">info</i>
                                     <div>
-                                        Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.
+                                        Password must be at least 8 characters long.
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-12 mt-4">
-                                <button type="submit" class="btn" style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white;">
+                                <button type="submit" name="update_password" class="btn" style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white;">
                                     <i class="material-symbols-rounded me-1" style="vertical-align: middle;">key</i>
                                     Change Password
                                 </button>
@@ -209,7 +267,6 @@ $phone = $_SESSION['auth_user']['phone'] ?? '';
         </div>
     </div>
 </div>
-
 </main>
 
 <!-- Core JS Files -->

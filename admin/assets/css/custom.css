@@ -371,31 +371,6 @@ a {
   border-color: coral;
 }
 
-.btn-primary-modal{
-  color: white !important;
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  box-shadow: var(--box-shadow-sm);
-} 
-.btn-secondary-modal{
-  color: white !important;
-  background: var(--secondary) !important;
-  border-color: var(--secondary) !important;
-  box-shadow: var(--box-shadow-sm);
-} 
-
-.btn-primary-modal:hover{
-  transform: translateY(-2px);
-}
-.btn-secondary-modal:hover{
-  transform: translateY(-2px);
-} 
-.btn-primary-modal:active {
-  color: coral;
-  background-color: var(--bs-btn-active-bg);
-  border-color: coral;
-}
-
 .btn-outline-coral:hover, 
 .btn-outline-coral.active {
   background-color: #FF7F50;
@@ -771,7 +746,7 @@ body.theme-dark {
   .modal-body label {
     color: var(--text-color);
   }
-  
+
   /* Table text */
   .table {
     color: var(--text-muted);
@@ -855,33 +830,6 @@ body.theme-dark {
   .dropdown-divider {
     border-color: var(--border-color);
   }
-}
-
-body.theme-dark .modal-content {
-  background-color: var(--card-bg);
-  border-color: var(--border-color);
-}
-
-body.theme-dark .modal-header {
-  border-bottom-color: var(--border-color);
-}
-
-body.theme-dark .modal-footer {
-  border-top-color: var(--border-color);
-}
-
-body.theme-dark .modal-close {
-  color: var(--text-color);
-}
-
-body.theme-dark .modal .btn-close {
-  filter: brightness(0.7) invert(1);
-}
-body.theme-dark .modal input[readonly],
-body.theme-dark .modal input[type="text"] {
-  background-color: var(--bg-color);
-  border-color: var(--border-color);
-  color: var(--text-muted);
 }
 
 /* Make Home breadcrumb coral colored */

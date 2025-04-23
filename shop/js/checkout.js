@@ -106,25 +106,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: formData
                 });
                 
-                // Log the raw response for debugging
-                const responseText = await response.text();
-                console.log('Raw API response:', responseText);
-                
-                // Parse the JSON response - handle potential double JSON issue
+                // Parse the JSON response
                 let data;
                 try {
-                    // Check if response contains multiple JSON objects
-                    if (responseText.includes('}{')) {
-                        // Take only the first JSON object
-                        const firstJsonEnd = responseText.indexOf('}{') + 1;
-                        const firstJsonPart = responseText.substring(0, firstJsonEnd);
-                        console.log('Parsing first JSON part:', firstJsonPart);
-                        data = JSON.parse(firstJsonPart);
-                    } else {
-                        data = JSON.parse(responseText);
-                    }
+                    const responseText = await response.text();
+                    console.log('Raw API response:', responseText);
+                    
+                    // Try to parse the JSON
+                    data = JSON.parse(responseText);
                 } catch (e) {
-                    throw new Error('Invalid JSON response from server: ' + responseText);
+                    console.error('JSON parsing error:', e);
+                    throw new Error('Invalid response from server. Please try again later.');
                 }
                 
                 if (data.success) {
@@ -135,14 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Store the order ID in session storage for retrieval after payment
                     sessionStorage.setItem('pending_order_id', data.order_id);
                     
-                    // Replace this line that opens in a new tab
-                    // window.open(data.payment_url, '_blank');
-                    
-                    // Instead, redirect directly to the payment URL in the same tab
+                    // Redirect directly to the payment URL in the same tab
                     window.location.href = data.payment_url;
-                    
-                    // Remove this line since we're already redirecting
-                    // window.location.href = data.redirect_url || 'index.php';
                 } else {
                     throw new Error(data.message || 'Payment processing failed');
                 }

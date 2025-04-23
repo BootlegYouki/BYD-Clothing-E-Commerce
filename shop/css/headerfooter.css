@@ -2,7 +2,11 @@
   width: clamp(120px, 15vw, 150px);
   height: auto;
 }
-
+.dropdown-item.active, .dropdown-item:active {
+  color: var(--bs-dropdown-link-active-color);
+  text-decoration: none;
+  background-color: coral;
+}
 .navbar{
   margin:15px;
   border-radius: 12px;
@@ -261,7 +265,7 @@ footer a {
 
 footer li a:hover {
   color: #D8D8D8;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 footer ul {

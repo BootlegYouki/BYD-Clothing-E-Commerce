@@ -32,7 +32,6 @@ $formData = [
     'email' => $_POST['email'],
     'phone' => $_POST['phone'],
     'address' => $_POST['address'],
-    'city' => $_POST['city'],
     'zipcode' => $_POST['zipcode'],
     'total' => floatval($_POST['total']),
     'cart_items' => json_decode($_POST['cart_items'], true)
@@ -49,7 +48,6 @@ try {
         'phone' => $formData['phone'],
         'address' => [
             'line1' => $formData['address'],
-            'city' => $formData['city'],
             'postal_code' => $formData['zipcode'],
             'country' => 'PH'
         ]
@@ -137,7 +135,6 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             email, 
             phone, 
             address, 
-            city, 
             zipcode, 
             payment_method, 
             payment_id, 
@@ -145,7 +142,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             shipping_cost, 
             total_amount, 
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = mysqli_prepare($conn, $order_query);
         
@@ -163,14 +160,13 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         // Bind parameters to prepared statement
         mysqli_stmt_bind_param(
             $stmt, 
-            "isssssssssddds", 
+            "issssssssddds", 
             $data['user_id'],
             $data['firstname'],
             $data['lastname'],
             $data['email'],
             $data['phone'],
             $data['address'],
-            $data['city'],
             $data['zipcode'],
             $payment_method,
             $paymentId,
@@ -304,7 +300,7 @@ function sendOrderConfirmationEmail($data, $orderId, $paymentId) {
                     <p><strong>Name:</strong> {$data['firstname']} {$data['lastname']}</p>
                     <p><strong>Email:</strong> {$data['email']}</p>
                     <p><strong>Phone:</strong> {$data['phone']}</p>
-                    <p><strong>Address:</strong> {$data['address']}, {$data['city']}, {$data['zipcode']}</p>
+                    <p><strong>Address:</strong> {$data['address']}, {$data['zipcode']}</p>
                 </div>
                 
                 <h3>Order Items</h3>

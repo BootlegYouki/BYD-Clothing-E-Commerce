@@ -107,7 +107,7 @@ function storeOTP($conn, $email, $otp) {
     
     // Insert new OTP with expiration time (15 minutes from now)
     $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-    $insert_query = "INSERT INTO otp_verification (email, otp, expiry) VALUES ('$email', '$otp', '$expiry')";
+    $insert_query = "INSERT INTO otp_verification (email, otp, expires_at) VALUES ('$email', '$otp', '$expiry')";
     return mysqli_query($conn, $insert_query);
 }
 

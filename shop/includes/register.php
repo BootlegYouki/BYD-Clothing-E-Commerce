@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
 <div class="modal fade" id="SignupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true" aria-modal="true">
       <div class="modal-dialog modal-lg">
     <div class="modal-content rounded-4">
@@ -75,13 +78,16 @@
               </div>
             </div>
             <div class="col-12">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-1">
                 <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" required>
                 <label for="full_address" class="form-label">Full Address</label>
                 <div class="invalid-feedback">
                   Please provide your address.
                 </div>
               </div>
+              <div id="map" style="height: 300px; display: none;" class="rounded mb-3"></div>
+              <input type="hidden" id="latitude" name="latitude">
+              <input type="hidden" id="longitude" name="longitude">
             </div>
             <div class="col-12">
               <div class="form-floating mb-3">
@@ -135,7 +141,157 @@
     </div>
   </div>
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const addressInput = document.getElementById('full_address');
+  const mapDiv       = document.getElementById('map');
+  const latInput     = document.getElementById('latitude');
+  const lngInput     = document.getElementById('longitude');
+  const zipcodeInput = document.getElementById('zipcode');
+
+  // 1) Initialize map and tile layer
+  const map = L.map('map').setView([14.5995, 120.9842], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // 2) Add a draggable marker
+  const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
+
+  // 3) Helper text under the address field
+  const formFloating = addressInput.closest('.form-floating');
+  const helpText = document.createElement('div');
+  helpText.className = 'form-text text-muted small';
+  helpText.innerText = 'Start typing your address; the map will update automatically.';
+  formFloating.insertAdjacentElement('afterend', helpText);
+
+  // 4) Geocoder control (no default marker)
+  const geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false,
+    geocoder: L.Control.Geocoder.nominatim(),
+    placeholder: 'Search address...'
+  }).on('markgeocode', function(e) {
+    marker.setLatLng(e.geocode.center);
+    map.setView(e.geocode.center, 16);
+    updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+    fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
+  }).addTo(map);
+
+  // 5) Core helper functions
+  function updateCoordinates(lat, lng) {
+  latInput.value = lat;
+  lngInput.value = lng;
+}
+
+  function reverseGeocode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.display_name) addressInput.value = data.display_name;
+      })
+      .catch(console.error);
+  }
+
+  function fetchZipcode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.address && data.address.postcode) {
+          zipcodeInput.value = data.address.postcode;
+        }
+      })
+      .catch(console.error);
+  }
+
+  // 6) Map click => move marker + reverse geocode + zipcode
+  map.on('click', e => {
+    marker.setLatLng(e.latlng);
+    updateCoordinates(e.latlng.lat, e.latlng.lng);
+    reverseGeocode(e.latlng.lat, e.latlng.lng);
+    fetchZipcode(e.latlng.lat, e.latlng.lng);
+  });
+
+  // 7) Marker drag end => same as click
+  marker.on('dragend', () => {
+    const pos = marker.getLatLng();
+    updateCoordinates(pos.lat, pos.lng);
+    reverseGeocode(pos.lat, pos.lng);
+    fetchZipcode(pos.lat, pos.lng);
+  });
+
+  // 8) Show map when focusing the address field
+  addressInput.addEventListener('focus', () => {
+    if (mapDiv.style.display === 'none') {
+      mapDiv.style.display = 'block';
+      map.invalidateSize();
+    }
+  });
+
+  // 9) Debounced auto-search as you type
+  let typingTimer;
+  const doneTypingInterval = 200; // ms
+
+  addressInput.addEventListener('keydown', () => clearTimeout(typingTimer));
+  addressInput.addEventListener('input', function() {
+    clearTimeout(typingTimer);
+    const val = this.value.trim();
+
+    // ensure map is visible
+    if (mapDiv.style.display === 'none') {
+      mapDiv.style.display = 'block';
+      map.invalidateSize();
+    }
+
+    if (val.length > 2) {
+      typingTimer = setTimeout(() => {
+        // Use Nominatim API directly for address search
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
+          .then(response => response.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              const result = data[0];
+              const lat = parseFloat(result.lat);
+              const lng = parseFloat(result.lon);
+              const latlng = L.latLng(lat, lng);
+              
+              map.setView(latlng, 16);
+              marker.setLatLng(latlng);
+              updateCoordinates(lat, lng);
+              fetchZipcode(lat, lng);
+            }
+          })
+          .catch(console.error);
+      }, doneTypingInterval);
+    }
+  });
+
+  // 10) Fallback on change (paste + blur)
+  addressInput.addEventListener('change', function() {
+    clearTimeout(typingTimer);
+    const val = this.value.trim();
+    if (!val) return;
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const result = data[0];
+          const lat = parseFloat(result.lat);
+          const lng = parseFloat(result.lon);
+          const latlng = L.latLng(lat, lng);
+          
+          map.setView(latlng, 16);
+          marker.setLatLng(latlng);
+          updateCoordinates(lat, lng);
+          fetchZipcode(lat, lng);
+        }
+      })
+      .catch(console.error);
+  });
+});
+
 document.addEventListener("DOMContentLoaded", function() {
   const regpassword = document.getElementById('password');
   const confirmPassword = document.getElementById('confirm_password');

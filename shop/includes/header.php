@@ -72,15 +72,15 @@ $hide_cart = ($current_page == 'checkout.php');
         </a>
         <ul class="dropdown-menu">
         <?php if ($is_admin): ?>
-          <li><a class="dropdown-item" href="../admin/index.php" target="_blank">
+          <li><a class="dropdown-item" href="../admin/index.php">
           <i class="bx bx-cog me-2"></i>Admin Panel
           </a></li>
           <li><hr class="dropdown-divider"></li>
+        <?php else: ?>
+          <li><a class="dropdown-item d-flex align-items-center" href="profile.php">
+          <i class="bx bx-user-circle me-2"></i>My Profile</a></li>
+          <li><hr class="dropdown-divider"></li>
         <?php endif; ?>
-        <!-- Added Profile Link -->
-        <li><a class="dropdown-item d-flex align-items-center" href="profile.php">
-        <i class="bx bx-user-circle me-2"></i>My Profile</a></li>
-        <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
         <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
         </ul>

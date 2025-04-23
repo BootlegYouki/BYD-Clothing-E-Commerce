@@ -108,12 +108,12 @@ include 'config/dbcon.php';
                                     ?>
                                     <tr>
                                         <td>
-                                            <div class="d-flex align-items-center justify-content-start px-2 py-1">
+                                            <div class="d-lg-flex align-items-center justify-content-start px-2 py-1">
                                                 <?php if(!empty($product['primary_image'])): ?>
-                                                    <img src="../<?= $product['primary_image'] ?>" class="border-radius-lg" 
+                                                    <img src="../<?= $product['primary_image'] ?>" class="border-radius-lg d-lg-flex d-none" 
                                                         alt="<?= $product['name'] ?>" style="width: 40px; height: 40px; object-fit: cover; margin-right: 12px;">
                                                 <?php else: ?>
-                                                    <div class="border-radius-lg bg-gradient-secondary d-flex align-items-center justify-content-center" 
+                                                    <div class="border-radius-lg bg-gradient-secondary align-items-center justify-content-center" 
                                                         style="width: 40px; height: 40px; margin-right: 12px;">
                                                         <i class="material-symbols-rounded opacity-10 text-white" style="font-size: 18px;">image_not_supported</i>
                                                     </div>
@@ -139,7 +139,7 @@ include 'config/dbcon.php';
                                             <p class="text-xs font-weight-bold mb-0"><?= $product['total_stock'] ?> units</p>
                                         </td>
                                         <td>
-                                            <div class="d-flex justify-content-center align-items-center py-2">
+                                            <div class="d-flex justify-content-center align-items-center py-lg-2 py-4">
                                                 <div class="form-check form-switch text-center ps-0">
                                                     <input class="form-check-input mx-auto feature-toggle" type="checkbox" 
                                                         data-product-id="<?= $product['id'] ?>" 
@@ -148,7 +148,7 @@ include 'config/dbcon.php';
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="d-flex justify-content-center align-items-center py-2">
+                                            <div class="d-flex justify-content-center align-items-center py-lg-2 py-4">
                                                 <div class="form-check form-switch text-center ps-0">
                                                     <input class="form-check-input mx-auto release-toggle" type="checkbox" 
                                                         data-product-id="<?= $product['id'] ?>" 
@@ -157,12 +157,9 @@ include 'config/dbcon.php';
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="d-flex justify-content-center pt-2">
+                                            <div class="d-flex justify-content-center pt-lg-2 pt-4">
                                                 <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm btn-link text-secondary p-1 me-1" title="Edit product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">edit</i>
-                                                </a>
-                                                <a href="javascript:void(0);" class="view-product btn btn-sm btn-link text-secondary p-1 me-1" title="View product" data-product-id="<?= $product['id'] ?>">
-                                                    <i class="material-symbols-rounded" style="font-size: 20px;">visibility</i>
                                                 </a>
                                                 <a href="javascript:void(0);" onclick="confirmDelete(<?= $product['id'] ?>)" class="btn btn-sm btn-link text-danger p-1" title="Delete product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">delete</i>
@@ -190,59 +187,6 @@ include 'config/dbcon.php';
         </div>
     </div>
 </div>
-
-<!-- View Product Modal -->
-<div class="modal fade" id="viewProductModal" tabindex="-1" role="dialog" aria-labelledby="viewProductModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-    <div class="modal-header" style="background: linear-gradient(195deg, #FF7F50, #FF6347);">
-        <h5 class="modal-title text-white text-uppercase" id="productName">Product Details</h5>
-        <button type="button" class="btn btn-icon btn-sm ms-auto my-auto" data-bs-dismiss="modal" aria-label="Close">
-        <span class="material-symbols-rounded text-white" style="font-size: 25px; line-height: 1; display: block;">close</span>
-        </button>
-    </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-5">
-            <div id="productImageContainer" class="text-center mb-3">
-              <img id="productImage" src="" class="img-fluid border-radius-lg shadow" alt="Product Image" style="max-height: 250px;">
-            </div>
-            <div id="additionalImagesContainer" class="text-center d-flex flex-wrap justify-content-center gap-2">
-              <!-- Additional images will be loaded here -->
-            </div>
-          </div>
-          <div class="col-md-7">
-            <h5 id="productNameDetail" class="font-weight-bold text-uppercase"></h5>
-            <p class="text-sm mb-1">SKU: <span id="productSku"></span></p>
-            <p class="text-sm mb-1">Category: <span id="productCategory"></span></p>
-            
-            <div class="d-flex align-items-center mb-2">
-              <div id="priceContainer"></div>
-            </div>
-            
-            <div class="d-flex gap-2 mb-3">
-              <div id="featuredBadge"></div>
-              <div id="newReleaseBadge"></div>
-            </div>
-
-            <h6 class="font-weight-bold mt-3">Description</h6>
-            <p id="productDescription" class="text-sm"></p>
-            
-            <h6 class="font-weight-bold mt-3">Available Sizes & Stock</h6>
-            <div id="sizeStockContainer" class="d-flex flex-wrap gap-2">
-              <!-- Size and stock info will be loaded here -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
-        <a id="editProductBtn" href="#" class="btn bg-gradient-coral" style="background: linear-gradient(195deg, #FF7F50, #FF6347); color: white; box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);">Edit Product</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 </main>
 
 <!-- Core JS Files -->

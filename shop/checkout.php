@@ -98,10 +98,6 @@ $shipping_fee = 50;
                                         <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($user['full_address'] ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="city" class="form-label">City</label>
-                                        <input type="text" class="form-control" id="city" name="city" required>
-                                    </div>
-                                    <div class="col-md-6">
                                         <label for="zipcode" class="form-label">Postal/ZIP Code</label>
                                         <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" required>
                                     </div>
@@ -145,31 +141,13 @@ $shipping_fee = 50;
                                                     <strong>Pay Online</strong>
                                                     <p class="mb-0 text-muted small">Pay using your e-wallet account or card</p>
                                                 </div>
-                                                <span class="ms-auto"><i class="fas fa-wallet text-info"></i></span>
-                                            </label>
-                                        </div>
-                                        
-                                        <!-- Cash on Delivery -->
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="payment_method" 
-                                                id="payment_cod" value="cod" required>
-                                            <label class="form-check-label d-flex align-items-center" for="payment_cod">
-                                                <div>
-                                                    <strong>Cash on Delivery (COD)</strong>
-                                                    <p class="mb-0 text-muted small">Pay when you receive your items</p>
-                                                </div>
-                                                <span class="ms-auto"><i class="fas fa-money-bill-wave text-success"></i></span>
+                                                <span class="ms-auto"><i class="fas fa-credit-card text-info"></i></span>
                                             </label>
                                         </div>
                                         
                                         <!-- Payment information section -->
-                                        <div id="payment-info-section" class="mt-4 p-3 bg-light rounded">
                                             <div id="ewallet-payment-info" class="d-none">
-                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to GCash or Maya to complete your payment. The payment will open in a new tab.</p>
-                                            </div>
-                                            <div id="cod-payment-info" class="d-none">
-                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will pay the full amount when your order is delivered.</p>
-                                            </div>
+                                                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>You will be redirected to PayMongo payment gateway to complete your payment.</p>     
                                         </div>
                                     </div>
                                 </div>
