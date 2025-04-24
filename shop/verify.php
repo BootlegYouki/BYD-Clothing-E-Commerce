@@ -3,7 +3,6 @@ session_start();
 include '../admin/config/dbcon.php';
 include 'functions/otp_verification.php';
 
-// Check if user email exists in session
 if (!isset($_SESSION['verify_email'])) {
     header("Location: index.php");
     exit();
@@ -19,17 +18,21 @@ $email = $_SESSION['verify_email'];
     <title>Verify Your Email - BYD Clothing</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: coral;
             --secondary-color: #f5f5f5;
             --text-color: #333;
             --border-radius: 10px;
+            --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             background-color: var(--secondary-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-family);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,27 +48,30 @@ $email = $_SESSION['verify_email'];
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
             padding: 40px 30px;
             transition: all 0.3s ease;
+            margin: 20px;
         }
         
         .logo {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: clamp(20px, 4vw, 25px);
         }
         
         .logo h2 {
             color: var(--primary-color);
             font-weight: 700;
+            font-size: clamp(24px, 5vw, 28px);
         }
         
         h4 {
             font-weight: 600;
             color: var(--text-color);
             margin-bottom: 15px;
+            font-size: clamp(18px, 4vw, 22px);
         }
         
         .email-info {
             color: #666;
-            font-size: 15px;
+            font-size: clamp(14px, 3vw, 15px);
             margin-bottom: 30px;
         }
         
@@ -79,6 +85,7 @@ $email = $_SESSION['verify_email'];
             gap: 10px;
             justify-content: center;
             margin: 30px 0;
+            flex-wrap: wrap;
         }
         
         .otp-inputs input {
@@ -92,6 +99,7 @@ $email = $_SESSION['verify_email'];
             color: var(--primary-color);
             background-color: #fcfcfc;
             transition: all 0.2s;
+            flex: 0 0 auto;
         }
         
         .otp-inputs input:focus {
@@ -102,7 +110,6 @@ $email = $_SESSION['verify_email'];
         
         .btn-verify {
             background-color: var(--primary-color);
-            color: #fff;
             border: none;
             width: 100%;
             padding: 14px;
@@ -118,7 +125,6 @@ $email = $_SESSION['verify_email'];
             background-color: #ff6347;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 127, 80, 0.3);
-            color: #fff;
         }
         
         .resend {
@@ -177,8 +183,8 @@ $email = $_SESSION['verify_email'];
     </style>
 </head>
 <body>
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="verification-container">
+        <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4">
+            <div class="verification-container">
             <div class="logo">
                 <h2>BYD Clothing</h2>
             </div>
@@ -216,7 +222,7 @@ $email = $_SESSION['verify_email'];
                 
                 <input type="hidden" name="otp" id="otpValue">
                 <input type="hidden" name="verify_otp" value="1">
-                <button type="submit" id="verifyBtn" class="btn btn-verify">
+                <button type="submit" id="verifyBtn" class="btn btn-primary btn-verify">
                     <i class="fas fa-shield-alt mr-2"></i> Verify Email
                 </button>
                 
