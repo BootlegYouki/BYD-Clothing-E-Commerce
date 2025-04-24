@@ -194,12 +194,9 @@ if(isset($_POST['verify_otp'])) {
     // Debug: Check what values we're working with
     error_log("Verifying OTP: Email=$email, OTP=$otp");
     
-    // Check directly in the database for this OTP
-    $check_query = "SELECT * FROM otp_verification WHERE email = '$email' AND otp = '$otp'";
-    $check_result = mysqli_query($conn, $check_query);
-    
-    if(mysqli_num_rows($check_result) > 0) {
-        // OTP exists in database, manually update user verification status
+    // Use the validateOTP function instead of direct database query
+    if(validateOTP($conn, $email, $otp)) {
+        // OTP is valid
         
         // If we have temporary user data, create the account now
         if(isset($_SESSION['temp_user_data'])) {
@@ -216,9 +213,6 @@ if(isset($_POST['verify_otp'])) {
             if(mysqli_query($conn, $query)) {
                 // Get the new user's ID
                 $new_user_id = mysqli_insert_id($conn);
-                
-                // Delete the used OTP
-                mysqli_query($conn, "DELETE FROM otp_verification WHERE email = '$email'");
                 
                 // Clear temporary user data
                 unset($_SESSION['temp_user_data']);
@@ -252,9 +246,6 @@ if(isset($_POST['verify_otp'])) {
             // Update the user's verification status
             mysqli_query($conn, "UPDATE users SET email_verified = 1 WHERE email = '$email'");
             
-            // Delete the used OTP
-            mysqli_query($conn, "DELETE FROM otp_verification WHERE email = '$email'");
-            
             // Clear verification session variables
             unset($_SESSION['verify_email']);
             unset($_SESSION['verify_firstname']);
@@ -265,7 +256,7 @@ if(isset($_POST['verify_otp'])) {
         }
     } else {
         // Debug: Log the failed verification attempt
-        error_log("OTP verification failed: No matching OTP found in database");
+        error_log("OTP verification failed: Invalid or expired OTP");
         header("Location: ../verify.php?invalidOTP=1");
         exit();
     }
