@@ -36,8 +36,6 @@ $email = $_SESSION['verify_email'];
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
         
         .verification-container {
