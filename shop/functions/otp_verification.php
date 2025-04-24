@@ -1,14 +1,10 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../admin/config/env_loader.php'; // Add this to include env_loader
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
-
-if (file_exists(__DIR__ . '/../../.env')) {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-    $dotenv->load();
-} 
 
 // Function to generate a 6-digit OTP
 function generateOTP() {
@@ -39,15 +35,15 @@ function sendOTPEmail($email, $otp, $firstname) {
         // Server settings
         $mail->SMTPDebug = 0; // Set to 0 in production
         $mail->isSMTP();
-        $mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
+        $mail->Host = getEnvVar('SMTP_HOST', 'smtp.gmail.com');
         $mail->SMTPAuth = true;
-        $mail->Username = $_ENV['SMTP_USERNAME'] ?? '';
-        $mail->Password = $_ENV['SMTP_PASSWORD'] ?? '';
+        $mail->Username = getEnvVar('SMTP_USERNAME', '');
+        $mail->Password = getEnvVar('SMTP_PASSWORD', '');
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = $_ENV['SMTP_PORT'] ?? 587;
+        $mail->Port = getEnvVar('SMTP_PORT', '587');
         
         // Recipients
-        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'] ?? '', $_ENV['SMTP_FROM_NAME'] ?? 'BYD Clothing');
+        $mail->setFrom(getEnvVar('SMTP_FROM_EMAIL', ''), getEnvVar('SMTP_FROM_NAME', 'BYD Clothing'));
         $mail->addAddress($email);
         
         // Content
