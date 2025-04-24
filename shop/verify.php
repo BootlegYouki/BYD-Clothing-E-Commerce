@@ -110,6 +110,7 @@ $email = $_SESSION['verify_email'];
         
         .btn-verify {
             background-color: var(--primary-color);
+            color: #fff;
             border: none;
             width: 100%;
             padding: 14px;
@@ -170,16 +171,6 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .spinner-border {
-            color: var(--primary-color);
-        }
     </style>
 </head>
 <body>
@@ -222,14 +213,15 @@ $email = $_SESSION['verify_email'];
                 
                 <input type="hidden" name="otp" id="otpValue">
                 <input type="hidden" name="verify_otp" value="1">
-                <button type="submit" id="verifyBtn" class="btn btn-primary btn-verify">
-                    <i class="fas fa-shield-alt mr-2"></i> Verify Email
+                <button type="submit" id="verifyBtn" class="btn btn-verify">
+                    <span class="normal-state">
+                        <i class="fas fa-shield-alt mr-2"></i> Verify Email
+                    </span>
+                    <span class="loading-state pb-1" style="display: none;">
+                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                    </span>
+                    
                 </button>
-                
-                <div class="loading mt-3">
-                    <div class="spinner-border spinner-border-sm" role="status"></div>
-                    <span class="ml-2">Verifying...</span>
-                </div>
             </form>
             
             <div class="resend">
@@ -252,7 +244,9 @@ $email = $_SESSION['verify_email'];
             const verificationForm = document.getElementById('verificationForm');
             const otpValue = document.getElementById('otpValue');
             const resendBtn = document.getElementById('resendBtn');
-            const loading = document.querySelector('.loading');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const normalState = verifyBtn.querySelector('.normal-state');
+            const loadingState = verifyBtn.querySelector('.loading-state');
             
             // Only allow numeric input
             inputs.forEach(input => {
@@ -268,7 +262,6 @@ $email = $_SESSION['verify_email'];
                         if (index !== inputs.length - 1) {
                             inputs[index + 1].focus();
                         } else {
-                            // When last input is filled, submit the form automatically
                             let allFilled = true;
                             inputs.forEach(inp => {
                                 if (inp.value.length !== 1) allFilled = false;
@@ -283,7 +276,6 @@ $email = $_SESSION['verify_email'];
                     }
                 });
                 
-                // Handle backspace
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace') {
                         if (!this.value && index !== 0) {
@@ -293,7 +285,6 @@ $email = $_SESSION['verify_email'];
                     }
                 });
                 
-                // Handle paste event
                 input.addEventListener('paste', function(e) {
                     e.preventDefault();
                     const pasteData = e.clipboardData.getData('text').trim();
@@ -314,7 +305,6 @@ $email = $_SESSION['verify_email'];
                 });
             });
             
-            // When submitting, combine all inputs into one value
             verificationForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -326,14 +316,16 @@ $email = $_SESSION['verify_email'];
                 otpValue.value = otp;
                 
                 if (otp.length === 6) {
-                    loading.style.display = 'block';
+                    normalState.style.display = 'none';
+                    loadingState.style.display = 'inline-block';
+                    verifyBtn.disabled = true;
+                    
                     this.submit();
                 } else {
                     alert('Please enter the complete 6-digit code');
                 }
             });
             
-            // Countdown timer
             let countdown = 60;
             const countdownDisplay = document.getElementById('countdown');
             resendBtn.disabled = true;
@@ -349,7 +341,6 @@ $email = $_SESSION['verify_email'];
                 }
             }, 1000);
             
-            // Handle resend form submission
             document.getElementById('resendForm').addEventListener('submit', function() {
                 resendBtn.disabled = true;
             });
