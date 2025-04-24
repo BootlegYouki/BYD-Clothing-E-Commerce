@@ -124,6 +124,7 @@ $email = $_SESSION['verify_email'];
         
         .btn-verify:hover {
             background-color: #ff6347;
+            color: #fff;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 127, 80, 0.3);
         }
@@ -171,32 +172,37 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
+
+        /* Add styles for message display */
+        .message {
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            border-radius: var(--border-radius);
+            border: none;
+            display: none;
+        }
+        
+        .message-danger {
+            background-color: #ffe5e5;
+            color: #d63031;
+        }
+        
+        .message-success {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
     </style>
 </head>
 <body>
-        <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4">
-            <div class="verification-container">
+    <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4">
+        <div class="verification-container">
             <div class="logo">
                 <h2>BYD Clothing</h2>
             </div>
             
-            <?php if(isset($_GET['invalidOTP'])): ?>
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle mr-2"></i> Invalid verification code. Please try again.
-            </div>
-            <?php endif; ?>
-            
-            <?php if(isset($_GET['resendSuccess'])): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle mr-2"></i> A new verification code has been sent to your email.
-            </div>
-            <?php endif; ?>
-            
-            <?php if(isset($_GET['resendFailed'])): ?>
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle mr-2"></i> Failed to send verification code. Please try again.
-            </div>
-            <?php endif; ?>
+            <!-- Replace static alerts with dynamic message containers -->
+            <div id="message-container"></div>
             
             <h4 class="text-center">Verify Your Email</h4>
             <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
@@ -220,7 +226,6 @@ $email = $_SESSION['verify_email'];
                     <span class="loading-state pb-1" style="display: none;">
                         <span class="spinner-border spinner-border-sm" role="status"></span>
                     </span>
-                    
                 </button>
             </form>
             
@@ -228,9 +233,14 @@ $email = $_SESSION['verify_email'];
                 <p>Didn't receive the code?</p>
                 <form id="resendForm" action="functions/authcode.php" method="POST">
                     <input type="hidden" name="resend_otp" value="1">
-                    <button type="submit" id="resendBtn" class="btn-resend" disabled>Resend Code</button>
+                    <button type="submit" id="resendBtn" class="btn-resend" disabled>
+                        <span class="resend-normal-state">Resend Code</span>
+                        <span class="resend-loading-state" style="display: none;">
+                            <span id="sending-text">Sending</span>
+                        </span>
+                    </button>
                 </form>
-                <div class="timer mt-1">You can request a new code in <span id="countdown">60</span> seconds</div>
+                <div class="timer mt-1">You can request a new code in <span id="countdown">30</span> seconds</div>
             </div>
         </div>
     </div>
@@ -247,6 +257,38 @@ $email = $_SESSION['verify_email'];
             const verifyBtn = document.getElementById('verifyBtn');
             const normalState = verifyBtn.querySelector('.normal-state');
             const loadingState = verifyBtn.querySelector('.loading-state');
+            const messageContainer = document.getElementById('message-container');
+            
+            let sendingAnimation;
+            const sendingText = document.getElementById('sending-text');
+            
+            function startSendingAnimation() {
+                let dots = 0;
+                sendingAnimation = setInterval(() => {
+                    dots = (dots + 1) % 4;
+                    let text = "Sending";
+                    for (let i = 0; i < dots; i++) {
+                        text += ".";
+                    }
+                    sendingText.textContent = text;
+                }, 400);
+            }
+            
+            function stopSendingAnimation() {
+                if (sendingAnimation) {
+                    clearInterval(sendingAnimation);
+                    sendingAnimation = null;
+                }
+            }
+            
+            // Function to show messages
+            function showMessage(type, message) {
+                messageContainer.innerHTML = `
+                    <div class="alert alert-${type}">
+                        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle mr-2"></i> ${message}
+                    </div>
+                `;
+            }
             
             // Only allow numeric input
             inputs.forEach(input => {
@@ -279,8 +321,8 @@ $email = $_SESSION['verify_email'];
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace') {
                         if (!this.value && index !== 0) {
-                            inputs[index - 1].focus();
-                            inputs[index - 1].select();
+                            inputs[index -1].focus();
+                            inputs[index -1].select();
                         }
                     }
                 });
@@ -320,30 +362,129 @@ $email = $_SESSION['verify_email'];
                     loadingState.style.display = 'inline-block';
                     verifyBtn.disabled = true;
                     
-                    this.submit();
+                    // AJAX for OTP verification
+                    $.ajax({
+                        url: 'functions/authcode.php',
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                showMessage('success', response.message);
+                                setTimeout(function() {
+                                    window.location.href = response.redirect;
+                                }, 1500);
+                            } else {
+                                showMessage('danger', response.message);
+                                // Reset the verification button
+                                normalState.style.display = 'inline-block';
+                                loadingState.style.display = 'none';
+                                verifyBtn.disabled = false;
+                                // Focus on first input and clear all inputs
+                                inputs.forEach(input => input.value = '');
+                                inputs[0].focus();
+                            }
+                        },
+                        error: function() {
+                            showMessage('danger', 'An error occurred. Please try again.');
+                            normalState.style.display = 'inline-block';
+                            loadingState.style.display = 'none';
+                            verifyBtn.disabled = false;
+                        }
+                    });
                 } else {
-                    alert('Please enter the complete 6-digit code');
+                    showMessage('danger', 'Please enter the complete 6-digit code');
                 }
             });
             
-            let countdown = 60;
+            document.getElementById('resendForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                resendBtn.disabled = true;
+                
+                // Show loading state
+                const resendNormalState = resendBtn.querySelector('.resend-normal-state');
+                const resendLoadingState = resendBtn.querySelector('.resend-loading-state');
+                resendNormalState.style.display = 'none';
+                resendLoadingState.style.display = 'inline-block';
+                
+                // Start the sending animation
+                startSendingAnimation();
+                
+                // AJAX for resending OTP
+                $.ajax({
+                    url: 'functions/authcode.php',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        // Stop the animation
+                        stopSendingAnimation();
+                        
+                        if (response.status === 'success') {
+                            showMessage('success', response.message);
+                            // Reset countdown
+                            startCountdown();
+                        } else {
+                            showMessage('danger', response.message);
+                            resendBtn.disabled = false;
+                        }
+                        // Reset button state
+                        resendNormalState.style.display = 'inline-block';
+                        resendLoadingState.style.display = 'none';
+                    },
+                    error: function() {
+                        // Stop the animation
+                        stopSendingAnimation();
+                        
+                        showMessage('danger', 'Failed to resend code. Please try again.');
+                        resendBtn.disabled = false;
+                        // Reset button state
+                        resendNormalState.style.display = 'inline-block';
+                        resendLoadingState.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Countdown timer functionality
+            let countdown = 30;
             const countdownDisplay = document.getElementById('countdown');
             resendBtn.disabled = true;
             
-            const timer = setInterval(() => {
-                countdown--;
+            function startCountdown() {
+                countdown = 30;
                 countdownDisplay.textContent = countdown;
-                
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    resendBtn.disabled = false;
-                    document.querySelector('.timer').style.display = 'none';
-                }
-            }, 1000);
-            
-            document.getElementById('resendForm').addEventListener('submit', function() {
                 resendBtn.disabled = true;
-            });
+                document.querySelector('.timer').style.display = 'block';
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    countdownDisplay.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        resendBtn.disabled = false;
+                        document.querySelector('.timer').style.display = 'none';
+                    }
+                }, 1000);
+            }
+            
+            // Start countdown on page load
+            startCountdown();
+            
+            // Check URL parameters for existing messages (for backward compatibility)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('invalidOTP')) {
+                showMessage('danger', 'Invalid verification code. Please try again.');
+            } else if (urlParams.has('resendSuccess')) {
+                showMessage('success', 'A new verification code has been sent to your email.');
+            } else if (urlParams.has('resendFailed')) {
+                showMessage('danger', 'Failed to send verification code. Please try again.');
+            }
+            
+            // Remove URL parameters after processing them
+            if (urlParams.toString()) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
 </body>

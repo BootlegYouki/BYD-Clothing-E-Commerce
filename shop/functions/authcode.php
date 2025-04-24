@@ -234,12 +234,23 @@ if(isset($_POST['verify_otp'])) {
                 // Set success message for modal
                 $_SESSION['registration_success'] = true;
                 
-                header("Location: ../index.php?registrationSuccess=1");
-                exit();
+                if(isAjaxRequest()) {
+                    sendJsonResponse('success', 'Your account has been created successfully!', [
+                        'redirect' => '../index.php?registrationSuccess=1'
+                    ]);
+                } else {
+                    header("Location: ../index.php?registrationSuccess=1");
+                    exit();
+                }
             } else {
                 $_SESSION['message'] = "Error creating account: " . mysqli_error($conn);
-                header("Location: ../index.php?accountCreationFailed=1");
-                exit();
+                
+                if(isAjaxRequest()) {
+                    sendJsonResponse('error', 'Error creating account: ' . mysqli_error($conn));
+                } else {
+                    header("Location: ../index.php?accountCreationFailed=1");
+                    exit();
+                }
             }
         } else {
             // Just email verification for existing account
@@ -251,14 +262,26 @@ if(isset($_POST['verify_otp'])) {
             unset($_SESSION['verify_firstname']);
             
             $_SESSION['message'] = "Email verified successfully! You can now login.";
-            header("Location: ../index.php?verificationSuccess=1");
-            exit();
+            
+            if(isAjaxRequest()) {
+                sendJsonResponse('success', 'Email verified successfully! You can now login.', [
+                    'redirect' => '../index.php?verificationSuccess=1'
+                ]);
+            } else {
+                header("Location: ../index.php?verificationSuccess=1");
+                exit();
+            }
         }
     } else {
         // Debug: Log the failed verification attempt
         error_log("OTP verification failed: Invalid or expired OTP");
-        header("Location: ../verify.php?invalidOTP=1");
-        exit();
+        
+        if(isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid or expired verification code. Please try again.');
+        } else {
+            header("Location: ../verify.php?invalidOTP=1");
+            exit();
+        }
     }
 }
 
@@ -270,15 +293,27 @@ if(isset($_POST['resend_otp'])) {
     if(!empty($email)) {
         $otp = generateOTP();
         if(storeOTP($conn, $email, $otp) && sendOTPEmail($email, $otp, $firstname)) {
-            header("Location: ../verify.php?resendSuccess=1");
-            exit();
+            if(isAjaxRequest()) {
+                sendJsonResponse('success', 'A new verification code has been sent to your email.');
+            } else {
+                header("Location: ../verify.php?resendSuccess=1");
+                exit();
+            }
         } else {
-            header("Location: ../verify.php?resendFailed=1");
-            exit();
+            if(isAjaxRequest()) {
+                sendJsonResponse('error', 'Failed to send verification code. Please try again.');
+            } else {
+                header("Location: ../verify.php?resendFailed=1");
+                exit();
+            }
         }
     } else {
-        header("Location: ../index.php");
-        exit();
+        if(isAjaxRequest()) {
+            sendJsonResponse('error', 'Email address not found. Please try again.');
+        } else {
+            header("Location: ../index.php");
+            exit();
+        }
     }
 }
 ?>
