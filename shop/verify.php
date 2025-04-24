@@ -1,14 +1,14 @@
 <?php
 session_start();
-// include '../admin/config/dbcon.php';
-// include 'functions/otp_verification.php';
+include '../admin/config/dbcon.php';
+include 'functions/otp_verification.php';
 
-// if (!isset($_SESSION['verify_email'])) {
-//     header("Location: index.php");
-//     exit();
-// }
+if (!isset($_SESSION['verify_email'])) {
+    header("Location: index.php");
+    exit();
+}
 
-// $email = $_SESSION['verify_email'];
+$email = $_SESSION['verify_email'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +54,12 @@ session_start();
         .logo {
             text-align: center;
             margin-bottom: clamp(20px, 4vw, 25px);
+        }
+        
+        .logo img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
         }
         
         .logo h2 {
@@ -198,6 +204,7 @@ session_start();
     <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4">
         <div class="verification-container">
             <div class="logo">
+                <img src="img/logo/logo_admin_light.png" alt="BYD Clothing Logo">
                 <h2>BYD Clothing</h2>
             </div>
             
@@ -205,7 +212,7 @@ session_start();
             <div id="message-container"></div>
             
             <h4 class="text-center">Verify Your Email</h4>
-            <!-- <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p> -->
+            <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
             
             <form id="verificationForm" action="functions/authcode.php" method="POST">
                 <div class="otp-inputs">
