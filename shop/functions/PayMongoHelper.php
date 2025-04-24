@@ -265,17 +265,6 @@ class PayMongoHelper {
             ]
         ]);
     }
-
-    // REMOVE THIS DUPLICATE METHOD - It's already defined above
-    // /**
-    //  * Get payment intent details
-    //  * 
-    //  * @param string $id Payment intent ID
-    //  * @return array Payment intent data
-    //  */
-    // public function getPaymentIntent($id) {
-    //     return $this->makeRequest('GET', "payment_intents/$id");
-    // }
     
     /**
      * Create a payment link with new tab flag

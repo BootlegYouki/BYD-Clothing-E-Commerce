@@ -102,6 +102,7 @@ $email = $_SESSION['verify_email'];
         
         .btn-verify {
             background-color: var(--primary-color);
+            color: #fff;
             border: none;
             width: 100%;
             padding: 14px;
@@ -117,6 +118,7 @@ $email = $_SESSION['verify_email'];
             background-color: #ff6347;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 127, 80, 0.3);
+            color: #fff;
         }
         
         .resend {
@@ -214,7 +216,7 @@ $email = $_SESSION['verify_email'];
                 
                 <input type="hidden" name="otp" id="otpValue">
                 <input type="hidden" name="verify_otp" value="1">
-                <button type="submit" id="verifyBtn" class="btn btn-primary btn-verify">
+                <button type="submit" id="verifyBtn" class="btn btn-verify">
                     <i class="fas fa-shield-alt mr-2"></i> Verify Email
                 </button>
                 
