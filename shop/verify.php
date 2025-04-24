@@ -1,14 +1,14 @@
 <?php
 session_start();
-include '../admin/config/dbcon.php';
-include 'functions/otp_verification.php';
+// include '../admin/config/dbcon.php';
+// include 'functions/otp_verification.php';
 
-if (!isset($_SESSION['verify_email'])) {
-    header("Location: index.php");
-    exit();
-}
+// if (!isset($_SESSION['verify_email'])) {
+//     header("Location: index.php");
+//     exit();
+// }
 
-$email = $_SESSION['verify_email'];
+// $email = $_SESSION['verify_email'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,7 +46,7 @@ $email = $_SESSION['verify_email'];
             background: #fff;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            padding: 40px 30px;
+            padding: 20px 15px;
             transition: all 0.3s ease;
             margin: 20px;
         }
@@ -82,19 +82,19 @@ $email = $_SESSION['verify_email'];
         
         .otp-inputs {
             display: flex;
-            gap: 10px;
+            gap: clamp(4px, 1vw, 10px);
             justify-content: center;
             margin: 30px 0;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         
         .otp-inputs input {
-            width: 55px;
-            height: 55px;
+            width: clamp(30px, 10vw, 55px); 
+            height: clamp(30px, 10vw, 55px);
             border: 2px solid #ddd;
             border-radius: 12px;
             text-align: center;
-            font-size: 24px;
+            font-size: clamp(16px, 4vw, 24px);
             font-weight: 600;
             color: var(--primary-color);
             background-color: #fcfcfc;
@@ -205,7 +205,7 @@ $email = $_SESSION['verify_email'];
             <div id="message-container"></div>
             
             <h4 class="text-center">Verify Your Email</h4>
-            <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
+            <!-- <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p> -->
             
             <form id="verificationForm" action="functions/authcode.php" method="POST">
                 <div class="otp-inputs">
