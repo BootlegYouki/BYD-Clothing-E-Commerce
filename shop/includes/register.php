@@ -9,6 +9,25 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <!-- Custom CSS for password toggle buttons -->
+        <style>
+          .password-field-container {
+            position: relative;
+          }
+          
+          .password-toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            z-index: 5;
+          }
+        </style>
+        
         <p>Already have an account? <a href="#loginModal" data-bs-toggle="modal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Log in</a></p>
         <form action="functions/authcode.php" method="POST" id="signupForm" class="needs-validation" novalidate> 
           <div class="row gy-3">
@@ -101,18 +120,24 @@
           </div>
           <div class="row">
             <div class="col-md-6">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-3 password-field-container">
                 <input type="password" class="form-control" name="password" id="password" placeholder="Password" required minlength="8">
                 <label for="password" class="form-label">Password</label>
+                <button type="button" class="password-toggle-btn" id="passwordToggleBtn" tabindex="-1">
+                  <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                </button>
                 <div class="invalid-feedback">
                   Password must be at least 8 characters.
                 </div>
               </div>
             </div>
             <div class="col-md-6">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-3 password-field-container">
                 <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
                 <label for="confirm_password" class="form-label">Confirm Password</label>
+                <button type="button" class="password-toggle-btn" tabindex="-1">
+                  <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                </button>
                 <div class="invalid-feedback">
                   Passwords don't match.
                 </div>
@@ -295,6 +320,42 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener("DOMContentLoaded", function() {
   const regpassword = document.getElementById('password');
   const confirmPassword = document.getElementById('confirm_password');
+
+  // Get individual password toggle buttons
+  const passwordToggleBtn = document.getElementById('passwordToggleBtn');
+  const confirmPasswordToggleBtn = document.querySelector('.col-md-6:nth-child(2) .password-toggle-btn');
+  
+  // Handle password field toggle separately (works with eye-slash for visible, eye for hidden)
+  if (passwordToggleBtn) {
+    passwordToggleBtn.addEventListener('click', function() {
+      const passwordField = document.getElementById('password');
+      if (passwordField.type === 'password') {
+        // Show password
+        passwordField.type = 'text';
+        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
+      } else {
+        // Hide password
+        passwordField.type = 'password';
+        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
+      }
+    });
+  }
+  
+  // Handle confirm password field toggle separately (works with opposite logic)
+  if (confirmPasswordToggleBtn) {
+    confirmPasswordToggleBtn.addEventListener('click', function() {
+      const confirmField = document.getElementById('confirm_password');
+      if (confirmField.type === 'password') {
+        // Show password
+        confirmField.type = 'text';
+        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
+      } else {
+        // Hide password
+        confirmField.type = 'password';
+        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
+      }
+    });
+  }
 
   // Check password requirements as user types in the password field
   regpassword.addEventListener('input', function() {

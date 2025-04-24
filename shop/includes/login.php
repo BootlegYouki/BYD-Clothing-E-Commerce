@@ -7,6 +7,40 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <!-- Custom CSS to hide validation icons -->
+            <style>
+                .form-control.is-invalid, 
+                .was-validated, 
+                .form-control:invalid,
+                .form-control.is-valid, 
+                .was-validated, 
+                .form-control:valid {
+                background-image: none !important;
+              }
+              
+              /* Fix for password toggle button position */
+              .password-field-container {
+                position: relative;
+              }
+              
+              .password-toggle-btn {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #6c757d; /* Bootstrap's default text color */
+              }
+              
+              /* Adjust position when invalid feedback is shown */
+              .form-control.is-invalid ~ .password-toggle-btn,
+              .was-validated .form-control:invalid ~ .password-toggle-btn {
+                top: calc(50% - 13px);
+              }
+            </style>
+            
             <p>Don't have an account? 
               <a href="#SignupModal" data-bs-toggle="modal" data-bs-dismiss="modal" class="modal-link text-decoration-none">
                 Sign up</a>
@@ -28,21 +62,16 @@
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="form-floating mb-1 position-relative">
+                  <div class="form-floating mb-3 password-field-container">
                     <input type="password" class="form-control" name="loginpassword" id="loginpassword" placeholder="Password" required>
                     <label for="loginpassword" class="form-label">Password</label>
+                    <button type="button" class="password-toggle-btn" tabindex="-1">
+                      <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                    </button>
                     <div class="invalid-feedback">
                       Please enter your password.
                     </div>
                   </div>
-                </div>
-                <div class="col-12">
-                <div class="form-check">
-                  <input class="form-check-input toggle-password" type="checkbox" id="show_password">
-                  <label class="form-check-label text-secondary" for="show_password">
-                    Show Password
-                  </label>
-                </div>
                 </div>
                 <div class="col-12">
                   <div class="d-grid">
@@ -61,17 +90,20 @@
 
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Get the password toggle checkbox
-  const togglePassword = document.getElementById('show_password');
-  
-  // Get the password input
+    
+  // Add password visibility toggle functionality
+  const passwordToggleBtn = document.querySelector('.password-toggle-btn');
   const passwordInput = document.getElementById('loginpassword');
   
-  // Add event listener to checkbox
-  if(togglePassword && passwordInput) {
-    togglePassword.addEventListener('change', function() {
-      // Change the password input type based on checkbox state
-      passwordInput.type = this.checked ? 'text' : 'password';
+  if (passwordToggleBtn && passwordInput) {
+    passwordToggleBtn.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Toggle the eye icon
+      const icon = this.querySelector('i');
+      icon.classList.toggle('fa-eye-slash');
+      icon.classList.toggle('fa-eye');
     });
   }
   
