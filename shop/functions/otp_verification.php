@@ -1,132 +1,244 @@
 <?php
-/**
- * OTP Verification Functions
- */
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../admin/config/env_loader.php'; // Add this to include env_loader
 
-// Generate a random OTP code
-function generateOTP($length = 6) {
-    $otp = '';
-    for ($i = 0; $i < $length; $i++) {
-        $otp .= mt_rand(0, 9);
-    }
-    return $otp;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+// Function to generate a 6-digit OTP
+function generateOTP() {
+    return sprintf("%06d", mt_rand(1, 999999));
 }
 
-// Send OTP via email
+// Function to save OTP in the database
+function storeOTP($conn, $email, $otp) {
+    // First, delete any existing OTPs for this email
+    $invalidate_query = "DELETE FROM otp_verification WHERE email = ?";
+    $stmt = $conn->prepare($invalidate_query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    
+    // Check the table structure to see what columns exist
+    $table_info_query = "SHOW COLUMNS FROM otp_verification";
+    $table_info = $conn->query($table_info_query);
+    $columns = [];
+    while ($column = $table_info->fetch_assoc()) {
+        $columns[] = $column['Field'];
+    }
+    
+    // Prepare insert query based on available columns
+    if (in_array('expiry_time', $columns)) {
+        $insert_query = "INSERT INTO otp_verification (email, otp, created_at, expiry_time) 
+                         VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 15 MINUTE))";
+    } else {
+        $insert_query = "INSERT INTO otp_verification (email, otp, created_at) 
+                         VALUES (?, ?, NOW())";
+    }
+    
+    $stmt = $conn->prepare($insert_query);
+    $stmt->bind_param("ss", $email, $otp);
+    return $stmt->execute();
+}
+
+// Function to send OTP via email with improved design
 function sendOTPEmail($email, $otp, $firstname) {
-    // For testing purposes, store OTP in session
-    $_SESSION['test_otp'] = $otp;
-    
-    // Log the OTP for debugging
-    error_log("OTP for $email: $otp");
-    
-    // Display the OTP on screen for testing (remove in production)
-    echo "<script>alert('Your OTP is: $otp\\nThis is shown for testing only.');</script>";
-    
-    // Return true to simulate successful sending
-    return true;
-    
-    /* 
-    // Uncomment and configure this code when ready to use real email sending
-    
-    // Use PHPMailer for reliable email delivery
-    require '../vendor/autoload.php';
-    
-    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-    
     try {
+        $mail = new PHPMailer(true);
+        
         // Server settings
+        $mail->SMTPDebug = 0; // Set to 0 in production
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Replace with your SMTP server
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'your-email@gmail.com'; // Replace with your email
-        $mail->Password   = 'your-app-password'; // Replace with your app password
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Host = getEnvVar('SMTP_HOST', 'smtp.gmail.com');
+        $mail->SMTPAuth = true;
+        $mail->Username = getEnvVar('SMTP_USERNAME', '');
+        $mail->Password = getEnvVar('SMTP_PASSWORD', '');
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = getEnvVar('SMTP_PORT', '587');
         
         // Recipients
-        $mail->setFrom('noreply@bydclothing.com', 'BYD Clothing');
+        $mail->setFrom(getEnvVar('SMTP_FROM_EMAIL', ''), getEnvVar('SMTP_FROM_NAME', 'BYD Clothing'));
         $mail->addAddress($email);
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = "BYD Clothing - Email Verification Code";
+        $mail->Subject = 'Your Email Verification Code - BYD Clothing';
         
-        $message = "
-        <html>
-        <head>
-            <title>Email Verification</title>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; }
-                .header { background-color: #000; color: #fff; padding: 15px; text-align: center; }
-                .content { padding: 20px; }
-                .otp-code { font-size: 24px; font-weight: bold; text-align: center; 
-                            padding: 10px; margin: 20px 0; background-color: #f4f4f4; }
-                .footer { background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; }
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <div class='header'>
-                    <h1>Email Verification</h1>
-                </div>
-                <div class='content'>
-                    <p>Hello " . htmlspecialchars($firstname) . ",</p>
-                    <p>Thank you for registering with BYD Clothing. To complete your registration, please use the verification code below:</p>
+        // Enhanced Email Template
+        $mail->Body = '
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table {border-collapse: collapse; border-spacing: 0; margin: 0;}
+        div, td {padding: 0;}
+        div {margin: 0 !important;}
+    </style>
+    <noscript>
+    <xml>
+        <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    </noscript>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; -webkit-text-size-adjust: none; text-size-adjust: none;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 30px 0;">
+                <!-- Email Container -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 30px 0; background-color: #ff7f50; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; font-family: Arial, Helvetica, sans-serif;">BYD Clothing</h1>
+                        </td>
+                    </tr>
                     
-                    <div class='otp-code'>" . $otp . "</div>
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="color: #ff7f50; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-family: Arial, Helvetica, sans-serif;">Verify Your Email</h2>
+                            
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">Hello <strong>' . htmlspecialchars($firstname) . '</strong>,</p>
+                            
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">Thank you for creating an account with BYD Clothing! To complete your registration and secure your account, please enter the verification code below:</p>
+                            
+                            <!-- OTP Container -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 5px;">
+                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center" style="padding: 20px 10px;">
+                                                    <div style="font-family: \'Courier New\', monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #ff7f50;">
+                                                        ' . $otp . '
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">This verification code will expire in <strong style="color: #ff7f50;">15 minutes</strong>.</p>
+                            
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">If you did not attempt to create an account with us, please disregard this email.</p>
+                            
+                            <!-- Divider -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                                <tr>
+                                    <td style="border-bottom: 1px solid #e9ecef;"></td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">If you have any questions or need assistance, please contact our support team.</p>
+                            
+                            <p style="color: #666666; font-size: 14px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">Thank you for choosing BYD Clothing!</p>
+                        </td>
+                    </tr>
                     
-                    <p>This code will expire in 15 minutes.</p>
-                    <p>If you did not request this code, please ignore this email.</p>
-                </div>
-                <div class='footer'>
-                    <p>&copy; " . date('Y') . " BYD Clothing. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 30px; border-top: 1px solid #e9ecef;">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="margin: 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+                                            &copy; ' . date('Y') . ' BYD Clothing. All rights reserved.
+                                        </p>
+                                        <p style="margin: 10px 0 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+                                            This is an automated message, please do not reply to this email.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- Additional Information -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td style="padding: 20px 10px; text-align: center;">
+                            <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+                                Sent by BYD Clothing | Privacy Policy | Terms of Service
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>';
         
-        $mail->Body = $message;
+        // Plain text alternative for email clients that don't support HTML
+        $mail->AltBody = "Hello $firstname,
+
+Thank you for creating an account with BYD Clothing!
+
+Your verification code is: $otp
+
+This code will expire in 15 minutes.
+
+If you did not attempt to create an account with us, please disregard this email.
+
+Thank you for choosing BYD Clothing!
+
+© " . date('Y') . " BYD Clothing. All rights reserved.
+This is an automated message, please do not reply to this email.";
         
-        $mail->send();
-        return true;
+        return $mail->send();
     } catch (Exception $e) {
-        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        error_log("Email sending failed: " . $e->getMessage());
         return false;
     }
-    */
 }
 
-// Store OTP in database
-function storeOTP($conn, $email, $otp) {
-    // Delete any existing OTP for this email
-    $delete_query = "DELETE FROM otp_verification WHERE email = '$email'";
-    mysqli_query($conn, $delete_query);
+// Function to validate OTP
+function validateOTP($conn, $email, $otp) {
+    // Check the table structure to see what columns exist
+    $table_info_query = "SHOW COLUMNS FROM otp_verification";
+    $table_info = $conn->query($table_info_query);
+    $columns = [];
+    while ($column = $table_info->fetch_assoc()) {
+        $columns[] = $column['Field'];
+    }
     
-    // Insert new OTP with expiration time (15 minutes from now)
-    $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-    $insert_query = "INSERT INTO otp_verification (email, otp, expires_at) VALUES ('$email', '$otp', '$expiry')";
-    return mysqli_query($conn, $insert_query);
-}
-
-// Verify OTP
-function verifyOTP($conn, $email, $otp) {
-    $query = "SELECT * FROM otp_verification WHERE email = '$email' AND otp = '$otp' AND expiry > NOW()";
-    $result = mysqli_query($conn, $query);
+    // Prepare query based on available columns
+    if (in_array('expiry_time', $columns)) {
+        $query = "SELECT * FROM otp_verification WHERE email = ? AND otp = ? AND expiry_time > NOW()";
+    } else {
+        // If no expiry_time column, just check if OTP exists
+        // Optionally, you could add a time-based check using created_at if available
+        if (in_array('created_at', $columns)) {
+            $query = "SELECT * FROM otp_verification WHERE email = ? AND otp = ? AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)";
+        } else {
+            $query = "SELECT * FROM otp_verification WHERE email = ? AND otp = ?";
+        }
+    }
     
-    if (mysqli_num_rows($result) > 0) {
-        // OTP is valid, update user's email_verified status
-        $update_query = "UPDATE users SET email_verified = 1 WHERE email = '$email'";
-        $update_result = mysqli_query($conn, $update_query);
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $email, $otp);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        // Delete the used OTP after successful validation
+        $delete_query = "DELETE FROM otp_verification WHERE email = ? AND otp = ?";
+        $delete_stmt = $conn->prepare($delete_query);
+        $delete_stmt->bind_param("ss", $email, $otp);
+        $delete_stmt->execute();
         
-        // Delete the used OTP
-        $delete_query = "DELETE FROM otp_verification WHERE email = '$email'";
-        mysqli_query($conn, $delete_query);
-        
-        return $update_result;
+        return true;
     }
     
     return false;
 }
+?>

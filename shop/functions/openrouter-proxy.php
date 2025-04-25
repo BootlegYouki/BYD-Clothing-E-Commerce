@@ -1,11 +1,14 @@
 <?php
+// Include the environment loader
+require_once __DIR__ . '/../../admin/config/env_loader.php';
+
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 header('Connection: keep-alive');
 header('X-Accel-Buffering: no'); // Prevents buffering for Nginx
 
-// Store API key securely on the server
-$api_key = "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";
+// Get API key from environment variables
+$api_key = getEnvVar('OPENROUTER_API_KEY');
 
 // Get the incoming request
 $input = json_decode(file_get_contents('php://input'), true);

@@ -12,8 +12,28 @@ function getUserByIdentifier($conn, $identifier) {
 }
 
 function displayInvalidCredentials() {
-   header("Location: ../index?loginFailed=1");
+   header("Location: ../index.php?loginFailed=1");
    exit;
+}
+
+function isAjaxRequest() {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+}
+
+function sendJsonResponse($status, $message, $data = []) {
+    $response = [
+        'status' => $status,
+        'message' => $message
+    ];
+    
+    if (!empty($data)) {
+        $response = array_merge($response, $data);
+    }
+    
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
 }
 
 /* PROCESS REQUEST */
@@ -90,7 +110,11 @@ else if (isset($_POST['loginButton'])) {
     
     $result = getUserByIdentifier($conn, $loginidentifier);
     if (!$result) {
-        displayInvalidCredentials();
+        if (isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid username or email address.');
+        } else {
+            displayInvalidCredentials();
+        }
     }
     
     $user = mysqli_fetch_assoc($result);
@@ -104,16 +128,28 @@ else if (isset($_POST['loginButton'])) {
             $_SESSION['verify_email'] = $user['email'];
             $_SESSION['verify_firstname'] = $user['firstname'];
             
-            header("Location: ../verify.php?verifyRequired=1");
-            exit();
+            if (isAjaxRequest()) {
+                sendJsonResponse('error', 'Please verify your email address first. A new verification code has been sent to your email.');
+            } else {
+                header("Location: ../verify.php?verifyRequired=1");
+                exit();
+            }
         } else {
-            header("Location: ../index.php?emailFailed=1");
-            exit();
+            if (isAjaxRequest()) {
+                sendJsonResponse('error', 'Failed to send verification email. Please try again later.');
+            } else {
+                header("Location: ../index.php?emailFailed=1");
+                exit();
+            }
         }
     }
     
     if (!password_verify($loginpassword, $user['password'])) {
-        displayInvalidCredentials();
+        if (isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid password. Please try again.');
+        } else {
+            displayInvalidCredentials();
+        }
     }
     
     // Set session variables for authentication
@@ -131,14 +167,22 @@ else if (isset($_POST['loginButton'])) {
         $_SESSION['admin_auth'] = true;
         $_SESSION['admin_login_success'] = true; // Flag for showing admin login modal
         
-        // Redirect to index page to show the modal first
-        header("Location: ../index.php?adminLogin=1");
-        exit();
+        if (isAjaxRequest()) {
+            sendJsonResponse('success', 'Login successful. Redirecting to admin area.', ['role' => 1]);
+        } else {
+            // Redirect to index page to show the modal first
+            header("Location: ../index.php?adminLogin=1");
+            exit();
+        }
     }
     else {
         // Regular user - redirect to shop homepage
-        header("Location: ../index.php?loginSuccess=1");
-        exit();
+        if (isAjaxRequest()) {
+            sendJsonResponse('success', 'Login successful.', ['role' => 0]);
+        } else {
+            header("Location: ../index.php?loginSuccess=1");
+            exit();
+        }
     }
 }
 
@@ -150,12 +194,9 @@ if(isset($_POST['verify_otp'])) {
     // Debug: Check what values we're working with
     error_log("Verifying OTP: Email=$email, OTP=$otp");
     
-    // Check directly in the database for this OTP
-    $check_query = "SELECT * FROM otp_verification WHERE email = '$email' AND otp = '$otp'";
-    $check_result = mysqli_query($conn, $check_query);
-    
-    if(mysqli_num_rows($check_result) > 0) {
-        // OTP exists in database, manually update user verification status
+    // Use the validateOTP function instead of direct database query
+    if(validateOTP($conn, $email, $otp)) {
+        // OTP is valid
         
         // If we have temporary user data, create the account now
         if(isset($_SESSION['temp_user_data'])) {
@@ -172,9 +213,6 @@ if(isset($_POST['verify_otp'])) {
             if(mysqli_query($conn, $query)) {
                 // Get the new user's ID
                 $new_user_id = mysqli_insert_id($conn);
-                
-                // Delete the used OTP
-                mysqli_query($conn, "DELETE FROM otp_verification WHERE email = '$email'");
                 
                 // Clear temporary user data
                 unset($_SESSION['temp_user_data']);
@@ -196,34 +234,54 @@ if(isset($_POST['verify_otp'])) {
                 // Set success message for modal
                 $_SESSION['registration_success'] = true;
                 
-                header("Location: ../index.php?registrationSuccess=1");
-                exit();
+                if(isAjaxRequest()) {
+                    sendJsonResponse('success', 'Your account has been created successfully!', [
+                        'redirect' => '../index.php?registrationSuccess=1'
+                    ]);
+                } else {
+                    header("Location: ../index.php?registrationSuccess=1");
+                    exit();
+                }
             } else {
                 $_SESSION['message'] = "Error creating account: " . mysqli_error($conn);
-                header("Location: ../index.php?accountCreationFailed=1");
-                exit();
+                
+                if(isAjaxRequest()) {
+                    sendJsonResponse('error', 'Error creating account: ' . mysqli_error($conn));
+                } else {
+                    header("Location: ../index.php?accountCreationFailed=1");
+                    exit();
+                }
             }
         } else {
             // Just email verification for existing account
             // Update the user's verification status
             mysqli_query($conn, "UPDATE users SET email_verified = 1 WHERE email = '$email'");
             
-            // Delete the used OTP
-            mysqli_query($conn, "DELETE FROM otp_verification WHERE email = '$email'");
-            
             // Clear verification session variables
             unset($_SESSION['verify_email']);
             unset($_SESSION['verify_firstname']);
             
             $_SESSION['message'] = "Email verified successfully! You can now login.";
-            header("Location: ../index.php?verificationSuccess=1");
-            exit();
+            
+            if(isAjaxRequest()) {
+                sendJsonResponse('success', 'Email verified successfully! You can now login.', [
+                    'redirect' => '../index.php?verificationSuccess=1'
+                ]);
+            } else {
+                header("Location: ../index.php?verificationSuccess=1");
+                exit();
+            }
         }
     } else {
         // Debug: Log the failed verification attempt
-        error_log("OTP verification failed: No matching OTP found in database");
-        header("Location: ../verify.php?invalidOTP=1");
-        exit();
+        error_log("OTP verification failed: Invalid or expired OTP");
+        
+        if(isAjaxRequest()) {
+            sendJsonResponse('error', 'Invalid or expired verification code. Please try again.');
+        } else {
+            header("Location: ../verify.php?invalidOTP=1");
+            exit();
+        }
     }
 }
 
@@ -235,15 +293,27 @@ if(isset($_POST['resend_otp'])) {
     if(!empty($email)) {
         $otp = generateOTP();
         if(storeOTP($conn, $email, $otp) && sendOTPEmail($email, $otp, $firstname)) {
-            header("Location: ../verify.php?resendSuccess=1");
-            exit();
+            if(isAjaxRequest()) {
+                sendJsonResponse('success', 'A new verification code has been sent to your email.');
+            } else {
+                header("Location: ../verify.php?resendSuccess=1");
+                exit();
+            }
         } else {
-            header("Location: ../verify.php?resendFailed=1");
-            exit();
+            if(isAjaxRequest()) {
+                sendJsonResponse('error', 'Failed to send verification code. Please try again.');
+            } else {
+                header("Location: ../verify.php?resendFailed=1");
+                exit();
+            }
         }
     } else {
-        header("Location: ../index.php");
-        exit();
+        if(isAjaxRequest()) {
+            sendJsonResponse('error', 'Email address not found. Please try again.');
+        } else {
+            header("Location: ../index.php");
+            exit();
+        }
     }
 }
 ?>

@@ -16,13 +16,11 @@ class PayMongoHelper {
      */
     public function __construct($isLive = false) {
         if ($isLive) {
-            // Live keys
-            $this->publicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
-            $this->secretKey = 'sk_live_xxxxxxxxxxxxxxxxxxxxxxxx';
+            $this->publicKey = getEnvVar('PAYMONGO_PUBLIC_KEY_LIVE');
+            $this->secretKey = getEnvVar('PAYMONGO_SECRET_KEY_LIVE');
         } else {
-            // Test keys
-            $this->publicKey = 'pk_test_KuoKQGGff3taRNgUm894nXZ1';
-            $this->secretKey = 'sk_test_WuLdYroE1TcYB1y49qVXnuQm';
+            $this->publicKey = getEnvVar('PAYMONGO_PUBLIC_KEY_TEST');
+            $this->secretKey = getEnvVar('PAYMONGO_SECRET_KEY_TEST');
         }
     }
 
@@ -267,17 +265,6 @@ class PayMongoHelper {
             ]
         ]);
     }
-
-    // REMOVE THIS DUPLICATE METHOD - It's already defined above
-    // /**
-    //  * Get payment intent details
-    //  * 
-    //  * @param string $id Payment intent ID
-    //  * @return array Payment intent data
-    //  */
-    // public function getPaymentIntent($id) {
-    //     return $this->makeRequest('GET', "payment_intents/$id");
-    // }
     
     /**
      * Create a payment link with new tab flag

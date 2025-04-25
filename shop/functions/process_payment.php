@@ -10,10 +10,6 @@
  */
 require_once '../../admin/config/dbcon.php';
 require_once 'PayMongoHelper.php';
-// Add PHPMailer includes at the top of the file
-require_once '../PHPMailer-6.9.3/src/Exception.php';
-require_once '../PHPMailer-6.9.3/src/PHPMailer.php';
-require_once '../PHPMailer-6.9.3/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
