@@ -35,8 +35,8 @@
               }
               
               /* Adjust position when invalid feedback is shown */
-              .form-control.is-invalid ~ .password-toggle-btn-login,
-              .was-validated .form-control:invalid ~ .password-toggle-btn-login {
+              .form-control.is-invalid ~ .password-toggle-btn,
+              .was-validated .form-control:invalid ~ .password-toggle-btn {
                 top: calc(50% - 13px);
               }
             </style>
