@@ -98,7 +98,7 @@
             </div>
             <div class="col-12">
               <div class="form-floating mb-1">
-                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" required>
+                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" required readonly>
                 <label for="full_address" class="form-label">Full Address</label>
                 <div class="invalid-feedback">
                   Please provide your address.
@@ -109,7 +109,7 @@
               <input type="hidden" id="longitude" name="longitude">
             </div>
             <div class="col-12">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-1">
                 <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder="Zipcode" required>
                 <label for="zipcode" class="form-label">Zipcode</label>
                 <div class="invalid-feedback">
@@ -148,7 +148,8 @@
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="" name="agree_terms" id="agree_terms" required>
               <label class="form-check-label text-secondary" for="agree_terms">
-                I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="modal-link text-decoration-none">Terms & Conditions</a> and 
+                I agree to the 
+                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="modal-link text-decoration-none">Terms & Conditions</a> and 
                 <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal" class="modal-link text-decoration-none">Privacy Policy</a>.
               </label>
               <div class="invalid-feedback">
@@ -188,9 +189,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // 3) Helper text under the address field
   const formFloating = addressInput.closest('.form-floating');
   const helpText = document.createElement('div');
-  helpText.className = 'form-text text-muted small';
-  helpText.innerText = 'Start typing your address; the map will update automatically.';
+  helpText.className = 'form-text text-muted small pb-2';
+  helpText.innerText = 'Use the pin on the map to set the location.';
   formFloating.insertAdjacentElement('afterend', helpText);
+
+  // Add helper text for zipcode field
+  const zipcodeFormFloating = zipcodeInput.closest('.form-floating');
+  const zipcodeHelpText = document.createElement('div');
+  zipcodeHelpText.className = 'form-text text-muted small pb-2';
+  zipcodeHelpText.innerText = 'Zipcode may sometimes be inaccurate based on map selection. You can change it manually.';
+  zipcodeFormFloating.insertAdjacentElement('afterend', zipcodeHelpText);
 
   // 4) Geocoder control (no default marker)
   const geocoder = L.Control.geocoder({
@@ -206,9 +214,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 5) Core helper functions
   function updateCoordinates(lat, lng) {
-  latInput.value = lat;
-  lngInput.value = lng;
-}
+    latInput.value = lat;
+    lngInput.value = lng;
+  }
 
   function reverseGeocode(lat, lng) {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
@@ -252,68 +260,6 @@ document.addEventListener('DOMContentLoaded', function() {
       mapDiv.style.display = 'block';
       map.invalidateSize();
     }
-  });
-
-  // 9) Debounced auto-search as you type
-  let typingTimer;
-  const doneTypingInterval = 200; // ms
-
-  addressInput.addEventListener('keydown', () => clearTimeout(typingTimer));
-  addressInput.addEventListener('input', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-
-    // ensure map is visible
-    if (mapDiv.style.display === 'none') {
-      mapDiv.style.display = 'block';
-      map.invalidateSize();
-    }
-
-    if (val.length > 2) {
-      typingTimer = setTimeout(() => {
-        // Use Nominatim API directly for address search
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data && data.length > 0) {
-              const result = data[0];
-              const lat = parseFloat(result.lat);
-              const lng = parseFloat(result.lon);
-              const latlng = L.latLng(lat, lng);
-              
-              map.setView(latlng, 16);
-              marker.setLatLng(latlng);
-              updateCoordinates(lat, lng);
-              fetchZipcode(lat, lng);
-            }
-          })
-          .catch(console.error);
-      }, doneTypingInterval);
-    }
-  });
-
-  // 10) Fallback on change (paste + blur)
-  addressInput.addEventListener('change', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-    if (!val) return;
-    
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const result = data[0];
-          const lat = parseFloat(result.lat);
-          const lng = parseFloat(result.lon);
-          const latlng = L.latLng(lat, lng);
-          
-          map.setView(latlng, 16);
-          marker.setLatLng(latlng);
-          updateCoordinates(lat, lng);
-          fetchZipcode(lat, lng);
-        }
-      })
-      .catch(console.error);
   });
 });
 
