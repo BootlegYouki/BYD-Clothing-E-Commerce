@@ -54,12 +54,12 @@ $tokenValid = ($result->num_rows > 0);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 25vh;
         }
         
         .reset-container {
             width: 100%;
-            max-width: 380px; /* Reduced from 450px */
+            max-width: 450px; /* Reduced from 450px */
             background: #fff;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
@@ -74,7 +74,7 @@ $tokenValid = ($result->num_rows > 0);
         }
         
         .logo img {
-            max-width: 150px;
+            max-width: 100px;
             height: auto;
             margin-bottom: 10px;
         }
@@ -96,7 +96,7 @@ $tokenValid = ($result->num_rows > 0);
         .info-text {
             color: #666;
             font-size: clamp(14px, 3vw, 15px);
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             text-align: center;
         }
         
@@ -224,7 +224,7 @@ $tokenValid = ($result->num_rows > 0);
         .back-to-login {
             display: block;
             text-align: center;
-            margin-top: 25px;
+            margin-top: 15px;
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 500;
@@ -315,7 +315,7 @@ $tokenValid = ($result->num_rows > 0);
                     </div>
                 </div>
                 
-                <div class="form-group mb-3">
+                <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <div class="password-field-container">
                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
