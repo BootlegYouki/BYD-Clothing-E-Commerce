@@ -86,6 +86,11 @@
     transition: all 0.2s ease;
   }
 
+  .btn-primary:active, .btn-primary:focus {
+    background-color: var(--coral-dark) !important;
+    border-color: var(--coral-dark) !important;
+  }
+
   .btn-outline-coral {
     color: var(--coral);
     border-color: var(--coral);
