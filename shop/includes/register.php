@@ -332,11 +332,11 @@ document.addEventListener("DOMContentLoaded", function() {
       if (passwordField.type === 'password') {
         // Show password
         passwordField.type = 'text';
-        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
+        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
       } else {
         // Hide password
         passwordField.type = 'password';
-        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
+        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
       }
     });
   }

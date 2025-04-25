@@ -23,7 +23,7 @@
                 position: relative;
               }
               
-              .password-toggle-btn {
+              .password-toggle-btn-login {
                 position: absolute;
                 right: 10px;
                 top: 50%;
@@ -65,7 +65,7 @@
                   <div class="form-floating mb-3 password-field-container">
                     <input type="password" class="form-control" name="loginpassword" id="loginpassword" placeholder="Password" required>
                     <label for="loginpassword" class="form-label">Password</label>
-                    <button type="button" class="password-toggle-btn" tabindex="-1">
+                    <button type="button" class="password-toggle-btn-login" tabindex="-1">
                       <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
                     </button>
                     <div class="invalid-feedback">
@@ -92,7 +92,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
   // Add password visibility toggle functionality
-  const passwordToggleBtn = document.querySelector('.password-toggle-btn');
+  const passwordToggleBtn = document.querySelector('.password-toggle-btn-login');
   const passwordInput = document.getElementById('loginpassword');
   
   if (passwordToggleBtn && passwordInput) {
