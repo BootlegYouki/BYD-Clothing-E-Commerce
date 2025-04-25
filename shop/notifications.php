@@ -214,7 +214,7 @@ foreach ($notifications as $notification) {
         }
         
         .page-header {
-            background-color: #fff5f2;
+            background-color: #fff5f2; 
             padding: 40px 0;
             margin-bottom: 30px;
             position: relative;
@@ -401,10 +401,10 @@ foreach ($notifications as $notification) {
     <?php include 'includes/terms.php'; ?>
 
     <!-- Page Header -->
-    <section class="page-header my-5 py-5">
+    <section class="page-header py-5">
         <div class="container pt-5 mt-4">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 pt-5">
                     <h2 class="fw-bold">My Notifications <?php if($unreadCount > 0): ?><span class="notification-counter"><?= $unreadCount ?> New</span><?php endif; ?></h2>
                     <p class="text-muted">Stay updated with your orders, promotions, and our new release products.</p>
                 </div>
