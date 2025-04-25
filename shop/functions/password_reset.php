@@ -138,7 +138,7 @@ function sendPasswordResetEmail($email, $token, $firstname) {
         
         // Reset link - make sure to use the correct path
         $serverName = $_SERVER['SERVER_NAME'];
-        $resetLink = 'http://' . $serverName . 'shop/reset-password.php?token=' . $token . '&email=' . urlencode($email);
+        $resetLink = 'https://' . $serverName . '/shop/reset-password.php?token=' . $token . '&email=' . urlencode($email);
         
         // Email template
         $mail->Body = '
@@ -192,25 +192,6 @@ function sendPasswordResetEmail($email, $token, $firstname) {
                                 <tr>
                                     <td align="center">
                                         <a href="' . $resetLink . '" target="_blank" style="display: inline-block; background-color: #ff7f50; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, Helvetica, sans-serif;">Reset Password</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">Alternatively, you can use the following verification code on the password reset page:</p>
-                            
-                            <!-- OTP Container -->
-                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 30px;">
-                                <tr>
-                                    <td style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 5px;">
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                                            <tr>
-                                                <td align="center" style="padding: 20px 10px;">
-                                                    <div style="font-family: \'Courier New\', monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #ff7f50;">
-                                                        ' . $token . '
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -269,7 +250,6 @@ This link and code will expire in 60 minutes.
 
 If you didn't request a password reset, please ignore this email or contact our support team if you have any concerns.
 
-Thank you for shopping with BYD Clothing!
 
 © " . date('Y') . " BYD Clothing. All rights reserved.
 This is an automated message, please do not reply to this email.";

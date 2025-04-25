@@ -266,7 +266,7 @@ $tokenValid = ($result->num_rows > 0);
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container align-items-center d-flex justify-content-center vh-100">
         <div class="reset-container">
             <div class="logo">
                 <img src="img/logo/logo_admin_light.png" alt="BYD Clothing Logo">
@@ -282,7 +282,6 @@ $tokenValid = ($result->num_rows > 0);
                 </div>
                 <h4>Link Expired</h4>
                 <p>The password reset link has expired or is invalid. Please request a new password reset link.</p>
-                <a href="index.php" class="btn btn-primary">Back to Login</a>
             </div>
             <?php else: ?>
             <h4>Reset Your Password</h4>
