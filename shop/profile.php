@@ -277,13 +277,14 @@ while ($row = $orders_result->fetch_assoc()) {
                                 <div class="mb-4">
                                     <label for="edit-full-address" class="form-label">Full Address</label>
                                     <input type="text" class="form-control" id="edit-full-address" name="full_address" value="<?php echo htmlspecialchars($user['full_address']); ?>" required>
+                                    <div class="form-text text-muted mt-2">Use the pin to select your location</div>
                                 </div>
                                 <div id="map" class="mb-4 rounded shadow-sm"></div>
                                 <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($user['latitude']); ?>">
                                 <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($user['longitude']); ?>">
                                 <div class="mb-4">
                                     <label for="edit-zipcode" class="form-label">Zipcode</label>
-                                    <input type="text" class="form-control" id="edit-zipcode" name="zipcode" value="<?php echo htmlspecialchars($user['zipcode']); ?>" required>
+                                    <input type="text" class="form-control" id="edit-zipcode" name="zipcode" value="<?php echo htmlspecialchars($user['zipcode']); ?>" readonly required>
                                     <div class="form-text text-muted mt-2">Zipcode is automatically determined from your map location.</div>
                                 </div>
                                 <div class="d-flex gap-3">

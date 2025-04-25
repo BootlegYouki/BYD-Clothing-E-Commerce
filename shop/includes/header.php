@@ -9,7 +9,7 @@ $hide_cart = ($current_page == 'checkout.php');
 ?>
 
 <nav class="navbar navbar-expand-lg bg-white fixed-top shadow">
-  <div class="container-fluid px-4">
+  <div class="container-fluid px-lg-4 px-1">
     <a href="index.php" class="me-auto">
     <img src="img/logo/logo.webp" alt="logo" class="imglogo">
     </a>
@@ -87,6 +87,103 @@ $hide_cart = ($current_page == 'checkout.php');
       </div>
     <?php endif; ?>
     
+    <!-- Notification Icon -->
+    <?php if ($username !== 'Guest'): ?>
+    <div class="notification-icon-wrapper mx-1">
+      <div class="dropdown">
+        <a class="nav-icon d-flex text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationDropdown">
+          <i class="bx bx-bell fs-4"></i>
+        </a>
+        <span class="notification-badge">3</span>
+        <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notificationDropdown">
+          <div class="notification-header p-3 border-bottom position-sticky top-0 bg-white z-index-1000">
+            <h6 class="m-0">Notifications</h6>
+          </div>
+          <div class="notification-body">
+            <!-- If no notifications -->
+            <div class="text-center py-4 empty-notification d-none">
+              <i class="bx bx-bell-off fs-1 text-muted"></i>
+              <p class="text-muted mt-2">No new notifications</p>
+            </div>
+            <!-- Sample notification items (will be dynamically populated) -->
+            <div class="notification-item p-3 border-bottom d-none">
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <i class="bx bx-package text-primary fs-4"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-1">Your order has shipped</h6>
+                  <p class="text-muted small mb-1">Order #12345 has been shipped</p>
+                  <small class="text-muted">2 hours ago</small>
+                </div>
+                <div class="align-self-center ms-2">
+                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" title="Mark as read">
+                    <i class="bx bx-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Test notification items -->
+            <div class="notification-item p-3 border-bottom">
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <i class="bx bx-package text-primary fs-4"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-1">Your order has shipped</h6>
+                  <p class="text-muted small mb-1">Order #BYD78956 has been shipped</p>
+                  <small class="text-muted">35 minutes ago</small>
+                </div>
+                <div class="align-self-center ms-2">
+                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" title="Mark as read">
+                    <i class="bx bx-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="notification-item p-3 border-bottom">
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <i class="bx bx-heart text-danger fs-4"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-1">Limited time offer</h6>
+                  <p class="text-muted small mb-1">20% off on all summer collection</p>
+                  <small class="text-muted">2 hours ago</small>
+                </div>
+                <div class="align-self-center ms-2">
+                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" title="Mark as read">
+                    <i class="bx bx-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="notification-item p-3 border-bottom">
+              <div class="d-flex">
+                <div class="flex-shrink-0">
+                  <i class="bx bx-check-circle text-success fs-4"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-1">Account verified</h6>
+                  <p class="text-muted small mb-1">Your account has been successfully verified</p>
+                  <small class="text-muted">1 day ago</small>
+                </div>
+                <div class="align-self-center ms-2">
+                  <button class="btn btn-sm btn-light rounded mark-read-btn" title="Mark as read">
+                    <i class="bx bx-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="notification-footer p-2 border-top">
+            <a href="#" class="text-decoration-none d-block text-center">View all notifications</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+    
     <?php if (!$is_admin): ?>
     <div class="order-icon-wrapper ms-2 <?php echo $hide_cart ? 'd-none' : ''; ?>">
     <a class="nav-icon d-flex text-decoration-none">
@@ -107,3 +204,4 @@ $hide_cart = ($current_page == 'checkout.php');
 </nav>
 
 <script src="js/url-cleaner.js"></script>
+<script src="js/notifications.js"></script>

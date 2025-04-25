@@ -54,8 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('address-view').style.display = 'none';
         document.getElementById('address-edit').style.display = 'block';
         
-        // Make zipcode field readonly
-        document.getElementById('edit-zipcode').readOnly = true;
         
         setTimeout(() => {
             map.invalidateSize();

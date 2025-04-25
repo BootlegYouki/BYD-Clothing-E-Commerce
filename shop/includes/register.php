@@ -98,15 +98,15 @@
             </div>
             <div class="col-12">
               <div class="form-floating mb-1">
-                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" required>
+                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" readonly required>
                 <label for="full_address" class="form-label">Full Address</label>
                 <div class="invalid-feedback">
                   Please provide your address.
                 </div>
               </div>
-              <div id="map" style="height: 300px; display: none;" class="rounded mb-3"></div>
-              <input type="hidden" id="latitude" name="latitude">
-              <input type="hidden" id="longitude" name="longitude">
+                <div id="map" style="height: 300px; display: none;" class="rounded mb-3"></div>
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
             </div>
             <div class="col-12">
               <div class="form-floating mb-3">
@@ -115,6 +115,9 @@
                 <div class="invalid-feedback">
                   Please enter your zipcode.
                 </div>
+              </div>
+              <div class="form-text text-muted small pb-2">
+                Please verify your zipcode as it may be incorrect sometimes.
               </div>
             </div>
           </div>
@@ -188,8 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // 3) Helper text under the address field
   const formFloating = addressInput.closest('.form-floating');
   const helpText = document.createElement('div');
-  helpText.className = 'form-text text-muted small';
-  helpText.innerText = 'Start typing your address; the map will update automatically.';
+  helpText.className = 'form-text text-muted small pb-2';
+  helpText.innerText = 'Use the map to select your location.';
   formFloating.insertAdjacentElement('afterend', helpText);
 
   // 4) Geocoder control (no default marker)
@@ -206,9 +209,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 5) Core helper functions
   function updateCoordinates(lat, lng) {
-  latInput.value = lat;
-  lngInput.value = lng;
-}
+    latInput.value = lat;
+    lngInput.value = lng;
+  }
 
   function reverseGeocode(lat, lng) {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
@@ -252,68 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
       mapDiv.style.display = 'block';
       map.invalidateSize();
     }
-  });
-
-  // 9) Debounced auto-search as you type
-  let typingTimer;
-  const doneTypingInterval = 200; // ms
-
-  addressInput.addEventListener('keydown', () => clearTimeout(typingTimer));
-  addressInput.addEventListener('input', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-
-    // ensure map is visible
-    if (mapDiv.style.display === 'none') {
-      mapDiv.style.display = 'block';
-      map.invalidateSize();
-    }
-
-    if (val.length > 2) {
-      typingTimer = setTimeout(() => {
-        // Use Nominatim API directly for address search
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data && data.length > 0) {
-              const result = data[0];
-              const lat = parseFloat(result.lat);
-              const lng = parseFloat(result.lon);
-              const latlng = L.latLng(lat, lng);
-              
-              map.setView(latlng, 16);
-              marker.setLatLng(latlng);
-              updateCoordinates(lat, lng);
-              fetchZipcode(lat, lng);
-            }
-          })
-          .catch(console.error);
-      }, doneTypingInterval);
-    }
-  });
-
-  // 10) Fallback on change (paste + blur)
-  addressInput.addEventListener('change', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-    if (!val) return;
-    
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const result = data[0];
-          const lat = parseFloat(result.lat);
-          const lng = parseFloat(result.lon);
-          const latlng = L.latLng(lat, lng);
-          
-          map.setView(latlng, 16);
-          marker.setLatLng(latlng);
-          updateCoordinates(lat, lng);
-          fetchZipcode(lat, lng);
-        }
-      })
-      .catch(console.error);
   });
 });
 
