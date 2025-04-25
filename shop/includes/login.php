@@ -88,7 +88,65 @@
       </div>
     </div>
 
-    <script>
+    <!-- FORGOT PASSWORD MODAL -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h3 class="modal-title" id="forgotPasswordModalLabel">Password Recovery</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Custom CSS to hide validation icons -->
+        <style>
+            .form-control.is-invalid, 
+            .was-validated, 
+            .form-control:invalid,
+            .form-control.is-valid, 
+            .was-validated, 
+            .form-control:valid {
+            background-image: none !important;
+          }
+        </style>
+        
+        <div class="alert alert-danger mb-3 d-none" id="forgotPasswordErrorMessage"></div>
+        <div class="alert alert-success mb-3 d-none" id="forgotPasswordSuccessMessage"></div>
+
+        <p>Enter your email address below to receive a password reset link.</p>
+        
+        <form id="forgotPasswordForm" class="needs-validation" novalidate>
+          <div class="row gy-3 overflow-hidden">
+            <div class="col-12">
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="recovery_email" id="recovery_email" placeholder="Your Email" required>
+                <label for="recovery_email" class="form-label">Email Address</label>
+                <div class="invalid-feedback">
+                  Please enter a valid email address.
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="d-grid">
+                <button type="submit" name="recoverPasswordBtn" id="recoverPasswordBtn" class="btn-modal btn-lg">
+                  <span class="normal-state">Send Recovery Link</span>
+                  <span class="loading-state" style="display: none;">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Sending...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="mt-4 text-center">
+          <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Back to login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     
   // Add password visibility toggle functionality
@@ -180,6 +238,77 @@ document.addEventListener('DOMContentLoaded', function() {
         errorMessage.classList.remove('d-none');
       });
     });
+  }
+  
+  // Handle forgot password form submission
+  const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+  if (forgotPasswordForm) {
+      forgotPasswordForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Check if form is valid
+          if (!forgotPasswordForm.checkValidity()) {
+              e.stopPropagation();
+              forgotPasswordForm.classList.add('was-validated');
+              return;
+          }
+          
+          // Show loading state
+          const recoverBtn = document.getElementById('recoverPasswordBtn');
+          recoverBtn.querySelector('.normal-state').style.display = 'none';
+          recoverBtn.querySelector('.loading-state').style.display = 'inline-block';
+          recoverBtn.disabled = true;
+          
+          // Hide previous messages
+          document.getElementById('forgotPasswordErrorMessage').classList.add('d-none');
+          document.getElementById('forgotPasswordSuccessMessage').classList.add('d-none');
+          
+          // Get form data
+          const email = document.getElementById('recovery_email').value;
+          
+          // Create AJAX request
+          fetch('functions/password_reset.php', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: 'action=request_reset&email=' + encodeURIComponent(email)
+          })
+          .then(response => response.json())
+          .then(data => {
+              // Reset button state
+              recoverBtn.querySelector('.normal-state').style.display = 'inline-block';
+              recoverBtn.querySelector('.loading-state').style.display = 'none';
+              recoverBtn.disabled = false;
+              
+              if (data.status === 'success') {
+                  // Success message
+                  const successMessage = document.getElementById('forgotPasswordSuccessMessage');
+                  successMessage.textContent = data.message;
+                  successMessage.classList.remove('d-none');
+                  
+                  // Reset form
+                  forgotPasswordForm.reset();
+                  forgotPasswordForm.classList.remove('was-validated');
+              } else {
+                  // Error message
+                  const errorMessage = document.getElementById('forgotPasswordErrorMessage');
+                  errorMessage.textContent = data.message;
+                  errorMessage.classList.remove('d-none');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              recoverBtn.querySelector('.normal-state').style.display = 'inline-block';
+              recoverBtn.querySelector('.loading-state').style.display = 'none';
+              recoverBtn.disabled = false;
+              
+              const errorMessage = document.getElementById('forgotPasswordErrorMessage');
+              errorMessage.textContent = 'An error occurred. Please try again later.';
+              errorMessage.classList.remove('d-none');
+          });
+      });
   }
   
   // Check if we should redirect to checkout after login

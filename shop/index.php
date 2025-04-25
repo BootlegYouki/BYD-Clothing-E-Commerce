@@ -62,8 +62,6 @@ function get_setting($key, $default = '') {
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-     <!-- FORGOT PASSWORD MODAL -->
-     <?php include 'includes/forgot-password.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
   <div class="container-fluid px-3 pb-5">
