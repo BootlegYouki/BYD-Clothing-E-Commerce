@@ -59,11 +59,11 @@ $tokenValid = ($result->num_rows > 0);
         
         .reset-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 380px; /* Reduced from 450px */
             background: #fff;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            padding: 30px 25px;
+            padding: 25px 20px; /* Reduced from 30px 25px */
             transition: all 0.3s ease;
             margin: 20px;
         }
@@ -266,7 +266,7 @@ $tokenValid = ($result->num_rows > 0);
     </style>
 </head>
 <body>
-    <div class="container align-items-center d-flex justify-content-center vh-100">
+    <div class="container align-items-center d-flex justify-content-center">
         <div class="reset-container">
             <div class="logo">
                 <img src="img/logo/logo_admin_light.png" alt="BYD Clothing Logo">
