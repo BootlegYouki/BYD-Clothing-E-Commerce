@@ -81,7 +81,7 @@
               </div>
             </form>
             <div class="mt-4 text-end">
-              <a href="#!" class="modal-link text-decoration-none">Forgot password</a>
+              <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Forgot password</a>
             </div>
           </div>
         </div>
