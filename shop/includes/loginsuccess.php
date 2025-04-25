@@ -3,18 +3,35 @@
     <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-            onclick="window.location.href='index'"></button>
       </div>
       <div class="modal-body">
       <p>Welcome back, <?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Customer'; ?>! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
-        <a href="index" class="btn" style="background-color: #FF7F50; color: white;">Continue</a>
+        <button type="button" class="btn" id="loginSuccessContinueBtn" style="background-color: #FF7F50; color: white;">Continue</button>
       </div>
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle the continue button click based on redirect flag
+    const continueBtn = document.getElementById('loginSuccessContinueBtn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function() {
+        if (sessionStorage.getItem('redirectToCheckout') === 'true') {
+          sessionStorage.removeItem('redirectToCheckout');
+          window.location.href = 'checkout.php';
+        } else {
+          const loginSuccessModal = bootstrap.Modal.getInstance(document.getElementById('loginsuccessmodal'));
+          if (loginSuccessModal) {
+            loginSuccessModal.hide();
+          }
+        }
+      });
+    }
+  });
+</script>
 <script src="js/url-cleaner.js"></script>
 
 <!-- Admin Login Success Modal -->

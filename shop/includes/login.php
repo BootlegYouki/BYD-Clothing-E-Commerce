@@ -149,11 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
           const errorMessage = document.getElementById('loginErrorMessage');
           errorMessage.classList.add('d-none');
           
-          // Store checkout flag if needed
-          if (document.getElementById('checkout-login-message')) {
-            sessionStorage.setItem('redirectToCheckout', 'true');
-          }
-          
           // Redirect or reload based on role
           if (data.role === 1) {
             // Admin user
@@ -161,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
           } else {
             // Regular user
             if (sessionStorage.getItem('redirectToCheckout') === 'true') {
+              // Directly redirect to checkout if coming from cart
               sessionStorage.removeItem('redirectToCheckout');
               window.location.href = 'checkout.php';
             } else {
@@ -206,6 +202,17 @@ if (checkoutLogin) {
         checkoutMessage.className = 'alert alert-info mb-3';
         checkoutMessage.innerHTML = '<i class="fas fa-info-circle me-2"></i> Please log in to continue with checkout.';
         loginModalBody.insertBefore(checkoutMessage, loginModalBody.firstChild);
+        
+        // Auto-hide message after 5 seconds
+        setTimeout(() => {
+            checkoutMessage.style.transition = 'opacity 0.5s';
+            checkoutMessage.style.opacity = '0';
+            setTimeout(() => {
+                if (checkoutMessage.parentNode) {
+                    checkoutMessage.remove();
+                }
+            }, 500);
+        }, 5000);
     }
     
     // Show login modal
