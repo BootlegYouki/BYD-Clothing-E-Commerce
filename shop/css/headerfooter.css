@@ -167,6 +167,10 @@ color: white;
   color: #595959;
 }
 
+.modal-link:hover {
+  text-decoration: underline !important;
+}
+
 .form-check-input:checked {
   background-color: coral;
   border-color: coral;
@@ -208,6 +212,158 @@ color: white;
   background-color: #000;  /* Darker shade for hover */
   color: white;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Notification Badge Styles */
+.notification-icon-wrapper {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -7px;
+  right: -12px;
+  background-color: coral;
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Notification Dropdown Styles */
+.notification-dropdown {
+  width: 250px;
+  max-height: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 0;
+  overflow: hidden;
+  transform: translateX(30%);
+}
+
+.notification-header {
+  background-color: #f8f9fa;
+}
+
+.notification-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification-list {
+  max-height: 100%;
+}
+
+/* Notification Item Styles */
+.notification-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f1f1f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color 0.2s;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notification-unread {
+  background-color: #f0f7ff;
+  position: relative;
+}
+
+.notification-unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: coral;
+}
+
+.notification-read {
+  background-color: transparent;
+}
+
+.notification-content {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.notification-content p {
+  font-size: 14px;
+  margin: 0;
+  color: #333;
+}
+
+.notification-content small {
+  font-size: 12px;
+}
+
+.mark-as-read {
+  color: #6c757d;
+  padding: 0.25rem;
+  line-height: 1;
+  border: none;
+  background: transparent;
+}
+
+.mark-as-read:hover {
+  color: coral;
+}
+
+/* Empty notifications state */
+.empty-notifications {
+  padding: 20px 0;
+}
+
+.empty-notifications i {
+  opacity: 0.5;
+}
+
+/* Footer styles */
+.notification-footer {
+  background-color: #f8f9fa;
+}
+
+.notification-footer a {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Prevent dropdown from closing when clicking inside */
+.notification-dropdown {
+  cursor: default;
+}
+
+
 
 
 
