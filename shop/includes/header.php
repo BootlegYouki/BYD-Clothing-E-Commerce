@@ -177,7 +177,7 @@ $hide_cart = ($current_page == 'checkout.php');
             </div>
           </div>
           <div class="notification-footer p-2 border-top">
-            <a href="#" class="text-decoration-none d-block text-center">View all notifications</a>
+            <a href="notifications.php" class="text-decoration-none d-block text-center">View all notifications</a>
           </div>
         </div>
       </div>
