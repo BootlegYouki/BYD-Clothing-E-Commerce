@@ -138,7 +138,7 @@ function sendPasswordResetEmail($email, $token, $firstname) {
         
         // Reset link - make sure to use the correct path
         $serverName = $_SERVER['SERVER_NAME'];
-        $resetLink = 'http://' . $serverName . '/BYD-Clothing-E-Commerce/shop/reset-password.php?token=' . $token . '&email=' . urlencode($email);
+        $resetLink = 'http://' . $serverName . 'shop/reset-password.php?token=' . $token . '&email=' . urlencode($email);
         
         // Email template
         $mail->Body = '
