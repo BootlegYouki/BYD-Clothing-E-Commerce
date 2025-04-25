@@ -387,44 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var paymentModal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
         paymentModal.show();
     }
-    
-    // Handle password reset success
-    if (passwordReset === 'success') {
-        var resetSuccessModal = new bootstrap.Modal(document.getElementById('passwordResetSuccessModal'));
-        resetSuccessModal.show();
-    }
-    
-    // Remove parameters from URL to prevent showing modals on refresh
-    if (paymentStatus || passwordReset) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
 });
 </script>
-<!-- Add this right before the closing </body> tag -->
-
-<!-- Password Reset Success Modal -->
-<div class="modal fade" id="passwordResetSuccessModal" tabindex="-1" aria-labelledby="passwordResetSuccessModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #FF7F50; color: white;">
-                <h5 class="modal-title" id="passwordResetSuccessModalLabel">Password Reset Successful</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <div class="mb-4">
-                    <i class="fas fa-check-circle" style="font-size: 4rem; color: #28a745;"></i>
-                </div>
-                <h4>Your password has been reset successfully!</h4>
-                <p class="text-muted">You can now login with your new password.</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-lg px-5" style="background-color: #FF7F50; color: white;" data-bs-dismiss="modal">Continue</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add this script tag to load the password reset JS -->
-<script src="js/password-reset.js"></script>
 </body>
 </html>
