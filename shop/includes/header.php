@@ -135,7 +135,7 @@ $hide_cart = ($current_page == 'checkout.php');
                   <small class="text-muted">35 minutes ago</small>
                 </div>
                 <div class="align-self-center ms-2">
-                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" title="Mark as read">
+                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" data-notification-id="1" title="Mark as read">
                     <i class="bx bx-check"></i>
                   </button>
                 </div>
@@ -152,7 +152,7 @@ $hide_cart = ($current_page == 'checkout.php');
                   <small class="text-muted">2 hours ago</small>
                 </div>
                 <div class="align-self-center ms-2">
-                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" title="Mark as read">
+                  <button class="btn btn-sm btn-light rounded-circle mark-read-btn" data-notification-id="2" title="Mark as read">
                     <i class="bx bx-check"></i>
                   </button>
                 </div>
@@ -169,14 +169,14 @@ $hide_cart = ($current_page == 'checkout.php');
                   <small class="text-muted">1 day ago</small>
                 </div>
                 <div class="align-self-center ms-2">
-                  <button class="btn btn-sm btn-light rounded mark-read-btn" title="Mark as read">
+                  <button class="btn btn-sm btn-light rounded mark-read-btn" data-notification-id="3" title="Mark as read">
                     <i class="bx bx-check"></i>
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="notification-footer p-2 border-top">
+          <div class="notification-footer p-2 border-top position-sticky bottom-0 bg-white">
             <a href="notifications.php" class="text-decoration-none d-block text-center">View all notifications</a>
           </div>
         </div>
