@@ -117,13 +117,35 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // If body has dark theme, switch to light, else switch to dark
     if (document.body.classList.contains('theme-dark')) {
-      document.body.classList.replace('theme-dark', 'theme-light');
-      document.documentElement.classList.replace('theme-dark', 'theme-light');
-      localStorage.setItem('theme', 'light');
+      // Apply transitions to all elements synchronously
+      document.documentElement.classList.add('theme-transitioning');
+      
+      // Switch to light theme after a tiny delay to let the transition class apply
+      setTimeout(function() {
+        document.body.classList.replace('theme-dark', 'theme-light');
+        document.documentElement.classList.replace('theme-dark', 'theme-light');
+        localStorage.setItem('theme', 'light');
+        
+        // Remove transition class after transition completes
+        setTimeout(function() {
+          document.documentElement.classList.remove('theme-transitioning');
+        }, 350); // Slightly longer than our CSS transition time
+      }, 10);
     } else {
-      document.body.classList.replace('theme-light', 'theme-dark');
-      document.documentElement.classList.replace('theme-light', 'theme-dark');
-      localStorage.setItem('theme', 'dark');
+      // Apply transitions to all elements synchronously
+      document.documentElement.classList.add('theme-transitioning');
+      
+      // Switch to dark theme after a tiny delay
+      setTimeout(function() {
+        document.body.classList.replace('theme-light', 'theme-dark');
+        document.documentElement.classList.replace('theme-light', 'theme-dark');
+        localStorage.setItem('theme', 'dark');
+        
+        // Remove transition class after transition completes
+        setTimeout(function() {
+          document.documentElement.classList.remove('theme-transitioning');
+        }, 350); // Slightly longer than our CSS transition time
+      }, 10);
     }
   });
 });

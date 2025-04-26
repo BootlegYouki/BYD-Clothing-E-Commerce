@@ -17,6 +17,25 @@ html.theme-dark .theme-dark-logo {
   display: inline-block;
 }
 
+/* Add consistent theme transition timing for all elements */
+body, 
+.sidebar,
+.card,
+.top-navbar,
+.table,
+.dropdown-menu,
+.form-control,
+.form-select,
+.modal .modal-content,
+.offcanvas {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Faster transition for text elements to match the page feel */
+h1, h2, h3, h4, h5, h6, p, span, div, a, label, i {
+  transition: color 0.3s ease !important;
+}
+
 /* VARIABLES - Global CSS variables */
 :root {
   --primary: #ff7f50;
