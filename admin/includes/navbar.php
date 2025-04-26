@@ -115,6 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('darkModeToggle').addEventListener('click', function() {
     this.classList.toggle('active');
     
+    // Add a class that will trigger synchronized transitions
+    document.documentElement.classList.add('theme-transition');
+    
     // If body has dark theme, switch to light, else switch to dark
     if (document.body.classList.contains('theme-dark')) {
       document.body.classList.replace('theme-dark', 'theme-light');
@@ -125,6 +128,11 @@ document.addEventListener('DOMContentLoaded', function() {
       document.documentElement.classList.replace('theme-light', 'theme-dark');
       localStorage.setItem('theme', 'dark');
     }
+    
+    // Remove the transition class after transitions are complete
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+    }, 300);
   });
 });
 </script>

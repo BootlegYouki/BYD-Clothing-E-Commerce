@@ -1,5 +1,3 @@
-
-
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 
@@ -51,6 +49,8 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     // Store current theme before navigation
     const currentTheme = localStorage.getItem('theme') || 'light';
     
+    // Add transition class for smooth theme handling across navigation
+    document.documentElement.classList.add('theme-transition');
     
     // First close the offcanvas if it's open
     const offcanvasElement = document.getElementById('sidebarOffcanvas');
@@ -64,7 +64,7 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     // Using the same delay as navbar.php for consistency
     setTimeout(function() {
       window.location.href = href;
-    }, 0.1);
+    }, 100);
     
     return false;
   }

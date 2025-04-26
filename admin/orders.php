@@ -331,6 +331,9 @@ if ($stmt) {
           direction = '<?= $sort_direction ?>' === 'ASC' ? 'DESC' : 'ASC';
         }
         
+        // Support theme transitions when sorting
+        document.documentElement.classList.add('theme-transition');
+        
         // Create URL with current filters plus new sort parameters
         let url = new URL(window.location.href);
         let params = new URLSearchParams(url.search);
