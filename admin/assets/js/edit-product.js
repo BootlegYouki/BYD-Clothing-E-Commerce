@@ -1,49 +1,18 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const nameInput = document.getElementById('name');
-    const categorySelect = document.getElementById('category');
-    
-    if (nameInput) {
-        nameInput.addEventListener('input', updateSKU);
-    }
+// Global variables
+let tempDeletedImages = [];
 
-    if (categorySelect) {
-        categorySelect.addEventListener('change', updateSKU);
-    }
-
-    // Primary Image Handlers
-    setupPrimaryImageHandlers();
-    
-    // Additional Images Handlers
-    setupAdditionalImagesHandlers();
-    
-    // Update page title based on current page
-    updatePageTitle();
-    
-    // Setup form submission handler
-    setupFormSubmissionHandler();
+// Primary image handling
+document.getElementById('primary_image_btn').addEventListener('click', function() {
+    document.getElementById('primary_image').click();
 });
 
-function setupFormSubmissionHandler() {
-    const form = document.querySelector('form[action="functions/code.php"]');
-    if (!form) return;
-    
-    form.addEventListener('submit', function(event) {
-        // Set the deleted_images hidden input value
-        if (tempDeletedImages && tempDeletedImages.length > 0) {
-            document.getElementById('deleted_images').value = tempDeletedImages.join(',');
-            console.log('Images marked for deletion on submit:', tempDeletedImages);
-        }
-    });
-}
-
-// Convert image to WebP format
+// Convert image to WebP format with fixed square resolution
 function convertImageToWebP(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
-                // Set fixed square resolution (e.g., 800x800 pixels)
                 const targetSize = 1200;
                 const canvas = document.createElement('canvas');
                 canvas.width = targetSize;
@@ -114,284 +83,178 @@ async function convertMultipleImagesToWebP(fileList) {
     return dt.files;
 }
 
-// Primary Image Functions
-function setupPrimaryImageHandlers() {
-    const primaryImageBtn = document.getElementById('primary_image_btn');
-    const primaryImageInput = document.getElementById('primary_image');
-    const primaryImageText = document.getElementById('primary_image_text');
-    const primaryImagePreview = document.getElementById('primary_image_preview');
+document.getElementById('primary_image').addEventListener('change', async function() {
+    const files = this.files;
+    let previewHtml = '';
+    const errorContainer = this.parentNode.querySelector('.error-message');
+    errorContainer.textContent = ''; // Clear previous error
+
+    if (files.length > 1) {
+        errorContainer.textContent = 'You can only upload one primary image.';
+        this.value = ''; // Clear the input
+        document.getElementById('primary_image_text').value = 'No files selected';
+        document.getElementById('primary_image_preview').innerHTML = '';
+        return;
+    }
     
-    if (!primaryImageBtn || !primaryImageInput) return;
-    
-    // Click handler for the button to trigger file input
-    primaryImageBtn.addEventListener('click', () => primaryImageInput.click());
-    
-    // Change handler for when a file is selected
-    primaryImageInput.addEventListener('change', async function() {
-        const errorContainer = this.parentNode.querySelector('.error-message');
-        errorContainer.textContent = '';
-        const files = this.files;
-        
-        // Handle existing primary image deletion if present
-        await handleExistingPrimaryImageDeletion();
-        
-        // Validate file selection
-        if (files.length > 1) {
-            displayError(errorContainer, 'You can only upload one primary image.');
-            resetPrimaryImageInput();
-            return;
-        }
-        
-        if (files.length === 0) {
-            resetPrimaryImageInput();
-            return;
-        }
-        
-        // Process the selected image
-        primaryImageText.value = 'Converting image...';
-        
-        try {
-            // Convert the image to WebP format
-            const webpFiles = await convertMultipleImagesToWebP(files);
-            this.files = webpFiles;
-            primaryImageText.value = webpFiles.length + ' file selected (WebP)';
-            
-            // Generate preview for the converted image
-            generatePrimaryImagePreview(webpFiles[0]);
-        } catch (error) {
-            console.error('Error during WebP conversion:', error);
-            displayError(errorContainer, 'Image conversion failed. Please try again.');
-            resetPrimaryImageInput();
-        }
-    });
-    
-    // Helper function to handle existing primary image deletion
-    async function handleExistingPrimaryImageDeletion() {
-        const existingPrimaryImage = document.querySelector('#primary_image_container');
-        if (!existingPrimaryImage || !existingPrimaryImage.dataset.imageId) return;
-        
-        const imageId = existingPrimaryImage.dataset.imageId;
-        
-        try {
-            const response = await fetch(`../functions/delete-image.php?id=${imageId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                console.log('Primary image deleted successfully');
-                existingPrimaryImage.dataset.imageId = '';
-                
-                if (document.getElementById('primary_image_id')) {
-                    document.getElementById('primary_image_id').value = '';
-                }
-            } else {
-                console.error('Failed to delete primary image:', data.message);
-            }
-        } catch (error) {
-            console.error('Error deleting primary image:', error);
-        }
-        
-        // Add to tempDeletedImages array as fallback
-        if (!tempDeletedImages.includes(imageId)) {
+    // Handle existing primary image container if it exists
+    const existingPrimaryImage = document.getElementById('primary_image_container');
+    if (existingPrimaryImage) {
+        // Add image ID to delete list if it has one
+        const imageId = existingPrimaryImage.getAttribute('data-image-id');
+        if (imageId && !tempDeletedImages.includes(imageId)) {
             tempDeletedImages.push(imageId);
+            document.getElementById('deleted_images').value = tempDeletedImages.join(',');
         }
-        
-        // Update hidden input for deleted images
-        document.getElementById('deleted_images').value = tempDeletedImages.join(',');
+        // Hide the container
+        existingPrimaryImage.style.display = 'none';
     }
     
-    // Helper function to generate image preview
-    function generatePrimaryImagePreview(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            primaryImagePreview.innerHTML = `
-                <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                    <img src="${e.target.result}" style="max-width: 106px; max-height: 106px; border-radius: 0.5rem;">
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                        style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                        onclick="removePrimaryImage()"
-                        title="Remove image">
-                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                    </button>
-                    <small class="d-block mt-1 text-success">Converted to WebP</small>
-                    <small class="d-block text-info">New primary image</small>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(file);
-    }
-    
-    // Helper function to display error
-    function displayError(container, message) {
-        container.textContent = message;
-    }
-    
-    // Helper function to reset the primary image input
-    function resetPrimaryImageInput() {
-        primaryImageInput.value = '';
-        primaryImageText.value = 'No files selected';
-        primaryImagePreview.innerHTML = '';
-    }
-}
-
-function removePrimaryImage() {
-    document.getElementById('primary_image').value = '';
-    document.getElementById('primary_image_text').value = 'No files selected';
-    document.getElementById('primary_image_preview').innerHTML = '';
-}
-
-// Additional Images Functions
-function setupAdditionalImagesHandlers() {
-    const additionalImagesBtn = document.getElementById('additional_images_btn');
-    const additionalImagesInput = document.getElementById('additional_images');
-    const additionalImagesText = document.getElementById('additional_images_text');
-    const additionalImagesPreview = document.getElementById('additional_images_preview');
-    
-    if (!additionalImagesBtn || !additionalImagesInput) return;
-    
-    // Click handler for the button to trigger file input
-    additionalImagesBtn.addEventListener('click', () => additionalImagesInput.click());
-    
-    // Change handler for when files are selected
-    additionalImagesInput.addEventListener('change', async function() {
-        const errorContainer = this.parentNode.querySelector('.error-message');
-        errorContainer.textContent = '';
-        const files = this.files;
-        
-        // Validate file selection
-        if (files.length > 4) {
-            errorContainer.textContent = 'You can only upload up to 4 additional images.';
-            resetAdditionalImagesInput();
-            return;
-        }
-        
-        if (files.length === 0) {
-            resetAdditionalImagesInput();
-            return;
-        }
-        
-        // Process the selected images
-        additionalImagesText.value = 'Converting images...';
+    if (files.length > 0) {
+        document.getElementById('primary_image_text').value = 'Converting image...';
         
         try {
-            // Convert images to WebP format
+            // Convert images to WebP
             const webpFiles = await convertMultipleImagesToWebP(files);
             this.files = webpFiles;
-            additionalImagesText.value = webpFiles.length + ' files selected (WebP)';
             
-            // Generate previews for the converted images
-            generateAdditionalImagesPreview(webpFiles);
+            document.getElementById('primary_image_text').value = webpFiles.length + ' file selected (WebP)';
+            
+            for (let i = 0; i < webpFiles.length; i++) {
+                const file = webpFiles[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHtml += `
+                        <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
+                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
+                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                                   onclick="removePrimaryImage()"
+                                   title="Remove image">
+                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
+                            </button>
+                            <small class="d-block mt-1 text-success">Converted to WebP</small>
+                        </div>
+                    `;
+                    document.getElementById('primary_image_preview').innerHTML = previewHtml;
+                }
+                reader.readAsDataURL(file);
+            }
         } catch (error) {
             console.error('Error during WebP conversion:', error);
             errorContainer.textContent = 'Image conversion failed. Please try again.';
-            resetAdditionalImagesInput();
+            this.value = '';
+            document.getElementById('primary_image_text').value = 'No files selected';
         }
-    });
-    
-    // Helper function to generate image previews
-    function generateAdditionalImagesPreview(files) {
-        additionalImagesPreview.innerHTML = '';
-        
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const previewDiv = document.createElement('div');
-                previewDiv.id = `preview_${i}`;
-                previewDiv.style.display = 'inline-block';
-                previewDiv.style.marginRight = '10px';
-                previewDiv.style.marginBottom = '10px';
-                previewDiv.style.textAlign = 'center';
-                previewDiv.style.position = 'relative';
-                
-                previewDiv.innerHTML = `
-                    <img src="${e.target.result}" style="max-width: 106px; max-height: 106px; border-radius: 0.5rem;">
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                        style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                        onclick="removeAdditionalImage(${i})"
-                        title="Remove image">
-                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                    </button>
-                    <small class="d-block mt-1 text-success">Converted to WebP</small>
-                `;
-                
-                additionalImagesPreview.appendChild(previewDiv);
-            };
-            
-            reader.readAsDataURL(file);
-        }
+    } else {
+        document.getElementById('primary_image_text').value = 'No files selected';
+        document.getElementById('primary_image_preview').innerHTML = '';
     }
+});
+
+function removePrimaryImage() {
+    const input = document.getElementById('primary_image');
+    input.value = '';
+    document.getElementById('primary_image_text').value = 'No files selected';
+    document.getElementById('primary_image_preview').innerHTML = '';
     
-    // Helper function to reset the additional images input
-    function resetAdditionalImagesInput() {
-        additionalImagesInput.value = '';
-        additionalImagesText.value = 'No files selected';
-        additionalImagesPreview.innerHTML = '';
+    // Show the existing primary image container if it was hidden
+    const existingPrimaryImage = document.getElementById('primary_image_container');
+    if (existingPrimaryImage) {
+        existingPrimaryImage.style.display = 'block';
+        // Remove from delete list if it was there
+        const imageId = existingPrimaryImage.getAttribute('data-image-id');
+        if (imageId) {
+            tempDeletedImages = tempDeletedImages.filter(id => id !== imageId);
+            document.getElementById('deleted_images').value = tempDeletedImages.join(',');
+        }
     }
 }
 
-function removeAdditionalImage(index) {
-    const dt = new DataTransfer();
-    const input = document.getElementById('additional_images');
-    const { files } = input;
+// Additional images handling
+document.getElementById('additional_images_btn').addEventListener('click', function() {
+    document.getElementById('additional_images').click();
+});
 
-    // Create a new FileList without the removed file
-    for (let i = 0; i < files.length; i++) {
-        if (i !== index) {
-            dt.items.add(files[i]);
-        }
+document.getElementById('additional_images').addEventListener('change', async function() {
+    const files = this.files;
+    let previewHtml = '';
+    const errorContainer = this.parentNode.querySelector('.error-message');
+    errorContainer.textContent = ''; // Clear previous error
+    
+    // Count existing visible images (not marked for deletion)
+    const existingVisibleImages = document.querySelectorAll('#additional-images-container [id^="image_container_"]:not(.temp-deleted)').length;
+    
+    if (files.length + existingVisibleImages > 3) {
+        errorContainer.textContent = `You can only have up to 3 additional images. You already have ${existingVisibleImages}.`;
+        this.value = ''; // Clear the input
+        document.getElementById('additional_images_text').value = 'No files selected';
+        return;
     }
-
-    // Update the input files
-    input.files = dt.files;
-    document.getElementById('additional_images_text').value = dt.files.length > 0 ? 
-        dt.files.length + ' files selected (WebP)' : 'No files selected';
     
-    // Remove the preview
-    document.getElementById(`preview_${index}`).remove();
-    
-    // Recreate previews if needed to fix indexes
-    if (dt.files.length === 0) {
-        document.getElementById('additional_images_preview').innerHTML = '';
-    } else {
-        // Regenerate all previews with correct indices
-        const previewContainer = document.getElementById('additional_images_preview');
-        previewContainer.innerHTML = '';
+    if (files.length > 0) {
+        document.getElementById('additional_images_text').value = 'Converting images...';
         
-        for (let i = 0; i < dt.files.length; i++) {
-            const file = dt.files[i];
-            const reader = new FileReader();
+        try {
+            // Convert images to WebP
+            const webpFiles = await convertMultipleImagesToWebP(files);
+            this.files = webpFiles;
             
-            reader.onload = function(e) {
-                const previewDiv = document.createElement('div');
-                previewDiv.id = `preview_${i}`;
-                previewDiv.style.display = 'inline-block';
-                previewDiv.style.marginRight = '5px';
-                previewDiv.style.textAlign = 'center';
-                previewDiv.style.position = 'relative';
-                
-                previewDiv.innerHTML = `
-                    <img src="${e.target.result}" style="max-width: 106px; max-height: 106px; border-radius: 0.5rem;">
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                        style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                        onclick="removeAdditionalImage(${i})"
-                        title="Remove image">
-                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                    </button>
-                    <small class="d-block mt-1 text-success">Converted to WebP</small>
-                `;
-                
-                previewContainer.appendChild(previewDiv);
-            };
+            document.getElementById('additional_images_text').value = webpFiles.length + ' files selected (WebP)';
             
-            reader.readAsDataURL(file);
+            // Clear the "No additional images" message if it exists
+            const noImagesMsg = document.getElementById('no-images-msg');
+            if (noImagesMsg) noImagesMsg.remove();
+            
+            for (let i = 0; i < webpFiles.length; i++) {
+                const file = webpFiles[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHtml += `
+                        <div id="preview_${i}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
+                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
+                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                                   onclick="removeAdditionalImage(${i})"
+                                   title="Remove image">
+                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
+                            </button>
+                            <small class="d-block mt-1 text-success">Converted to WebP</small>
+                        </div>
+                    `;
+                    document.getElementById('additional_images_preview').innerHTML = previewHtml;
+                }
+                reader.readAsDataURL(file);
+            }
+        } catch (error) {
+            console.error('Error during WebP conversion:', error);
+            errorContainer.textContent = 'Image conversion failed. Please try again.';
+            this.value = '';
+            document.getElementById('additional_images_text').value = 'No files selected';
         }
+    } else {
+        document.getElementById('additional_images_text').value = 'No files selected';
+        document.getElementById('additional_images_preview').innerHTML = '';
     }
+});
+
+function removeAdditionalImage(index) {
+    const dt = new DataTransfer()
+    const input = document.getElementById('additional_images')
+    const { files } = input
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        if (index !== i)
+            dt.items.add(file)
+    }
+
+    input.files = dt.files
+    const event = new Event('change', { bubbles: true });
+    input.dispatchEvent(event);
 }
 
 // Existing Image Deletion
-let tempDeletedImages = [];
-
 function removeExistingImage(imageId) {
     // Add to our temporary deleted images array
     if (!tempDeletedImages.includes(imageId)) {
@@ -414,105 +277,718 @@ function removeExistingImage(imageId) {
         if (visibleImages.length === 0) {
             // All images are temporarily deleted, show the message
             if (!document.getElementById('no-images-msg')) {
-                container.insertAdjacentHTML('beforeend', '<p class="text-danger mb-5" id="no-images-msg">No additional images</p>');
-                container.classList.remove('mb-3');
-                container.classList.add('mb-5');
+                container.insertAdjacentHTML('beforeend', '<p class="text-danger mb-0" id="no-images-msg">No additional images</p>');
             }
-        }
-        
-        // Count total visible images (existing + new)
-        const totalVisibleImages = visibleImages.length + 
-            (document.getElementById('additional_images').files.length || 0);
-        
-        // Update UI based on total visible images
-        if (totalVisibleImages === 0) {
-            if (!document.getElementById('no-images-msg')) {
-                container.insertAdjacentHTML('beforeend', '<p class="text-danger mb-5" id="no-images-msg">No additional images</p>');
-            }
-        }
-        
-        // Update the remaining images text
-        updateRemainingImagesText();
-    } else {
-        console.error('Image container not found:', imageId);
-    }
-}
-
-function updateRemainingImagesText() {
-    const visibleImages = document.querySelectorAll('#additional-images-container [id^="image_container_"]:not(.temp-deleted)').length;
-    const maxImages = 4;
-    const remaining = maxImages - visibleImages;
-    const remainingTextElement = document.querySelector('p.text-muted.small.mb-2');
-    
-    if (remainingTextElement) {
-        if (remaining > 0) {
-            remainingTextElement.textContent = `You can add ${remaining} more image${remaining !== 1 ? 's' : ''}`;
-        } else {
-            remainingTextElement.textContent = "You've reached the maximum number of additional images";
-        }
-    }
-    
-    // Also update the "Choose Images" button state based on availability
-    const additionalImagesBtn = document.getElementById('additional_images_btn');
-    if (additionalImagesBtn) {
-        if (remaining > 0) {
-            additionalImagesBtn.disabled = false;
-            additionalImagesBtn.classList.remove('btn-secondary');
-            additionalImagesBtn.classList.add('btn-outline-secondary');
-        } else {
-            additionalImagesBtn.disabled = true;
-            additionalImagesBtn.classList.remove('btn-outline-secondary');
-            additionalImagesBtn.classList.add('btn-secondary');
         }
     }
 }
 
-// Page Title Update
-function updatePageTitle() {
-    // Get the current page from the URL
-    const path = window.location.pathname;
-    const page = path.substring(path.lastIndexOf('/') + 1).replace('.php', '');
+// SKU generation and category/fabric management
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing code for product name and SKU generation
+    const productNameInput = document.getElementById('name');
+    const categoryInput = document.getElementById('category');
+    const skuInput = document.getElementById('sku');
+    const fabricInput = document.getElementById('fabric');
+
+    let lastSelectedCategory = categoryInput.value || '';
+    let lastSelectedFabric = fabricInput.value || '';
+
+    function updateSKU() {
+        if (productNameInput.value && categoryInput.value && 
+            !['add_new_category', 'rename_category', 'delete_category'].includes(categoryInput.value)) {
+            
+            lastSelectedCategory = categoryInput.value;
+            
+            fetch('functions/generate_sku.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `name=${encodeURIComponent(productNameInput.value)}&category=${encodeURIComponent(categoryInput.value)}`
+            })
+            .then(response => response.text())
+            .then(sku => {
+                skuInput.value = sku;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    productNameInput.addEventListener('blur', updateSKU);
     
-    const titleMap = {
-        'index': 'Dashboard',
-        'products': 'Products Management',
-        'add-product': 'Add New Product',
-        'edit-product': 'Edit Product',
-        'homepage-customize': 'Homepage Customization',
-        'categories': 'Categories',
-        'orders': 'Orders Management',
-        'customers': 'Customer Management'
+    // Set up category dropdown
+    const categoryDisplay = document.getElementById('category_display');
+    const categoryDropdown = document.getElementById('category_dropdown');
+    
+    categoryDisplay.addEventListener('click', function() {
+        // Update categories before showing dropdown
+        initializeCategoryDropdown();
+    });
+    
+    // Add new category button
+    document.getElementById('add_new_category').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showInlineAddForm(this, 'category');
+    });
+    
+    // Set up fabric dropdown
+    const fabricDisplay = document.getElementById('fabric_display');
+    const fabricDropdown = document.getElementById('fabric_dropdown');
+    
+    fabricDisplay.addEventListener('click', function() {
+        // Update fabrics before showing dropdown
+        initializeFabricDropdown();
+    });
+    
+    // Add new fabric button
+    document.getElementById('add_new_fabric').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showInlineAddForm(this, 'fabric');
+    });
+
+    function fetchCategories() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'functions/get-categories.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        console.log('Categories loaded:', response.categories);
+                        resolve(response.categories);
+                    } else {
+                        console.error('Error fetching categories:', response.message);
+                        resolve([]);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error loading categories:', error);
+                    console.log('Response:', xhr.responseText);
+                    resolve([]);
+                }
+            });
+        });
+    }
+
+    function fetchFabrics() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'functions/get-fabrics.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        console.log('Fabrics loaded:', response.fabrics);
+                        resolve(response.fabrics);
+                    } else {
+                        console.error('Error fetching fabrics:', response.message);
+                        resolve([]);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error loading fabrics:', error);
+                    console.log('Response:', xhr.responseText);
+                    resolve([]);
+                }
+            });
+        });
+    }
+
+    initializeCategoryDropdown = function() {
+        const categoryContainer = document.querySelector('.category-items-container');
+        
+        categoryContainer.innerHTML = '<li class="px-3 py-2 text-center text-muted">Loading categories...</li>';
+        
+        fetchCategories().then(categories => {
+            categoryContainer.innerHTML = `
+                <li class="alert-container px-3"></li>
+            `;
+            
+            if (!categories || categories.length === 0) {
+                categoryContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No categories found</li>';
+                return;
+            }
+            
+            categories.forEach(category => {
+                const categoryItem = document.createElement('li');
+                categoryItem.className = 'category-item';
+                categoryItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                        <span class="category-name" data-value="${category}">${category}</span>
+                        <div class="category-actions">
+                            <button type="button" class="category-action-btn edit-btn" title="Rename Category" data-category="${category}">
+                                <i class="material-symbols-rounded">edit</i>
+                            </button>
+                            <button type="button" class="category-action-btn delete-btn" title="Delete Category" data-category="${category}">
+                                <i class="material-symbols-rounded">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                categoryContainer.appendChild(categoryItem);
+                
+                categoryItem.querySelector('.category-name').addEventListener('click', function() {
+                    if (!this.classList.contains('editing')) {
+                        const value = this.getAttribute('data-value');
+                        categoryInput.value = value;
+                        document.getElementById('selected_category').textContent = value;
+                        
+                        const productName = document.getElementById('name').value;
+                        if (productName) {
+                            updateSKU();
+                        }
+                    }
+                });
+                
+                categoryItem.querySelector('.edit-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nameElement = this.closest('.category-item').querySelector('.category-name');
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, 'category');
+                });
+                
+                categoryItem.querySelector('.delete-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const categoryToDelete = this.getAttribute('data-category');
+                    const button = this;
+                    const originalHTML = button.innerHTML;
+                    
+                    // Show loading state on the button
+                    button.disabled = true;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    
+                    // Make AJAX request to delete the category
+                    $.ajax({
+                        url: 'functions/manage-categories.php',
+                        type: 'POST',
+                        data: {
+                            action: 'delete',
+                            category: categoryToDelete
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                // Refresh the category dropdown
+                                initializeCategoryDropdown();
+                                // Show success message
+                                showBootstrapAlert('.category-items-container .alert-container', 'success', response.message);
+                            } else {
+                                // Show error and restore button
+                                showBootstrapAlert('.category-items-container .alert-container', 'danger', response.message);
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.log('Response:', xhr.responseText);
+                            showBootstrapAlert('.category-items-container .alert-container', 'danger', 'Server error occurred. Please try again.');
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        }
+                    });
+                });
+            });
+        });
     };
-    
-    // Update navbar title
-    const navbarTitle = document.querySelector('.top-navbar h4');
-    if (navbarTitle && titleMap[page]) {
-        navbarTitle.textContent = titleMap[page];
-    }
-}
 
-function generateSKU_JS(productName, category) {
-    const prefix = category.substring(0, 3).toUpperCase();
-    const shortName = productName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
-    const randomNumber = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
-    return prefix + "-" + shortName + "-" + randomNumber;
-}
+    initializeFabricDropdown = function() {
+        const fabricContainer = document.querySelector('.fabric-items-container');
+        
+        fabricContainer.innerHTML = '<li class="px-3 py-2 text-center text-muted">Loading fabrics...</li>';
+        
+        fetchFabrics().then(fabrics => {
+            fabricContainer.innerHTML = `
+                <li class="alert-container px-3"></li>
+            `;
+            
+            if (!fabrics || fabrics.length === 0) {
+                fabricContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No fabrics found</li>';
+                return;
+            }
+            
+            fabrics.forEach(fabric => {
+                const fabricItem = document.createElement('li');
+                fabricItem.className = 'fabric-item';
+                fabricItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                        <span class="fabric-name" data-value="${fabric}">${fabric}</span>
+                        <div class="fabric-actions">
+                            <button type="button" class="fabric-action-btn edit-btn" title="Rename Fabric" data-fabric="${fabric}">
+                                <i class="material-symbols-rounded">edit</i>
+                            </button>
+                            <button type="button" class="fabric-action-btn delete-btn" title="Delete Fabric" data-fabric="${fabric}">
+                                <i class="material-symbols-rounded">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                fabricContainer.appendChild(fabricItem);
+                
+                fabricItem.querySelector('.fabric-name').addEventListener('click', function() {
+                    if (!this.classList.contains('editing')) {
+                        const value = this.getAttribute('data-value');
+                        fabricInput.value = value;
+                        document.getElementById('selected_fabric').textContent = value;
+                    }
+                });
+                
+                fabricItem.querySelector('.edit-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nameElement = this.closest('.fabric-item').querySelector('.fabric-name');
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, 'fabric');
+                });
+                
+                fabricItem.querySelector('.delete-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const fabricToDelete = this.getAttribute('data-fabric');
+                    const button = this;
+                    const originalHTML = button.innerHTML;
+                    
+                    // Show loading state on the button
+                    button.disabled = true;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    
+                    // Make AJAX request to delete the fabric
+                    $.ajax({
+                        url: 'functions/manage-fabrics.php',
+                        type: 'POST',
+                        data: {
+                            action: 'delete',
+                            fabric: fabricToDelete
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                // Refresh the fabric dropdown
+                                initializeFabricDropdown();
+                                // Show success message just like categories
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'success', response.message);
+                            } else {
+                                // Show error and restore button - identical to categories
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'danger', response.message);
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.log('Response:', xhr.responseText);
+                            showBootstrapAlert('.fabric-items-container .alert-container', 'danger', 'Server error occurred. Please try again.');
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        }
+                    });
+                });
+            });
+        });
+    };
 
-// Add SKU update functions
-function updateSKU() {
-    const productName = document.getElementById('name').value;
-    const category = document.getElementById('category').value;
-    
-    // Only update SKU if both name and category are provided
-    if (productName && category) {
-        const sku = generateSKU_JS(productName, category);
-        document.getElementById('sku').value = sku;
+    function enableInlineEdit(element, currentValue, type) {
+        element.classList.add('editing');
+        
+        const originalContent = element.innerHTML;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm inline-edit-input';
+        input.value = currentValue;
+        
+        element.innerHTML = '';
+        element.appendChild(input);
+        
+        input.focus();
+        input.select();
+        
+        const dropdownMenu = element.closest('.dropdown-menu');
+        if (dropdownMenu) {
+            dropdownMenu.classList.add('show');
+        }
+        
+        function saveChanges() {
+            const newValue = input.value.trim();
+            
+            if (newValue && newValue !== currentValue) {
+                element.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
+                
+                const data = {
+                    action: 'rename'
+                };
+                
+                if (type === 'category') {
+                    data.old_category = currentValue;
+                    data.new_category = newValue;
+                } else {
+                    data.old_fabric = currentValue;
+                    data.new_fabric = newValue;
+                }
+                
+                const url = type === 'category' ? 'functions/manage-categories.php' : 'functions/manage-fabrics.php';
+                
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            element.innerHTML = newValue;
+                            element.setAttribute('data-value', newValue);
+                            
+                            const editBtn = element.closest('.' + type + '-item').querySelector('.edit-btn');
+                            if (editBtn) {
+                                editBtn.setAttribute('data-' + type, newValue);
+                            }
+                            
+                            const deleteBtn = element.closest('.' + type + '-item').querySelector('.delete-btn');
+                            if (deleteBtn) {
+                                deleteBtn.setAttribute('data-' + type, newValue);
+                            }
+                            
+                            // Update the selected value if it was the current one
+                            if (type === 'category' && categoryInput.value === currentValue) {
+                                categoryInput.value = newValue;
+                                document.getElementById('selected_category').textContent = newValue;
+                                updateSKU();
+                            } else if (type === 'fabric' && fabricInput.value === currentValue) {
+                                fabricInput.value = newValue;
+                                document.getElementById('selected_fabric').textContent = newValue;
+                            }
+                            
+                            // Show success message
+                            showBootstrapAlert(
+                                type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container', 
+                                'success', 
+                                'Renamed successfully'
+                            );
+                        } else {
+                            element.innerHTML = originalContent;
+                            showBootstrapAlert(
+                                type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container',
+                                'danger',
+                                response.message || 'Error occurred'
+                            );
+                        }
+                        element.classList.remove('editing');
+                    },
+                    error: function() {
+                        element.innerHTML = originalContent;
+                        element.classList.remove('editing');
+                        showBootstrapAlert(
+                            type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container',
+                            'danger',
+                            'Server error occurred'
+                        );
+                    }
+                });
+            } else {
+                element.innerHTML = originalContent;
+                element.classList.remove('editing');
+            }
+        }
+        
+        function cancelEdit() {
+            element.innerHTML = originalContent;
+            element.classList.remove('editing');
+        }
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveChanges();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+        
+        input.addEventListener('blur', saveChanges);
+        
+        input.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
-}
+
+    function showInlineAddForm(button, type) {
+        // Remove any existing forms first
+        const existingForms = document.querySelectorAll('.inline-add-form');
+        existingForms.forEach(form => form.remove());
+        
+        // Create inline form element with check and close icons, matching the style of existing items
+        const inlineForm = document.createElement('li');
+        inlineForm.className = 'dropdown-item inline-add-form';
+        inlineForm.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                <input type="text" class="form-control form-control-sm" 
+                       placeholder="Enter new ${type} name" 
+                       id="new_${type}_inline" 
+                       style="width: auto; flex-grow: 1; margin-right: 8px;">
+                <div class="${type}-actions">
+                    <button type="button" class="${type}-action-btn save-btn" title="Save ${type}" id="save_${type}_btn">
+                        <i class="material-symbols-rounded">check</i>
+                    </button>
+                    <button type="button" class="${type}-action-btn cancel-btn" title="Cancel" id="cancel_${type}_btn">
+                        <i class="material-symbols-rounded">close</i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-danger small px-3 mt-1" id="new_${type}_error"></div>
+        `;
+        
+        // Find the "Add New" button's list item
+        const addNewBtn = type === 'category' ? 
+            document.getElementById('add_new_category') : 
+            document.getElementById('add_new_fabric');
+        
+        if (addNewBtn) {
+            // Insert form right before the "Add New" button's list item
+            const addNewBtnLi = addNewBtn.closest('li');
+            if (addNewBtnLi && addNewBtnLi.parentNode) {
+                addNewBtnLi.parentNode.insertBefore(inlineForm, addNewBtnLi);
+                
+                // Make sure the dropdown stays open
+                const dropdownMenu = addNewBtnLi.closest('.dropdown-menu');
+                if (dropdownMenu) {
+                    // Force dropdown to stay open
+                    dropdownMenu.classList.add('show');
+                    
+                    // Ensure the dropdown toggle button shows as active
+                    const dropdownToggle = document.querySelector(`[data-bs-toggle="dropdown"][aria-expanded="true"]`);
+                    if (dropdownToggle) {
+                        dropdownToggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            }
+        }
+        
+        // Focus the input
+        const input = inlineForm.querySelector(`#new_${type}_inline`);
+        setTimeout(() => {
+            input.focus();
+        }, 10);
+        
+        // Setup event handlers for keyboard actions
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveNewItem(type);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                inlineForm.remove();
+            }
+        });
+        
+        // Add event handler for the save button
+        const saveBtn = inlineForm.querySelector(`#save_${type}_btn`);
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveNewItem(type);
+            });
+        }
+        
+        // Add event handler for the cancel button
+        const cancelBtn = inlineForm.querySelector(`#cancel_${type}_btn`);
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                inlineForm.remove();
+            }); 
+        }
+        
+        // Prevent dropdown from closing when clicking on form
+        inlineForm.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+
+    function saveNewItem(type) {
+        const input = document.getElementById(`new_${type}_inline`);
+        const errorElem = document.getElementById(`new_${type}_error`);
+        const newValue = input.value.trim();
+        
+        if (!newValue) {
+            errorElem.textContent = `Please enter a ${type} name`;
+            return;
+        }
+        
+        // Show minimal loading state - just disable the input
+        input.disabled = true;
+        
+        // Fix URL construction to handle "category" -> "categories" pluralization
+        const endpoint = type === 'category' ? 'functions/manage-categories.php' : `functions/manage-${type}s.php`;
+        
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            data: {
+                action: 'add',
+                [`new_${type}`]: newValue
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    // No visual feedback except for the dropdown refreshing
+                    if (type === 'category') {
+                        initializeCategoryDropdown();
+                        
+                        setTimeout(() => {
+                            categoryInput.value = newValue;
+                            document.getElementById('selected_category').textContent = newValue;
+                            
+                            const productName = document.getElementById('name').value;
+                            if (productName) {
+                                updateSKU();
+                            }
+                            
+                            // Show success message only for categories
+                            setTimeout(() => {
+                                showBootstrapAlert('.category-items-container .alert-container', 'success', `${type} added successfully`);
+                            }, 400);
+                        }, 300);
+                    } else {
+                        initializeFabricDropdown();
+                        
+                        setTimeout(() => {
+                            fabricInput.value = newValue;
+                            document.getElementById('selected_fabric').textContent = newValue;
+                            
+                            // Add success message for fabrics (matching category)
+                            setTimeout(() => {
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'success', `${type} added successfully`);
+                            }, 400);
+                        }, 300);
+                    }
+                    
+                    // Simply remove the form on success
+                    document.querySelector('.inline-add-form').remove();
+                } else {
+                    errorElem.textContent = response.message || `Failed to add ${type}`;
+                    input.disabled = false;
+                }
+            },
+            error: function(xhr, status, errorThrown) {
+                console.error(`AJAX Error when adding ${type}:`, status, errorThrown);
+                console.log("Server Response:", xhr.responseText);
+                
+                try {
+                    // Try to parse the response as JSON to get detailed error message
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse && errorResponse.message) {
+                        errorElem.textContent = errorResponse.message;
+                    } else {
+                        errorElem.textContent = `Server error: ${status}`;
+                    }
+                } catch (e) {
+                    // If not valid JSON, show the raw response or a generic message
+                    if (xhr.responseText) {
+                        errorElem.textContent = `Server error: ${xhr.responseText.substring(0, 50)}...`;
+                    } else {
+                        errorElem.textContent = `Server error occurred. Check console for details.`;
+                    }
+                }
+                
+                input.disabled = false;
+            }
+        });
+    }
+
+    // Function to show Bootstrap alerts
+    function showBootstrapAlert(containerSelector, type, message) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} fade show my-2 p-2`;
+        alert.setAttribute('role', 'alert');
+        alert.innerHTML = message;
+        
+        container.innerHTML = '';
+        container.appendChild(alert);
+        
+        // Auto dismiss after 3 seconds
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => {
+                if (container.contains(alert)) {
+                    container.removeChild(alert);
+                }
+            }, 150);
+        }, 3000);
+
+        // Make sure dropdown stays open
+        const dropdown = container.closest('.dropdown-menu');
+        if (dropdown) {
+            dropdown.classList.add('show');
+        }
+    }
+
+    // Set up price calculation
+    const originalPriceInput = document.getElementById('original_price');
+    const discountPercentageInput = document.getElementById('discount_percentage');
+    const originalPriceDisplay = document.getElementById('original_price_display');
+    const finalPriceDisplay = document.getElementById('final_price_display');
+    const discountText = document.getElementById('discount_text');
+    const savingsContainer = document.getElementById('savings_container');
+    const savingsAmount = document.getElementById('savings_amount');
+    const presetButtons = document.querySelectorAll('.discount-preset-btn');
+    
+    function updatePricePreview() {
+        const originalPrice = parseFloat(originalPriceInput.value) || 0;
+        const discountPercentage = parseInt(discountPercentageInput.value) || 0;
+        
+        if (discountPercentage < 0) discountPercentageInput.value = 0;
+        if (discountPercentage > 100) discountPercentageInput.value = 100;
+        
+        originalPriceDisplay.textContent = `₱${originalPrice.toFixed(2)}`;
+        
+        const finalPrice = originalPrice * (1 - discountPercentage / 100);
+        finalPriceDisplay.textContent = `₱${finalPrice.toFixed(2)}`;
+        
+        if (discountPercentage > 0) {
+            discountText.textContent = `(${discountPercentage}% off)`;
+            savingsContainer.classList.remove('d-none');
+            savingsAmount.textContent = `₱${(originalPrice - finalPrice).toFixed(2)}`;
+        } else {
+            discountText.textContent = '';
+            savingsContainer.classList.add('d-none');
+        }
+    }
+    
+    originalPriceInput.addEventListener('input', updatePricePreview);
+    discountPercentageInput.addEventListener('input', updatePricePreview);
+    
+    presetButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const discountValue = parseInt(this.dataset.value);
+            discountPercentageInput.value = discountValue;
+            updatePricePreview();
+        });
+    });
+
+    // Initialize dropdowns when document is ready
+    initializeCategoryDropdown();
+    initializeFabricDropdown();
+    
+    // Set up form handler to track deleted images
+    const form = document.querySelector('form[action="functions/code.php"]');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (tempDeletedImages && tempDeletedImages.length > 0) {
+                document.getElementById('deleted_images').value = tempDeletedImages.join(',');
+                console.log('Images marked for deletion on submit:', tempDeletedImages);
+            }
+        });
+    }
+});
 
 // Make these functions global so they can be called from HTML
 window.removePrimaryImage = removePrimaryImage;
 window.removeAdditionalImage = removeAdditionalImage;
 window.removeExistingImage = removeExistingImage;
-window.generateSKU_JS = generateSKU_JS;
-window.updateSKU = updateSKU;

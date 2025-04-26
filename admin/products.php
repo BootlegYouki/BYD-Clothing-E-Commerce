@@ -158,10 +158,10 @@ include 'config/dbcon.php';
                                         </td>
                                         <td>
                                             <div class="d-flex justify-content-center pt-lg-2 pt-4">
-                                                <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm btn-link text-secondary p-1 me-1" title="Edit product">
+                                                <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm text-secondary p-1 me-1" title="Edit product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">edit</i>
                                                 </a>
-                                                <a href="javascript:void(0);" onclick="confirmDelete(<?= $product['id'] ?>)" class="btn btn-sm btn-link text-danger p-1" title="Delete product">
+                                                <a href="javascript:void(0);" onclick="confirmDelete(<?= $product['id'] ?>)" class="btn btn-sm text-danger p-1" title="Delete product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">delete</i>
                                                 </a>
                                             </div>

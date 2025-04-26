@@ -318,6 +318,8 @@ a {
   border-radius: 6px;
   transition: all 0.25s ease;
   color: var(--white);
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-gradient-primary {
@@ -346,17 +348,6 @@ a {
   transform: translateY(0);
 }
 
-.btn-coral {
-  background: var(--primary);
-  color: white;
-  border: none;
-  box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);
-}
-
-.btn-coral:hover {
-  box-shadow: 0 5px 12px rgba(255, 99, 71, 0.4);
-  transform: translateY(-2px);
-}
 
 .btn-outline-coral {
   border-color: #FF7F50;
@@ -376,6 +367,28 @@ a {
   background-color: #FF7F50;
   border-color: #FF7F50;
   color: white;
+}
+
+/* Improved Button Icon Alignment */
+.btn .material-symbols-rounded,
+.btn i {
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Specific alignment for different sized buttons */
+.btn-sm .material-symbols-rounded,
+.btn-sm i {
+  font-size: 0.9rem;
+}
+
+.btn-lg .material-symbols-rounded,
+.btn-lg i {
+  font-size: 1.3rem;
 }
 
 /* ICONS WITH DARK BACKGROUNDS */
@@ -877,4 +890,101 @@ body.theme-dark {
     border-color: var(--border-color) !important;
     opacity: 0.2;
   }
+
+  /* Fix for input group text */
+  .input-group-text {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+  }
+  
+  /* Fix for discount preset buttons */
+  .discount-preset-btn {
+    background-color: rgba(255, 127, 80, 0.15);
+    border-color: rgba(255, 127, 80, 0.3);
+    color: var(--text-color);
+  }
+  
+  /* Fix for size input containers */
+  .size-input-container {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  /* Fix for image upload container */
+  .image-upload-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+  }
+  .image-upload-container .upload-icon {
+    color: var(--text-muted);
+  }
+}
+
+/* Icon Button Styles */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: none;
+  margin-left: 6px;
+}
+
+.btn-icon i, 
+.btn-icon .material-symbols-rounded {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon.btn-add {
+  background: linear-gradient(195deg, #64e89d, #2dce89);
+  color: white;
+  box-shadow: 0 3px 6px rgba(45, 206, 137, 0.3);
+}
+
+.btn-icon.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(45, 206, 137, 0.4);
+}
+
+.btn-icon.btn-remove {
+  background: linear-gradient(195deg, #f56969, #f5365c);
+  color: white;
+  box-shadow: 0 3px 6px rgba(245, 54, 92, 0.3);
+}
+
+.btn-icon.btn-remove:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(245, 54, 92, 0.4);
+}
+
+/* Input group with icon buttons */
+.input-group {
+  align-items: center;
+}
+
+/* Dark mode specific styles for icon buttons */
+body.theme-dark .btn-icon.btn-add {
+  background: linear-gradient(195deg, #57c388, #25aa71);
+}
+
+body.theme-dark .btn-icon.btn-remove {
+  background: linear-gradient(195deg, #e25a5a, #d92e4e);
+}
+
+/* Form controls with icon buttons */
+.input-group .form-control {
+  border-top-right-radius: 0.375rem !important;
+  border-bottom-right-radius: 0.375rem !important;
+}
+
+hr {
+  margin: 0;
 }
