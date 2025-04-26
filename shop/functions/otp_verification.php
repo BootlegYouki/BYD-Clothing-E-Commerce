@@ -60,9 +60,17 @@ function sendOTPEmail($email, $otp, $firstname) {
         $mail->setFrom(getEnvVar('SMTP_FROM_EMAIL', ''), getEnvVar('SMTP_FROM_NAME', 'BYD Clothing'));
         $mail->addAddress($email);
         
+        // Anti-spam headers
+        $mail->addReplyTo(getEnvVar('SMTP_FROM_EMAIL', ''), getEnvVar('SMTP_FROM_NAME', 'BYD Clothing Support'));
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
+        $mail->MessageID = '<' . time() . '.' . uniqid() . '@' . $_SERVER['HTTP_HOST'] . '>';
+        $mail->addCustomHeader('List-Unsubscribe', '<mailto:' . getEnvVar('SMTP_FROM_EMAIL', '') . '?subject=Unsubscribe>');
+        $mail->addCustomHeader('X-Mailer', 'BYD Clothing Customer Service');
+        
         // Content
         $mail->isHTML(true);
-        $mail->Subject = 'Your Email Verification Code - BYD Clothing';
+        $mail->Subject = 'Your Verification Code from BYD Clothing';
         
         // Enhanced Email Template
         $mail->Body = '
@@ -130,6 +138,9 @@ function sendOTPEmail($email, $otp, $firstname) {
                             
                             <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">If you did not attempt to create an account with us, please disregard this email.</p>
                             
+                            <!-- Text content for better text-to-HTML ratio -->
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">At BYD Clothing, we\'re committed to providing quality fashion and excellent customer service. Thank you for choosing to shop with us.</p>
+                            
                             <!-- Divider -->
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
                                 <tr>
@@ -137,7 +148,7 @@ function sendOTPEmail($email, $otp, $firstname) {
                                 </tr>
                             </table>
                             
-                            <p style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">If you have any questions or need assistance, please contact our support team.</p>
+                            <p style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">If you have any questions or need assistance, please contact our support team at <a href="mailto:' . getEnvVar('SMTP_FROM_EMAIL', '') . '" style="color: #ff7f50; text-decoration: none;">' . getEnvVar('SMTP_FROM_EMAIL', '') . '</a>.</p>
                             
                             <p style="color: #666666; font-size: 14px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">Thank you for choosing BYD Clothing!</p>
                         </td>
@@ -153,22 +164,14 @@ function sendOTPEmail($email, $otp, $firstname) {
                                             &copy; ' . date('Y') . ' BYD Clothing. All rights reserved.
                                         </p>
                                         <p style="margin: 10px 0 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
-                                            This is an automated message, please do not reply to this email.
+                                            You\'re receiving this email because you\'re creating an account with BYD Clothing.
+                                        </p>
+                                        <p style="margin: 10px 0 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+                                            ' . htmlspecialchars(getEnvVar('COMPANY_ADDRESS', 'BYD Clothing, 123 Fashion Street, Style City')) . '
                                         </p>
                                     </td>
                                 </tr>
                             </table>
-                        </td>
-                    </tr>
-                </table>
-                
-                <!-- Additional Information -->
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                    <tr>
-                        <td style="padding: 20px 10px; text-align: center;">
-                            <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
-                                Sent by BYD Clothing | Privacy Policy | Terms of Service
-                            </p>
                         </td>
                     </tr>
                 </table>
@@ -189,10 +192,16 @@ This code will expire in 15 minutes.
 
 If you did not attempt to create an account with us, please disregard this email.
 
+At BYD Clothing, we're committed to providing quality fashion and excellent customer service. Thank you for choosing to shop with us.
+
+If you have questions or need assistance, please contact our support team at " . getEnvVar('SMTP_FROM_EMAIL', '') . ".
+
 Thank you for choosing BYD Clothing!
 
 © " . date('Y') . " BYD Clothing. All rights reserved.
-This is an automated message, please do not reply to this email.";
+" . getEnvVar('COMPANY_ADDRESS', 'BYD Clothing, 123 Fashion Street, Style City') . "
+
+You're receiving this email because you're creating an account with BYD Clothing.";
         
         return $mail->send();
     } catch (Exception $e) {

@@ -53,32 +53,6 @@ function handleResetRequest($conn) {
     // Generate OTP
     $token = generateOTP();
     
-    // Check if the password_resets table exists
-    $check_table_query = "SHOW TABLES LIKE 'password_resets'";
-    $check_table_result = $conn->query($check_table_query);
-    
-    if ($check_table_result->num_rows === 0) {
-        // Table doesn't exist, create it
-        $create_table_query = "CREATE TABLE `password_resets` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `email` varchar(255) NOT NULL,
-            `token` varchar(255) NOT NULL,
-            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-            `expiry_time` timestamp NOT NULL,
-            PRIMARY KEY (`id`),
-            KEY `password_resets_email_index` (`email`),
-            KEY `password_resets_token_index` (`token`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        
-        if (!$conn->query($create_table_query)) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Database setup error. Please contact support.'
-            ]);
-            exit;
-        }
-    }
-    
     // Delete any existing reset tokens for this email
     $reset_query = "DELETE FROM password_resets WHERE email = ?";
     $reset_stmt = $conn->prepare($reset_query);
@@ -129,15 +103,29 @@ function sendPasswordResetEmail($email, $token, $firstname) {
         $mail->Port = getEnvVar('SMTP_PORT', '587');
         
         // Recipients
-        $mail->setFrom(getEnvVar('SMTP_FROM_EMAIL', ''), getEnvVar('SMTP_FROM_NAME', 'BYD Clothing'));
+        $fromEmail = getEnvVar('SMTP_FROM_EMAIL', '');
+        $fromName = getEnvVar('SMTP_FROM_NAME', 'BYD Clothing');
+        $mail->setFrom($fromEmail, $fromName);
         $mail->addAddress($email);
+        
+        // Anti-spam headers - Expanded and consistent with OTP emails
+        $mail->addReplyTo($fromEmail, $fromName . ' Support');
+        $mail->Sender = $fromEmail;
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
+        $mail->MessageID = '<' . time() . '.' . uniqid() . '@' . $_SERVER['HTTP_HOST'] . '>';
+        $mail->addCustomHeader('List-Unsubscribe', '<mailto:' . getEnvVar('SMTP_FROM_EMAIL', '') . '?subject=Unsubscribe>');
+        $mail->addCustomHeader('X-Mailer', 'BYD Clothing Customer Service');
+        $mail->addCustomHeader('Precedence', 'bulk');
+        $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
+        $mail->addCustomHeader('X-Auto-Response-Suppress', 'All');
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = 'Password Reset - BYD Clothing';
+        $mail->Subject = 'Reset Your Password - BYD Clothing';
         
         // Reset link - make sure to use the correct path
-        $serverName = $_SERVER['SERVER_NAME'];
+        $serverName = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
         $resetLink = 'https://' . $serverName . '/shop/reset-password.php?token=' . $token . '&email=' . urlencode($email);
         
         // Email template
@@ -200,6 +188,9 @@ function sendPasswordResetEmail($email, $token, $firstname) {
                             
                             <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">If you didn\'t request a password reset, please ignore this email or contact our support team if you have any concerns.</p>
                             
+                            <!-- Additional text content for better text-to-HTML ratio -->
+                            <p style="color: #333333; font-size: 16px; line-height: 1.5; margin-bottom: 25px; font-family: Arial, Helvetica, sans-serif;">At BYD Clothing, we\'re committed to the security of your account and personal information. We recommend using a strong, unique password for your account.</p>
+                            
                             <!-- Divider -->
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
                                 <tr>
@@ -207,7 +198,9 @@ function sendPasswordResetEmail($email, $token, $firstname) {
                                 </tr>
                             </table>
                             
-                            <p style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">Thank you for shopping with BYD Clothing!</p>
+                            <p style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 15px; font-family: Arial, Helvetica, sans-serif;">If you have any questions or need assistance, please contact our support team at <a href="mailto:' . $fromEmail . '" style="color: #ff7f50; text-decoration: none;">' . $fromEmail . '</a>.</p>
+                            
+                            <p style="color: #666666; font-size: 14px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">Thank you for shopping with BYD Clothing!</p>
                         </td>
                     </tr>
                     
@@ -221,7 +214,10 @@ function sendPasswordResetEmail($email, $token, $firstname) {
                                             &copy; ' . date('Y') . ' BYD Clothing. All rights reserved.
                                         </p>
                                         <p style="margin: 10px 0 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
-                                            This is an automated message, please do not reply to this email.
+                                            You\'re receiving this email because you requested a password reset for your BYD Clothing account.
+                                        </p>
+                                        <p style="margin: 10px 0 0; color: #777777; font-size: 12px; line-height: 1.5; font-family: Arial, Helvetica, sans-serif;">
+                                            ' . htmlspecialchars(getEnvVar('COMPANY_ADDRESS', 'BYD Clothing, 123 Fashion Street, Style City')) . '
                                         </p>
                                     </td>
                                 </tr>
@@ -243,16 +239,18 @@ We received a request to reset your password for your BYD Clothing account.
 To reset your password, please visit this link:
 $resetLink
 
-Or use this verification code on the password reset page:
-$token
+This link will expire in 60 minutes.
 
-This link and code will expire in 60 minutes.
+At BYD Clothing, we're committed to the security of your account and personal information. We recommend using a strong, unique password for your account.
 
-If you didn't request a password reset, please ignore this email or contact our support team if you have any concerns.
+If you didn't request a password reset, please ignore this email or contact our support team at $fromEmail if you have any concerns.
 
+Thank you for choosing BYD Clothing!
 
 © " . date('Y') . " BYD Clothing. All rights reserved.
-This is an automated message, please do not reply to this email.";
+" . getEnvVar('COMPANY_ADDRESS', 'BYD Clothing, 123 Fashion Street, Style City') . "
+
+You're receiving this email because you requested a password reset for your BYD Clothing account.";
         
         return $mail->send();
     } catch (Exception $e) {
