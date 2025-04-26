@@ -97,22 +97,21 @@
               </div>
             </div>
             <div class="col-12">
-              <div class="form-floating mb-1">
-                <input type="text" class="form-control bg-light" name="full_address" id="full_address" placeholder="Click on map to select your address" readonly required style="cursor: default; color: #495057;">
-                <label for="full_address" class="form-label">Full Address <i class="fa-solid fa-map-marker-alt text-muted ms-1"></i></label>
-                <div class="invalid-feedback">
-                  Please provide your address by selecting a location on the map.
-                </div>
-              </div>
               <div class="alert alert-info small py-2 mb-2">
                 <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
               </div>
               <div id="map" style="height: 300px;" class="rounded mb-3"></div>
               <input type="hidden" id="latitude" name="latitude" required>
               <input type="hidden" id="longitude" name="longitude" required>
+              <div class="form mb-3 bg-light">
+                <input type="text" class="form-control py-3" name="full_address" id="full_address" placeholder="Click on map to select your address" readonly required style="cursor: default; color: #495057;">
+                <div class="invalid-feedback">
+                  Please provide your address by selecting a location on the map.
+                </div>
+              </div>
             </div>
             <div class="col-12">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-2">
                 <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder="Zipcode" required>
                 <label for="zipcode" class="form-label">Zipcode</label>
                 <div class="invalid-feedback">
@@ -186,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const map = L.map('map', {
     scrollWheelZoom: true,
     zoomControl: true
-  }).setView([14.5995, 120.9842], 13);
+  }).setView([14.6760, 121.0437], 16);
   
   // Primary tile layer with fallback options
   const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -215,14 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 300);
 
   // 2) Add a draggable marker
-  const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
-
-  // 3) Helper text under the address field
-  const formFloating = addressInput.closest('.form-floating');
-  const helpText = document.createElement('div');
-  helpText.className = 'form-text text-muted small pb-2';
-  helpText.innerText = 'Use the map to select your location.';
-  formFloating.insertAdjacentElement('afterend', helpText);
+  const marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
 
   // 4) Geocoder control (no default marker)
   const geocoder = L.Control.geocoder({
