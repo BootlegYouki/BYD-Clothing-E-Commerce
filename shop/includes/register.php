@@ -98,15 +98,18 @@
             </div>
             <div class="col-12">
               <div class="form-floating mb-1">
-                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" readonly required>
-                <label for="full_address" class="form-label">Full Address</label>
+                <input type="text" class="form-control bg-light" name="full_address" id="full_address" placeholder="Click on map to select your address" readonly required style="cursor: default; color: #495057;">
+                <label for="full_address" class="form-label">Full Address <i class="fa-solid fa-map-marker-alt text-muted ms-1"></i></label>
                 <div class="invalid-feedback">
-                  Please provide your address.
+                  Please provide your address by selecting a location on the map.
                 </div>
               </div>
-                <div id="map" style="height: 300px; display: none;" class="rounded mb-3"></div>
-                <input type="hidden" id="latitude" name="latitude">
-                <input type="hidden" id="longitude" name="longitude">
+              <div class="alert alert-info small py-2 mb-2">
+                <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
+              </div>
+              <div id="map" style="height: 300px;" class="rounded mb-3"></div>
+              <input type="hidden" id="latitude" name="latitude" required>
+              <input type="hidden" id="longitude" name="longitude" required>
             </div>
             <div class="col-12">
               <div class="form-floating mb-3">
@@ -179,11 +182,37 @@ document.addEventListener('DOMContentLoaded', function() {
   const lngInput     = document.getElementById('longitude');
   const zipcodeInput = document.getElementById('zipcode');
 
-  // 1) Initialize map and tile layer
-  const map = L.map('map').setView([14.5995, 120.9842], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+  // 1) Initialize map and tile layer with better options
+  const map = L.map('map', {
+    scrollWheelZoom: true,
+    zoomControl: true
+  }).setView([14.5995, 120.9842], 13);
+  
+  // Primary tile layer with fallback options
+  const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19,
+    crossOrigin: true
   }).addTo(map);
+  
+  // Fallback tile layer if primary fails
+  const fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors, © CARTO',
+    maxZoom: 19,
+    crossOrigin: true
+  });
+  
+  // Handle tile error
+  mainLayer.on('tileerror', function(error) {
+    console.log("Tile error detected, switching to fallback");
+    map.removeLayer(mainLayer);
+    fallbackLayer.addTo(map);
+  });
+
+  // Force map to recalculate its container size
+  setTimeout(() => {
+    map.invalidateSize(true);
+  }, 300);
 
   // 2) Add a draggable marker
   const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
@@ -256,6 +285,53 @@ document.addEventListener('DOMContentLoaded', function() {
       map.invalidateSize();
     }
   });
+
+  // Add validation for address fields
+  const signupForm = document.getElementById('signupForm');
+  
+  signupForm.addEventListener('submit', function(event) {
+    // Check if coordinates are missing
+    if (!latInput.value || !lngInput.value || !addressInput.value.trim()) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      // Show validation error
+      addressInput.classList.add('is-invalid');
+      
+      // Scroll to map and highlight it
+      mapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      mapDiv.style.boxShadow = '0 0 10px rgba(220, 53, 69, 0.5)';
+      setTimeout(() => {
+        mapDiv.style.boxShadow = 'none';
+      }, 2000);
+      
+      // Show alert message
+      const alertMessage = document.createElement('div');
+      alertMessage.className = 'alert alert-danger mt-2';
+      alertMessage.innerText = 'Please select your address location on the map';
+      addressInput.parentNode.after(alertMessage);
+      setTimeout(() => alertMessage.remove(), 3000);
+    }
+  });
+  
+  // Update address field appearance
+  addressInput.style.backgroundColor = "#f8f9fa";
+  
+  // Update placeholder when map is interacted with
+  map.on('click', function() {
+    addressInput.setAttribute('placeholder', 'Address selected from map');
+    addressInput.classList.add('bg-light');
+  });
+
+  // Ensure proper map rendering on modal show
+  const signupModal = document.getElementById('SignupModal');
+  if (signupModal) {
+    signupModal.addEventListener('shown.bs.modal', function() {
+      setTimeout(() => {
+        map.invalidateSize(true);
+      }, 300);
+    });
+  }
 });
 
 document.addEventListener("DOMContentLoaded", function() {
