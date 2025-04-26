@@ -1,8 +1,22 @@
 // Global variables
 let tempDeletedImages = [];
+let additionalFilesCollection = [];
 
 // Primary image handling
-document.getElementById('primary_image_btn').addEventListener('click', function() {
+document.getElementById('primary_image_container_clickable').addEventListener('click', function(e) {
+    // Don't trigger file input if clicking on any element within the preview section
+    if (e.target.closest('#primary_image_preview') || 
+        e.target.id === 'primary_image_text' ||
+        e.target.classList.contains('file-name-display')) {
+        return;
+    }
+    
+    // Add active state visual feedback
+    this.classList.add('uploading');
+    setTimeout(() => {
+        this.classList.remove('uploading');
+    }, 300);
+    
     document.getElementById('primary_image').click();
 });
 
@@ -129,7 +143,7 @@ document.getElementById('primary_image').addEventListener('change', async functi
                             <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
                             <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
                                    style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                   onclick="removePrimaryImage()"
+                                   onclick="event.stopPropagation(); removePrimaryImage();"
                                    title="Remove image">
                                 <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
                             </button>
@@ -152,7 +166,11 @@ document.getElementById('primary_image').addEventListener('change', async functi
     }
 });
 
-function removePrimaryImage() {
+// Update the removePrimaryImage function to prevent event propagation
+function removePrimaryImage(e) {
+    // If there's an event object, stop propagation
+    if (e) e.stopPropagation();
+    
     const input = document.getElementById('primary_image');
     input.value = '';
     document.getElementById('primary_image_text').value = 'No files selected';
@@ -172,23 +190,37 @@ function removePrimaryImage() {
 }
 
 // Additional images handling
-document.getElementById('additional_images_btn').addEventListener('click', function() {
+document.getElementById('additional_images_container_clickable').addEventListener('click', function(e) {
+    // Don't trigger file input if clicking on any element within the preview section
+    if (e.target.closest('#additional_images_preview') || 
+        e.target.id === 'additional_images_text' ||
+        e.target.classList.contains('file-name-display')) {
+        return;
+    }
+    
+    // Add active state visual feedback
+    this.classList.add('uploading');
+    setTimeout(() => {
+        this.classList.remove('uploading');
+    }, 300);
+    
     document.getElementById('additional_images').click();
 });
 
 document.getElementById('additional_images').addEventListener('change', async function() {
     const files = this.files;
-    let previewHtml = '';
     const errorContainer = this.parentNode.querySelector('.error-message');
     errorContainer.textContent = ''; // Clear previous error
     
     // Count existing visible images (not marked for deletion)
     const existingVisibleImages = document.querySelectorAll('#additional-images-container [id^="image_container_"]:not(.temp-deleted)').length;
     
-    if (files.length + existingVisibleImages > 3) {
-        errorContainer.textContent = `You can only have up to 3 additional images. You already have ${existingVisibleImages}.`;
+    // Count how many files will be in total after this upload
+    const totalFilesAfterUpload = existingVisibleImages + additionalFilesCollection.length + files.length;
+    
+    if (totalFilesAfterUpload > 3) {
+        errorContainer.textContent = `You can only have up to 3 additional images. You already have ${existingVisibleImages + additionalFilesCollection.length}.`;
         this.value = ''; // Clear the input
-        document.getElementById('additional_images_text').value = 'No files selected';
         return;
     }
     
@@ -198,34 +230,61 @@ document.getElementById('additional_images').addEventListener('change', async fu
         try {
             // Convert images to WebP
             const webpFiles = await convertMultipleImagesToWebP(files);
-            this.files = webpFiles;
             
-            document.getElementById('additional_images_text').value = webpFiles.length + ' files selected (WebP)';
+            // Create combined list of all files (existing + new)
+            const dt = new DataTransfer();
+            
+            // Add existing files to collection
+            for (let i = 0; i < additionalFilesCollection.length; i++) {
+                dt.items.add(additionalFilesCollection[i]);
+            }
+            
+            // Add new files to collection
+            for (let i = 0; i < webpFiles.length; i++) {
+                dt.items.add(webpFiles[i]);
+                additionalFilesCollection.push(webpFiles[i]);
+            }
+            
+            // Update the file input with all files
+            this.files = dt.files;
+            
+            document.getElementById('additional_images_text').value = additionalFilesCollection.length + ' files selected (WebP)';
             
             // Clear the "No additional images" message if it exists
             const noImagesMsg = document.getElementById('no-images-msg');
             if (noImagesMsg) noImagesMsg.remove();
             
-            for (let i = 0; i < webpFiles.length; i++) {
-                const file = webpFiles[i];
+            // Clear existing preview content before adding new content
+            document.getElementById('additional_images_preview').innerHTML = '';
+            
+            // Generate preview HTML for all files
+            for (let i = 0; i < additionalFilesCollection.length; i++) {
+                const file = additionalFilesCollection[i];
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHtml += `
-                        <div id="preview_${i}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                   onclick="removeAdditionalImage(${i})"
-                                   title="Remove image">
-                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                            </button>
-                            <small class="d-block mt-1 text-success">Converted to WebP</small>
-                        </div>
-                    `;
-                    document.getElementById('additional_images_preview').innerHTML = previewHtml;
-                }
-                reader.readAsDataURL(file);
+                
+                // Use a closure to preserve the index value
+                (function(index) {
+                    reader.onload = function(e) {
+                        const newPreviewItem = `
+                            <div id="preview_${index}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
+                                <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
+                                       style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                                       onclick="event.stopPropagation(); removeAdditionalImage(${index});"
+                                       title="Remove image">
+                                    <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
+                                </button>
+                                <small class="d-block mt-1 text-success">Converted to WebP</small>
+                            </div>
+                        `;
+                        
+                        // Append to the preview area
+                        document.getElementById('additional_images_preview').insertAdjacentHTML('beforeend', newPreviewItem);
+                    };
+                    reader.readAsDataURL(file);
+                })(i);
             }
+            
         } catch (error) {
             console.error('Error during WebP conversion:', error);
             errorContainer.textContent = 'Image conversion failed. Please try again.';
@@ -238,24 +297,63 @@ document.getElementById('additional_images').addEventListener('change', async fu
     }
 });
 
-function removeAdditionalImage(index) {
-    const dt = new DataTransfer()
-    const input = document.getElementById('additional_images')
-    const { files } = input
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (index !== i)
-            dt.items.add(file)
+// Update the removeAdditionalImage function to handle our collection
+function removeAdditionalImage(index, e) {
+    // If there's an event object, stop propagation
+    if (e) e.stopPropagation();
+    
+    // Remove the file from our collection
+    additionalFilesCollection.splice(index, 1);
+    
+    // Create a new DataTransfer object
+    const dt = new DataTransfer();
+    
+    // Add the remaining files
+    for (let i = 0; i < additionalFilesCollection.length; i++) {
+        dt.items.add(additionalFilesCollection[i]);
     }
-
-    input.files = dt.files
-    const event = new Event('change', { bubbles: true });
-    input.dispatchEvent(event);
+    
+    // Update the input files
+    const input = document.getElementById('additional_images');
+    input.files = dt.files;
+    
+    // Update the text display
+    document.getElementById('additional_images_text').value = 
+        additionalFilesCollection.length > 0 ? additionalFilesCollection.length + ' files selected (WebP)' : 'No files selected';
+    
+    // Clear the preview and regenerate it
+    document.getElementById('additional_images_preview').innerHTML = '';
+    
+    // Regenerate preview with updated indices
+    for (let i = 0; i < additionalFilesCollection.length; i++) {
+        const file = additionalFilesCollection[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const newPreviewItem = `
+                <div id="preview_${i}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
+                    <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
+                           style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                           onclick="event.stopPropagation(); removeAdditionalImage(${i});"
+                           title="Remove image">
+                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
+                    </button>
+                    <small class="d-block mt-1 text-success">Converted to WebP</small>
+                </div>
+            `;
+            
+            // Append to the preview area
+            document.getElementById('additional_images_preview').insertAdjacentHTML('beforeend', newPreviewItem);
+        }
+        reader.readAsDataURL(file);
+    }
 }
 
 // Existing Image Deletion
-function removeExistingImage(imageId) {
+function removeExistingImage(imageId, e) {
+    // If there's an event object, stop propagation
+    if (e) e.stopPropagation();
+    
     // Add to our temporary deleted images array
     if (!tempDeletedImages.includes(imageId)) {
         tempDeletedImages.push(imageId);

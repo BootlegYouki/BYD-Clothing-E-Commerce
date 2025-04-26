@@ -58,16 +58,56 @@
     transition: all 0.2s ease;
     background-color: rgba(255, 255, 255, 0.5);
     position: relative;
+    cursor: pointer;
 }
 
 .image-upload-container:hover {
     border-color: rgba(255, 127, 80, 0.7);
+    background-color: rgba(255, 127, 80, 0.05);
 }
 
-.upload-icon {
-    font-size: 2.5rem;
-    color: var(--grey-300);
-    margin-bottom: 0.5rem;
+/* Add visual feedback when clicking */
+.image-upload-container.uploading,
+.image-upload-container:active {
+    transform: translateY(2px);
+    border-color: rgba(255, 127, 80, 0.9);
+    background-color: rgba(255, 127, 80, 0.1);
+}
+
+/* Make the file name display clearly non-interactive */
+.file-name-display {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--grey-200);
+    cursor: default !important;
+    pointer-events: none; /* Prevent interaction */
+}
+
+/* Add separator between upload controls and preview */
+#primary_image_preview, #additional_images_preview {
+    border-top: 1px dashed var(--grey-300);
+    padding-top: 1.25rem;
+    margin-top: 1.5rem;
+    cursor: default;
+}
+
+/* Add styles for remove buttons to ensure proper isolation */
+#primary_image_preview button,
+#additional_images_preview button {
+    z-index: 10;  /* Ensure buttons are on top */
+    pointer-events: auto;  /* Ensure buttons capture events */
+}
+
+#primary_image_preview,
+#additional_images_preview {
+    cursor: default; /* Override parent's pointer cursor */
+}
+
+/* Add some spacing between previews */
+#primary_image_preview img, #additional_images_preview img {
+    border-radius: 0.5rem;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin: 0.5rem;
 }
 
 .size-stock-grid {
@@ -106,12 +146,6 @@
 .submit-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(255, 99, 71, 0.4);
-}
-
-#primary_image_preview img, #additional_images_preview img {
-    border-radius: 0.5rem;
-    border: 3px solid white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .form-check-input:checked {

@@ -303,7 +303,7 @@ function generateSKU($productName, $category) {
                         Primary Image
                     </h5>
                     
-                    <div class="image-upload-container mb-3">
+                    <div class="image-upload-container mb-3" id="primary_image_container_clickable">
                         <div class="upload-icon">
                             <i class="material-symbols-rounded">file_upload</i>
                         </div>
@@ -311,41 +311,35 @@ function generateSKU($productName, $category) {
                         <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 1)</small>
                         
                         <input type="file" name="primary_image[]" id="primary_image" class="form-control d-none" accept="image/*">
-                        <input type="text" class="form-control" id="primary_image_text" placeholder="No files selected" readonly>
+                        <input type="text" class="form-control file-name-display" id="primary_image_text" placeholder="No files selected" readonly>
                         <div class="error-message text-danger mt-2"></div>
-                        <button class="btn btn-primary mt-3" type="button" id="primary_image_btn">
-                            <i class="material-symbols-rounded me-1">upload_file</i>
-                            Choose Image
-                        </button>
-                    </div>
-                    
-                    <div id="primary_image_preview" class="mt-3 text-center"></div>
-                </div>
-                
-                <!-- Additional Images Upload -->
-                <div class="form-section">
-                    <h5 class="section-title">
-                        <i class="material-symbols-rounded align-middle me-2">collections</i>
-                        Additional Images
-                    </h5>
-                    
-                    <div class="image-upload-container mb-3">
-                        <div class="upload-icon">
-                            <i class="material-symbols-rounded">photo_library</i>
-                        </div>
-                        <p class="mb-2">Additional Product Images</p>
-                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
                         
-                        <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
-                        <input type="text" class="form-control" id="additional_images_text" placeholder="No files selected" readonly>
-                        <div class="error-message text-danger mt-2"></div>
-                        <button class="btn btn-primary mt-3" type="button" id="additional_images_btn">
-                            <i class="material-symbols-rounded me-1">upload_file</i>
-                            Choose Images
-                        </button>
+                        <!-- Moved preview inside the container -->
+                        <div id="primary_image_preview" class="mt-3 text-center"></div>
                     </div>
                     
-                    <div id="additional_images_preview" class="mt-3 text-center"></div>
+                    <!-- Additional Images Upload -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="material-symbols-rounded align-middle me-2">collections</i>
+                            Additional Images
+                        </h5>
+                        
+                        <div class="image-upload-container mb-3" id="additional_images_container_clickable">
+                            <div class="upload-icon">
+                                <i class="material-symbols-rounded">photo_library</i>
+                            </div>
+                            <p class="mb-2">Additional Product Images</p>
+                            <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
+                            
+                            <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
+                            <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>
+                            <div class="error-message text-danger mt-2"></div>
+                            
+                            <!-- Moved preview inside the container -->
+                            <div id="additional_images_preview" class="mt-3 text-center"></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Submit Button -->

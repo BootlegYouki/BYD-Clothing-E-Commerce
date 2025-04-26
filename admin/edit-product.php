@@ -345,7 +345,7 @@ function generateSKU($productName, $category) {
                         Primary Image
                     </h5>
                     
-                    <div class="image-upload-container mb-3">
+                    <div class="image-upload-container mb-3" id="primary_image_container_clickable">
                         <div class="upload-icon">
                             <i class="material-symbols-rounded">file_upload</i>
                         </div>
@@ -353,75 +353,62 @@ function generateSKU($productName, $category) {
                         <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 1)</small>
                         
                         <input type="file" name="primary_image[]" id="primary_image" class="form-control d-none" accept="image/*">
-                        <input type="text" class="form-control" id="primary_image_text" placeholder="No files selected" readonly>
+                        <input type="text" class="form-control file-name-display" id="primary_image_text" placeholder="No files selected" readonly>
                         <div class="error-message text-danger mt-2"></div>
-                        <button class="btn btn-primary mt-3" type="button" id="primary_image_btn">
-                            <i class="material-symbols-rounded me-1">upload_file</i>
-                            <?= $primary_image ? 'Change Image' : 'Choose Image' ?>
-                        </button>
-                    </div>
-                    
-                    <div id="primary_image_preview" class="mt-3 text-center">
-                        <?php if($primary_image): ?>
-                            <div id="primary_image_container" data-image-id="<?= $primary_image['id'] ?>">
-                                <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                                    <img src="../<?= $primary_image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                        style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                        onclick="removePrimaryImage()"
-                                        title="Remove image">
-                                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                                    </button>
-                                    <small class="d-block mt-1">Current primary image</small>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <!-- Additional Images Upload -->
-                <div class="form-section">
-                    <h5 class="section-title">
-                        <i class="material-symbols-rounded align-middle me-2">collections</i>
-                        Additional Images
-                    </h5>
-                    
-                    <div class="image-upload-container mb-3">
-                        <div class="upload-icon">
-                            <i class="material-symbols-rounded">photo_library</i>
-                        </div>
-                        <p class="mb-2">Additional Product Images</p>
-                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
                         
-                        <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
-                        <input type="text" class="form-control" id="additional_images_text" placeholder="No files selected" readonly>
-                        <div class="error-message text-danger mt-2"></div>
-                        <button class="btn btn-primary mt-3" type="button" id="additional_images_btn">
-                            <i class="material-symbols-rounded me-1">upload_file</i>
-                            <?= count($additional_images) > 0 ? 'Add/Change Images' : 'Choose Images' ?>
-                        </button>
-                    </div>
-                    
-                    <div id="additional_images_preview" class="mt-3 text-center">
-                        <div id="additional-images-container" class="<?= count($additional_images) > 0 ? 'mb-3' : '' ?>">
-                            <?php if(count($additional_images) > 0): ?>
-                                <?php foreach($additional_images as $image): ?>
-                                    <div id="image_container_<?= $image['id'] ?>" style="display:inline-block; margin-right:5px; text-align: center; position: relative; margin-bottom: 10px;">
-                                        <img src="../<?= $image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                            style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                            onclick="removeExistingImage('<?= $image['id'] ?>')"
-                                            title="Remove image">
-                                            <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                                        </button>
+                        <!-- Moved preview inside the container -->
+                        <div id="primary_image_preview" class="mt-3 text-center">
+                            <?php if($primary_image): ?>
+                                <div id="primary_image_container" data-image-id="<?= $primary_image['id'] ?>">
+                                    <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
+                                        <img src="../<?= $primary_image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                                        <small class="d-block mt-1">Current primary image</small>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p class="text-danger mb-0">No additional images</p>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Additional Images Upload -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="material-symbols-rounded align-middle me-2">collections</i>
+                            Additional Images
+                        </h5>
+                        
+                        <div class="image-upload-container mb-3" id="additional_images_container_clickable">
+                            <div class="upload-icon">
+                                <i class="material-symbols-rounded">photo_library</i>
+                            </div>
+                            <p class="mb-2">Additional Product Images</p>
+                            <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
+                            
+                            <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
+                            <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>
+                            <div class="error-message text-danger mt-2"></div>
+                            
+                            <!-- Moved preview inside the container -->
+                            <div id="additional_images_preview" class="mt-3 text-center">
+                                <div id="additional-images-container" class="<?= count($additional_images) > 0 ? 'mb-3' : '' ?>">
+                                    <?php if(count($additional_images) > 0): ?>
+                                        <?php foreach($additional_images as $image): ?>
+                                            <div id="image_container_<?= $image['id'] ?>" style="display:inline-block; margin-right:5px; text-align: center; position: relative; margin-bottom: 10px;">
+                                                <img src="../<?= $image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
+                                                    style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                                                    onclick="event.stopPropagation(); removeExistingImage('<?= $image['id'] ?>');"
+                                                    title="Remove image">
+                                                    <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
+                                                </button>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="text-danger mb-0">No additional images</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 
                 <!-- Submit Button -->
                 <div class="d-grid gap-2 mt-4">
