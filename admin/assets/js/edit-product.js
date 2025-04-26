@@ -972,6 +972,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Add arrow key navigation for size inputs
+    function setupSizeInputNavigation() {
+        const sizeInputs = document.querySelectorAll('.size-stock-grid input[type="number"]');
+        const sizeArray = Array.from(sizeInputs);
+        
+        sizeArray.forEach((input, index) => {
+            input.addEventListener('keydown', function(e) {
+                // Right arrow key - move to next input
+                if (e.key === 'ArrowRight' && index < sizeArray.length - 1) {
+                    e.preventDefault();
+                    sizeArray[index + 1].focus();
+                }
+                
+                // Left arrow key - move to previous input
+                if (e.key === 'ArrowLeft' && index > 0) {
+                    e.preventDefault();
+                    sizeArray[index - 1].focus();
+                }
+            });
+            
+            // Position cursor at the end of the input value when focused
+            input.addEventListener('focus', function(e) {
+                // Move cursor to the end by temporarily storing the value and reassigning it
+                const val = this.value;
+                this.value = '';
+                this.value = val;
+            });
+        });
+    }
+    
+    // Call the function to set up navigation
+    setupSizeInputNavigation();
+    
     // Initialize dropdowns when document is ready
     initializeCategoryDropdown();
     initializeFabricDropdown();
