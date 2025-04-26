@@ -203,12 +203,12 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     if (requiresStockData && product.stock_by_size) {
                         tshirtInfo += ' | Stock: ';
                         let availableSizes = [];
-                        let hasStock = false; // This line is missing in your code
+                        let hasStock = false;
                         
                         for (const size in product.stock_by_size) {
                             if (product.stock_by_size[size] > 0) {
                                 availableSizes.push(`${size}:${product.stock_by_size[size]}`);
-                                hasStock = true; // This sets hasStock to true when at least one size has stock
+                                hasStock = true;
                             }
                         }
                         
@@ -229,7 +229,7 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                 longslvInfo = `- Long Sleeves:\n`;
                 
                 products.longslv.forEach(product => {
-                    // Basic product information
+                    // Basic product information always included if product data is requested
                     longslvInfo += `  "${product.name}"`;
                     
                     // Add price info only if specifically requested
