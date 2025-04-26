@@ -54,6 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     setupLazyLoading();
+    
+    // Setup client-side sorting and filtering
+    setupClientSideSorting();
+    setupClientSideCategoryFilter();
 });
 
 /**
@@ -151,6 +155,626 @@ function setupLazyLoading() {
         if (!img.src) img.src = img.dataset.src;
         observer.observe(img);
     });
+}
+
+/**
+ * Sets up client-side sorting without page refresh
+ */
+function setupClientSideSorting() {
+    const sortSelect = document.getElementById('product-sort');
+    if (!sortSelect) return;
+    
+    // Save original order of products for "Default" option
+    const productRows = document.querySelectorAll('.product-row');
+    const originalOrder = Array.from(productRows).map(row => {
+        return {
+            element: row,
+            html: row.innerHTML
+        };
+    });
+    
+    // Get mobile swiper if it exists
+    const shopSwiper = document.querySelector('.shop-swiper');
+    const swiperWrapper = shopSwiper ? shopSwiper.querySelector('.swiper-wrapper') : null;
+    const swiperSlides = swiperWrapper ? Array.from(swiperWrapper.querySelectorAll('.swiper-slide')) : [];
+    const originalSwiperOrder = swiperSlides.map(slide => {
+        return {
+            element: slide,
+            html: slide.innerHTML
+        };
+    });
+    
+    // Initialize Swiper instance
+    let swiper = null;
+    if (shopSwiper) {
+        swiper = shopSwiper.swiper;
+    }
+    
+    // Add event listener to sort dropdown
+    sortSelect.addEventListener('change', function() {
+        const sortValue = this.value;
+        
+        // Update URL parameter without refreshing page
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', sortValue);
+        window.history.replaceState({}, '', url);
+        
+        if (sortValue === 'default') {
+            // Restore original order
+            restoreOriginalOrder();
+        } else {
+            // Sort products based on selected option
+            sortProducts(sortValue);
+        }
+        
+        // Update sort header
+        updateSortHeader(sortValue);
+        
+        // Reinitialize swiper if needed
+        if (swiper) {
+            setTimeout(() => {
+                swiper.update();
+                swiper.slideTo(0);
+            }, 100);
+        }
+    });
+    
+    /**
+     * Updates the sort header to reflect the current sorting option
+     * @param {string} sortOption - The current sort option
+     */
+    function updateSortHeader(sortOption) {
+        // Get the results container
+        const resultsContainer = document.querySelector('.Results .container-fluid .row .col-12');
+        if (!resultsContainer) return;
+        
+        // Check if we already have a search results header
+        let searchResultsHeader = resultsContainer.querySelector('.search-results-header');
+        
+        // If sort is default, remove the header if it exists and it's a sort header
+        if (sortOption === 'default') {
+            if (searchResultsHeader && searchResultsHeader.querySelector('h4').textContent.startsWith('Sorted by:')) {
+                searchResultsHeader.remove();
+            }
+            return;
+        }
+        
+        // Get the sort option display text
+        let sortText = '';
+        switch (sortOption) {
+            case 'price-asc': sortText = 'Price: Low to High'; break;
+            case 'price-desc': sortText = 'Price: High to Low'; break;
+            case 'name-asc': sortText = 'Name: A to Z'; break;
+            case 'name-desc': sortText = 'Name: Z to A'; break;
+            case 'discount': sortText = 'Best Discount'; break;
+            default: sortText = 'Default'; break;
+        }
+        
+        // If header doesn't exist or it's not a sort header, create a new one
+        if (!searchResultsHeader || !searchResultsHeader.querySelector('h4').textContent.startsWith('Sorted by:')) {
+            // Check if there's a category or search header we need to preserve
+            if (searchResultsHeader) {
+                // If it's a category or search header, don't replace it
+                if (searchResultsHeader.querySelector('h4').textContent.includes('Category:') || 
+                    searchResultsHeader.querySelector('h4').textContent.includes('Search results for:')) {
+                    return; // Don't show sort header when filtering by category or search
+                }
+            }
+            
+            // Create new header
+            searchResultsHeader = document.createElement('div');
+            searchResultsHeader.className = 'search-results-header my-3';
+            searchResultsHeader.innerHTML = `<h4 class="mb-0">Sorted by: ${sortText}</h4>`;
+            resultsContainer.prepend(searchResultsHeader);
+        } else {
+            // Update existing sort header
+            searchResultsHeader.querySelector('h4').textContent = `Sorted by: ${sortText}`;
+        }
+    }
+    
+    /**
+     * Restores the original order of products
+     */
+    function restoreOriginalOrder() {
+        // Restore desktop view
+        originalOrder.forEach((item, index) => {
+            productRows[index].innerHTML = item.html;
+        });
+        
+        // Restore mobile view if exists
+        if (swiperWrapper && originalSwiperOrder.length > 0) {
+            swiperSlides.forEach((slide, index) => {
+                if (originalSwiperOrder[index]) {
+                    slide.innerHTML = originalSwiperOrder[index].html;
+                }
+            });
+        }
+    }
+    
+    /**
+     * Sorts products based on selected option
+     * @param {string} sortOption - The sorting option
+     */
+    function sortProducts(sortOption) {
+        // Sort desktop view
+        productRows.forEach(row => {
+            const products = Array.from(row.querySelectorAll('.product'));
+            const sortedProducts = sortProductElements(products, sortOption);
+            
+            // Clear row and append sorted products
+            row.innerHTML = '';
+            sortedProducts.forEach(product => {
+                row.appendChild(product);
+            });
+        });
+        
+        // Sort mobile view if exists
+        if (swiperWrapper && swiperSlides.length > 0) {
+            const mobileProducts = swiperSlides.map(slide => {
+                return {
+                    element: slide,
+                    productCard: slide.querySelector('.product-card')
+                };
+            });
+            
+            const sortedMobileProducts = sortMobileProductElements(mobileProducts, sortOption);
+            
+            // Reorder swiper slides
+            swiperWrapper.innerHTML = '';
+            sortedMobileProducts.forEach(product => {
+                swiperWrapper.appendChild(product.element);
+            });
+        }
+    }
+    
+    /**
+     * Sorts product elements based on the selected option
+     * @param {Array} products - Array of product elements
+     * @param {string} sortOption - The sorting option
+     * @returns {Array} - Sorted array of product elements
+     */
+    function sortProductElements(products, sortOption) {
+        return [...products].sort((a, b) => {
+            const productA = a.querySelector('.product-card');
+            const productB = b.querySelector('.product-card');
+            
+            const titleA = a.querySelector('h5').textContent.trim();
+            const titleB = b.querySelector('h5').textContent.trim();
+            
+            let priceA = parseFloat(a.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
+            let priceB = parseFloat(b.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
+            
+            const originalPriceA = a.querySelector('.original-price');
+            const originalPriceB = b.querySelector('.original-price');
+            
+            const discountA = originalPriceA ? parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA : 0;
+            const discountB = originalPriceB ? parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB : 0;
+            
+            const discountPercentA = discountA ? (discountA / parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            const discountPercentB = discountB ? (discountB / parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            
+            switch (sortOption) {
+                case 'price-asc':
+                    return priceA - priceB;
+                case 'price-desc':
+                    return priceB - priceA;
+                case 'name-asc':
+                    return titleA.localeCompare(titleB);
+                case 'name-desc':
+                    return titleB.localeCompare(titleA);
+                case 'discount':
+                    return discountPercentB - discountPercentA;
+                default:
+                    return 0;
+            }
+        });
+    }
+    
+    /**
+     * Sorts mobile product elements based on the selected option
+     * @param {Array} products - Array of product objects with element and productCard
+     * @param {string} sortOption - The sorting option
+     * @returns {Array} - Sorted array of product objects
+     */
+    function sortMobileProductElements(products, sortOption) {
+        return [...products].sort((a, b) => {
+            const productCardA = a.productCard;
+            const productCardB = b.productCard;
+            
+            const titleA = productCardA.querySelector('h5').textContent.trim();
+            const titleB = productCardB.querySelector('h5').textContent.trim();
+            
+            let priceA = parseFloat(productCardA.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
+            let priceB = parseFloat(productCardB.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
+            
+            const originalPriceA = productCardA.querySelector('.original-price');
+            const originalPriceB = productCardB.querySelector('.original-price');
+            
+            const discountA = originalPriceA ? parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA : 0;
+            const discountB = originalPriceB ? parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB : 0;
+            
+            const discountPercentA = discountA ? (discountA / parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            const discountPercentB = discountB ? (discountB / parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            
+            switch (sortOption) {
+                case 'price-asc':
+                    return priceA - priceB;
+                case 'price-desc':
+                    return priceB - priceA;
+                case 'name-asc':
+                    return titleA.localeCompare(titleB);
+                case 'name-desc':
+                    return titleB.localeCompare(titleA);
+                case 'discount':
+                    return discountPercentB - discountPercentA;
+                default:
+                    return 0;
+            }
+        });
+    }
+}
+
+/**
+ * Sets up client-side category filtering without page refresh
+ */
+function setupClientSideCategoryFilter() {
+    // Desktop category filters
+    const categoryFilters = document.querySelectorAll('.category-filter');
+    const mobileCategoryFilters = document.querySelectorAll('.mobile-category-filter');
+    const clearFilterDesktop = document.getElementById('clear-filter-desktop');
+    const clearFilterMobile = document.getElementById('clear-filter-mobile');
+    
+    // Get all product containers
+    const productRows = document.querySelectorAll('.product-row');
+    const products = [];
+    
+    // Save original product layouts for restoring later
+    let originalDesktopLayout = {};
+    let originalMobileLayout = {};
+    
+    // Initialize original layouts (we'll do this after checking if elements exist)
+    
+    // Mobile swiper elements
+    const shopSwiper = document.querySelector('.shop-swiper');
+    const swiperWrapper = shopSwiper ? shopSwiper.querySelector('.swiper-wrapper') : null;
+    const swiperSlides = swiperWrapper ? Array.from(swiperWrapper.querySelectorAll('.swiper-slide')) : [];
+    
+    // Initialize Swiper instance
+    let swiper = null;
+    if (shopSwiper) {
+        swiper = shopSwiper.swiper;
+    }
+    
+    // Save original layouts if elements exist
+    if (productRows.length > 0) {
+        originalDesktopLayout = Array.from(productRows).map(row => {
+            return {
+                element: row,
+                html: row.innerHTML
+            };
+        });
+    }
+    
+    if (swiperSlides.length > 0) {
+        originalMobileLayout = swiperSlides.map(slide => {
+            return {
+                element: slide,
+                html: slide.innerHTML
+            };
+        });
+    }
+    
+    // Extract all products and their categories
+    productRows.forEach(row => {
+        const rowProducts = Array.from(row.querySelectorAll('.product'));
+        rowProducts.forEach(product => {
+            const productCard = product.querySelector('.product-card');
+            const titleElement = product.querySelector('h5');
+            if (productCard && titleElement) {
+                const titleText = titleElement.textContent.trim();
+                // Extract category from title (format: "CATEGORY - Product Name")
+                const category = titleText.split('-')[0].trim();
+                
+                products.push({
+                    element: product,
+                    category: category,
+                    mobileElement: null // Will be populated if mobile view exists
+                });
+            }
+        });
+    });
+    
+    // Match mobile products with their desktop counterparts
+    if (swiperSlides.length > 0) {
+        swiperSlides.forEach(slide => {
+            const productCard = slide.querySelector('.product-card');
+            const titleElement = slide.querySelector('h5');
+            
+            if (productCard && titleElement) {
+                const titleText = titleElement.textContent.trim();
+                const category = titleText.split('-')[0].trim();
+                
+                // Find the matching desktop product and link them
+                const matchingProduct = products.find(p => {
+                    const productTitle = p.element.querySelector('h5').textContent.trim();
+                    return productTitle === titleText;
+                });
+                
+                if (matchingProduct) {
+                    matchingProduct.mobileElement = slide;
+                }
+            }
+        });
+    }
+    
+    // Handle desktop category filter clicks
+    categoryFilters.forEach(filter => {
+        filter.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.dataset.category;
+            
+            // Update active state
+            categoryFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update mobile filters too
+            mobileCategoryFilters.forEach(f => {
+                if (f.dataset.category === category) {
+                    f.classList.remove('btn-outline-secondary');
+                    f.classList.add('btn-dark');
+                } else {
+                    f.classList.remove('btn-dark');
+                    f.classList.add('btn-outline-secondary');
+                }
+            });
+            
+            // Filter products
+            filterProductsByCategory(category);
+            
+            // Update URL without refresh
+            updateUrlParam('category', category);
+            
+            // Update header
+            updateCategoryHeader(decodeURIComponent(category));
+            
+            // Close mobile filter if open
+            const mobileFilter = document.getElementById('categoryFilterMobile');
+            if (mobileFilter) {
+                const bsCollapse = bootstrap.Collapse.getInstance(mobileFilter);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            }
+        });
+    });
+    
+    // Handle mobile category filter clicks
+    mobileCategoryFilters.forEach(filter => {
+        filter.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.dataset.category;
+            
+            // Update active state
+            mobileCategoryFilters.forEach(f => {
+                f.classList.remove('btn-dark');
+                f.classList.add('btn-outline-secondary');
+            });
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-dark');
+            
+            // Update desktop filters too
+            categoryFilters.forEach(f => {
+                if (f.dataset.category === category) {
+                    f.classList.add('active');
+                } else {
+                    f.classList.remove('active');
+                }
+            });
+            
+            // Filter products
+            filterProductsByCategory(category);
+            
+            // Update URL without refresh
+            updateUrlParam('category', category);
+            
+            // Update header
+            updateCategoryHeader(decodeURIComponent(category));
+        });
+    });
+    
+    // Handle clear filter clicks
+    if (clearFilterDesktop) {
+        clearFilterDesktop.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearAllFilters();
+        });
+    }
+    
+    if (clearFilterMobile) {
+        clearFilterMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearAllFilters();
+        });
+    }
+    
+    /**
+     * Updates the URL parameter without page refresh
+     * @param {string} key - Parameter name
+     * @param {string} value - Parameter value
+     */
+    function updateUrlParam(key, value) {
+        const url = new URL(window.location.href);
+        url.searchParams.set(key, value);
+        window.history.replaceState({}, '', url);
+    }
+    
+    /**
+     * Updates the category header to show current selected category
+     * @param {string} category - The current category
+     */
+    function updateCategoryHeader(category) {
+        const titleSection = document.querySelector('#label .container.text-center h3');
+        const descSection = document.querySelector('#label .container.text-center p');
+        
+        if (titleSection) {
+            titleSection.textContent = category;
+        }
+        
+        if (descSection) {
+            descSection.textContent = "Discover stylish designs and unmatched comfort with our latest collection.";
+        }
+        
+        // Update search results header if present
+        const searchResultsHeader = document.querySelector('.search-results-header h4');
+        if (searchResultsHeader) {
+            searchResultsHeader.textContent = `Category: "${category}"`;
+        }
+    }
+    
+    /**
+     * Filters products by category
+     * @param {string} category - The category to filter by
+     */
+    function filterProductsByCategory(category) {
+        category = decodeURIComponent(category);
+        
+        // Handle desktop view
+        productRows.forEach(row => {
+            // Clear the row first
+            row.innerHTML = '';
+        });
+        
+        // Get products matching this category
+        const filteredProducts = products.filter(product => {
+            return product.category === category;
+        });
+        
+        // If no products in this category
+        if (filteredProducts.length === 0) {
+            // Show no products message
+            const noProductsRow = document.createElement('div');
+            noProductsRow.className = 'row';
+            noProductsRow.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <h4>No products found in this category</h4>
+                    <p>Try a different category or check back later for new arrivals.</p>
+                </div>
+            `;
+            
+            if (productRows.length > 0) {
+                productRows[0].parentNode.appendChild(noProductsRow);
+            }
+        } else {
+            // Distribute filtered products across rows (max 4 per row)
+            const productsPerRow = 4;
+            let currentRowIndex = 0;
+            
+            filteredProducts.forEach((product, index) => {
+                if (index % productsPerRow === 0 && index !== 0) {
+                    currentRowIndex++;
+                }
+                
+                if (currentRowIndex < productRows.length) {
+                    productRows[currentRowIndex].appendChild(product.element.cloneNode(true));
+                }
+            });
+        }
+        
+        // Handle mobile view
+        if (swiperWrapper) {
+            swiperWrapper.innerHTML = '';
+            
+            filteredProducts.forEach(product => {
+                if (product.mobileElement) {
+                    swiperWrapper.appendChild(product.mobileElement.cloneNode(true));
+                }
+            });
+            
+            // Reinitialize swiper
+            if (swiper) {
+                setTimeout(() => {
+                    swiper.update();
+                    swiper.slideTo(0);
+                }, 100);
+            }
+        }
+        
+        // Update product count
+        updateProductCount(filteredProducts.length);
+    }
+    
+    /**
+     * Updates the product count display
+     * @param {number} count - The number of products
+     */
+    function updateProductCount(count) {
+        const desktopCount = document.getElementById('products-count');
+        const mobileCount = document.getElementById('mobile-products-count');
+        
+        if (desktopCount) {
+            desktopCount.textContent = `${count} products`;
+        }
+        
+        if (mobileCount) {
+            mobileCount.textContent = `${count} products`;
+        }
+    }
+    
+    /**
+     * Clears all filters and restores original product display
+     */
+    function clearAllFilters() {
+        // Reset active states
+        categoryFilters.forEach(f => f.classList.remove('active'));
+        mobileCategoryFilters.forEach(f => {
+            f.classList.remove('btn-dark');
+            f.classList.add('btn-outline-secondary');
+        });
+        
+        // Restore original layouts
+        if (originalDesktopLayout.length > 0) {
+            originalDesktopLayout.forEach((item, index) => {
+                if (productRows[index]) {
+                    productRows[index].innerHTML = item.html;
+                }
+            });
+        }
+        
+        if (originalMobileLayout.length > 0 && swiperWrapper) {
+            swiperWrapper.innerHTML = '';
+            originalMobileLayout.forEach(item => {
+                swiperWrapper.appendChild(item.element.cloneNode(true));
+            });
+            
+            // Reinitialize swiper
+            if (swiper) {
+                setTimeout(() => {
+                    swiper.update();
+                    swiper.slideTo(0);
+                }, 100);
+            }
+        }
+        
+        // Update URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('category');
+        window.history.replaceState({}, '', url);
+        
+        // Update header to default
+        const titleSection = document.querySelector('#label .container.text-center h3');
+        if (titleSection) {
+            titleSection.textContent = "All Collections";
+        }
+        
+        // Remove any search results header
+        const searchResultsHeader = document.querySelector('.search-results-header');
+        if (searchResultsHeader) {
+            searchResultsHeader.remove();
+        }
+        
+        // Update count
+        updateProductCount(products.length);
+    }
 }
 
 /**

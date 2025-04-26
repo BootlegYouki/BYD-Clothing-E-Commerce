@@ -112,8 +112,7 @@ $categories = getAllCategories($conn);
                         <!-- Sort dropdown -->
                         <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
-                            <select id="product-sort" class="form-select" 
-                            onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
+                            <select id="product-sort" class="form-select">
                                 <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>Default</option>
                                 <option value="price-asc" <?= $sort === 'price-asc' ? 'selected' : '' ?>>Price: Low to High</option>
                                 <option value="price-desc" <?= $sort === 'price-desc' ? 'selected' : '' ?>>Price: High to Low</option>
