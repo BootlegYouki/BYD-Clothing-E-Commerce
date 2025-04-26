@@ -378,10 +378,6 @@ a {
   color: white;
 }
 
-.btn-outline-coral.active:hover {
-  background-color: #FF6347;
-}
-
 /* ICONS WITH DARK BACKGROUNDS */
 .icon-shape.bg-gradient-dark {
   background: var(--black) !important;
@@ -830,15 +826,55 @@ body.theme-dark {
   .dropdown-divider {
     border-color: var(--border-color);
   }
-}
-
-/* Make Home breadcrumb coral colored */
-.breadcrumb-item a[href="index.php"] {
-  color: var(--primary) !important;
-  transition: all 0.2s ease;
-}
-
-.breadcrumb-item a[href="index.php"]:hover {
-  text-decoration: underline !important;
-  opacity: 0.9;
+  
+  /* Modal styling - forceful overrides for dark mode */
+  .modal .modal-content {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  .modal .modal-header,
+  .modal .modal-footer {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  .modal .modal-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+  }
+  
+  .modal .modal-title {
+    color: var(--text-color) !important;
+  }
+  
+  .modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(70%) !important;
+  }
+  
+  .modal .avatar.bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .modal .avatar .material-symbols-rounded {
+    color: var(--text-color) !important;
+  }
+  
+  .modal .text-muted,
+  .modal small.text-muted,
+  .modal .form-label.text-muted {
+    color: var(--text-muted) !important;
+  }
+  
+  .modal h5,
+  .modal h6,
+  .modal p:not(.text-muted),
+  .modal span:not(.text-muted) {
+    color: var(--text-color) !important;
+  }
+  
+  .modal hr {
+    border-color: var(--border-color) !important;
+    opacity: 0.2;
+  }
 }

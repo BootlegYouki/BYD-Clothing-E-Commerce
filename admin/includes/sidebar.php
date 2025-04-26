@@ -186,18 +186,18 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
       <span class="nav-section-title">Customers</span>
       <ul class="navbar-nav">
         <li class="nav-item">
+          <a class="nav-link <?php echo ($currentPage == 'customers.php') ? 'active' : ''; ?>" href="customers.php">
+            <i class="material-symbols-rounded">people</i>
+            <span>Customers</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link <?php echo ($currentPage == 'orders.php') ? 'active' : ''; ?>" href="orders.php">
             <i class="material-symbols-rounded">receipt_long</i>
             <span>Orders</span>
             <?php if ($pending_orders_count > 0): ?>
                 <span class="nav-badge" style="display: <?= $badge_display ?>;"><?= $pending_orders_count ?></span>
             <?php endif; ?>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link <?php echo ($currentPage == 'customers.php') ? 'active' : ''; ?>" href="customers.php">
-            <i class="material-symbols-rounded">people</i>
-            <span>Customers</span>
           </a>
         </li>
       </ul>
