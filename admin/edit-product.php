@@ -158,37 +158,8 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                                             }
                                         }
                                         ?>
-                                        <option value="new">+ Add New Category</option>
-                                        <option value="remove" class="text-danger">- Remove Category</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3" id="new_category_container" style="display: none;">
-                                    <label for="new_category" class="form-label">New Category Name</label>
-                                    <input type="text" name="new_category" id="new_category" class="form-control" placeholder="Enter new category name">
-                                    <button type="button" id="add_category_btn" class="btn btn-success mt-2">Add Category</button>
-                                    <div id="add_category_msg" class="mt-2"></div>
-                                </div>
-                                <div class="col-md-6 mb-3" id="remove_category_container" style="display: none;">
-                                    <label for="remove_category" class="form-label">Select Category to Remove</label>
-                                    <select name="remove_category" id="remove_category" class="form-control">
-                                        <option value="">Select Category to Remove</option>
-                                        <?php
-                                        // Reset the result pointer to beginning
-                                        mysqli_data_seek($category_result, 0);
-                                        if(mysqli_num_rows($category_result) > 0) {
-                                            while($category = mysqli_fetch_assoc($category_result)) {
-                                                echo '<option value="'.$category['category'].'">'.$category['category'].'</option>';
-                                            }
-                                        }
-                                        ?>
-                                    </select>
-                                    <button type="button" id="remove_category_btn" class="btn btn-danger mt-2">Remove Selected Category</button>
-                                    <div id="remove_category_msg" class="mt-2"></div>
-                                </div>
-                            </div>
-
-                            <!-- Fabric Row -->
-                            <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="fabric" class="form-label">Fabric</label>
                                     <select name="fabric" id="fabric" class="form-control">
@@ -204,34 +175,10 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                                             }
                                         }
                                         ?>
-                                        <option value="new">+ Add New Fabric</option>
-                                        <option value="remove" class="text-danger">- Remove Fabric</option>
                                     </select>
-                                </div>
-                                <div class="col-md-6 mb-3" id="new_fabric_container" style="display: none;">
-                                    <label for="new_fabric" class="form-label">New Fabric Type</label>
-                                    <input type="text" name="new_fabric" id="new_fabric" class="form-control" placeholder="Enter new fabric type">
-                                    <button type="button" id="add_fabric_btn" class="btn btn-success mt-2">Add Fabric</button>
-                                    <div id="add_fabric_msg" class="mt-2"></div>
-                                </div>
-                                <div class="col-md-6 mb-3" id="remove_fabric_container" style="display: none;">
-                                    <label for="remove_fabric" class="form-label">Select Fabric to Remove</label>
-                                    <select name="remove_fabric" id="remove_fabric" class="form-control">
-                                        <option value="">Select Fabric to Remove</option>
-                                        <?php
-                                        // Reset the result pointer to beginning
-                                        mysqli_data_seek($fabric_result, 0);
-                                        if(mysqli_num_rows($fabric_result) > 0) {
-                                            while($fabric = mysqli_fetch_assoc($fabric_result)) {
-                                                echo '<option value="'.$fabric['fabric'].'">'.$fabric['fabric'].'</option>';
-                                            }
-                                        }
-                                        ?>
-                                    </select>
-                                    <button type="button" id="remove_fabric_btn" class="btn btn-danger mt-2">Remove Selected Fabric</button>
-                                    <div id="remove_fabric_msg" class="mt-2"></div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <div class="form-check form-switch">
@@ -252,7 +199,7 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                             <!-- Product Images section -->
                             <div class="col-md-12">
                                 <hr>
-                                <h5>Product Images</h5>
+                                <h5 class="mt-3">Product Images</h5>
                                 <div>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -272,7 +219,7 @@ while($size = mysqli_fetch_assoc($sizes_result)) {
                                             <div id="primary_image_preview" class="mt-2"></div>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-2">Additional Pictures (Max: 3)</p>
+                                            <p class="mb-2">Additional Pictures (Max: 4)</p>
                                             <?php if(count($additional_images) > 0): ?>
                                                 <div class="mb-3">
                                                     <p>Current additional images:</p>

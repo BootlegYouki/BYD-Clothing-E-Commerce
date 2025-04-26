@@ -11,29 +11,21 @@ if(isset($_POST['add_product'])) {
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
     $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
 
-    // Process category selection or new category entry
+    // Process category selection
     $category = '';
-    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
-        // New category was entered
-        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
-    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
-        // Existing category was selected
+    if(isset($_POST['category']) && !empty($_POST['category'])) {
+        // Use the selected category
         $category = mysqli_real_escape_string($conn, $_POST['category']);
     } else {
         // Default category if none selected
         $category = 'Uncategorized';
     }
 
-    // Process fabric selection or new fabric entry
+    // Process fabric selection
     $fabric = '';
-    if(isset($_POST['fabric'])) {
-        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
-            // New fabric was entered
-            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
-        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
-            // Existing fabric was selected
-            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
-        }
+    if(isset($_POST['fabric']) && !empty($_POST['fabric'])) {
+        // Use the selected fabric
+        $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
     }
     
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -93,6 +85,9 @@ if(isset($_POST['add_product'])) {
         if(isset($_FILES['additional_images']) && $_FILES['additional_images']['name'][0] != '') {
             $files = $_FILES['additional_images'];
             $file_count = count($files['name']);
+            
+            // Limit to 4 additional images instead of 3
+            $file_count = min($file_count, 4);
             
             for($i = 0; $i < $file_count; $i++) {
                 if($files['error'][$i] === UPLOAD_ERR_OK) {
@@ -224,29 +219,21 @@ if(isset($_POST['update_product'])) {
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
     $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
     
-    // Process category selection or new category entry
+    // Process category selection
     $category = '';
-    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
-        // New category was entered
-        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
-    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
-        // Existing category was selected
+    if(isset($_POST['category']) && !empty($_POST['category'])) {
+        // Use the selected category
         $category = mysqli_real_escape_string($conn, $_POST['category']);
     } else {
         // Default category if none selected
         $category = 'Uncategorized';
     }
     
-    // Process fabric selection or new fabric entry
+    // Process fabric selection
     $fabric = '';
-    if(isset($_POST['fabric'])) {
-        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
-            // New fabric was entered
-            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
-        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
-            // Existing fabric was selected
-            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
-        }
+    if(isset($_POST['fabric']) && !empty($_POST['fabric'])) {
+        // Use the selected fabric
+        $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
     }
     
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -377,6 +364,9 @@ if(isset($_POST['update_product'])) {
         if(isset($_FILES['additional_images']) && $_FILES['additional_images']['name'][0] != '') {
             $additional_images = $_FILES['additional_images'];
             $additional_image_count = count($additional_images['name']);
+            
+            // Limit to 4 additional images instead of 3
+            $additional_image_count = min($additional_image_count, 4);
             
             for($i = 0; $i < $additional_image_count; $i++) {
                 $additional_image_name = $additional_images['name'][$i];
