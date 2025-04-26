@@ -16,6 +16,7 @@ $email = $_SESSION['verify_email'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Your Email - BYD Clothing</title>
+    <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -176,7 +177,7 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
-
+        
         /* Add styles for message display */
         .message {
             padding: 15px;
@@ -196,6 +197,21 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
+        
+        /* Styling for spam reminder */
+        .spam-note {
+            color: #777;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .spam-note i {
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +227,7 @@ $email = $_SESSION['verify_email'];
             
             <h4 class="text-center">Verify Your Email</h4>
             <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
+            <p class="spam-note"><i class="fas fa-info-circle"></i> If you don't see the email, please check your spam or junk folder.</p>
             
             <form id="verificationForm" action="functions/authcode.php" method="POST">
                 <div class="otp-inputs">

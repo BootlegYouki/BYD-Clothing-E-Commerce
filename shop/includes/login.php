@@ -113,6 +113,7 @@
         <div class="alert alert-success mb-3 d-none" id="forgotPasswordSuccessMessage"></div>
 
         <p>Enter your email address below to receive a password reset link.</p>
+        <p class="text-muted small mb-3 text-center"><i class="fas fa-info-circle"></i> If you don't see the email, please check your spam or junk folder.</p>
         
         <form id="forgotPasswordForm" class="needs-validation" novalidate>
           <div class="row gy-3 overflow-hidden">
