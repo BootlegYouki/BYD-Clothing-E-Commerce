@@ -5,15 +5,6 @@ html.theme-preload * {
   transition: none !important;
 }
 
-/* Add synchronized theme transition */
-html.theme-transition,
-html.theme-transition *,
-html.theme-transition *:before,
-html.theme-transition *:after {
-  transition: all 0.3s ease !important;
-  transition-delay: 0s !important;
-}
-
 .theme-light-logo, .theme-dark-logo {
   display: none;
 }
