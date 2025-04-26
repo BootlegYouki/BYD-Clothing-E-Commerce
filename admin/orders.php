@@ -14,14 +14,18 @@ $status_filter = $_GET['status'] ?? 'all';
 $date_filter = $_GET['date'] ?? 'all';
 $search = $_GET['search'] ?? '';
 
-// Build the query based on filters
+// Start building the base query
 $query = "SELECT o.*, CONCAT(u.firstname, ' ', u.lastname) as customer_name FROM orders o 
           LEFT JOIN users u ON o.user_id = u.id 
           WHERE 1=1";
+$params = [];
+$types = "";
 
 // Status filter
 if($status_filter != 'all') {
-    $query .= " AND o.status = '$status_filter'";
+    $query .= " AND o.status = ?";
+    $params[] = $status_filter;
+    $types .= "s";
 }
 
 // Date filter
@@ -33,14 +37,33 @@ if($date_filter == 'today') {
     $query .= " AND o.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
 }
 
-// Search functionality
+// Search functionality with prepared statements
 if(!empty($search)) {
-    $query .= " AND (o.firstname LIKE '%$search%' OR o.lastname LIKE '%$search%' OR u.firstname LIKE '%$search%' OR u.lastname LIKE '%$search%' OR o.payment_method LIKE '%$search%' OR o.order_id LIKE '%$search%')";
+    $query .= " AND (o.firstname LIKE ? OR o.lastname LIKE ? OR u.firstname LIKE ? OR u.lastname LIKE ? OR o.payment_method LIKE ? OR o.order_id LIKE ? OR o.email LIKE ? OR u.email LIKE ?)";
+    $search_param = "%$search%";
+    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param]);
+    $types .= "ssssssss";
 }
+
 // Order by latest first
 $query .= " ORDER BY o.created_at DESC";
 
-$result = mysqli_query($conn, $query);
+// Prepare and execute statement
+$stmt = mysqli_prepare($conn, $query);
+
+if ($stmt) {
+    // Bind parameters if there are any
+    if (!empty($params)) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+} else {
+    // Handle error
+    $result = false;
+    echo "Error preparing statement: " . mysqli_error($conn);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
