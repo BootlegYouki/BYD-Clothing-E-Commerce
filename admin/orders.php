@@ -14,6 +14,19 @@ $status_filter = $_GET['status'] ?? 'all';
 $date_filter = $_GET['date'] ?? 'all';
 $search = $_GET['search'] ?? '';
 
+// Set sorting parameters
+$sort_column = $_GET['sort'] ?? 'created_at';
+$sort_direction = $_GET['direction'] ?? 'DESC';
+
+// Validate sort column to prevent SQL injection
+$allowed_columns = ['order_id', 'customer_name', 'total_amount', 'created_at', 'status', 'payment_method'];
+if (!in_array($sort_column, $allowed_columns)) {
+    $sort_column = 'created_at';
+}
+
+// Validate sort direction
+$sort_direction = strtoupper($sort_direction) == 'ASC' ? 'ASC' : 'DESC';
+
 // Start building the base query
 $query = "SELECT o.*, CONCAT(u.firstname, ' ', u.lastname) as customer_name FROM orders o 
           LEFT JOIN users u ON o.user_id = u.id 
@@ -45,8 +58,8 @@ if(!empty($search)) {
     $types .= "ssssssss";
 }
 
-// Order by latest first
-$query .= " ORDER BY o.created_at DESC";
+// Order by the selected column and direction
+$query .= " ORDER BY $sort_column $sort_direction";
 
 // Prepare and execute statement
 $stmt = mysqli_prepare($conn, $query);
@@ -152,12 +165,30 @@ if ($stmt) {
         <table class="table align-items-center mb-0">
           <thead>
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Order ID</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Customer</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Payment</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3 sortable" data-sort="order_id">
+                Order ID
+                <i class='bx <?= $sort_column == 'order_id' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'order_id' ? 'active-sort' : '' ?>'></i>
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="customer_name">
+                Customer
+                <i class='bx <?= $sort_column == 'customer_name' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'customer_name' ? 'active-sort' : '' ?>'></i>
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="total_amount">
+                Total
+                <i class='bx <?= $sort_column == 'total_amount' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'total_amount' ? 'active-sort' : '' ?>'></i>
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="created_at">
+                Date
+                <i class='bx <?= $sort_column == 'created_at' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'created_at' ? 'active-sort' : '' ?>'></i>
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="status">
+                Status
+                <i class='bx <?= $sort_column == 'status' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'status' ? 'active-sort' : '' ?>'></i>
+              </th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="payment_method">
+                Payment
+                <i class='bx <?= $sort_column == 'payment_method' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'payment_method' ? 'active-sort' : '' ?>'></i>
+              </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
             </tr>
           </thead>
@@ -285,7 +316,58 @@ if ($stmt) {
         statusSelect.value = currentStatus;
       });
     }
+    
+    // Add sorting functionality
+    const sortableHeaders = document.querySelectorAll('.sortable');
+    sortableHeaders.forEach(header => {
+      header.style.cursor = 'pointer';
+      
+      header.addEventListener('click', function() {
+        const column = this.getAttribute('data-sort');
+        let direction = 'ASC';
+        
+        // If this column is already sorted, toggle direction
+        if (column === '<?= $sort_column ?>') {
+          direction = '<?= $sort_direction ?>' === 'ASC' ? 'DESC' : 'ASC';
+        }
+        
+        // Create URL with current filters plus new sort parameters
+        let url = new URL(window.location.href);
+        let params = new URLSearchParams(url.search);
+        
+        // Update or add sort parameters
+        params.set('sort', column);
+        params.set('direction', direction);
+        
+        // Redirect to the new URL
+        window.location.href = `${url.pathname}?${params.toString()}`;
+      });
+    });
   });
 </script>
+
+<style>
+  .sortable {
+    position: relative;
+    white-space: nowrap;
+  }
+  
+  .sort-icon {
+    font-size: 0.85rem;
+    margin-left: 5px;
+    vertical-align: middle;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  
+  .sort-icon.active-sort {
+    opacity: 1;
+    color: #eb5d1e;
+  }
+  
+  .sortable:hover .sort-icon {
+    opacity: 1;
+  }
+</style>
 </body>
 </html>
