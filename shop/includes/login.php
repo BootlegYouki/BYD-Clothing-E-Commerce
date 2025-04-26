@@ -107,6 +107,25 @@
             .form-control:valid {
             background-image: none !important;
           }
+          
+          /* Style for disabled button during countdown */
+          button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+            position: relative;
+          }
+          
+          /* Add a visual overlay effect when button is disabled */
+          button.btn-modal:disabled::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: inherit;
+          }
         </style>
         
         <div class="alert alert-danger mb-3 d-none" id="forgotPasswordErrorMessage"></div>
@@ -139,6 +158,12 @@
             </div>
           </div>
         </form>
+        
+        <!-- Timer display - initially hidden -->
+        <div id="resetTimerContainer" class="alert alert-info mb-3 text-center d-none mt-3">
+          <i class="fas fa-clock me-2"></i> You can request another reset link in <span id="resetTimer">30</span> seconds
+        </div>
+        
         <div class="mt-4 text-center">
           <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Back to login</a>
         </div>
@@ -292,6 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
                   // Reset form
                   forgotPasswordForm.reset();
                   forgotPasswordForm.classList.remove('was-validated');
+                  
+                  // Start the 30 second timer
+                  startResetTimer();
               } else {
                   // Error message
                   const errorMessage = document.getElementById('forgotPasswordErrorMessage');
@@ -348,6 +376,40 @@ if (checkoutLogin) {
     // Show login modal
     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
     loginModal.show();
+}
+
+// Timer function for password reset
+function startResetTimer() {
+  const timerElement = document.getElementById('resetTimer');
+  const timerContainer = document.getElementById('resetTimerContainer');
+  const recoverBtn = document.getElementById('recoverPasswordBtn');
+  let timeLeft = 30;
+  
+  // Show timer container
+  timerContainer.classList.remove('d-none');
+  
+  // Disable the button and add tooltip
+  recoverBtn.disabled = true;
+  recoverBtn.title = "Please wait for the cooldown period to end";
+  
+  // No need to change the button text - keep it consistent
+  const normalStateSpan = recoverBtn.querySelector('.normal-state');
+  
+  // Set the interval for countdown
+  const timerInterval = setInterval(function() {
+    timeLeft--;
+    timerElement.textContent = timeLeft;
+    
+    if (timeLeft <= 0) {
+      // Clear the interval when timer reaches 0
+      clearInterval(timerInterval);
+      
+      // Enable the button and hide the timer container
+      recoverBtn.disabled = false;
+      recoverBtn.removeAttribute('title');
+      timerContainer.classList.add('d-none');
+    }
+  }, 1000);
 }
 </script>
 <script src="js/url-cleaner.js"></script>
