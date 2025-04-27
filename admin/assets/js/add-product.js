@@ -694,6 +694,11 @@ document.addEventListener('DOMContentLoaded', function() {
         editBtn.innerHTML = '<i class="material-symbols-rounded">check</i>';
         editBtn.title = "Save changes";
         
+        const deleteBtn = listItem.querySelector('.delete-btn');
+        if (deleteBtn) {
+            deleteBtn.style.display = 'none'; // Hide delete button during edit mode
+        }
+
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-control form-control-sm inline-edit-input';
@@ -725,6 +730,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create a new button but don't replace it yet - check if parent exists
             const newEditBtn = editBtn.cloneNode(true);
             
+            const deleteBtn = listItem.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.style.display = '';
+            }
             // Safely handle button replacement
             if (editBtnParent && editBtnParent.contains(editBtn)) {
                 try {
