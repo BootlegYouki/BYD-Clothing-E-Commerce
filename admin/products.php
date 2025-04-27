@@ -35,19 +35,28 @@ include 'config/dbcon.php';
 
 <div class="container-fluid">
     <?php if(isset($_SESSION['message'])) : ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-            <strong>Success!</strong> <?= $_SESSION['message']; ?>
+        <?php 
+        // Default to error if message_type isn't set
+        $messageType = isset($_SESSION['message_type']) ? $_SESSION['message_type'] : "error";
+        $alertClass = ($messageType == "success") ? "alert-success" : "alert-danger";
+        $alertTitle = ($messageType == "success") ? "Success!" : "Error!";
+        ?>
+        <div class="alert <?= $alertClass ?> alert-dismissible fade show" role="alert" id="alert-message">
+            <strong><?= $alertTitle ?></strong> <?= $_SESSION['message']; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <script>
             setTimeout(function() {
-                document.getElementById('success-alert').classList.remove('show');
+                document.getElementById('alert-message').classList.remove('show');
                 setTimeout(function() {
-                    document.getElementById('success-alert')?.remove();
+                    document.getElementById('alert-message')?.remove();
                 }, 150);
             }, 3000);
         </script>
-        <?php unset($_SESSION['message']); ?>
+        <?php 
+        unset($_SESSION['message']); 
+        unset($_SESSION['message_type']);
+        ?>
     <?php endif; ?>
 
     <div class="row">
