@@ -237,7 +237,7 @@
 
 .category-item, .fabric-item {
     align-items: center;
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
     border-bottom: 1px solid var(--grey-100);
     transition: all 0.2s ease;
 }
