@@ -32,6 +32,18 @@
                 chatBubble.style.transition = '';
             }, 10);
         }
+        
+        // Check if we have a saved conversation in localStorage
+        try {
+            const savedConversation = localStorage.getItem('conversationHistory');
+            if (savedConversation) {
+                console.log('Found saved conversation in localStorage');
+                // The actual restoration will happen in assistant.js
+                // This just confirms it exists for debugging
+            }
+        } catch (error) {
+            console.error('Error checking localStorage:', error);
+        }
     }
     
     // Restore chat state before the page fully loads
@@ -39,4 +51,17 @@
     
     // Log page navigation for debugging
     console.log('Chat state manager initialized on:', window.location.pathname);
+    
+    // Add a safeguard for navigation events to ensure conversation is saved
+    window.addEventListener('pagehide', function() {
+        // Try to access the conversation history from the main script
+        if (window.conversationHistory) {
+            try {
+                localStorage.setItem('conversationHistory', JSON.stringify(window.conversationHistory));
+                console.log('Saved conversation on page navigation');
+            } catch (e) {
+                console.error('Error saving conversation on navigation:', e);
+            }
+        }
+    });
 })();

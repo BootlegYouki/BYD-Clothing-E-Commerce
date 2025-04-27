@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('chat-container').classList.remove('active');
             document.getElementById('chat-bubble').classList.remove('hidden');
             sessionStorage.setItem('chatState', 'closed');
+            
+            // Save conversation when closing chat
+            if (conversationHistory) {
+                saveConversation();
+            }
         });
         
         // Modified handler for the clear chat button
@@ -55,14 +60,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listener for page unload to ensure state is saved
         window.addEventListener('beforeunload', function() {
             if (conversationHistory) {
+                // Force synchronous localStorage save before navigating away
                 try {
                     localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
                     localStorage.setItem('conversationTimestamp', Date.now().toString());
+                    console.log('Saved conversation on page unload');
                 } catch (e) {
                     console.error('Error saving conversation on page unload:', e);
                 }
+                
+                // Server-side save happens in the background
+                // but may not complete if page is navigating away
+                saveConversation();
             }
         });
+        
+        // Add a periodic save every 30 seconds for safeguard
+        setInterval(() => {
+            if (conversationHistory) {
+                saveConversation();
+            }
+        }, 30000);
     } else {
         console.log('Chat container not found on this page, skipping initialization');
     }
@@ -129,11 +147,10 @@ async function loadConversation() {
 }
 async function saveConversation() {
     try {
-        // More robust localStorage saving
+        // Robust localStorage saving first (always try this)
         try {
             if (conversationHistory && Array.isArray(conversationHistory)) {
                 localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
-                // Also save a timestamp of when it was last saved
                 localStorage.setItem('conversationTimestamp', Date.now().toString());
                 console.log('Saved conversation to localStorage at', new Date().toISOString());
             }
@@ -141,13 +158,13 @@ async function saveConversation() {
             console.error('Error saving to localStorage:', localStorageError);
         }
         
+        // Then try server-side if user is logged in
         const isLoggedIn = await checkUserAuth();
         if (!isLoggedIn) {
             console.log('User not logged in, saving only to local storage');
             return false;
         }
 
-        // Use absolute path for server-side saving
         const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
@@ -160,14 +177,9 @@ async function saveConversation() {
         });
 
         const data = await response.json();
-        console.log('Server response:', data);
+        console.log('Server save response:', data);
         
-        if (data.status !== 'success') {
-            console.error('Error saving conversation:', data.message);
-            return false;
-        }
-        
-        return true;
+        return data.status === 'success';
     } catch (error) {
         console.error('Exception saving conversation:', error);
         return false;
@@ -329,17 +341,14 @@ async function initializeBot() {
     // First, check if user is logged in
     const isLoggedIn = await checkUserAuth();
     
-    // Check if conversation is already loaded in session storage
-    const conversationLoaded = sessionStorage.getItem('conversationLoaded');
-    
-    // If conversation already loaded in this session AND user is logged in, restore UI
-    if (conversationLoaded === 'true' && isLoggedIn) {
-        try {
-            // Get saved messages to restore UI
-            const savedConversation = JSON.parse(localStorage.getItem('conversationHistory'));
-            
-            if (savedConversation && savedConversation.length > 1) {
-                conversationHistory = savedConversation;
+    // Try to load conversation from localStorage first
+    try {
+        const savedConversation = localStorage.getItem('conversationHistory');
+        if (savedConversation) {
+            const parsed = JSON.parse(savedConversation);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('Successfully loaded conversation from localStorage');
+                conversationHistory = parsed;
                 
                 // Render previous messages in the UI
                 const chatMessages = document.getElementById('chat-messages');
@@ -360,112 +369,108 @@ async function initializeBot() {
                         </div>
                     `;
                 }
-                return; // Exit early since we restored from session
+                
+                // Mark that we've loaded the conversation for this session
+                sessionStorage.setItem('conversationLoaded', 'true');
+                return; // Exit early since we restored from localStorage
             }
-        } catch (error) {
-            console.error('Error restoring chat UI from session:', error);
         }
-    } else if (!isLoggedIn) {
-        // User is not logged in, clear any existing conversation data
-        localStorage.removeItem('conversationHistory');
-        sessionStorage.removeItem('conversationLoaded');
+    } catch (error) {
+        console.error('Error loading from localStorage:', error);
     }
 
-    // Original initialization code continues here
+    // If localStorage failed, try server-side storage (if user is logged in)
+    if (isLoggedIn) {
+        try {
+            const savedConversation = await loadConversation();
+            if (savedConversation) {
+                conversationHistory = savedConversation;
+                
+                // Create initial basic system prompt without product data
+                const baseSystemPrompt = await createDynamicSystemPrompt(false);
+                
+                // Ensure system prompt is at index 0
+                if (conversationHistory.length > 0) {
+                    conversationHistory[0] = {
+                        "role": "system", 
+                        "content": baseSystemPrompt
+                    };
+                }
+                
+                // Render previous messages in the UI
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = ''; // Clear default greeting
+                
+                // Skip the system message (index 0) when rendering
+                for (let i = 1; i < conversationHistory.length; i++) {
+                    const message = conversationHistory[i];
+                    const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
+                    
+                    chatMessages.innerHTML += `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${
+                                message.role === 'assistant' 
+                                    ? marked.parse(message.content) 
+                                    : message.content
+                            }</div>
+                        </div>
+                    `;
+                }
+                
+                // Mark that we've loaded the conversation for this session
+                sessionStorage.setItem('conversationLoaded', 'true');
+                return; // Exit early since we restored from server
+            }
+        } catch (serverError) {
+            console.error('Error loading from server:', serverError);
+        }
+    }
+
+    // If we get here, both localStorage and server loading failed, so create a new conversation
     try {
         // Create initial basic system prompt without product data
         const baseSystemPrompt = await createDynamicSystemPrompt(false);
         
-        // Only try to load conversation from server if logged in
-        const savedConversation = isLoggedIn ? await loadConversation() : null;
-
-        if (savedConversation) {
-            conversationHistory = savedConversation;
-            
-            // Ensure system prompt is at index 0
-            if (conversationHistory.length > 0) {
-                conversationHistory[0] = {
-                    "role": "system", 
-                    "content": baseSystemPrompt
-                };
+        // Try to get username
+        let username = null;
+        try {
+            const userResponse = await fetch('/shop/functions/chatbot/get-username.php');
+            const userData = await userResponse.json();
+            if (userData.status === 'success' && userData.username) {
+                username = userData.username;
             }
-            
-            // Render previous messages in the UI
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = ''; // Clear default greeting
-            
-            // Skip the system message (index 0) when rendering
-            for (let i = 1; i < conversationHistory.length; i++) {
-                const message = conversationHistory[i];
-                const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
-                
-                chatMessages.innerHTML += `
-                    <div class="message ${messageClass}">
-                        <div class="message-content">${
-                            message.role === 'assistant' 
-                                ? marked.parse(message.content) 
-                                : message.content
-                        }</div>
-                    </div>
-                `;
-            }
-        } else {
-            // If no conversation found, create a new one with dynamic greeting
-            try {
-                // Try to get username
-                let username = null;
-                const userResponse = await fetch('/shop/functions/chatbot/get-username.php');
-                const userData = await userResponse.json();
-                if (userData.status === 'success' && userData.username) {
-                    username = userData.username;
-                }
-                
-                // Get dynamic greeting
-                const greeting = getDynamicGreeting(username);
-                
-                // Create new conversation with dynamic greeting
-                conversationHistory = [
-                    {"role": "system", "content": baseSystemPrompt},
-                    {"role": "assistant", "content": greeting}
-                ];
-                
-                // Update the UI to show the greeting
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML = `
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <p>${greeting}</p>
-                        </div>
-                    </div>
-                `;
-                
-            } catch (error) {
-                console.error('Error getting username:', error);
-                // Fallback to generic greeting
-                const genericGreeting = getDynamicGreeting();
-                conversationHistory = [
-                    {"role": "system", "content": baseSystemPrompt},
-                    {"role": "assistant", "content": genericGreeting}
-                ];
-                
-                // Update UI with generic greeting
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML = `
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <p>${genericGreeting}</p>
-                        </div>
-                    </div>
-                `;
-            }
+        } catch (error) {
+            console.error('Error getting username:', error);
         }
+        
+        // Get dynamic greeting
+        const greeting = getDynamicGreeting(username);
+        
+        // Create new conversation with dynamic greeting
+        conversationHistory = [
+            {"role": "system", "content": baseSystemPrompt},
+            {"role": "assistant", "content": greeting}
+        ];
+        
+        // Update the UI to show the greeting
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>${greeting}</p>
+                </div>
+            </div>
+        `;
         
         // Mark that we've loaded the conversation for this session
         sessionStorage.setItem('conversationLoaded', 'true');
         
+        // Save this initial conversation
+        await saveConversation();
+        
     } catch (error) {
         console.error('Error initializing bot:', error);
-        // Use base system prompt on error with dynamic greeting
+        // Fallback to generic greeting on error
         const genericGreeting = getDynamicGreeting();
         conversationHistory = [
             {"role": "system", "content": await createDynamicSystemPrompt(false)},
@@ -1165,7 +1170,7 @@ async function sendMessage() {
         }
         
         // Save full conversation
-        saveConversation();
+        await saveConversation();
         
         const feedbackElement = document.getElementById(`${messageId}-feedback`);
         if (feedbackElement) {
