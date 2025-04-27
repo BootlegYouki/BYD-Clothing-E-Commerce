@@ -351,3 +351,20 @@
     text-decoration: none;
     background-color: white;
 }
+
+/* Add styling for save and cancel buttons */
+.save-btn {
+    color: var(--warning); /* Match the edit button color */
+}
+
+.save-btn:hover {
+    background-color: rgba(255, 193, 7, 0.1); /* Match the edit button hover */
+}
+
+.cancel-btn {
+    color: var(--danger); /* Match the delete button color */
+}
+
+.cancel-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1); /* Match the delete button hover */
+}
