@@ -671,10 +671,6 @@ body.theme-dark {
     color: var(--text-color) !important;
   }
   
-  .alert-success strong {
-    color: var(--success);
-  }
-  
   .alert-success .btn-close {
     filter: brightness(0.8) !important;
   }
@@ -918,6 +914,13 @@ body.theme-dark {
   }
   .image-upload-container .upload-icon {
     color: var(--text-muted);
+  }
+
+  /* Fix for removable image hover in dark mode */
+  .removable-image:hover {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
   }
 }
 
