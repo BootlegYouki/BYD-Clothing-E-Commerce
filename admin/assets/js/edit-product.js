@@ -97,9 +97,19 @@ async function convertMultipleImagesToWebP(fileList) {
     return dt.files;
 }
 
+// Add file size formatting utility function
+function formatFileSize(bytes) {
+    if (bytes < 1024) {
+        return bytes + ' B';
+    } else if (bytes < (1024 * 1024)) {
+        return (bytes / 1024).toFixed(1) + ' KB';
+    } else {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+}
+
 document.getElementById('primary_image').addEventListener('change', async function() {
     const files = this.files;
-    let previewHtml = '';
     const errorContainer = this.parentNode.querySelector('.error-message');
     errorContainer.textContent = ''; // Clear previous error
 
@@ -132,28 +142,24 @@ document.getElementById('primary_image').addEventListener('change', async functi
             const webpFiles = await convertMultipleImagesToWebP(files);
             this.files = webpFiles;
             
-            document.getElementById('primary_image_text').value = webpFiles.length + ' file selected (WebP)';
+            // Get file size for display
+            const fileSize = formatFileSize(webpFiles[0].size);
             
-            for (let i = 0; i < webpFiles.length; i++) {
-                const file = webpFiles[i];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHtml += `
-                        <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                   onclick="event.stopPropagation(); removePrimaryImage();"
-                                   title="Remove image">
-                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                            </button>
-                            <small class="d-block mt-1 text-success">Converted to WebP</small>
+            document.getElementById('primary_image_text').value = webpFiles.length + ' file selected';
+            
+            // Create a simple text-based preview with improved responsive layout
+            document.getElementById('primary_image_preview').innerHTML = `
+                <div class="alert alert-success removable-image" 
+                     onclick="event.stopPropagation(); removePrimaryImage();" 
+                     title="Click to remove image">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>New Primary Image</strong>
+                            <div class="small">File converted to WebP (${fileSize})</div>
                         </div>
-                    `;
-                    document.getElementById('primary_image_preview').innerHTML = previewHtml;
-                }
-                reader.readAsDataURL(file);
-            }
+                    </div>
+                </div>
+            `;
         } catch (error) {
             console.error('Error during WebP conversion:', error);
             errorContainer.textContent = 'Image conversion failed. Please try again.';
@@ -254,36 +260,24 @@ document.getElementById('additional_images').addEventListener('change', async fu
             const noImagesMsg = document.getElementById('no-images-msg');
             if (noImagesMsg) noImagesMsg.remove();
             
-            // Clear existing preview content before adding new content
-            document.getElementById('additional_images_preview').innerHTML = '';
-            
-            // Generate preview HTML for all files
+            // Generate text-based preview HTML for all files with improved responsive layout
+            let previewHtml = '';
             for (let i = 0; i < additionalFilesCollection.length; i++) {
-                const file = additionalFilesCollection[i];
-                const reader = new FileReader();
-                
-                // Use a closure to preserve the index value
-                (function(index) {
-                    reader.onload = function(e) {
-                        const newPreviewItem = `
-                            <div id="preview_${index}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                                <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                       style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                       onclick="event.stopPropagation(); removeAdditionalImage(${index});"
-                                       title="Remove image">
-                                    <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                                </button>
-                                <small class="d-block mt-1 text-success">Converted to WebP</small>
+                const fileSize = formatFileSize(additionalFilesCollection[i].size);
+                previewHtml += `
+                    <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
+                         onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                         title="Click to remove image">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 min-width-0">
+                                <strong>New Image ${i+1}</strong>
+                                <div class="small">File converted to WebP (${fileSize})</div>
                             </div>
-                        `;
-                        
-                        // Append to the preview area
-                        document.getElementById('additional_images_preview').insertAdjacentHTML('beforeend', newPreviewItem);
-                    };
-                    reader.readAsDataURL(file);
-                })(i);
+                        </div>
+                    </div>
+                `;
             }
+            document.getElementById('additional_images_preview').innerHTML = previewHtml;
             
         } catch (error) {
             console.error('Error during WebP conversion:', error);
@@ -321,35 +315,27 @@ function removeAdditionalImage(index, e) {
     document.getElementById('additional_images_text').value = 
         additionalFilesCollection.length > 0 ? additionalFilesCollection.length + ' files selected (WebP)' : 'No files selected';
     
-    // Clear the preview and regenerate it
-    document.getElementById('additional_images_preview').innerHTML = '';
-    
-    // Regenerate preview with updated indices
+    // Regenerate preview with updated indices and improved responsive layout
+    let previewHtml = '';
     for (let i = 0; i < additionalFilesCollection.length; i++) {
-        const file = additionalFilesCollection[i];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newPreviewItem = `
-                <div id="preview_${i}" style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                    <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                           style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                           onclick="event.stopPropagation(); removeAdditionalImage(${i});"
-                           title="Remove image">
-                        <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                    </button>
-                    <small class="d-block mt-1 text-success">Converted to WebP</small>
+        const fileSize = formatFileSize(additionalFilesCollection[i].size);
+        previewHtml += `
+            <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
+                 onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                 title="Click to remove image">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 min-width-0">
+                        <strong>New Image ${i+1}</strong>
+                        <div class="small">File converted to WebP (${fileSize})</div>
+                    </div>
                 </div>
-            `;
-            
-            // Append to the preview area
-            document.getElementById('additional_images_preview').insertAdjacentHTML('beforeend', newPreviewItem);
-        }
-        reader.readAsDataURL(file);
+            </div>
+        `;
     }
+    document.getElementById('additional_images_preview').innerHTML = previewHtml;
 }
 
-// Existing Image Deletion
+// Existing Image Deletion - update to use X icon instead of button
 function removeExistingImage(imageId, e) {
     // If there's an event object, stop propagation
     if (e) e.stopPropagation();
@@ -375,7 +361,7 @@ function removeExistingImage(imageId, e) {
         if (visibleImages.length === 0) {
             // All images are temporarily deleted, show the message
             if (!document.getElementById('no-images-msg')) {
-                container.insertAdjacentHTML('beforeend', '<p class="text-danger mb-0" id="no-images-msg">No additional images</p>');
+                container.insertAdjacentHTML('beforeend', '<p class="alert alert-warning" id="no-images-msg">No additional images</p>');
             }
         }
     }

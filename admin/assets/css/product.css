@@ -110,6 +110,34 @@
     margin: 0.5rem;
 }
 
+/* Style for clickable image containers */
+.removable-image {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.removable-image:hover {
+    background-color: #f8d7da !important; /* Light red background on hover */
+    border-color: #f5c2c7 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.1);
+}
+
+.removable-image:hover::after {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc3545;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.removable-image:active {
+    transform: scale(0.98);
+}
+
 .size-stock-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));

@@ -356,59 +356,63 @@ function generateSKU($productName, $category) {
                         <input type="text" class="form-control file-name-display" id="primary_image_text" placeholder="No files selected" readonly>
                         <div class="error-message text-danger mt-2"></div>
                         
-                        <!-- Moved preview inside the container -->
-                        <div id="primary_image_preview" class="mt-3 text-center">
+                        <!-- Text-based current image indicator -->
+                        <div id="primary_image_preview" class="mt-3">
                             <?php if($primary_image): ?>
-                                <div id="primary_image_container" data-image-id="<?= $primary_image['id'] ?>">
-                                    <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                                        <img src="../<?= $primary_image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                                        <small class="d-block mt-1">Current primary image</small>
+                                <div id="primary_image_container" data-image-id="<?= $primary_image['id'] ?>" class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="material-symbols-rounded me-2">photo</i>
+                                        <div class="flex-grow-1">
+                                            <strong>Current Primary Image</strong>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Additional Images Upload -->
+                <div class="form-section">
+                    <h5 class="section-title">
+                        <i class="material-symbols-rounded align-middle me-2">collections</i>
+                        Additional Images
+                    </h5>
                     
-                    <!-- Additional Images Upload -->
-                    <div class="form-section">
-                        <h5 class="section-title">
-                            <i class="material-symbols-rounded align-middle me-2">collections</i>
-                            Additional Images
-                        </h5>
+                    <div class="image-upload-container mb-3" id="additional_images_container_clickable">
+                        <div class="upload-icon">
+                            <i class="material-symbols-rounded">photo_library</i>
+                        </div>
+                        <p class="mb-2">Additional Product Images</p>
+                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
                         
-                        <div class="image-upload-container mb-3" id="additional_images_container_clickable">
-                            <div class="upload-icon">
-                                <i class="material-symbols-rounded">photo_library</i>
-                            </div>
-                            <p class="mb-2">Additional Product Images</p>
-                            <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
-                            
-                            <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
-                            <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>
-                            <div class="error-message text-danger mt-2"></div>
-                            
-                            <!-- Moved preview inside the container -->
-                            <div id="additional_images_preview" class="mt-3 text-center">
-                                <div id="additional-images-container" class="<?= count($additional_images) > 0 ? 'mb-3' : '' ?>">
-                                    <?php if(count($additional_images) > 0): ?>
-                                        <?php foreach($additional_images as $image): ?>
-                                            <div id="image_container_<?= $image['id'] ?>" style="display:inline-block; margin-right:5px; text-align: center; position: relative; margin-bottom: 10px;">
-                                                <img src="../<?= $image['image_url'] ?>" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                                    style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                                    onclick="event.stopPropagation(); removeExistingImage('<?= $image['id'] ?>');"
-                                                    title="Remove image">
-                                                    <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                                                </button>
+                        <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
+                        <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>
+                        <div class="error-message text-danger mt-2"></div>
+                        
+                        <!-- Text-based additional images display -->
+                        <div id="additional_images_preview" class="mt-3">
+                            <div id="additional-images-container">
+                                <?php if(count($additional_images) > 0): ?>
+                                    <?php foreach($additional_images as $index => $image): ?>
+                                        <div id="image_container_<?= $image['id'] ?>" class="alert alert-info mb-2 removable-image"
+                                             onclick="event.stopPropagation(); removeExistingImage('<?= $image['id'] ?>');"
+                                             title="Click to remove image">
+                                            <div class="d-flex align-items-center">
+                                                <i class="material-symbols-rounded me-2">photo</i>
+                                                <div class="flex-grow-1 min-width-0">
+                                                    <strong>Additional Image <?= $index + 1 ?></strong>
+                                                </div>
                                             </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <p class="text-danger mb-0">No additional images</p>
-                                    <?php endif; ?>
-                                </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p id="no-images-msg" class="alert alert-warning">No additional images</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
+                </div>
                 
                 <!-- Submit Button -->
                 <div class="d-grid gap-2 mt-4">
