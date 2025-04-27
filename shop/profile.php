@@ -358,7 +358,6 @@ while ($row = $orders_result->fetch_assoc()) {
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <!-- CUSTOM SCRIPTS -->
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>
 <script src="js/profile.js"></script>
 </body>
 </html>

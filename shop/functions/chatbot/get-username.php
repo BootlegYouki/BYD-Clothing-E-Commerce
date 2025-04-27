@@ -28,7 +28,7 @@ else if (isset($_SESSION['auth_user']) && isset($_SESSION['auth_user']['firstnam
 }
 // Fall back to database lookup using user_id from auth_user
 else if (isset($_SESSION['auth_user']) && isset($_SESSION['auth_user']['user_id'])) {
-    require_once '../../admin/config/dbcon.php';
+    require_once '../../../admin/config/dbcon.php';
     
     try {
         // Note: In authcode.php, user ID is stored as 'id' in the database but as 'user_id' in the session

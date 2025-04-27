@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 
 // Get T-shirt products with stock by size
 $tshirt_query = "SELECT p.*, 

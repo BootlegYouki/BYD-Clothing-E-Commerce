@@ -513,7 +513,6 @@ foreach ($notifications as $notification) {
     
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
-    <script src="js/assistant.js"></script>
     <script src="js/shop.js"></script>
     
     <!-- Notification filter script -->

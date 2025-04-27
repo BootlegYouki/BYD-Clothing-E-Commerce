@@ -1,6 +1,6 @@
 <?php
 // Include the environment loader
-require_once __DIR__ . '/../../admin/config/env_loader.php';
+require_once __DIR__ . '/../../../admin/config/env_loader.php';
 
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');

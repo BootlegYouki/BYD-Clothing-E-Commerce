@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 
 // Check if request is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

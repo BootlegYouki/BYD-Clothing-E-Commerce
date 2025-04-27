@@ -5,38 +5,73 @@ let conversationHistory;
 const chatbot = "deepseek/deepseek-chat-v3-0324:free";
 //OPEN CHATBOT
 document.addEventListener('DOMContentLoaded', function() {
-    initializeBot();
-    
-    document.getElementById('chat-bubble').addEventListener('click', function() {
-        document.getElementById('chat-container').classList.add('active');
-        document.getElementById('chat-bubble').classList.add('hidden');
-        // Store state in session storage
-        sessionStorage.setItem('chatState', 'open');
+    // Check if chat elements exist on this page before initializing
+    if (document.getElementById('chat-container')) {
+        initializeBot();
+        
+        // Set up event listeners only if elements exist
+        document.getElementById('chat-bubble')?.addEventListener('click', function() {
+            document.getElementById('chat-container').classList.add('active');
+            document.getElementById('chat-bubble').classList.add('hidden');
+            sessionStorage.setItem('chatState', 'open');
+        });
 
-    });
+        document.getElementById('close-chat')?.addEventListener('click', function() {
+            document.getElementById('chat-container').classList.remove('active');
+            document.getElementById('chat-bubble').classList.remove('hidden');
+            sessionStorage.setItem('chatState', 'closed');
+        });
+        
+        // Modified handler for the clear chat button
+        const clearChatButton = document.getElementById('clear-chat');
+        if (clearChatButton) {
+            clearChatButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to start a new conversation?')) {
+                    clearChat();
+                }
+            });
+        }
 
-    document.getElementById('close-chat').addEventListener('click', function() {
-        document.getElementById('chat-container').classList.remove('active');
-        document.getElementById('chat-bubble').classList.remove('hidden');
-        // Store state in session storage
-        sessionStorage.setItem('chatState', 'closed');
-    });
-    
-    // Modified handler for the clear chat button
-    const clearChatButton = document.getElementById('clear-chat');
-    if (clearChatButton) {
-        clearChatButton.addEventListener('click', function() {
-            if (confirm('Are you sure you want to start a new conversation?')) {
-                clearChat();
+        // New agent tool event listeners
+        document.getElementById('search-products')?.addEventListener('click', function() {
+            document.getElementById('userInput').value = "Show me your t-shirts";
+            sendMessage();
+        });
+        
+        document.getElementById('show-cart')?.addEventListener('click', function() {
+            window.location.href = '../shop/cart.php';
+        });
+        
+        document.getElementById('track-order')?.addEventListener('click', function() {
+            document.getElementById('userInput').value = "I want to track my order";
+            sendMessage();
+        });
+        
+        document.getElementById('get-recommendations')?.addEventListener('click', function() {
+            document.getElementById('userInput').value = "Recommend some clothing for me";
+            sendMessage();
+        });
+        
+        // Add event listener for page unload to ensure state is saved
+        window.addEventListener('beforeunload', function() {
+            if (conversationHistory) {
+                try {
+                    localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+                    localStorage.setItem('conversationTimestamp', Date.now().toString());
+                } catch (e) {
+                    console.error('Error saving conversation on page unload:', e);
+                }
             }
         });
+    } else {
+        console.log('Chat container not found on this page, skipping initialization');
     }
 });
 
 //FUNCTIONS TO SAVE/CLEAR CONVERSATIONS
 async function checkUserAuth() {
     try {
-        const response = await fetch('../shop/functions/check-auth.php');
+        const response = await fetch('/shop/functions/chatbot/check-auth.php');
         const data = await response.json();
         return data.isLoggedIn;
     } catch (error) {
@@ -46,20 +81,29 @@ async function checkUserAuth() {
 }
 async function loadConversation() {
     try {
-        // Check local storage first
-        const savedConversation = localStorage.getItem('conversationHistory');
-        if (savedConversation) {
-            return JSON.parse(savedConversation);
+        // Always check local storage first with improved error handling
+        try {
+            const savedConversation = localStorage.getItem('conversationHistory');
+            if (savedConversation) {
+                const parsed = JSON.parse(savedConversation);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    console.log('Successfully loaded conversation from localStorage');
+                    return parsed;
+                }
+            }
+        } catch (localStorageError) {
+            console.error('Error reading from localStorage:', localStorageError);
         }
 
-        // Fallback to server
+        // Fallback to server with absolute paths
         const isLoggedIn = await checkUserAuth();
         if (!isLoggedIn) {
-            console.log('User not logged in, cannot load conversation');
+            console.log('User not logged in, cannot load conversation from server');
             return false;
         }
 
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        // Use absolute path starting with / to ensure consistency across pages
+        const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -85,8 +129,17 @@ async function loadConversation() {
 }
 async function saveConversation() {
     try {
-        // Always save to localStorage for page navigation persistence
-        localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+        // More robust localStorage saving
+        try {
+            if (conversationHistory && Array.isArray(conversationHistory)) {
+                localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+                // Also save a timestamp of when it was last saved
+                localStorage.setItem('conversationTimestamp', Date.now().toString());
+                console.log('Saved conversation to localStorage at', new Date().toISOString());
+            }
+        } catch (localStorageError) {
+            console.error('Error saving to localStorage:', localStorageError);
+        }
         
         const isLoggedIn = await checkUserAuth();
         if (!isLoggedIn) {
@@ -94,9 +147,8 @@ async function saveConversation() {
             return false;
         }
 
-        // Save to server - add proper error handling and logging
-        console.log('Saving conversation to server:', conversationHistory);
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        // Use absolute path for server-side saving
+        const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,7 +178,7 @@ async function clearServerConversation() {
         const isLoggedIn = await checkUserAuth();
         if (!isLoggedIn) return false;
 
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -176,7 +228,7 @@ IMPORTANT DISPLAY INSTRUCTIONS:
     // Only fetch product data if the prompt requires it
     if (requiresProductData) {
         try {
-            const response = await fetch('../shop/functions/product-data.php');
+            const response = await fetch('/shop/functions/chatbot/product-data.php');
             if (!response.ok) throw new Error('Failed to fetch product data');
             
             const products = await response.json();
@@ -362,7 +414,7 @@ async function initializeBot() {
             try {
                 // Try to get username
                 let username = null;
-                const userResponse = await fetch('../shop/functions/get-username.php');
+                const userResponse = await fetch('/shop/functions/chatbot/get-username.php');
                 const userData = await userResponse.json();
                 if (userData.status === 'success' && userData.username) {
                     username = userData.username;
@@ -432,6 +484,188 @@ async function initializeBot() {
     }
 }
 
+// AGENT FUNCTIONALITY
+const agentTools = {
+    searchProducts: async (params) => {
+        showAgentAction("Searching products...");
+        try {
+            const response = await fetch('/shop/functions/chatbot/product-search.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const results = await response.json();
+            return {
+                status: 'success',
+                data: results,
+                message: `Found ${results.length} products matching your criteria.`
+            };
+        } catch (error) {
+            console.error('Error searching products:', error);
+            return { 
+                status: 'error', 
+                message: 'Sorry, I could not search for products at this time.' 
+            };
+        } finally {
+            hideAgentAction();
+        }
+    },
+    
+    addToCart: async (productId, size, quantity = 1) => {
+        showAgentAction("Adding to cart...");
+        try {
+            const response = await fetch('/shop/functions/cart_functions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'add',
+                    product_id: productId,
+                    size: size,
+                    quantity: quantity
+                })
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const result = await response.json();
+            return {
+                status: result.status || 'error',
+                message: result.message || 'Could not add product to cart.'
+            };
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            return { 
+                status: 'error', 
+                message: 'Sorry, I could not add this item to your cart.' 
+            };
+        } finally {
+            hideAgentAction();
+        }
+    },
+    
+    trackOrder: async (orderId) => {
+        showAgentAction("Tracking order...");
+        try {
+            const response = await fetch('/shop/functions/chatbot/track-order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: orderId })
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const result = await response.json();
+            return {
+                status: result.status || 'error',
+                data: result.data,
+                message: result.message || 'Could not track your order.'
+            };
+        } catch (error) {
+            console.error('Error tracking order:', error);
+            return { 
+                status: 'error', 
+                message: 'Sorry, I could not track your order at this time.' 
+            };
+        } finally {
+            hideAgentAction();
+        }
+    },
+    
+    getRecommendations: async (preferences = {}) => {
+        showAgentAction("Finding recommendations...");
+        try {
+            const response = await fetch('/shop/functions/chatbot/recommendations.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(preferences)
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const results = await response.json();
+            return {
+                status: 'success',
+                data: results,
+                message: `Here are some recommendations based on your preferences.`
+            };
+        } catch (error) {
+            console.error('Error getting recommendations:', error);
+            return { 
+                status: 'error', 
+                message: 'Sorry, I could not get recommendations at this time.' 
+            };
+        } finally {
+            hideAgentAction();
+        }
+    }
+};
+
+// Action indicators
+function showAgentAction(message) {
+    const indicator = document.getElementById('agent-action-indicator');
+    const actionText = document.getElementById('agent-action-text');
+    
+    if (actionText) actionText.textContent = message || "Performing action...";
+    if (indicator) indicator.classList.add('active');
+}
+
+function hideAgentAction() {
+    const indicator = document.getElementById('agent-action-indicator');
+    if (indicator) indicator.classList.remove('active');
+}
+
+// Process function call response from the AI
+async function processFunctionCall(functionCall) {
+    try {
+        const functionName = functionCall.name;
+        const argumentsStr = functionCall.arguments;
+        let args;
+        
+        try {
+            args = JSON.parse(argumentsStr);
+        } catch (error) {
+            console.error('Invalid function arguments:', error);
+            return {
+                status: 'error',
+                message: 'Could not parse function arguments.'
+            };
+        }
+        
+        console.log(`Executing agent function: ${functionName}`, args);
+        
+        switch (functionName) {
+            case 'searchProducts':
+                return await agentTools.searchProducts(args);
+                
+            case 'addToCart':
+                return await agentTools.addToCart(args.productId, args.size, args.quantity);
+                
+            case 'trackOrder':
+                return await agentTools.trackOrder(args.orderId);
+                
+            case 'getRecommendations':
+                return await agentTools.getRecommendations(args.preferences);
+                
+            default:
+                console.error('Unknown function call:', functionName);
+                return {
+                    status: 'error',
+                    message: `Unknown function: ${functionName}`
+                };
+        }
+    } catch (error) {
+        console.error('Error processing function call:', error);
+        return {
+            status: 'error',
+            message: 'An error occurred while processing your request.'
+        };
+    }
+}
+
+// Enhanced sendMessage function with function calling capability
 async function sendMessage() {
     const inputElem = document.getElementById('userInput');
     if (!inputElem.value.trim()) return;
@@ -501,24 +735,135 @@ async function sendMessage() {
         // Trim conversation history to reduce tokens
         const trimmedHistory = trimConversationHistory(conversationHistory);
         
-        // Rest of the function remains the same
+        // Create controller for the fetch request
         currentController = new AbortController();
         const signal = currentController.signal;
         
-        const response = await fetch("../shop/functions/openrouter-proxy.php", {
+        // Add function calling capabilities to the API request
+        const requestBody = {
+            "model": chatbot,
+            "messages": trimmedHistory,
+            "stream": true,
+            "tools": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "searchProducts",
+                        "description": "Search for products with specified filters",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "category": {
+                                    "type": "string",
+                                    "enum": ["tshirt", "longslv"],
+                                    "description": "Product category (t-shirt or long sleeve)"
+                                },
+                                "query": {
+                                    "type": "string",
+                                    "description": "Text to search for in product names or descriptions"
+                                },
+                                "minPrice": {
+                                    "type": "number",
+                                    "description": "Minimum price filter"
+                                },
+                                "maxPrice": {
+                                    "type": "number",
+                                    "description": "Maximum price filter"
+                                },
+                                "inStock": {
+                                    "type": "boolean",
+                                    "description": "Filter for products in stock only"
+                                }
+                            },
+                            "required": ["category"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "addToCart",
+                        "description": "Add a product to the user's shopping cart",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "productId": {
+                                    "type": "integer",
+                                    "description": "ID of the product to add to cart"
+                                },
+                                "size": {
+                                    "type": "string",
+                                    "enum": ["S", "M", "L", "XL"],
+                                    "description": "Size of the product"
+                                },
+                                "quantity": {
+                                    "type": "integer",
+                                    "description": "Quantity to add (defaults to 1)"
+                                }
+                            },
+                            "required": ["productId", "size"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "trackOrder",
+                        "description": "Track the status of a user's order",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "orderId": {
+                                    "type": "string",
+                                    "description": "Order ID to track"
+                                }
+                            },
+                            "required": ["orderId"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "getRecommendations",
+                        "description": "Get personalized product recommendations",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "preferences": {
+                                    "type": "object",
+                                    "properties": {
+                                        "style": {
+                                            "type": "string",
+                                            "description": "Preferred style (casual, formal, etc.)"
+                                        },
+                                        "color": {
+                                            "type": "string",
+                                            "description": "Preferred color"
+                                        },
+                                        "priceRange": {
+                                            "type": "string",
+                                            "description": "Price range (budget, mid-range, premium)"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        };
+        
+        // Send the enhanced request with function calling capability
+        const response = await fetch("/shop/functions/chatbot/openrouter-proxy.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                "model": chatbot,
-                "messages": trimmedHistory,
-                "stream": true
-            }),
+            body: JSON.stringify(requestBody),
             signal: signal
         });
         
-        // Rest of the existing streaming code remains unchanged
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error?.message || 'API request failed');
@@ -528,6 +873,8 @@ async function sendMessage() {
         const decoder = new TextDecoder("utf-8");
         
         let fullMessage = "";
+        let fullResponse = {}; // Store the complete response object
+        let functionCallDetected = false;
         const streamingContent = document.getElementById(`${messageId}-content`);
         let isFirstChunk = true;
         
@@ -547,171 +894,231 @@ async function sendMessage() {
                     
                     try {
                         const jsonData = JSON.parse(jsonStr);
-                        const contentDelta = jsonData.choices[0]?.delta?.content || '';
-                        if (contentDelta) {
+                        
+                        // Handle function calling
+                        if (jsonData.choices[0]?.delta?.tool_calls) {
+                            functionCallDetected = true;
+                            
+                            // Build the complete function call object
+                            if (!fullResponse.tool_calls) {
+                                fullResponse.tool_calls = jsonData.choices[0].delta.tool_calls;
+                            } else {
+                                const newToolCalls = jsonData.choices[0].delta.tool_calls;
+                                for (let i = 0; i < newToolCalls.length; i++) {
+                                    if (!fullResponse.tool_calls[i]) {
+                                        fullResponse.tool_calls[i] = newToolCalls[i];
+                                    } else {
+                                        // Append to function arguments if they exist
+                                        if (newToolCalls[i].function?.arguments) {
+                                            if (!fullResponse.tool_calls[i].function) {
+                                                fullResponse.tool_calls[i].function = {};
+                                            }
+                                            
+                                            if (!fullResponse.tool_calls[i].function.arguments) {
+                                                fullResponse.tool_calls[i].function.arguments = '';
+                                            }
+                                            
+                                            fullResponse.tool_calls[i].function.arguments += 
+                                                newToolCalls[i].function.arguments;
+                                        }
+                                        
+                                        // Set function name if it exists
+                                        if (newToolCalls[i].function?.name) {
+                                            if (!fullResponse.tool_calls[i].function) {
+                                                fullResponse.tool_calls[i].function = {};
+                                            }
+                                            
+                                            fullResponse.tool_calls[i].function.name = 
+                                                newToolCalls[i].function.name;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Show "thinking" message while building function call
                             if (isFirstChunk) {
                                 const loadingIndicator = document.getElementById(`${messageId}-loading`);
                                 if (loadingIndicator) loadingIndicator.remove();
                                 isFirstChunk = false;
+                                streamingContent.innerHTML = "<p>Thinking...</p>";
                             }
-                            
-                            fullMessage += contentDelta;
-                            streamingContent.innerHTML = marked.parse(fullMessage);
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        } 
+                        // Regular content delta
+                        else if (jsonData.choices[0]?.delta?.content) {
+                            const contentDelta = jsonData.choices[0].delta.content || '';
+                            if (contentDelta) {
+                                if (isFirstChunk) {
+                                    const loadingIndicator = document.getElementById(`${messageId}-loading`);
+                                    if (loadingIndicator) loadingIndicator.remove();
+                                    isFirstChunk = false;
+                                }
+                                
+                                fullMessage += contentDelta;
+                                streamingContent.innerHTML = marked.parse(fullMessage);
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }
                         }
                     } catch (e) {
-                        streamingContent.innerHTML = "Rate limit exceeded, please try again later.";
                         console.error('Error parsing JSON:', e);
                     }
                 }
             }
         }
         
-        if (currentController.signal.aborted) {
-            document.getElementById("sendIcon").classList.remove("d-none");
-            document.getElementById("stopIcon").classList.add("d-none");
-            inputElem.disabled = false;
-            return;
-        }
-        
-        currentController = null;
-        conversationHistory.push({"role": "assistant", "content": fullMessage});
-        
-        // Save the full conversation history but send trimmed history to the API
-        saveConversation();
-        
-        const feedbackElement = document.getElementById(`${messageId}-feedback`);
-        if (feedbackElement) {
-            feedbackElement.style.display = 'flex';
-        }
-        
-        document.getElementById("sendIcon").classList.remove("d-none");
-        document.getElementById("stopIcon").classList.add("d-none");
-        inputElem.disabled = false;
-        
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.log('Request was aborted');
-        } else {
-            console.error(error);
-            const streamingContent = document.getElementById(`${messageId}-content`);
-            if (streamingContent) {
-                streamingContent.innerHTML = 
-                    "Sorry, there was an error connecting to the AI service. Please try again later.";
+        // After the stream completes, handle any function calls
+        if (functionCallDetected && fullResponse.tool_calls && fullResponse.tool_calls.length > 0) {
+            // Process the first function call
+            const functionCall = fullResponse.tool_calls[0].function;
+            
+            // Execute the function
+            const result = await processFunctionCall(functionCall);
+            
+            // Show the function result in a structured format
+            let resultMessage = '';
+            
+            if (result.status === 'success') {
+                if (functionCall.name === 'searchProducts' && result.data && result.data.length > 0) {
+                    resultMessage = `<div class="agent-result-header">Here are the products I found:</div>
+                    <div class="agent-results">`;
+                    
+                    result.data.forEach(product => {
+                        const finalPrice = product.discount_percentage > 0 
+                            ? Math.round(product.original_price * (1 - (product.discount_percentage / 100)))
+                            : product.original_price;
+                        
+                        resultMessage += `
+                        <div class="agent-result-item" onclick="window.location.href='/shop/product.php?id=${product.id}'">
+                            <div class="agent-card">
+                                <img src="/shop/assets/img/products/${product.image}" class="agent-card-image" alt="${product.name}">
+                                <div class="agent-card-content">
+                                    <div class="agent-card-title">${product.name}</div>
+                                    <div class="agent-card-price">
+                                        ${product.discount_percentage > 0 
+                                            ? `<span class="original">₱${product.original_price}</span> 
+                                              <span class="discount">₱${finalPrice}</span>`
+                                            : `<span>₱${product.original_price}</span>`}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    resultMessage += `</div>
+                    <div class="agent-action-prompt">
+                        <p>Click on any product to view details. Is there a specific product you'd like to know more about?</p>
+                    </div>`;
+                }
+                else if (functionCall.name === 'addToCart') {
+                    resultMessage = `<p>${result.message}</p>
+                    <div class="agent-action-buttons">
+                        <button class="bot-action-button" onclick="window.location.href='/shop/cart.php'">
+                            View Cart
+                        </button>
+                        <button class="bot-action-button" onclick="window.location.href='/shop/products.php'">
+                            Continue Shopping
+                        </button>
+                    </div>`;
+                }
+                else if (functionCall.name === 'trackOrder' && result.data) {
+                    resultMessage = `<p>Order #${result.data.order_id}:</p>
+                    <ul>
+                        <li>Status: ${result.data.status}</li>
+                        <li>Date: ${result.data.date}</li>
+                        ${result.data.tracking_number ? `<li>Tracking #: ${result.data.tracking_number}</li>` : ''}
+                        <li>Estimated Delivery: ${result.data.estimated_delivery || 'Not available'}</li>
+                    </ul>`;
+                }
+                else if (functionCall.name === 'getRecommendations' && result.data && result.data.length > 0) {
+                    resultMessage = `<div class="agent-result-header">Here are some recommendations for you:</div>
+                    <div class="agent-results">`;
+                    
+                    result.data.forEach(product => {
+                        const finalPrice = product.discount_percentage > 0 
+                            ? Math.round(product.original_price * (1 - (product.discount_percentage / 100)))
+                            : product.original_price;
+                        
+                        resultMessage += `
+                        <div class="agent-result-item" onclick="window.location.href='/shop/product.php?id=${product.id}'">
+                            <div class="agent-card">
+                                <img src="/shop/assets/img/products/${product.image}" class="agent-card-image" alt="${product.name}">
+                                <div class="agent-card-content">
+                                    <div class="agent-card-title">${product.name}</div>
+                                    <div class="agent-card-price">
+                                        ${product.discount_percentage > 0 
+                                            ? `<span class="original">₱${product.original_price}</span> 
+                                              <span class="discount">₱${finalPrice}</span>`
+                                            : `<span>₱${product.original_price}</span>`}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    resultMessage += `</div>`;
+                }
+                else {
+                    resultMessage = `<p>${result.message || 'Action completed successfully.'}</p>`;
+                }
+            } else {
+                resultMessage = `<p class="error-message">${result.message || 'Error performing action.'}</p>`;
             }
-        }
-        
-        document.getElementById("sendIcon").classList.remove("d-none");
-        document.getElementById("stopIcon").classList.add("d-none");
-        inputElem.disabled = false;
-    }
-}
-async function regenerateResponse(messageId) {
-    const lastUserMessage = conversationHistory[conversationHistory.length - 2];
-    if (lastUserMessage && lastUserMessage.role === 'user') {
-        // Remove the last bot message from conversation history
-        conversationHistory.pop();
-        // Remove both the message and its feedback element
-        const messageElement = document.getElementById(messageId);
-        if (messageElement) {
-            messageElement.remove();
-        }
-        
-        // Also remove the feedback element that's a sibling to the message
-        const feedbackElement = document.getElementById(`${messageId}-feedback`);
-        if (feedbackElement) {
-            feedbackElement.remove();
-        }
-
-        const allFeedbackElements = document.querySelectorAll('.message-feedback');
-        allFeedbackElements.forEach(element => {
-            element.style.display = 'none';
-        });
-        
-        // Create a new message ID
-        const newMessageId = 'msg-' + Date.now();
-        currentMessageId = newMessageId;
-        
-        const chatMessages = document.getElementById('chat-messages');
-        
-        // Add bot message placeholder with loading
-        chatMessages.innerHTML += `
-            <div class="message bot-message" id="${newMessageId}">
-                <div class="message-content" id="${newMessageId}-content">
-                    <div class="loading-dots py-2" id="${newMessageId}-loading">
+            
+            // Display the result in the chat
+            streamingContent.innerHTML = resultMessage;
+            
+            // Add a follow-up message from the assistant
+            // Request a follow-up message from the AI based on the function result
+            const followUpPrompt = `The function ${functionCall.name} has been executed with result: ${JSON.stringify(result)}. Please provide a helpful follow-up response to the user.`;
+            
+            // Add the follow-up message to conversation history
+            conversationHistory.push({
+                "role": "assistant",
+                "content": resultMessage
+            });
+            
+            // Now request a follow-up message
+            const followUpMessageId = 'msg-' + (Date.now() + 1);
+            chatMessages.innerHTML += `
+            <div class="message bot-message" id="${followUpMessageId}">
+                <div class="message-content" id="${followUpMessageId}-content">
+                    <div class="loading-dots py-2" id="${followUpMessageId}-loading">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
                 </div>
-            </div>
-        `;
-        
-        // Create a separate feedback div that we'll show later
-        const feedbackDiv = document.createElement('div');
-        feedbackDiv.className = 'message-feedback';
-        feedbackDiv.id = `${newMessageId}-feedback`;
-        feedbackDiv.style.display = 'none';
-        feedbackDiv.innerHTML = `
-            <button class="feedback-btn regenerate" onclick="regenerateResponse('${newMessageId}')">
-                <i class="fas fa-redo-alt"></i> Regenerate
-            </button>
-        `;
-        
-        chatMessages.appendChild(feedbackDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Disable input and update icons
-        const inputElem = document.getElementById('userInput');
-        inputElem.disabled = true;
-        document.getElementById("sendIcon").classList.add("d-none");
-        document.getElementById("stopIcon").classList.remove("d-none");
-        
-        // Check if we need product data for the regenerated message
-        const dataNeeds = messageRequiresProductData(lastUserMessage.content);
-        
-        try {
-            // Update system prompt based on whether product data is needed
-            conversationHistory[0] = {
-                "role": "system", 
-                "content": await createDynamicSystemPrompt(dataNeeds)
-            };
+            </div>`;
             
-            // Trim history for API request
-            const trimmedHistory = trimConversationHistory(conversationHistory);
-            
-            currentController = new AbortController();
-            const signal = currentController.signal;
-            
-            const response = await fetch("../shop/functions/openrouter-proxy.php", {
+            // Create a new request for follow-up
+            const followUpResponse = await fetch("/shop/functions/chatbot/openrouter-proxy.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     "model": chatbot,
-                    "messages": trimmedHistory,
+                    "messages": [...trimmedHistory, 
+                        {"role": "assistant", "content": "I need to use a function to answer this."},
+                        {"role": "assistant", "content": resultMessage},
+                        {"role": "system", "content": followUpPrompt}
+                    ],
                     "stream": true
-                }),
-                signal: signal
+                })
             });
             
-            if (!response.ok) {
-                throw new Error('API request failed');
+            if (!followUpResponse.ok) {
+                throw new Error('Follow-up API request failed');
             }
             
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-            let fullMessage = "";
-            const streamingContent = document.getElementById(`${newMessageId}-content`);
-            let isFirstChunk = true;
-            currentController = null;
+            // Process the follow-up response stream
+            const followUpReader = followUpResponse.body.getReader();
+            let followUpMessage = "";
+            const followUpStreamingContent = document.getElementById(`${followUpMessageId}-content`);
+            let isFollowUpFirstChunk = true;
             
             while (true) {
-                const { done, value } = await reader.read();
+                const { done, value } = await followUpReader.read();
                 if (done) break;
-                
-                if (!document.getElementById(newMessageId)) break;
                 
                 const chunk = decoder.decode(value, { stream: true });
                 const lines = chunk.split('\n').filter(line => line.trim() !== '');
@@ -724,53 +1131,65 @@ async function regenerateResponse(messageId) {
                         try {
                             const jsonData = JSON.parse(jsonStr);
                             const contentDelta = jsonData.choices[0]?.delta?.content || '';
+                            
                             if (contentDelta) {
-                                if (isFirstChunk) {
-                                    const loadingIndicator = document.getElementById(`${newMessageId}-loading`);
+                                if (isFollowUpFirstChunk) {
+                                    const loadingIndicator = document.getElementById(`${followUpMessageId}-loading`);
                                     if (loadingIndicator) loadingIndicator.remove();
-                                    isFirstChunk = false;
+                                    isFollowUpFirstChunk = false;
                                 }
                                 
-                                fullMessage += contentDelta;
-                                streamingContent.innerHTML = marked.parse(fullMessage);
+                                followUpMessage += contentDelta;
+                                followUpStreamingContent.innerHTML = marked.parse(followUpMessage);
                                 chatMessages.scrollTop = chatMessages.scrollHeight;
                             }
                         } catch (e) {
-                            console.error('Error parsing JSON:', e);
+                            console.error('Error parsing follow-up JSON:', e);
                         }
                     }
                 }
             }
             
-            // Show regenerate button after response completes
-            const feedbackElement = document.getElementById(`${newMessageId}-feedback`);
-            if (feedbackElement) {
-                feedbackElement.style.display = 'flex';
-            }
-            
-            conversationHistory.push({"role": "assistant", "content": fullMessage});
-            saveConversation();
-            
-            document.getElementById("sendIcon").classList.remove("d-none");
-            document.getElementById("stopIcon").classList.add("d-none");
-            inputElem.disabled = false;
-            
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error(error);
-                const streamingContent = document.getElementById(`${newMessageId}-content`);
-                if (streamingContent) {
-                    streamingContent.innerHTML = "Sorry, there was an error regenerating the response. Please try again.";
-                }
-            }
-            
-            document.getElementById("sendIcon").classList.remove("d-none");
-            document.getElementById("stopIcon").classList.add("d-none");
-            inputElem.disabled = false;
+            // Add the follow-up to conversation history
+            conversationHistory.push({
+                "role": "assistant", 
+                "content": followUpMessage
+            });
         }
+        else {
+            // No function call, just add the regular message to history
+            conversationHistory.push({
+                "role": "assistant", 
+                "content": fullMessage
+            });
+        }
+        
+        // Save full conversation
+        saveConversation();
+        
+        const feedbackElement = document.getElementById(`${messageId}-feedback`);
+        if (feedbackElement) {
+            feedbackElement.style.display = 'flex';
+        }
+        
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('Request was aborted');
+        } else {
+            console.error(error);
+            const streamingContent = document.getElementById(`${messageId}-content`);
+            if (streamingContent) {
+                streamingContent.innerHTML = 
+                    "Sorry, there was an error connecting to the AI service. Please try again later.";
+            }
+        }
+    } finally {
+        document.getElementById("sendIcon").classList.remove("d-none");
+        document.getElementById("stopIcon").classList.add("d-none");
+        inputElem.disabled = false;
+        currentController = null;
     }
 }
-//END MAJOR CHATBOT FUNCTIONS
 
 //ONLY SCANS PRODUCT DATA WHEN ASKED
 function messageRequiresProductData(message) {
@@ -892,7 +1311,7 @@ async function clearChat() {
     // Get the username if available
     let username = null;
     try {
-        const response = await fetch('../shop/functions/get-username.php');
+        const response = await fetch('/shop/functions/chatbot/get-username.php');
         const data = await response.json();
         if (data.status === 'success' && data.username) {
             username = data.username;
@@ -934,5 +1353,3 @@ async function clearChat() {
     // Save the new empty conversation
     saveConversation();
 }
-
-

@@ -331,7 +331,6 @@ function get_setting($key, $default = '') {
 <!-- SCRIPT -->
 <script src="js/indexscript.js"></script>
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>
 <script src="js/shop.js"></script>
 
 
