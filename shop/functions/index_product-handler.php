@@ -58,14 +58,10 @@ function getIndexProducts($conn, $params = []) {
  * @return string HTML for the product card
  */
 function renderProductCard($product, $for_swiper = false) {
-    // Calculate discounted price
+    // Use discount_price directly instead of calculating it
     $originalPrice = $product['original_price'];
     $discountPercentage = $product['discount_percentage'];
-    $discountedPrice = $originalPrice;
-    
-    if ($discountPercentage > 0) {
-        $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-    }
+    $discountedPrice = $product['discount_price'];
     
     // Image URL with fallback
     $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';

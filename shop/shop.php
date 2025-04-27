@@ -238,14 +238,10 @@ $categories = getAllCategories($conn);
                     // Add up to 4 products per row
                     for ($j = $i; $j < min($i + $productsPerRow, $totalProducts); $j++) {
                         $product = $products[$j];
-                        // Calculate discounted price if discount_percentage exists
+                        // Use discount_price directly instead of calculating it
                         $originalPrice = $product['price'];
+                        $discountPrice = $product['discount_price'];
                         $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
-                        
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                        }
                         ?>
                         <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                             <div class="product-card" data-product-id="<?= $product['id'] ?>">
@@ -261,7 +257,7 @@ $categories = getAllCategories($conn);
                                         <?php if($discountPercentage > 0): ?>
                                             <div class="price-wrapper">
                                                 <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                                <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
+                                                <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
                                             </div>
                                         <?php else: ?>
                                             <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
@@ -285,14 +281,10 @@ $categories = getAllCategories($conn);
                 <div class="swiper-wrapper">
                     <?php 
                     foreach($products as $product) { 
-                        // Calculate discounted price if discount_percentage exists
+                        // Use discount_price directly instead of calculating it
                         $originalPrice = $product['price'];
+                        $discountPrice = $product['discount_price'];
                         $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
-                        
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
-                        }
                     ?>
                     <div class="swiper-slide">
                         <div class="product-card" data-product-id="<?= $product['id'] ?>">
@@ -308,7 +300,7 @@ $categories = getAllCategories($conn);
                                     <?php if($discountPercentage > 0): ?>
                                         <div class="price-wrapper">
                                             <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                            <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
+                                            <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
                                         </div>
                                     <?php else: ?>
                                         <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>

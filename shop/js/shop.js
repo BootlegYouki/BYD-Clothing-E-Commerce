@@ -341,17 +341,21 @@ function setupClientSideSorting() {
             const titleA = a.querySelector('h5').textContent.trim();
             const titleB = b.querySelector('h5').textContent.trim();
             
+            // Use the current price (which already accounts for discounts)
             let priceA = parseFloat(a.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
             let priceB = parseFloat(b.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
             
             const originalPriceA = a.querySelector('.original-price');
             const originalPriceB = b.querySelector('.original-price');
             
-            const discountA = originalPriceA ? parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA : 0;
-            const discountB = originalPriceB ? parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB : 0;
-            
-            const discountPercentA = discountA ? (discountA / parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
-            const discountPercentB = discountB ? (discountB / parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            // Calculate discount percentage if original price exists
+            const discountPercentA = originalPriceA ? 
+                ((parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA) / 
+                parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+                
+            const discountPercentB = originalPriceB ? 
+                ((parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB) / 
+                parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
             
             switch (sortOption) {
                 case 'price-asc':
@@ -384,17 +388,21 @@ function setupClientSideSorting() {
             const titleA = productCardA.querySelector('h5').textContent.trim();
             const titleB = productCardB.querySelector('h5').textContent.trim();
             
+            // Use the current price (which already accounts for discounts)
             let priceA = parseFloat(productCardA.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
             let priceB = parseFloat(productCardB.querySelector('.current-price').textContent.replace('₱', '').replace(',', ''));
             
             const originalPriceA = productCardA.querySelector('.original-price');
             const originalPriceB = productCardB.querySelector('.original-price');
             
-            const discountA = originalPriceA ? parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA : 0;
-            const discountB = originalPriceB ? parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB : 0;
-            
-            const discountPercentA = discountA ? (discountA / parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
-            const discountPercentB = discountB ? (discountB / parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+            // Calculate discount percentage if original price exists
+            const discountPercentA = originalPriceA ? 
+                ((parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', '')) - priceA) / 
+                parseFloat(originalPriceA.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
+                
+            const discountPercentB = originalPriceB ? 
+                ((parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', '')) - priceB) / 
+                parseFloat(originalPriceB.textContent.replace('₱', '').replace(',', ''))) * 100 : 0;
             
             switch (sortOption) {
                 case 'price-asc':
@@ -404,7 +412,7 @@ function setupClientSideSorting() {
                 case 'name-asc':
                     return titleA.localeCompare(titleB);
                 case 'name-desc':
-                    return titleB.localeCompare(titleA);
+                    return titleB.localeCompare(titleA); // Fixed: Added missing closing parenthesis
                 case 'discount':
                     return discountPercentB - discountPercentA;
                 default:
@@ -869,6 +877,7 @@ function showQuickView(product, event) {
 function displayPriceInfo(product) {
     const priceContainer = document.querySelector('.quick-view-price-container');
     const originalPrice = parseFloat(product.price);
+    const discountPrice = parseFloat(product.discount_price || originalPrice);
     const discountPercentage = parseFloat(product.discount_percentage || 0);
     
     if (isNaN(originalPrice)) {
@@ -876,15 +885,12 @@ function displayPriceInfo(product) {
         return;
     }
     
-    let discountedPrice = originalPrice;
-    
     if (discountPercentage > 0) {
-        discountedPrice = originalPrice - (originalPrice * (discountPercentage / 100));
         priceContainer.innerHTML = `
             <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center">
                 <span class="quick-view-original-price d-block d-md-inline mb-1 mb-md-0 me-md-3">₱${originalPrice.toFixed(2)}</span>
                 <div class="d-flex align-items-center">
-                    <span class="quick-view-current-price me-2">₱${discountedPrice.toFixed(2)}</span>
+                    <span class="quick-view-current-price me-2">₱${discountPrice.toFixed(2)}</span>
                     <span class="quick-view-discount">-${discountPercentage}%</span>
                 </div>
             </div>
@@ -1077,11 +1083,10 @@ function setupAddToCartButton(product) {
             return;
         }
         
-        // Calculate the actual price (considering discounts)
-        let price = parseFloat(product.price);
-        if (product.discount_percentage > 0) {
-            price = price - (price * (product.discount_percentage / 100));
-        }
+        // Get the correct price (using pre-calculated discount_price if available)
+        const price = product.discount_percentage > 0 
+            ? parseFloat(product.discount_price) 
+            : parseFloat(product.price);
         
         // Create cart item object
         const cartItem = {

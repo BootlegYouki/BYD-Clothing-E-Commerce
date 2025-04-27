@@ -36,19 +36,13 @@ function getShopProducts($conn, $params = []) {
         }
     }
     
-    // Add sorting logic
+    // Add sorting logic - Updated to use discount_price directly instead of calculating it
     switch ($sort) {
         case 'price-asc':
-            $base_query .= " ORDER BY CASE 
-                                WHEN p.discount_percentage > 0 THEN p.original_price - (p.original_price * p.discount_percentage / 100) 
-                                ELSE p.original_price 
-                              END ASC";
+            $base_query .= " ORDER BY p.discount_price ASC";
             break;
         case 'price-desc':
-            $base_query .= " ORDER BY CASE 
-                                WHEN p.discount_percentage > 0 THEN p.original_price - (p.original_price * p.discount_percentage / 100) 
-                                ELSE p.original_price 
-                              END DESC";
+            $base_query .= " ORDER BY p.discount_price DESC";
             break;
         case 'name-asc':
             $base_query .= " ORDER BY p.name ASC";
@@ -91,11 +85,12 @@ function getShopProducts($conn, $params = []) {
                 }
             }
             
-            // Format the product data for display
+            // Format the product data for display - Add discount_price
             $formatted_product = [
                 'id' => $product['id'],
                 'title' => $product['name'],
                 'price' => $product['original_price'],
+                'discount_price' => $product['discount_price'],
                 'category' => $product['category'],
                 'discount_percentage' => $product['discount_percentage'],
                 'description' => $product['description'],
