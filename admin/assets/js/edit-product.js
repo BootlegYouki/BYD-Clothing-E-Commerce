@@ -821,10 +821,12 @@ document.addEventListener('DOMContentLoaded', function() {
         inlineForm.className = 'dropdown-item inline-add-form';
         inlineForm.innerHTML = `
             <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                <input type="text" class="form-control form-control-sm" 
-                       placeholder="Enter new ${type} name" 
-                       id="new_${type}_inline" 
-                       style="width: auto; flex-grow: 1; margin-right: 8px;">
+                <span class="${type}-name" style="position: relative;">
+                    <input type="text" class="form-control form-control-sm inline-edit-input" 
+                           placeholder="Enter new ${type} name" 
+                           id="new_${type}_inline" 
+                           style="width: 100%;">
+                </span>
                 <div class="${type}-actions">
                     <button type="button" class="${type}-action-btn save-btn" title="Save ${type}" id="save_${type}_btn">
                         <i class="material-symbols-rounded">check</i>

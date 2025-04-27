@@ -237,7 +237,7 @@
 
 .category-item, .fabric-item {
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 1.5rem 1rem;
     border-bottom: 1px solid var(--grey-100);
     transition: all 0.2s ease;
 }
@@ -249,7 +249,7 @@
 .category-name, .fabric-name {
     flex-grow: 1;
     cursor: pointer;
-    padding-right: 15px; /* Add right padding to separate from buttons */
+    padding-right: 10px; /* Add right padding to separate from buttons */
     max-width: 75%; /* Prevent text from pushing into button space */
     white-space: nowrap;
     overflow: hidden;
