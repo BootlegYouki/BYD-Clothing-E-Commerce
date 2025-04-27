@@ -20,6 +20,104 @@ document.getElementById('primary_image_container_clickable').addEventListener('c
     document.getElementById('primary_image').click();
 });
 
+// Add drag and drop event listeners for primary image container
+const primaryImageContainer = document.getElementById('primary_image_container_clickable');
+primaryImageContainer.addEventListener('dragover', handleDragOver);
+primaryImageContainer.addEventListener('dragenter', handleDragEnter);
+primaryImageContainer.addEventListener('dragleave', handleDragLeave);
+primaryImageContainer.addEventListener('drop', function(e) {
+    handleDrop(e, 'primary');
+});
+
+// Additional images container drag and drop
+const additionalImagesContainer = document.getElementById('additional_images_container_clickable');
+additionalImagesContainer.addEventListener('dragover', handleDragOver);
+additionalImagesContainer.addEventListener('dragenter', handleDragEnter);
+additionalImagesContainer.addEventListener('dragleave', handleDragLeave);
+additionalImagesContainer.addEventListener('drop', function(e) {
+    handleDrop(e, 'additional');
+});
+
+// Drag and drop handler functions
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.classList.add('uploading');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only remove the class if we're leaving the entire container
+    if (!e.relatedTarget || !this.contains(e.relatedTarget)) {
+        this.classList.remove('uploading');
+    }
+}
+
+function handleDrop(e, type) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const container = e.currentTarget;
+    container.classList.remove('uploading');
+    
+    // Get dropped files
+    const files = e.dataTransfer.files;
+    if (!files.length) return;
+    
+    if (type === 'primary') {
+        // Allow only one file for primary image
+        if (files.length > 1) {
+            const errorContainer = container.querySelector('.error-message');
+            errorContainer.textContent = 'You can only upload one primary image.';
+            return;
+        }
+        
+        // Set the files to the input
+        const input = document.getElementById('primary_image');
+        
+        // Create a new DataTransfer object
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        input.files = dt.files;
+        
+        // Trigger the change event manually
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+    } else if (type === 'additional') {
+        // For additional images
+        const input = document.getElementById('additional_images');
+        
+        // Create a new DataTransfer object
+        const dt = new DataTransfer();
+        
+        // Add up to 3 files or as many as allowed
+        const availableSlots = 3 - additionalFilesCollection.length;
+        const filesToAdd = Math.min(files.length, availableSlots);
+        
+        if (filesToAdd <= 0) {
+            const errorContainer = container.querySelector('.error-message');
+            errorContainer.textContent = `You can only have up to 3 additional images. You already have ${additionalFilesCollection.length}.`;
+            return;
+        }
+        
+        for (let i = 0; i < filesToAdd; i++) {
+            dt.items.add(files[i]);
+        }
+        
+        input.files = dt.files;
+        
+        // Trigger the change event manually
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+    }
+}
+
 // Convert image to WebP format with fixed square resolution
 function convertImageToWebP(file) {
     return new Promise((resolve, reject) => {
