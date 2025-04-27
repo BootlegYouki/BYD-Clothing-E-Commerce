@@ -830,13 +830,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     selectedFabric.textContent = newValue;
                                 }
                             }
-                            
-                            // Show success message
-                            showBootstrapAlert(
-                                type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container', 
-                                'success', 
-                                'Renamed successfully'
-                            );
                         } else {
                             element.innerHTML = originalContent;
                             showBootstrapAlert(

@@ -820,12 +820,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                             }
                             
-                            // Show success message
-                            showBootstrapAlert(
-                                type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container', 
-                                'success', 
-                                'Renamed successfully'
-                            );
                         } else {
                             element.innerHTML = originalContent;
                             showBootstrapAlert(
