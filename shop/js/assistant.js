@@ -99,7 +99,34 @@ async function checkUserAuth() {
 }
 async function loadConversation() {
     try {
-        // Always check local storage first with improved error handling
+        const isLoggedIn = await checkUserAuth();
+        
+        // If user is logged in, try server first
+        if (isLoggedIn) {
+            try {
+                // Use absolute path starting with / to ensure consistency across pages
+                const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'load'
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Loaded conversation data:', data);
+
+                if (data && data.status === 'success' && data.conversation) {
+                    return data.conversation;
+                }
+            } catch (serverError) {
+                console.error('Error loading conversation from server:', serverError);
+            }
+        }
+        
+        // Fallback to localStorage if server failed or user is not logged in
         try {
             const savedConversation = localStorage.getItem('conversationHistory');
             if (savedConversation) {
@@ -113,33 +140,8 @@ async function loadConversation() {
             console.error('Error reading from localStorage:', localStorageError);
         }
 
-        // Fallback to server with absolute paths
-        const isLoggedIn = await checkUserAuth();
-        if (!isLoggedIn) {
-            console.log('User not logged in, cannot load conversation from server');
-            return false;
-        }
-
-        // Use absolute path starting with / to ensure consistency across pages
-        const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'load'
-            })
-        });
-
-        const data = await response.json();
-        console.log('Loaded conversation data:', data);
-
-        if (data && data.status === 'success' && data.conversation) {
-            return data.conversation;
-        } else {
-            console.log('No conversation found or invalid response structure');
-            return false;
-        }
+        console.log('No conversation found in either server or localStorage');
+        return false;
     } catch (error) {
         console.error('Error loading conversation:', error);
         return false;
@@ -341,46 +343,24 @@ async function initializeBot() {
     // First, check if user is logged in
     const isLoggedIn = await checkUserAuth();
     
-    // Try to load conversation from localStorage first
-    try {
-        const savedConversation = localStorage.getItem('conversationHistory');
-        if (savedConversation) {
-            const parsed = JSON.parse(savedConversation);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                console.log('Successfully loaded conversation from localStorage');
-                conversationHistory = parsed;
-                
-                // Render previous messages in the UI
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML = ''; // Clear default greeting
-                
-                // Skip the system message (index 0) when rendering
-                for (let i = 1; i < conversationHistory.length; i++) {
-                    const message = conversationHistory[i];
-                    const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
-                    
-                    chatMessages.innerHTML += `
-                        <div class="message ${messageClass}">
-                            <div class="message-content">${
-                                message.role === 'assistant' 
-                                    ? marked.parse(message.content) 
-                                    : message.content
-                            }</div>
-                        </div>
-                    `;
-                }
-                
-                // Mark that we've loaded the conversation for this session
-                sessionStorage.setItem('conversationLoaded', 'true');
-                return; // Exit early since we restored from localStorage
-            }
-        }
-    } catch (error) {
-        console.error('Error loading from localStorage:', error);
-    }
-
-    // If localStorage failed, try server-side storage (if user is logged in)
+    // Check if there's a server-stored conversation if user is logged in
+    let serverConversationExists = false;
     if (isLoggedIn) {
+        try {
+            const response = await fetch('/shop/functions/chatbot/conversation-handler.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'exists' })
+            });
+            const data = await response.json();
+            serverConversationExists = (data.status === 'success' && data.exists === true);
+        } catch (error) {
+            console.error('Error checking server conversation:', error);
+        }
+    }
+    
+    // If user is logged in and has a server conversation, prioritize loading from server
+    if (isLoggedIn && serverConversationExists) {
         try {
             const savedConversation = await loadConversation();
             if (savedConversation) {
@@ -424,6 +404,44 @@ async function initializeBot() {
         } catch (serverError) {
             console.error('Error loading from server:', serverError);
         }
+    }
+    
+    // If server loading failed or user is not logged in, try localStorage
+    try {
+        const savedConversation = localStorage.getItem('conversationHistory');
+        if (savedConversation) {
+            const parsed = JSON.parse(savedConversation);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                console.log('Successfully loaded conversation from localStorage');
+                conversationHistory = parsed;
+                
+                // Render previous messages in the UI
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = ''; // Clear default greeting
+                
+                // Skip the system message (index 0) when rendering
+                for (let i = 1; i < conversationHistory.length; i++) {
+                    const message = conversationHistory[i];
+                    const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
+                    
+                    chatMessages.innerHTML += `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${
+                                message.role === 'assistant' 
+                                    ? marked.parse(message.content) 
+                                    : message.content
+                            }</div>
+                        </div>
+                    `;
+                }
+                
+                // Mark that we've loaded the conversation for this session
+                sessionStorage.setItem('conversationLoaded', 'true');
+                return; // Exit early since we restored from localStorage
+            }
+        }
+    } catch (error) {
+        console.error('Error loading from localStorage:', error);
     }
 
     // If we get here, both localStorage and server loading failed, so create a new conversation
@@ -1313,13 +1331,18 @@ function sendORstop() {
     }
 }
 async function clearChat() {
+    // Check if user is logged in before attempting to clear server conversation
+    const isLoggedIn = await checkUserAuth();
+    
     // Get the username if available
     let username = null;
     try {
-        const response = await fetch('/shop/functions/chatbot/get-username.php');
-        const data = await response.json();
-        if (data.status === 'success' && data.username) {
-            username = data.username;
+        if (isLoggedIn) {
+            const response = await fetch('/shop/functions/chatbot/get-username.php');
+            const data = await response.json();
+            if (data.status === 'success' && data.username) {
+                username = data.username;
+            }
         }
     } catch (error) {
         console.error('Error getting username:', error);
@@ -1338,12 +1361,17 @@ async function clearChat() {
         </div>
     `;
     
-    // Clear all storage
+    // Clear localStorage
     localStorage.removeItem('conversationHistory');
     sessionStorage.removeItem('conversationLoaded');
     
-    // Clear server-side conversation
-    await clearServerConversation();
+    // Only clear server-side conversation if user is logged in
+    if (isLoggedIn) {
+        await clearServerConversation();
+        console.log('Cleared server-side conversation for logged-in user');
+    } else {
+        console.log('User not logged in, skipping server-side conversation clearing');
+    }
     
     // Reset client-side conversation history with a fresh system prompt
     const baseSystemPrompt = await createDynamicSystemPrompt(false);
@@ -1355,6 +1383,6 @@ async function clearChat() {
     // Mark as new conversation
     sessionStorage.setItem('conversationLoaded', 'true');
     
-    // Save the new empty conversation
+    // Save the new empty conversation (will only save to server if logged in)
     saveConversation();
 }

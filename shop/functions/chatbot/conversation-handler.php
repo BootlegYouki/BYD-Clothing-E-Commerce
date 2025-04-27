@@ -11,7 +11,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $requestData = json_decode(file_get_contents('php://input'), true);
     $action = isset($requestData['action']) ? $requestData['action'] : '';
     
-    // Only allow logged in users to save conversations
+    // Allow anonymous access for checking conversation existence
+    if ($action === 'exists') {
+        if (isset($_SESSION['auth_user'])) {
+            $userId = $_SESSION['auth_user']['user_id'];
+            checkConversationExists($conn, $userId);
+        } else {
+            echo json_encode(['status' => 'error', 'exists' => false, 'message' => 'User not logged in']);
+        }
+        exit;
+    }
+    
+    // All other actions require authentication
     if (!isset($_SESSION['auth_user'])) {
         error_log("Auth user not set in session");
         echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
@@ -43,6 +54,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+}
+
+// New function to check if a conversation exists for a user
+function checkConversationExists($conn, $userId) {
+    $query = "SELECT COUNT(*) as count FROM user_conversations WHERE user_id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    
+    $exists = ($row['count'] > 0);
+    echo json_encode([
+        'status' => 'success',
+        'exists' => $exists
+    ]);
 }
 
 function saveConversation($conn, $userId, $conversation) {
