@@ -54,19 +54,27 @@ function generateSKU($productName, $category) {
 
 <div class="container-fluid py-3">
     <?php if(isset($_SESSION['message'])) : ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-            <strong>Success!</strong> <?= $_SESSION['message']; ?>
+        <?php 
+        // Default to success if message_type isn't set
+        $messageType = isset($_SESSION['message_type']) ? $_SESSION['message_type'] : "success";
+        $alertClass = ($messageType == "success") ? "alert-success" : "alert-danger";
+        ?>
+        <div class="alert <?= $alertClass ?> alert-dismissible fade show" role="alert" id="alert-message">
+            <strong><?= ($messageType == "success") ? "Success!" : "Error!" ?></strong> <?= $_SESSION['message']; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <script>
             setTimeout(function() {
-                document.getElementById('success-alert').classList.remove('show');
+                document.getElementById('alert-message').classList.remove('show');
                 setTimeout(function() {
-                    document.getElementById('success-alert')?.remove();
+                    document.getElementById('alert-message')?.remove();
                 }, 150);
             }, 3000);
         </script>
-        <?php unset($_SESSION['message']); ?>
+        <?php 
+        unset($_SESSION['message']); 
+        unset($_SESSION['message_type']);
+        ?>
     <?php endif; ?>
     
     <div class="row mb-4">
@@ -129,22 +137,16 @@ function generateSKU($productName, $category) {
                                 <span class="input-group-text">₱</span>
                                 <input type="number" name="original_price" id="original_price" class="form-control" min="0" step="0.01" required>
                             </div>
-                            <small class="text-muted mt-1 d-block">Enter the full price before any discounts</small>
+                            <small class="text-muted mt-1 d-block">Enter the regular price before any discounts</small>
                         </div>
                         
                         <div class="col-md-6">
-                            <label for="discount_percentage" class="form-label">Discount Percentage (%)</label>
+                            <label for="discount_price" class="form-label">Discount Price (₱)</label>
                             <div class="input-group">
-                                <input type="number" name="discount_percentage" id="discount_percentage" class="form-control" min="0" max="100" step="1" value="0">
-                                <span class="input-group-text">%</span>
+                                <span class="input-group-text">₱</span>
+                                <input type="number" name="discount_price" id="discount_price" class="form-control" min="0" step="0.01">
                             </div>
-                            <div class="discount-presets">
-                                <button type="button" class="discount-preset-btn" data-value="0">No Discount</button>
-                                <button type="button" class="discount-preset-btn" data-value="10">10%</button>
-                                <button type="button" class="discount-preset-btn" data-value="20">20%</button>
-                                <button type="button" class="discount-preset-btn" data-value="30">30%</button>
-                                <button type="button" class="discount-preset-btn" data-value="50">50%</button>
-                            </div>
+                            <small class="text-muted mt-1 d-block">Leave empty or same as original price for no discount</small>
                         </div>
                         
                         <div class="col-12">

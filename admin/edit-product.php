@@ -182,22 +182,25 @@ function generateSKU($productName, $category) {
                                 <span class="input-group-text">₱</span>
                                 <input type="number" name="original_price" id="original_price" class="form-control" min="0" step="0.01" value="<?= $product['original_price'] ?>" required>
                             </div>
-                            <small class="text-muted mt-1 d-block">Enter the full price before any discounts</small>
+                            <small class="text-muted mt-1 d-block">Enter the regular price before any discounts</small>
                         </div>
                         
                         <div class="col-md-6">
-                            <label for="discount_percentage" class="form-label">Discount Percentage (%)</label>
+                            <label for="discount_price" class="form-label">Discount Price (₱)</label>
                             <div class="input-group">
-                                <input type="number" name="discount_percentage" id="discount_percentage" class="form-control" min="0" max="100" step="1" value="<?= $product['discount_percentage'] ?>">
-                                <span class="input-group-text">%</span>
+                                <span class="input-group-text">₱</span>
+                                <?php
+                                    // Use discount_price if available, otherwise calculate from percentage
+                                    $discountPrice = $product['original_price'];
+                                    if(isset($product['discount_price']) && $product['discount_price'] > 0) {
+                                        $discountPrice = $product['discount_price'];
+                                    } else if($product['discount_percentage'] > 0) {
+                                        $discountPrice = $product['original_price'] - ($product['original_price'] * $product['discount_percentage'] / 100);
+                                    }
+                                ?>
+                                <input type="number" name="discount_price" id="discount_price" class="form-control" min="0" step="0.01" value="<?= $discountPrice ?>">
                             </div>
-                            <div class="discount-presets">
-                                <button type="button" class="discount-preset-btn" data-value="0">No Discount</button>
-                                <button type="button" class="discount-preset-btn" data-value="10">10%</button>
-                                <button type="button" class="discount-preset-btn" data-value="20">20%</button>
-                                <button type="button" class="discount-preset-btn" data-value="30">30%</button>
-                                <button type="button" class="discount-preset-btn" data-value="50">50%</button>
-                            </div>
+                            <small class="text-muted mt-1 d-block">Enter the final price after discount</small>
                         </div>
                         
                         <div class="col-12">
@@ -209,14 +212,14 @@ function generateSKU($productName, $category) {
                                                 <span class="original-price" id="original_price_display">₱<?= number_format($product['original_price'], 2) ?></span>
                                                 <span class="text-muted ms-2" id="discount_text"><?= $product['discount_percentage'] > 0 ? "({$product['discount_percentage']}% off)" : '' ?></span>
                                             </div>
-                                            <div class="discounted-price" id="final_price_display">₱<?= number_format($product['original_price'] * (1 - $product['discount_percentage']/100), 2) ?></div>
+                                            <div class="discounted-price" id="final_price_display">₱<?= number_format($discountPrice, 2) ?></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
                                             <div class="price-savings <?= $product['discount_percentage'] > 0 ? '' : 'd-none' ?>" id="savings_container">
                                                 <i class="material-symbols-rounded align-middle me-1">savings</i>
-                                                Customer saves: <strong id="savings_amount">₱<?= number_format($product['original_price'] * ($product['discount_percentage']/100), 2) ?></strong>
+                                                Customer saves: <strong id="savings_amount">₱<?= number_format($product['original_price'] - $discountPrice, 2) ?></strong>
                                             </div>
                                         </div>
                                     </div>

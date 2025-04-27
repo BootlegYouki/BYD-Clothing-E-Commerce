@@ -108,9 +108,11 @@ include 'config/dbcon.php';
 
                                     if(mysqli_num_rows($products_result) > 0) {
                                         while($product = mysqli_fetch_assoc($products_result)) {
-                                            // Calculate sale price if discount exists
+                                            // Use discount_price if available, otherwise calculate from discount_percentage
                                             $sale_price = $product['original_price'];
-                                            if($product['discount_percentage'] > 0) {
+                                            if(isset($product['discount_price']) && $product['discount_price'] > 0) {
+                                                $sale_price = $product['discount_price'];
+                                            } elseif($product['discount_percentage'] > 0) {
                                                 $discount_amount = ($product['original_price'] * $product['discount_percentage']) / 100;
                                                 $sale_price = $product['original_price'] - $discount_amount;
                                             }
@@ -137,7 +139,7 @@ include 'config/dbcon.php';
                                             <p class="text-xs font-weight-bold mb-0"><?= $product['category'] ?></p>
                                         </td>
                                         <td class="text-center align-middle">
-                                            <?php if($product['discount_percentage'] > 0): ?>
+                                            <?php if($product['discount_price'] > 0 || $product['discount_percentage'] > 0): ?>
                                             <p class="text-xs font-weight-bold mb-0">₱<?= number_format($sale_price, 2) ?></p>
                                             <p class="text-xs text-secondary mb-0"><del>₱<?= number_format($product['original_price'], 2) ?></del> (<?= $product['discount_percentage'] ?>% off)</p>
                                             <?php else: ?>
