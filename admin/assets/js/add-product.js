@@ -680,6 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
         element.classList.add('editing');
         
         const originalContent = element.innerHTML;
+        let isSaving = false; // Flag to prevent multiple save operations
         
         const input = document.createElement('input');
         input.type = 'text';
@@ -698,6 +699,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function saveChanges() {
+            if (isSaving) return; // Prevent multiple save operations
+            isSaving = true;
+            
             const newValue = input.value.trim();
             
             if (newValue && newValue !== currentValue) {
@@ -768,6 +772,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function cancelEdit() {
+            if (isSaving) return; // Prevent canceling during save
+            isSaving = true;
             element.innerHTML = originalContent;
             element.classList.remove('editing');
         }
@@ -782,7 +788,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        input.addEventListener('blur', saveChanges);
+        input.addEventListener('focusout', function() {
+            if (!isSaving) {
+                saveChanges();
+            }
+        });
         
         input.addEventListener('click', function(e) {
             e.stopPropagation();

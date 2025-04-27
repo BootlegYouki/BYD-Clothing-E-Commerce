@@ -317,6 +317,7 @@ function generateSKU($productName, $category) {
                         <!-- Moved preview inside the container -->
                         <div id="primary_image_preview" class="mt-3 text-center"></div>
                     </div>
+                </div>
                     
                     <!-- Additional Images Upload -->
                     <div class="form-section">
