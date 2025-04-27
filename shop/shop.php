@@ -2,6 +2,14 @@
 require_once '../admin/config/dbcon.php';
 require_once 'functions/shop_product-handler.php';
 
+// Start session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is admin
+$is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
+
 // Get parameters from URL
 $view_product_id = isset($_GET['view_product']) ? intval($_GET['view_product']) : 0;
 $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
@@ -395,7 +403,9 @@ $categories = getAllCategories($conn);
                             </div>
                             
                             <!-- Action Button - Only Add to Cart -->
-                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100">ADD TO CART</button>
+                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100 <?= $is_admin ? 'd-none' : '' ?>">
+                                ADD TO CART
+                            </button>
                         </div>
                     </div>
                 </div>
