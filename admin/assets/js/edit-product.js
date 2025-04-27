@@ -254,6 +254,7 @@ document.getElementById('primary_image').addEventListener('change', async functi
                         <div class="flex-grow-1 min-width-0">
                             <strong>New Primary Image</strong>
                             <div class="small">File converted to WebP (${fileSize})</div>
+                            <div class="small">Click to remove image</div>
                         </div>
                     </div>
                 </div>
@@ -370,6 +371,7 @@ document.getElementById('additional_images').addEventListener('change', async fu
                             <div class="flex-grow-1 min-width-0">
                                 <strong>New Image ${i+1}</strong>
                                 <div class="small">File converted to WebP (${fileSize})</div>
+                                <div class="small">Click to remove image</div>
                             </div>
                         </div>
                     </div>
@@ -425,6 +427,7 @@ function removeAdditionalImage(index, e) {
                     <div class="flex-grow-1 min-width-0">
                         <strong>New Image ${i+1}</strong>
                         <div class="small">File converted to WebP (${fileSize})</div>
+                        <div class="small">Click to remove image</div>
                     </div>
                 </div>
             </div>
