@@ -687,10 +687,22 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function enableInlineEdit(element, currentValue, type) {
+        // Don't allow editing if already in edit mode
+        if (element.classList.contains('editing')) return;
+        
         element.classList.add('editing');
         
         const originalContent = element.innerHTML;
-        let isSaving = false; // Flag to prevent multiple save operations
+        
+        // Store a reference to the parent element that contains our buttons
+        const listItem = element.closest('.' + type + '-item');
+        const editBtn = listItem.querySelector('.edit-btn');
+        const editBtnParent = editBtn.parentNode; // Store parent reference
+        const originalEditBtnHTML = editBtn.innerHTML;
+        
+        // Replace edit icon with save icon
+        editBtn.innerHTML = '<i class="material-symbols-rounded">check</i>';
+        editBtn.title = "Save changes";
         
         const input = document.createElement('input');
         input.type = 'text';
@@ -708,13 +720,46 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdownMenu.classList.add('show');
         }
         
+        // Create a fresh save handler function
         function saveChanges() {
-            if (isSaving) return; // Prevent multiple save operations
-            isSaving = true;
+            // If save was already triggered, bail out
+            if (input._saveTriggered) return;
+            input._saveTriggered = true;
             
             const newValue = input.value.trim();
             
+            // Reset the button back to edit mode first
+            editBtn.innerHTML = originalEditBtnHTML;
+            editBtn.title = "Rename " + type.charAt(0).toUpperCase() + type.slice(1);
+            
+            // Create a new button but don't replace it yet - check if parent exists
+            const newEditBtn = editBtn.cloneNode(true);
+            
+            // Safely handle button replacement
+            if (editBtnParent && editBtnParent.contains(editBtn)) {
+                try {
+                    editBtnParent.replaceChild(newEditBtn, editBtn);
+                    
+                    // Re-add click handler for edit mode to the new button
+                    newEditBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
+                        if (nameElement) {
+                            const currentName = nameElement.getAttribute('data-value');
+                            enableInlineEdit(nameElement, currentName, type);
+                        }
+                    });
+                } catch (err) {
+                    console.warn('Error replacing edit button:', err);
+                    // Just restore the original content and avoid further DOM manipulation
+                }
+            } else {
+                // If parent is gone, we can't replace - just restore content
+                console.warn('Edit button parent not available - restoring content only');
+            }
+            
             if (newValue && newValue !== currentValue) {
+                // Show loading state in element
                 element.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
                 
                 const data = {
@@ -741,24 +786,39 @@ document.addEventListener('DOMContentLoaded', function() {
                             element.innerHTML = newValue;
                             element.setAttribute('data-value', newValue);
                             
-                            const editBtn = element.closest('.' + type + '-item').querySelector('.edit-btn');
-                            if (editBtn) {
-                                editBtn.setAttribute('data-' + type, newValue);
+                            // Only update button attributes if we successfully replaced the button
+                            const currentEditBtn = listItem.querySelector('.edit-btn');
+                            if (currentEditBtn) {
+                                currentEditBtn.setAttribute('data-' + type, newValue);
                             }
                             
-                            const deleteBtn = element.closest('.' + type + '-item').querySelector('.delete-btn');
+                            const deleteBtn = listItem.querySelector('.delete-btn');
                             if (deleteBtn) {
                                 deleteBtn.setAttribute('data-' + type, newValue);
                             }
                             
                             // Update the selected value if it was the current one
-                            if (type === 'category' && categoryInput.value === currentValue) {
+                            const categoryInput = document.getElementById('category');
+                            const fabricInput = document.getElementById('fabric');
+                            
+                            if (type === 'category' && categoryInput && categoryInput.value === currentValue) {
                                 categoryInput.value = newValue;
-                                document.getElementById('selected_category').textContent = newValue;
-                                updateSKU();
-                            } else if (type === 'fabric' && fabricInput.value === currentValue) {
+                                const selectedCategory = document.getElementById('selected_category');
+                                if (selectedCategory) {
+                                    selectedCategory.textContent = newValue;
+                                }
+                                
+                                // Update SKU if needed
+                                const productName = document.getElementById('name');
+                                if (productName && productName.value) {
+                                    updateSKU();
+                                }
+                            } else if (type === 'fabric' && fabricInput && fabricInput.value === currentValue) {
                                 fabricInput.value = newValue;
-                                document.getElementById('selected_fabric').textContent = newValue;
+                                const selectedFabric = document.getElementById('selected_fabric');
+                                if (selectedFabric) {
+                                    selectedFabric.textContent = newValue;
+                                }
                             }
                             
                             // Show success message
@@ -793,13 +853,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // Simplify the cancel function to avoid DOM replacement errors
         function cancelEdit() {
-            if (isSaving) return; // Prevent canceling during save
-            isSaving = true;
+            // Don't try again if already triggered
+            if (input._saveTriggered) return;
+            input._saveTriggered = true;
+            
+            // Reset the button back to edit mode
+            if (editBtnParent && editBtnParent.contains(editBtn)) {
+                editBtn.innerHTML = originalEditBtnHTML;
+                editBtn.title = "Rename " + type.charAt(0).toUpperCase() + type.slice(1);
+            }
+            
+            // Just restore original content - don't do complex DOM replacements
             element.innerHTML = originalContent;
             element.classList.remove('editing');
+            
+            // Re-initialize click handlers on the items
+            initializeDropdownClickHandlers();
         }
         
+        // Replace with a simpler approach for the edit-save button
+        // Just add a click handler directly to the existing button
+        editBtn.onclick = function(e) {
+            e.stopPropagation();
+            saveChanges();
+        };
+        
+        // Handle keyboard events
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -810,15 +891,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Replace blur with focusout and check if already saving
-        input.addEventListener('focusout', function() {
-            if (!isSaving) {
-                saveChanges();
+        // Handle focusout event
+        input.addEventListener('focusout', function(e) {
+            // Check if we're clicking the save button or save already triggered
+            if ((editBtn && editBtn.contains(e.relatedTarget)) || input._saveTriggered) {
+                return;
             }
+            
+            // Small delay to let other handlers execute first
+            setTimeout(() => {
+                if (!input._saveTriggered && element.contains(input)) {
+                    saveChanges();
+                }
+            }, 50);
         });
         
+        // Stop propagation on input click
         input.addEventListener('click', function(e) {
             e.stopPropagation();
+        });
+    }
+
+    // Helper function to re-initialize click handlers after edits
+    function initializeDropdownClickHandlers() {
+        // Re-add click handlers to edit buttons
+        document.querySelectorAll('.category-item .edit-btn, .fabric-item .edit-btn').forEach(button => {
+            button.onclick = function(e) {
+                e.stopPropagation();
+                const type = this.closest('.category-item') ? 'category' : 'fabric';
+                const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
+                if (nameElement) {
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, type);
+                }
+            };
         });
     }
 
