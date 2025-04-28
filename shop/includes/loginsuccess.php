@@ -5,7 +5,7 @@
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
       </div>
       <div class="modal-body">
-      <p>Welcome back, <?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Customer'; ?>! You have successfully logged in.</p>
+      <p>Welcome back, <span id="login-username"><?php echo isset($_SESSION['auth_user']['username']) ? $_SESSION['auth_user']['username'] : $_SESSION['username'] ?? 'User'; ?></span>! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn" id="loginSuccessContinueBtn" style="background-color: #FF7F50; color: white;">Continue</button>
@@ -23,6 +23,14 @@
     // Clear the flag after showing the modal
     unset($_SESSION['login_success']);
     endif; ?>
+    
+    // Update the username in the modal with the latest from AJAX response if available
+    window.updateLoginSuccessUsername = function(username) {
+      const usernameElement = document.getElementById('login-username');
+      if (usernameElement && username) {
+        usernameElement.textContent = username;
+      }
+    };
     
     // Handle the continue button click based on redirect flag
     const continueBtn = document.getElementById('loginSuccessContinueBtn');

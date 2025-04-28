@@ -267,6 +267,10 @@ document.addEventListener('DOMContentLoaded', function() {
               window.location.href = 'checkout.php';
             } else {
               const loginSuccessModal = new bootstrap.Modal(document.getElementById('loginsuccessmodal'));
+              // Update username in the modal if function exists
+              if (typeof window.updateLoginSuccessUsername === 'function') {
+                window.updateLoginSuccessUsername(username);
+              }
               loginSuccessModal.show();
             }
           }

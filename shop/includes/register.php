@@ -190,101 +190,151 @@ document.addEventListener('DOMContentLoaded', function() {
   const latInput     = document.getElementById('latitude');
   const lngInput     = document.getElementById('longitude');
   const zipcodeInput = document.getElementById('zipcode');
-
-  // 1) Initialize map and tile layer with better options
-  const map = L.map('map', {
-    scrollWheelZoom: true,
-    zoomControl: true
-  }).setView([14.6760, 121.0437], 16);
   
-  // Primary tile layer with fallback options
-  const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19,
-    crossOrigin: true
-  }).addTo(map);
+  // Map initialization variables
+  let map = null;
+  let marker = null;
+  let mainLayer = null;
+  let fallbackLayer = null;
   
-  // Fallback tile layer if primary fails
-  const fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap contributors, © CARTO',
-    maxZoom: 19,
-    crossOrigin: true
+  // Initialize map only when modal is shown to avoid sizing issues
+  document.getElementById('SignupModal').addEventListener('shown.bs.modal', function() {
+    // Initialize map if not already initialized
+    if (!map) {
+      initMap();
+    } else {
+      // If map exists, just update its size
+      map.invalidateSize(true);
+    }
   });
   
-  // Handle tile error
-  mainLayer.on('tileerror', function(error) {
-    console.log("Tile error detected, switching to fallback");
-    map.removeLayer(mainLayer);
-    fallbackLayer.addTo(map);
-  });
+  // Function to initialize the map
+  function initMap() {
+    // If map already exists, destroy it first to avoid duplicates
+    if (map) {
+      map.remove();
+      map = null;
+    }
+    
+    // Create the map with better options
+    map = L.map('map', {
+      scrollWheelZoom: true,
+      zoomControl: true,
+      attributionControl: true
+    }).setView([14.6760, 121.0437], 16);
+    
+    // Primary tile layer with error handling
+    mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+      crossOrigin: true
+    }).addTo(map);
+    
+    // Fallback tile layer
+    fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors, © CARTO',
+      maxZoom: 19,
+      crossOrigin: true
+    });
+    
+    // Handle tile error
+    mainLayer.on('tileerror', function(error) {
+      console.log("Tile error detected, switching to fallback");
+      map.removeLayer(mainLayer);
+      fallbackLayer.addTo(map);
+    });
+    
+    // Add a draggable marker
+    marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
+    
+    // Add geocoder control with better configuration
+    const geocoder = L.Control.geocoder({
+      defaultMarkGeocode: false,
+      geocoder: L.Control.Geocoder.nominatim({
+        timeout: 5000, // 5 seconds timeout
+        serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
+      }),
+      placeholder: 'Search address...',
+      errorMessage: 'Unable to find that address.'
+    }).on('markgeocode', function(e) {
+      marker.setLatLng(e.geocode.center);
+      map.setView(e.geocode.center, 16);
+      updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+      fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
+    }).addTo(map);
+    
+    // Map click => move marker + reverse geocode + zipcode
+    map.on('click', e => {
+      marker.setLatLng(e.latlng);
+      updateCoordinates(e.latlng.lat, e.latlng.lng);
+      reverseGeocode(e.latlng.lat, e.latlng.lng);
+      fetchZipcode(e.latlng.lat, e.latlng.lng);
+    });
+    
+    // Marker drag end => same as click
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      updateCoordinates(pos.lat, pos.lng);
+      reverseGeocode(pos.lat, pos.lng);
+      fetchZipcode(pos.lat, pos.lng);
+    });
+    
+    // Force map to recalculate its size after a short delay
+    setTimeout(() => {
+      map.invalidateSize(true);
+    }, 300);
+  }
 
-  // Force map to recalculate its container size
-  setTimeout(() => {
-    map.invalidateSize(true);
-  }, 300);
-
-  // 2) Add a draggable marker
-  const marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
-
-  // 4) Geocoder control (no default marker)
-  const geocoder = L.Control.geocoder({
-    defaultMarkGeocode: false,
-    geocoder: L.Control.Geocoder.nominatim(),
-    placeholder: 'Search address...'
-  }).on('markgeocode', function(e) {
-    marker.setLatLng(e.geocode.center);
-    map.setView(e.geocode.center, 16);
-    updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
-    fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
-  }).addTo(map);
-
-  // 5) Core helper functions
+  // Core helper functions
   function updateCoordinates(lat, lng) {
     latInput.value = lat;
     lngInput.value = lng;
   }
 
   function reverseGeocode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-      .then(r => r.json())
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data && data.display_name) addressInput.value = data.display_name;
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error('Error with reverse geocoding:', error);
+        addressInput.value = `Location at ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      });
   }
 
   function fetchZipcode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-      .then(r => r.json())
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data && data.address && data.address.postcode) {
           zipcodeInput.value = data.address.postcode;
+        } else {
+          zipcodeInput.value = '';
         }
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error('Error fetching zipcode:', error);
+        zipcodeInput.value = '';
+      });
   }
 
-  // 6) Map click => move marker + reverse geocode + zipcode
-  map.on('click', e => {
-    marker.setLatLng(e.latlng);
-    updateCoordinates(e.latlng.lat, e.latlng.lng);
-    reverseGeocode(e.latlng.lat, e.latlng.lng);
-    fetchZipcode(e.latlng.lat, e.latlng.lng);
-  });
-
-  // 7) Marker drag end => same as click
-  marker.on('dragend', () => {
-    const pos = marker.getLatLng();
-    updateCoordinates(pos.lat, pos.lng);
-    reverseGeocode(pos.lat, pos.lng);
-    fetchZipcode(pos.lat, pos.lng);
-  });
-
-  // 8) Show map when focusing the address field
+  // Show map when focusing the address field
   addressInput.addEventListener('focus', () => {
-    if (mapDiv.style.display === 'none') {
-      mapDiv.style.display = 'block';
-      map.invalidateSize();
+    if (map) {
+      map.invalidateSize(true);
+    } else {
+      initMap();
     }
   });
 
