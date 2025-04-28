@@ -2,35 +2,19 @@
 session_start();
 require_once '../../../admin/config/dbcon.php';
 
-// Debug session data
-error_log("Session data: " . print_r($_SESSION, true));
-
 // Check if request is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the request body
     $requestData = json_decode(file_get_contents('php://input'), true);
     $action = isset($requestData['action']) ? $requestData['action'] : '';
     
-    // Allow anonymous access for checking conversation existence
-    if ($action === 'exists') {
-        if (isset($_SESSION['auth_user'])) {
-            $userId = $_SESSION['auth_user']['user_id'];
-            checkConversationExists($conn, $userId);
-        } else {
-            echo json_encode(['status' => 'error', 'exists' => false, 'message' => 'User not logged in']);
-        }
-        exit;
-    }
-    
-    // All other actions require authentication
+    // Only allow logged in users to save conversations
     if (!isset($_SESSION['auth_user'])) {
-        error_log("Auth user not set in session");
         echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
         exit;
     }
     
     $userId = $_SESSION['auth_user']['user_id'];
-    error_log("Processing action '$action' for user ID: $userId");
     
     switch ($action) {
         case 'save':
@@ -54,22 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-}
-
-// New function to check if a conversation exists for a user
-function checkConversationExists($conn, $userId) {
-    $query = "SELECT COUNT(*) as count FROM user_conversations WHERE user_id = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($result);
-    
-    $exists = ($row['count'] > 0);
-    echo json_encode([
-        'status' => 'success',
-        'exists' => $exists
-    ]);
 }
 
 function saveConversation($conn, $userId, $conversation) {
@@ -114,8 +82,6 @@ function saveConversation($conn, $userId, $conversation) {
 }
 
 function loadConversation($conn, $userId) {
-    error_log("Loading conversation for user $userId");
-    
     $query = "SELECT conversation_history FROM user_conversations WHERE user_id = ?";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, "i", $userId);
@@ -125,7 +91,6 @@ function loadConversation($conn, $userId) {
     if ($row = mysqli_fetch_assoc($result)) {
         // Directly decode the JSON string from the database
         $conversation = json_decode($row['conversation_history'], true);
-        error_log("Found conversation with " . count($conversation) . " messages");
         
         // Return the conversation with success status
         echo json_encode([
@@ -134,7 +99,6 @@ function loadConversation($conn, $userId) {
         ]);
     } else {
         // No conversation found
-        error_log("No conversation found for user $userId");
         echo json_encode([
             'status' => 'success',
             'conversation' => null

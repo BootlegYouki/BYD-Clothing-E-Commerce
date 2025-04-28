@@ -14,27 +14,9 @@
             </button>
         </div>
     </div>
-    
-    <!-- New: Agent Tools Bar -->
-    <div class="agent-toolbar" id="agent-toolbar">
-        <button class="agent-tool" id="search-products" title="Search Products">
-            <i class="fas fa-search"></i>
-        </button>
-        <button class="agent-tool" id="show-cart" title="View Cart">
-            <i class="fas fa-shopping-cart"></i>
-        </button>
-        <button class="agent-tool" id="track-order" title="Track Order">
-            <i class="fas fa-truck"></i>
-        </button>
-        <button class="agent-tool" id="get-recommendations" title="Get Recommendations">
-            <i class="fas fa-thumbs-up"></i>
-        </button>
-    </div>
-    
     <div class="chat-messages" id="chat-messages">
         <div class="message bot-message">
-            <div class="message-content">
-            </div>
+            <div class="message-content"></div>
         </div>
     </div>
     <div class="chat-input">
@@ -43,12 +25,6 @@
             <i class='bx bxs-paper-plane' id="sendIcon"></i>
             <i class='bx bx-stop-circle d-none' id="stopIcon" style="font-size: 1.3rem;"></i>
         </button>
-    </div>
-    
-    <!-- New: Agent Action Indicator -->
-    <div class="agent-action-indicator" id="agent-action-indicator">
-        <div class="agent-spinner"></div>
-        <span id="agent-action-text">Performing action...</span>
     </div>
 </div>
 

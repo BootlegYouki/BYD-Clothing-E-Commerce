@@ -205,5 +205,4 @@ $hide_cart = ($current_page == 'checkout.php');
 
 <script src="js/url-cleaner.js"></script>
 <script src="js/notifications.js"></script>
-<script src="js/chat-state-manager.js"></script>
 <script src="js/assistant.js"></script>
