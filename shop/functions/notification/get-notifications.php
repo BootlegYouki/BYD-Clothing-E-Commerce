@@ -122,7 +122,8 @@ exit;
  * Helper function to calculate time ago
  */
 function getTimeAgo($timestamp) {
-    $time = strtotime($timestamp);
+    // Ensure timestamp is in the correct timezone
+    $time = strtotime($timestamp . ' +08:00');
     $current = time();
     $diff = $current - $time;
     

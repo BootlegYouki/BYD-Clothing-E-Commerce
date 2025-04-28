@@ -63,11 +63,11 @@ while ($row = $result->fetch_assoc()) {
 
 // Group notifications by date category
 $groupedNotifications = [
-    'Today' => [],
-    'Yesterday' => [],
-    'This Week' => [],
     'Earlier' => []
 ];
+
+// Include timezone initialization
+require_once 'includes/timezone.php';
 
 // Current date for comparison
 $today = date('Y-m-d');

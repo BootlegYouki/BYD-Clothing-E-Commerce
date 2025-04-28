@@ -231,16 +231,17 @@ function adjustTimeDisplay(timeAgo, createdAt) {
     if (!createdAt) return timeAgo;
     
     // Convert server timestamp to client's local time
+    // Assuming server uses Philippines time (UTC+8)
     const serverTime = new Date(createdAt);
     const now = new Date();
     
-    // Log for debugging
-    console.log("Server timestamp:", createdAt);
-    console.log("Local time:", now.toISOString());
-    console.log("Time difference (min):", Math.round((now - serverTime) / (1000 * 60)));
+    // Add UTC+8 offset to match Philippines time
+    const serverTimezoneOffset = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+    const clientOffset = now.getTimezoneOffset() * 60 * 1000; // Client offset in milliseconds
+    const adjustedServerTime = new Date(serverTime.getTime() + clientOffset + serverTimezoneOffset);
     
     // Calculate time difference in seconds
-    const diffSeconds = Math.floor((now - serverTime) / 1000);
+    const diffSeconds = Math.floor((now - adjustedServerTime) / 1000);
     
     // Return appropriate time ago message
     if (diffSeconds < 60) {
