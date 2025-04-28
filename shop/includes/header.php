@@ -18,7 +18,7 @@ $hide_cart = ($current_page == 'checkout.php');
       <a href="index.php">
         <img src="img/logo/logo.webp" alt="logo" class="imglogo">
       </a>
-        <span class="ms-3">Hello, <?php echo $username; ?></span>
+        <span class="ms-3" id="offcanvasUsername">Hello, <?php echo $username; ?></span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>        
       <div class="offcanvas-body">
@@ -59,33 +59,35 @@ $hide_cart = ($current_page == 'checkout.php');
       </div>
     </form>
     
-    <?php if ($username === 'Guest'): ?>
-      <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-lg-3 text-decoration-none d-lg-flex">
-        <i class="bx bx-user fs-4"></i>
-        <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
-      </a>
-    <?php else: ?>
-      <div class="nav-item dropdown me-lg-3">
-        <a class="dropdown-toggle nav-icon d-flex align-items-center text-decoration-none d-lg-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <div id="userAccountSection" data-user-status="<?php echo ($username === 'Guest') ? 'guest' : 'logged-in'; ?>" data-is-admin="<?php echo $is_admin ? 'true' : 'false'; ?>">
+      <?php if ($username === 'Guest'): ?>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-lg-3 text-decoration-none d-lg-flex" id="guestLoginLink">
           <i class="bx bx-user fs-4"></i>
-          <span class="ms-2 d-none d-md-flex d-lg-flex">Hello, <?php echo $username; ?></span>
+          <span class="ms-2 d-none d-md-flex d-lg-flex" id="navbarUsername">Hello, <?php echo $username; ?></span>
         </a>
-        <ul class="dropdown-menu">
-        <?php if ($is_admin): ?>
-          <li><a class="dropdown-item" href="../admin/index.php">
-          <i class="bx bx-cog me-2"></i>Admin Panel
-          </a></li>
-          <li><hr class="dropdown-divider"></li>
-        <?php else: ?>
-          <li><a class="dropdown-item d-flex align-items-center" href="profile.php">
-          <i class="bx bx-user-circle me-2"></i>My Profile</a></li>
-          <li><hr class="dropdown-divider"></li>
-        <?php endif; ?>
-        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-        <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
-        </ul>
-      </div>
-    <?php endif; ?>
+      <?php else: ?>
+        <div class="nav-item dropdown me-lg-3">
+          <a class="dropdown-toggle nav-icon d-flex align-items-center text-decoration-none d-lg-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bx bx-user fs-4"></i>
+            <span class="ms-2 d-none d-md-flex d-lg-flex" id="navbarUsername">Hello, <?php echo $username; ?></span>
+          </a>
+          <ul class="dropdown-menu">
+          <?php if ($is_admin): ?>
+            <li><a class="dropdown-item" href="../admin/index.php">
+            <i class="bx bx-cog me-2"></i>Admin Panel
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+          <?php else: ?>
+            <li><a class="dropdown-item d-flex align-items-center" href="profile.php">
+            <i class="bx bx-user-circle me-2"></i>My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+          <?php endif; ?>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
+          </ul>
+        </div>
+      <?php endif; ?>
+    </div>
     
     <!-- Notification Icon -->
     <?php if ($username !== 'Guest' && !$is_admin): ?>
@@ -143,6 +145,66 @@ $hide_cart = ($current_page == 'checkout.php');
     </button>
   </div>
 </nav>
+
+<!-- Add this script to dynamically update the header -->
+<script>
+// Function to update header after login/signup
+function updateHeaderAfterAuth(username, isAdmin = false) {
+  // Update username displays
+  const navbarUsername = document.getElementById('navbarUsername');
+  const offcanvasUsername = document.getElementById('offcanvasUsername');
+  
+  if (navbarUsername) navbarUsername.textContent = `Hello, ${username}`;
+  if (offcanvasUsername) offcanvasUsername.textContent = `Hello, ${username}`;
+  
+  // Update user account section
+  const userAccountSection = document.getElementById('userAccountSection');
+  if (!userAccountSection) return;
+  
+  // Update data attributes
+  userAccountSection.dataset.userStatus = 'logged-in';
+  userAccountSection.dataset.isAdmin = isAdmin ? 'true' : 'false';
+  
+  // Replace the guest login link with dropdown if needed
+  if (userAccountSection.querySelector('#guestLoginLink')) {
+    // Create the logged-in dropdown menu HTML
+    const dropdownHtml = `
+      <div class="nav-item dropdown me-lg-3">
+        <a class="dropdown-toggle nav-icon d-flex align-items-center text-decoration-none d-lg-flex" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bx bx-user fs-4"></i>
+          <span class="ms-2 d-none d-md-flex d-lg-flex" id="navbarUsername">Hello, ${username}</span>
+        </a>
+        <ul class="dropdown-menu">
+          ${isAdmin ? 
+            `<li><a class="dropdown-item" href="../admin/index.php">
+              <i class="bx bx-cog me-2"></i>Admin Panel
+            </a></li>
+            <li><hr class="dropdown-divider"></li>` : 
+            `<li><a class="dropdown-item d-flex align-items-center" href="profile.php">
+              <i class="bx bx-user-circle me-2"></i>My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>`
+          }
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+          <i class="bx bx-log-out me-2"></i><span class="pb-3 justify-content-center">Logout</span></a></li>
+        </ul>
+      </div>
+    `;
+    
+    userAccountSection.innerHTML = dropdownHtml;
+  }
+  
+  // Show notification icon if not admin
+  if (!isAdmin) {
+    const notificationWrapper = document.querySelector('.notification-icon-wrapper');
+    if (notificationWrapper && notificationWrapper.classList.contains('d-none')) {
+      notificationWrapper.classList.remove('d-none');
+    }
+  }
+}
+
+// Make the function globally available
+window.updateHeaderAfterAuth = updateHeaderAfterAuth;
+</script>
 
 <script src="js/url-cleaner.js"></script>
 <script src="js/header-notifications.js"></script>

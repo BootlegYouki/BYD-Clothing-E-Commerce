@@ -15,6 +15,15 @@
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Show login success modal if session flag is set
+    <?php if(isset($_SESSION['login_success'])): ?>
+    var loginSuccessModal = new bootstrap.Modal(document.getElementById('loginsuccessmodal'));
+    loginSuccessModal.show();
+    <?php 
+    // Clear the flag after showing the modal
+    unset($_SESSION['login_success']);
+    endif; ?>
+    
     // Handle the continue button click based on redirect flag
     const continueBtn = document.getElementById('loginSuccessContinueBtn');
     if (continueBtn) {
@@ -32,7 +41,6 @@
     }
   });
 </script>
-<script src="js/url-cleaner.js"></script>
 
 <!-- Admin Login Success Modal -->
 <div class="modal fade" id="adminLoginSuccessModal" tabindex="-1" aria-labelledby="adminLoginSuccessModalLabel" aria-hidden="true">
@@ -56,7 +64,7 @@
 <!-- Script to show admin login modal -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    <?php if(isset($_SESSION['admin_login_success']) || isset($_GET['adminLogin'])): ?>
+    <?php if(isset($_SESSION['admin_login_success'])): ?>
     var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
     adminLoginModal.show();
     

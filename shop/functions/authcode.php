@@ -31,8 +31,20 @@ function sendJsonResponse($status, $message, $data = []) {
         $response = array_merge($response, $data);
     }
     
+    // Include username in response if it's in the session
+    if (isset($_SESSION['username'])) {
+        $response['username'] = $_SESSION['username'];
+    }
+    
     header('Content-Type: application/json');
     echo json_encode($response);
+    exit;
+}
+
+// New function to redirect without URL parameters
+function redirectWithSessionFlag($location, $flagName, $flagValue = true) {
+    $_SESSION[$flagName] = $flagValue;
+    header("Location: $location");
     exit;
 }
 
@@ -50,8 +62,12 @@ if (isset($_POST['signupButton'])) {
    $confirm_password= mysqli_real_escape_string($conn, $_POST['confirm_password']);
 
    if ($password !== $confirm_password) {
-       echo "Passwords do not match.";
-       exit;
+       if (isAjaxRequest()) {
+           sendJsonResponse('error', 'Passwords do not match.');
+       } else {
+           $_SESSION['error_message'] = "Passwords do not match.";
+           redirectWithSessionFlag("../index.php", "signup_error");
+       }
    }
    
    // Check if email already exists
@@ -59,8 +75,12 @@ if (isset($_POST['signupButton'])) {
    $check_email_query_run = mysqli_query($conn, $check_email_query);
    
    if(mysqli_num_rows($check_email_query_run) > 0) {
-       header("Location: ../index.php?emailExists=1");
-       exit;
+       if (isAjaxRequest()) {
+           sendJsonResponse('error', 'Email already exists. Please use a different email or login.');
+       } else {
+           $_SESSION['error_message'] = "Email already exists. Please use a different email or login.";
+           redirectWithSessionFlag("../index.php", "email_exists");
+       }
    }
    
    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -89,18 +109,29 @@ if (isset($_POST['signupButton'])) {
            $_SESSION['verify_email'] = $regemail;
            $_SESSION['verify_firstname'] = $firstname;
            
-           // Redirect to verification page
-           header('Location: ../verify.php');
-           exit();
+           // Redirect to verification page or respond with JSON for AJAX
+           if (isAjaxRequest()) {
+               sendJsonResponse('success', 'Please check your email for verification code.', ['redirect' => '../verify.php']);
+           } else {
+               redirectWithSessionFlag('../verify.php', 'verify_needed');
+           }
        } else {
            // Failed to send email
-           header("Location: ../index.php?emailFailed=1");
-           exit();
+           if (isAjaxRequest()) {
+               sendJsonResponse('error', 'Failed to send verification email. Please try again later.');
+           } else {
+               $_SESSION['error_message'] = "Failed to send verification email. Please try again later.";
+               redirectWithSessionFlag("../index.php", "email_failed");
+           }
        }
    } else {
        // Failed to store OTP
-       header("Location: ../index.php?otpFailed=1");
-       exit();
+       if (isAjaxRequest()) {
+           sendJsonResponse('error', 'An error occurred during registration. Please try again later.');
+       } else {
+           $_SESSION['error_message'] = "An error occurred during registration. Please try again later.";
+           redirectWithSessionFlag("../index.php", "otp_failed");
+       }
    }
 }
 else if (isset($_POST['loginButton'])) {
@@ -113,7 +144,8 @@ else if (isset($_POST['loginButton'])) {
         if (isAjaxRequest()) {
             sendJsonResponse('error', 'Invalid username or email address.');
         } else {
-            displayInvalidCredentials();
+            $_SESSION['error_message'] = "Invalid username or email address.";
+            redirectWithSessionFlag("../index.php", "login_failed");
         }
     }
     
@@ -131,15 +163,14 @@ else if (isset($_POST['loginButton'])) {
             if (isAjaxRequest()) {
                 sendJsonResponse('error', 'Please verify your email address first. A new verification code has been sent to your email.');
             } else {
-                header("Location: ../verify.php?verifyRequired=1");
-                exit();
+                redirectWithSessionFlag("../verify.php", "verify_required");
             }
         } else {
             if (isAjaxRequest()) {
                 sendJsonResponse('error', 'Failed to send verification email. Please try again later.');
             } else {
-                header("Location: ../index.php?emailFailed=1");
-                exit();
+                $_SESSION['error_message'] = "Failed to send verification email. Please try again later.";
+                redirectWithSessionFlag("../index.php", "email_failed");
             }
         }
     }
@@ -148,7 +179,8 @@ else if (isset($_POST['loginButton'])) {
         if (isAjaxRequest()) {
             sendJsonResponse('error', 'Invalid password. Please try again.');
         } else {
-            displayInvalidCredentials();
+            $_SESSION['error_message'] = "Invalid password. Please try again.";
+            redirectWithSessionFlag("../index.php", "login_failed");
         }
     }
     
@@ -168,20 +200,17 @@ else if (isset($_POST['loginButton'])) {
         $_SESSION['admin_login_success'] = true; // Flag for showing admin login modal
         
         if (isAjaxRequest()) {
-            sendJsonResponse('success', 'Login successful. Redirecting to admin area.', ['role' => 1]);
+            sendJsonResponse('success', 'Login successful. Redirecting to admin area.', ['role' => 1, 'username' => $user['username']]);
         } else {
-            // Redirect to index page to show the modal first
-            header("Location: ../index.php?adminLogin=1");
-            exit();
+            redirectWithSessionFlag("../index.php", "admin_login_success");
         }
     }
     else {
         // Regular user - redirect to shop homepage
         if (isAjaxRequest()) {
-            sendJsonResponse('success', 'Login successful.', ['role' => 0]);
+            sendJsonResponse('success', 'Login successful.', ['role' => 0, 'username' => $user['username']]);
         } else {
-            header("Location: ../index.php?loginSuccess=1");
-            exit();
+            redirectWithSessionFlag("../index.php", "login_success");
         }
     }
 }
@@ -235,12 +264,9 @@ if(isset($_POST['verify_otp'])) {
                 $_SESSION['registration_success'] = true;
                 
                 if(isAjaxRequest()) {
-                    sendJsonResponse('success', 'Your account has been created successfully!', [
-                        'redirect' => '../index.php?registrationSuccess=1'
-                    ]);
+                    sendJsonResponse('success', 'Your account has been created successfully!', ['username' => $userData['username']]);
                 } else {
-                    header("Location: ../index.php?registrationSuccess=1");
-                    exit();
+                    redirectWithSessionFlag("../index.php", "registration_success");
                 }
             } else {
                 $_SESSION['message'] = "Error creating account: " . mysqli_error($conn);
@@ -248,8 +274,8 @@ if(isset($_POST['verify_otp'])) {
                 if(isAjaxRequest()) {
                     sendJsonResponse('error', 'Error creating account: ' . mysqli_error($conn));
                 } else {
-                    header("Location: ../index.php?accountCreationFailed=1");
-                    exit();
+                    $_SESSION['error_message'] = "Error creating account: " . mysqli_error($conn);
+                    redirectWithSessionFlag("../index.php", "account_creation_failed");
                 }
             }
         } else {
@@ -264,12 +290,9 @@ if(isset($_POST['verify_otp'])) {
             $_SESSION['message'] = "Email verified successfully! You can now login.";
             
             if(isAjaxRequest()) {
-                sendJsonResponse('success', 'Email verified successfully! You can now login.', [
-                    'redirect' => '../index.php?verificationSuccess=1'
-                ]);
+                sendJsonResponse('success', 'Email verified successfully! You can now login.');
             } else {
-                header("Location: ../index.php?verificationSuccess=1");
-                exit();
+                redirectWithSessionFlag("../index.php", "verification_success");
             }
         }
     } else {
@@ -279,8 +302,8 @@ if(isset($_POST['verify_otp'])) {
         if(isAjaxRequest()) {
             sendJsonResponse('error', 'Invalid or expired verification code. Please try again.');
         } else {
-            header("Location: ../verify.php?invalidOTP=1");
-            exit();
+            $_SESSION['error_message'] = "Invalid or expired verification code. Please try again.";
+            redirectWithSessionFlag("../verify.php", "invalid_otp");
         }
     }
 }
@@ -296,23 +319,22 @@ if(isset($_POST['resend_otp'])) {
             if(isAjaxRequest()) {
                 sendJsonResponse('success', 'A new verification code has been sent to your email.');
             } else {
-                header("Location: ../verify.php?resendSuccess=1");
-                exit();
+                redirectWithSessionFlag("../verify.php", "resend_success");
             }
         } else {
             if(isAjaxRequest()) {
                 sendJsonResponse('error', 'Failed to send verification code. Please try again.');
             } else {
-                header("Location: ../verify.php?resendFailed=1");
-                exit();
+                $_SESSION['error_message'] = "Failed to send verification code. Please try again.";
+                redirectWithSessionFlag("../verify.php", "resend_failed");
             }
         }
     } else {
         if(isAjaxRequest()) {
             sendJsonResponse('error', 'Email address not found. Please try again.');
         } else {
-            header("Location: ../index.php");
-            exit();
+            $_SESSION['error_message'] = "Email address not found. Please try again.";
+            redirectWithSessionFlag("../index.php", "email_not_found");
         }
     }
 }

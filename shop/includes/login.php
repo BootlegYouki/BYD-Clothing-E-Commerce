@@ -50,7 +50,7 @@
               Invalid Login Credentials. Please try again.
             </div>
 
-            <form action="functions/authcode.php" method="POST" id="loginForm" class="needs-validation" novalidate>
+            <form id="loginForm" class="needs-validation" novalidate>
               <div class="row gy-3 overflow-hidden">
                 <div class="col-12">
                   <div class="form-floating mb-3">
@@ -75,7 +75,13 @@
                 </div>
                 <div class="col-12">
                   <div class="d-grid">
-                    <button type="submit" name="loginButton" id="loginButton" class="btn-modal btn-lg">Login now</button>
+                    <button type="submit" name="loginButton" id="loginButton" class="btn-modal btn-lg">
+                      <span class="normal-state">Login now</span>
+                      <span class="loading-state" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Logging in...
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -205,8 +211,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       // Show loading state
-      document.getElementById('loginButton').innerHTML = 'Logging in...';
-      document.getElementById('loginButton').disabled = true;
+      const loginBtn = document.getElementById('loginButton');
+      loginBtn.querySelector('.normal-state').style.display = 'none';
+      loginBtn.querySelector('.loading-state').style.display = 'inline-block';
+      loginBtn.disabled = true;
       
       // Get form data
       const loginIdentifier = document.getElementById('loginidentifier').value;
@@ -225,26 +233,41 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         // Reset button state
-        document.getElementById('loginButton').innerHTML = 'Login now';
-        document.getElementById('loginButton').disabled = false;
+        loginBtn.querySelector('.normal-state').style.display = 'inline-block';
+        loginBtn.querySelector('.loading-state').style.display = 'none';
+        loginBtn.disabled = false;
         
         if (data.status === 'success') {
-          // Login successful
+          // Login successful - hide login modal
+          const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+          loginModal.hide();
+          
+          // Hide any error messages
           const errorMessage = document.getElementById('loginErrorMessage');
           errorMessage.classList.add('d-none');
           
-          // Redirect or reload based on role
+          // Update the header with username and role - NEW CODE
+          const username = data.username || loginIdentifier;
+          const isAdmin = data.role === 1;
+          
+          // Call the header update function if it exists
+          if (typeof window.updateHeaderAfterAuth === 'function') {
+            window.updateHeaderAfterAuth(username, isAdmin);
+          }
+          
           if (data.role === 1) {
-            // Admin user
-            window.location.href = 'index.php?adminLogin=1';
+            // Admin user - show admin success modal directly
+            const adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
+            adminLoginModal.show();
           } else {
-            // Regular user
+            // Regular user - show login success modal directly
             if (sessionStorage.getItem('redirectToCheckout') === 'true') {
               // Directly redirect to checkout if coming from cart
               sessionStorage.removeItem('redirectToCheckout');
               window.location.href = 'checkout.php';
             } else {
-              window.location.href = 'index.php?loginSuccess=1';
+              const loginSuccessModal = new bootstrap.Modal(document.getElementById('loginsuccessmodal'));
+              loginSuccessModal.show();
             }
           }
         } else {
@@ -256,8 +279,9 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => {
         console.error('Error:', error);
-        document.getElementById('loginButton').innerHTML = 'Login now';
-        document.getElementById('loginButton').disabled = false;
+        loginBtn.querySelector('.normal-state').style.display = 'inline-block';
+        loginBtn.querySelector('.loading-state').style.display = 'none';
+        loginBtn.disabled = false;
         
         const errorMessage = document.getElementById('loginErrorMessage');
         errorMessage.textContent = 'An error occurred during login. Please try again.';

@@ -15,10 +15,10 @@
   </div>
 </div>
 
-<!-- Script to show modal on page load if registration was successful -->
+<!-- Script to show modal based on session variable -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    <?php if(isset($_GET['registrationSuccess']) && isset($_SESSION['registration_success'])): ?>
+    <?php if(isset($_SESSION['registration_success'])): ?>
     var registrationModal = new bootstrap.Modal(document.getElementById('registersuccessmodal'));
     registrationModal.show();
     <?php 

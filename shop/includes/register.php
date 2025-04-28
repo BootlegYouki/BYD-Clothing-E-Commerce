@@ -29,7 +29,11 @@
         </style>
         
         <p>Already have an account? <a href="#loginModal" data-bs-toggle="modal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Log in</a></p>
-        <form action="functions/authcode.php" method="POST" id="signupForm" class="needs-validation" novalidate> 
+        
+        <!-- Add signup error alert (initially hidden) -->
+        <div class="alert alert-danger mb-3 d-none" id="signupErrorMessage"></div>
+        
+        <form id="signupForm" class="needs-validation" novalidate> 
           <div class="row gy-3">
             <div class="col-md-4">
               <div class="form-floating">
@@ -163,7 +167,13 @@
           </div>
           <div class="col-12 mt-3">
             <div class="d-grid">
-            <button type="submit" name="signupButton" class="btn-modal btn-lg" id="signupButton">Sign up now</button>
+            <button type="submit" name="signupButton" class="btn-modal btn-lg" id="signupButton">
+              <span class="normal-state">Sign up now</span>
+              <span class="loading-state" style="display: none;">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Signing up...
+              </span>
+            </button>
             </div>
           </div>
         </form>
@@ -278,50 +288,92 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Add validation for address fields
+  // Add AJAX form submission for signup
   const signupForm = document.getElementById('signupForm');
-  
-  signupForm.addEventListener('submit', function(event) {
-    // Check if coordinates are missing
-    if (!latInput.value || !lngInput.value || !addressInput.value.trim()) {
-      event.preventDefault();
-      event.stopPropagation();
+  if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
       
-      // Show validation error
-      addressInput.classList.add('is-invalid');
+      // Check if form is valid
+      if (!signupForm.checkValidity()) {
+        e.stopPropagation();
+        signupForm.classList.add('was-validated');
+        return;
+      }
       
-      // Scroll to map and highlight it
-      mapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      mapDiv.style.boxShadow = '0 0 10px rgba(220, 53, 69, 0.5)';
-      setTimeout(() => {
-        mapDiv.style.boxShadow = 'none';
-      }, 2000);
+      // Show loading state
+      const signupBtn = document.getElementById('signupButton');
+      signupBtn.querySelector('.normal-state').style.display = 'none';
+      signupBtn.querySelector('.loading-state').style.display = 'inline-block';
+      signupBtn.disabled = true;
       
-      // Show alert message
-      const alertMessage = document.createElement('div');
-      alertMessage.className = 'alert alert-danger mt-2';
-      alertMessage.innerText = 'Please select your address location on the map';
-      addressInput.parentNode.after(alertMessage);
-      setTimeout(() => alertMessage.remove(), 3000);
-    }
-  });
-  
-  // Update address field appearance
-  addressInput.style.backgroundColor = "#f8f9fa";
-  
-  // Update placeholder when map is interacted with
-  map.on('click', function() {
-    addressInput.setAttribute('placeholder', 'Address selected from map');
-    addressInput.classList.add('bg-light');
-  });
-
-  // Ensure proper map rendering on modal show
-  const signupModal = document.getElementById('SignupModal');
-  if (signupModal) {
-    signupModal.addEventListener('shown.bs.modal', function() {
-      setTimeout(() => {
-        map.invalidateSize(true);
-      }, 300);
+      // Hide any previous error messages
+      document.getElementById('signupErrorMessage').classList.add('d-none');
+      
+      // Create form data
+      const formData = new FormData(signupForm);
+      formData.append('signupButton', '1'); // Add the button name to identify the action
+      
+      // AJAX request
+      fetch('functions/authcode.php', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Reset button state
+        signupBtn.querySelector('.normal-state').style.display = 'inline-block';
+        signupBtn.querySelector('.loading-state').style.display = 'none';
+        signupBtn.disabled = false;
+        
+        if (data.status === 'success') {
+          // Handle success - either verification needed or direct registration
+          if (data.redirect && data.redirect.includes('verify.php')) {
+            // Redirect to verification page if needed
+            window.location.href = data.redirect;
+          } else {
+            // Close signup modal
+            const signupModal = bootstrap.Modal.getInstance(document.getElementById('SignupModal'));
+            signupModal.hide();
+            
+            // Update the header with the new username if available
+            if (data.username && typeof window.updateHeaderAfterAuth === 'function') {
+              window.updateHeaderAfterAuth(data.username, false); // Regular user, not admin
+            }
+            
+            // Show registration success modal
+            const registerSuccessModal = new bootstrap.Modal(document.getElementById('registersuccessmodal'));
+            registerSuccessModal.show();
+          }
+        } else {
+          // Handle error
+          const errorMsg = document.getElementById('signupErrorMessage');
+          errorMsg.textContent = data.message || 'An error occurred during signup. Please try again.';
+          errorMsg.classList.remove('d-none');
+          
+          // Scroll to top of modal to show error
+          document.querySelector('.modal-body').scrollTop = 0;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        
+        // Reset button state
+        signupBtn.querySelector('.normal-state').style.display = 'inline-block';
+        signupBtn.querySelector('.loading-state').style.display = 'none';
+        signupBtn.disabled = false;
+        
+        // Show error message
+        const errorMsg = document.getElementById('signupErrorMessage');
+        errorMsg.textContent = 'A server error occurred. Please try again later.';
+        errorMsg.classList.remove('d-none');
+        
+        // Scroll to top of modal to show error
+        document.querySelector('.modal-body').scrollTop = 0;
+      });
     });
   }
 });

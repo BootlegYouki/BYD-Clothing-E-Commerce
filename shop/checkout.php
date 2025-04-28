@@ -41,6 +41,11 @@ $shipping_fee = 50;
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
+    <style>
+        .notification-dropdown {
+        transform: translateX(10%);
+        }
+    </style>
 </head>
 <body>
     <!-- NAVBAR -->
