@@ -336,9 +336,6 @@ $users_result = mysqli_query($conn, $users_query);
                     <?php echo mysqli_num_rows($result); ?> notifications found
                 </p>
             </div>
-            <button type="button" id="sendMassNotification" class="btn btn-sm btn-primary">
-                <i class="material-symbols-rounded me-1">campaign</i> Send Mass Notification
-            </button>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">

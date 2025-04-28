@@ -187,31 +187,3 @@ function initDeleteModal() {
         });
     }
 }
-
-/**
- * Initialize mass notification modal
- */
-function initMassNotificationModal() {
-    const massButton = document.getElementById('sendMassNotification');
-    const massModal = document.getElementById('massNotificationModal');
-    const massForm = document.getElementById('massNotificationForm');
-    const submitButton = document.getElementById('submitMassNotification');
-    
-    if (massButton && massModal && massForm && submitButton) {
-        massButton.addEventListener('click', function() {
-            // Show the modal
-            const modal = new bootstrap.Modal(massModal);
-            modal.show();
-        });
-        
-        submitButton.addEventListener('click', function() {
-            // Check form validity
-            if (massForm.checkValidity()) {
-                massForm.submit();
-            } else {
-                // Trigger HTML5 validation
-                massForm.reportValidity();
-            }
-        });
-    }
-}

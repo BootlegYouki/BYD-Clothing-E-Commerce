@@ -1,8 +1,6 @@
 .text-coral{
   color: coral;
 }
-
-
 .imglogo {
   width: clamp(120px, 15vw, 150px);
   height: auto;
