@@ -3,6 +3,7 @@
     <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
       <p>Welcome back, <span id="login-username"><?php echo isset($_SESSION['auth_user']['username']) ? $_SESSION['auth_user']['username'] : $_SESSION['username'] ?? 'User'; ?></span>! You have successfully logged in.</p>
