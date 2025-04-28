@@ -474,6 +474,8 @@ foreach ($notifications as $notification) {
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
     <script src="js/shop.js"></script>
+    <!-- Make sure notifications.js is loaded -->
+    <script src="js/notifications.js"></script>
 </body>
 </html>
 

@@ -98,7 +98,7 @@ $hide_cart = ($current_page == 'checkout.php');
         <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notificationDropdown">
           <div class="notification-header p-3 border-bottom position-sticky top-0 bg-white z-index-1000">
             <div class="d-flex justify-content-between align-items-center">
-              <h5 class="m-0">Notifications</h5>
+              <h5 class="m-0 z">Notifications</h5>
               <h5 class="m-0"><a href="notifications.php" class="text-decoration-none text-coral">View All</a></h5>
             </div>
           </div>

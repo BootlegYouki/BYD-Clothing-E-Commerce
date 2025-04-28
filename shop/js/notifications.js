@@ -222,6 +222,51 @@ function createNotificationItem(notification) {
 }
 
 /**
+ * Adjust time display to handle timezone issues
+ * @param {string} timeAgo - Server-calculated time ago string
+ * @param {string} createdAt - Raw timestamp from server
+ * @returns {string} Corrected time ago
+ */
+function adjustTimeDisplay(timeAgo, createdAt) {
+    if (!createdAt) return timeAgo;
+    
+    // Convert server timestamp to client's local time
+    const serverTime = new Date(createdAt);
+    const now = new Date();
+    
+    // Log for debugging
+    console.log("Server timestamp:", createdAt);
+    console.log("Local time:", now.toISOString());
+    console.log("Time difference (min):", Math.round((now - serverTime) / (1000 * 60)));
+    
+    // Calculate time difference in seconds
+    const diffSeconds = Math.floor((now - serverTime) / 1000);
+    
+    // Return appropriate time ago message
+    if (diffSeconds < 60) {
+        return "Just now";
+    } else if (diffSeconds < 3600) {
+        const mins = Math.floor(diffSeconds / 60);
+        return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+    } else if (diffSeconds < 86400) {
+        const hours = Math.floor(diffSeconds / 3600);
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffSeconds < 604800) {
+        const days = Math.floor(diffSeconds / 86400);
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (diffSeconds < 2592000) {
+        const weeks = Math.floor(diffSeconds / 604800);
+        return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    } else if (diffSeconds < 31536000) {
+        const months = Math.floor(diffSeconds / 2592000);
+        return `${months} month${months > 1 ? 's' : ''} ago`;
+    } else {
+        const years = Math.floor(diffSeconds / 31536000);
+        return `${years} year${years > 1 ? 's' : ''} ago`;
+    }
+}
+
+/**
  * Initialize notification filters on the notifications page
  */
 function initNotificationFilters() {
