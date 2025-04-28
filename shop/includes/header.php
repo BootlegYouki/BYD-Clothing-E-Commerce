@@ -88,7 +88,7 @@ $hide_cart = ($current_page == 'checkout.php');
     <?php endif; ?>
     
     <!-- Notification Icon -->
-    <?php if ($username !== 'Guest'): ?>
+    <?php if ($username !== 'Guest' && !$is_admin): ?>
     <div class="notification-icon-wrapper mx-1">
       <div class="dropdown">
         <a class="nav-icon d-flex text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationDropdown">
