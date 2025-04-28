@@ -1,9 +1,9 @@
 <?php
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 session_start();
 
 if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true) {
-    header('Location: ../index.php');
+    header('Location: ../../index.php');
     exit();
 }
 
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => "New passwords do not match",
             'type' => "danger"
         ];
-        header('Location: ../profile.php');
+        header('Location: ../../profile.php');
         exit();
     }
     
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => "Password must be at least 8 characters long",
             'type' => "danger"
         ];
-        header('Location: ../profile.php');
+        header('Location: ../../profile.php');
         exit();
     }
     
@@ -75,6 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
     
-    header('Location: ../profile.php');
+    header('Location: ../../profile.php');
     exit();
 }

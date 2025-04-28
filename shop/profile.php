@@ -158,7 +158,7 @@ while ($row = $orders_result->fetch_assoc()) {
                         
                         <!-- Edit Mode -->
                         <div id="profile-edit" style="display: none;">
-                            <form id="update-profile-form" action="functions/update_profile.php" method="post">
+                            <form id="update-profile-form" action="functions/profile/update_profile.php" method="post">
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label for="edit-firstname" class="form-label">First Name</label>
@@ -273,7 +273,7 @@ while ($row = $orders_result->fetch_assoc()) {
                         
                         <!-- Edit Mode -->
                         <div id="address-edit" style="display: none;">
-                            <form id="update-address-form" action="functions/update_address.php" method="post">
+                            <form id="update-address-form" action="functions/profile/update_address.php" method="post">
                                 <div class="mb-4">
                                     <label for="edit-full-address" class="form-label">Full Address</label>
                                     <input type="text" class="form-control" id="edit-full-address" name="full_address" value="<?php echo htmlspecialchars($user['full_address']); ?>" required>
@@ -302,7 +302,7 @@ while ($row = $orders_result->fetch_assoc()) {
                         <h5 class="mb-0">Change Password</h5>
                     </div>
                     <div class="card-body">
-                        <form id="change-password-form" action="functions/update_password.php" method="post">
+                        <form id="change-password-form" action="functions/profile/update_password.php" method="post">
                             <div class="mb-4">
                                 <label for="current-password" class="form-label">Current Password</label>
                                 <input type="password" class="form-control profile-form-control" id="current-password" name="current_password" required>

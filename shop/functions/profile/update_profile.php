@@ -1,9 +1,9 @@
 <?php
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 session_start();
 
 if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true) {
-    header('Location: ../index.php');
+    header('Location: ../../index.php');
     exit();
 }
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => "Username already taken",
             'type' => "danger"
         ];
-        header('Location: ../profile.php');
+        header('Location: ../../profile.php');
         exit();
     }
     
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => "Email already registered",
             'type' => "danger"
         ];
-        header('Location: ../profile.php');
+        header('Location: ../../profile.php');
         exit();
     }
     
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => "Phone number already registered",
             'type' => "danger"
         ];
-        header('Location: ../profile.php');
+        header('Location: ../../profile.php');
         exit();
     }
     
@@ -94,6 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
     
-    header('Location: ../profile.php');
+    header('Location: ../../profile.php');
     exit();
 }

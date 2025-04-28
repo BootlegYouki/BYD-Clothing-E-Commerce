@@ -1,10 +1,10 @@
 <?php
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 session_start();
 
 // Redirect if not logged in
 if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true) {
-    header('Location: ../index.php');
+    header('Location: ../../index.php');
     exit();
 }
 
@@ -55,16 +55,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Execute the query
     if ($stmt->execute()) {
         // Success
-        header("Location: ../profile.php?success=1&message=" . urlencode("Address updated successfully!"));
+        header("Location: ../../profile.php?success=1&message=" . urlencode("Address updated successfully!"));
     } else {
         // Error
-        header("Location: ../profile.php?error=1&message=" . urlencode("Error updating address: " . $conn->error));
+        header("Location: ../../profile.php?error=1&message=" . urlencode("Error updating address: " . $conn->error));
     }
     
     $stmt->close();
     $conn->close();
 } else {
     // Not a POST request
-    header("Location: ../profile.php");
+    header("Location: ../../profile.php");
 }
 exit();
