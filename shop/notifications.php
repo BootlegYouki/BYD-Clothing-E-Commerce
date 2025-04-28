@@ -121,6 +121,20 @@ foreach ($notifications as $notification) {
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/assistant.css">
     <style>
+        .btn.disabled, .btn:disabled, fieldset:disabled .btn {
+            color: var(--bs-btn-disabled-color);
+            pointer-events: none;
+            background-color: coral;
+            border-color: coral;
+            opacity: var(--bs-btn-disabled-opacity);
+        }
+
+
+        .btn-check:checked + .btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check) + .btn:active {
+            color: var(--bs-btn-active-color);
+            background-color: coral;
+            border-color: coral;
+        }
         .notification-container {
             max-width: 900px;
             margin: 0 auto;
@@ -421,7 +435,9 @@ foreach ($notifications as $notification) {
                                 
                                 <div class="notification-group">
                                     <?php foreach ($dateNotifications as $notification): ?>
-                                        <div class="notification-item <?= $notification['is_read'] ? '' : 'unread' ?>" data-type="<?= $notification['type'] ?>">
+                                        <div class="notification-item <?= $notification['is_read'] ? '' : 'unread' ?>" 
+                                             data-type="<?= $notification['type'] ?>"
+                                             data-id="<?= $notification['id'] ?>">
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0">
                                                     <div class="notification-icon">
@@ -474,8 +490,7 @@ foreach ($notifications as $notification) {
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
     <script src="js/shop.js"></script>
-    <!-- Make sure notifications.js is loaded -->
-    <script src="js/notifications.js"></script>
+    <script src="js/page-notifications.js"></script>
 </body>
 </html>
 

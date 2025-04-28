@@ -145,5 +145,5 @@ $hide_cart = ($current_page == 'checkout.php');
 </nav>
 
 <script src="js/url-cleaner.js"></script>
-<script src="js/notifications.js"></script>
+<script src="js/header-notifications.js"></script>
 <script src="js/assistant.js"></script>

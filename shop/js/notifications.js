@@ -61,16 +61,24 @@ function loadNotifications() {
 
             // Render notifications
             if (notificationList) {
+                notificationList.innerHTML = ''; // Clear the list first to prevent duplicates
                 data.notifications.forEach(notification => {
                     notificationList.innerHTML += createNotificationItem(notification);
                 });
 
-                // Add event listeners to newly created mark as read buttons
+                // Remove any existing event listeners before adding new ones
                 document.querySelectorAll('.mark-read-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
+                    // Clone and replace the button to remove all event listeners
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+                    
+                    // Add fresh event listener
+                    newBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        markNotificationAsRead(this.getAttribute('data-notification-id'), this);
+                        const notificationId = this.getAttribute('data-notification-id');
+                        markNotificationAsRead(notificationId, this);
+                        return false; // Prevent any further propagation
                     });
                 });
             }
@@ -132,6 +140,10 @@ function markNotificationAsRead(notificationId, button) {
     // Get the notification item container
     const notificationItem = button.closest('.notification-item');
     
+    // Prevent multiple clicks
+    if (button.disabled) return;
+    button.disabled = true;
+    
     // Add visual feedback immediately
     if (notificationItem) {
         notificationItem.style.opacity = '0.5';
@@ -178,6 +190,7 @@ function markNotificationAsRead(notificationId, button) {
             if (notificationItem) {
                 notificationItem.style.opacity = '1';
             }
+            button.disabled = false;
             console.error('Error marking notification as read:', data.message);
         }
     })
@@ -186,6 +199,7 @@ function markNotificationAsRead(notificationId, button) {
         if (notificationItem) {
             notificationItem.style.opacity = '1';
         }
+        button.disabled = false;
         console.error('Error marking notification as read:', error);
     });
 }
