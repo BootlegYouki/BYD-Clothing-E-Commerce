@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in, redirect to login if not
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true) {
     header("Location: index.php");
     exit;
 }
@@ -13,81 +13,52 @@ if (!isset($_SESSION['username'])) {
 // Include database connection
 require_once '../admin/config/dbcon.php';
 
-// Function to get user notifications
-function getUserNotifications($userId, $conn) {
-    // In a real implementation, you would fetch notifications from the database
-    // For now, we'll return sample notifications
-    // This would be replaced with actual database queries
+// Get user ID from session
+$user_id = $_SESSION['auth_user']['user_id'] ?? 0;
+
+// Query to get all notifications for the user
+$query = "SELECT id, type, title, message, created_at, is_read 
+          FROM notifications 
+          WHERE user_id = ? 
+          ORDER BY created_at DESC";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$notifications = [];
+while ($row = $result->fetch_assoc()) {
+    // Get appropriate icon based on notification type
+    $icon = 'bx bx-bell text-primary';
     
-    $notifications = [
-        [
-            'id' => 1,
-            'type' => 'order_shipped',
-            'title' => 'Your order has shipped',
-            'message' => 'Order #BYD78956 has been shipped. Track your package for delivery updates.',
-            'icon' => 'bx bx-package text-primary',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-35 minutes')),
-            'is_read' => 0
-        ],
-        [
-            'id' => 2,
-            'type' => 'promotion',
-            'title' => 'Limited time offer',
-            'message' => '20% off on all summer collection items. Shop now before the offer ends!',
-            'icon' => 'bx bx-heart text-danger',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours')),
-            'is_read' => 0
-        ],
-        [
-            'id' => 3,
-            'type' => 'account',
-            'title' => 'Account verified',
-            'message' => 'Your account has been successfully verified. You now have full access to all features.',
-            'icon' => 'bx bx-check-circle text-success',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-            'is_read' => 0
-        ],
-        [
-            'id' => 4,
-            'type' => 'order_delivered',
-            'title' => 'Order delivered',
-            'message' => 'Your order #BYD45678 has been delivered. We hope you enjoy your purchase!',
-            'icon' => 'bx bx-check-double text-success',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-3 days')),
-            'is_read' => 1
-        ],
-        [
-            'id' => 5,
-            'type' => 'review_reminder',
-            'title' => 'Share your experience',
-            'message' => 'How was your recent purchase? Leave a review and help other shoppers make decisions!',
-            'icon' => 'bx bx-star text-warning',
-            'created_at' => date('Y-m-d H:i:s', strtotime('-1 week')),
-            'is_read' => 1
-        ],
-    ];
+    switch ($row['type']) {
+        case 'order_status':
+        case 'order_shipped':
+            $icon = 'bx bx-package text-primary';
+            break;
+        case 'order_delivered':
+            $icon = 'bx bx-check-double text-success';
+            break;
+        case 'promotion':
+            $icon = 'bx bx-heart text-danger';
+            break;
+        case 'account':
+            $icon = 'bx bx-user text-info';
+            break;
+        case 'review_reminder':
+            $icon = 'bx bx-star text-warning';
+            break;
+        case 'new_release':
+            $icon = 'bx bx-gift text-info';
+            break;
+        default:
+            $icon = 'bx bx-bell text-primary';
+            break;
+    }
     
-    return $notifications;
-}
-
-// Get user ID from session (assuming you store it there)
-$userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
-
-// Get notifications for the user
-$notifications = getUserNotifications($userId, $conn);
-
-// Handle marking notifications as read
-if (isset($_POST['mark_read']) && !empty($_POST['notification_id'])) {
-    $notificationId = $_POST['notification_id'];
-    // In a real implementation, you would update the database
-    // For this sample, we'll just show a success message
-    $success = "Notification marked as read";
-}
-
-// Handle marking all as read
-if (isset($_POST['mark_all_read'])) {
-    // In a real implementation, you would update the database
-    $success = "All notifications marked as read";
+    $row['icon'] = $icon;
+    $notifications[] = $row;
 }
 
 // Group notifications by date category
@@ -415,23 +386,14 @@ foreach ($notifications as $notification) {
     <!-- Notifications Section -->
     <section class="notifications-section py-4 mb-5">
         <div class="container notification-container">
-            <?php if (isset($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?= $success ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-            
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center p-3">
                     <div class="notification-header">
                         <h5 class="mb-0">All Notifications</h5>
                     </div>
-                    <form method="post" action="">
-                        <button type="submit" name="mark_all_read" class="btn btn-sm btn-primary">
-                            <i class="bx bx-check-double me-1"></i> Mark All as Read
-                        </button>
-                    </form>
+                    <button type="button" name="mark_all_read" class="btn btn-sm btn-primary">
+                        <i class="bx bx-check-double me-1"></i> Mark All as Read
+                    </button>
                 </div>
                 
                 <div class="card-body">
@@ -482,12 +444,10 @@ foreach ($notifications as $notification) {
                                                     
                                                     <?php if (!$notification['is_read']): ?>
                                                         <div class="mt-2">
-                                                            <form method="post" action="" class="d-inline">
-                                                                <input type="hidden" name="notification_id" value="<?= $notification['id'] ?>">
-                                                                <button type="submit" name="mark_read" class="btn btn-sm btn-light mark-read-btn">
-                                                                    <i class="bx bx-check me-1"></i> Mark as read
-                                                                </button>
-                                                            </form>
+                                                            <button type="button" class="btn btn-sm btn-light mark-read-btn" 
+                                                                    data-notification-id="<?= $notification['id'] ?>">
+                                                                <i class="bx bx-check me-1"></i> Mark as read
+                                                            </button>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -514,120 +474,6 @@ foreach ($notifications as $notification) {
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
     <script src="js/shop.js"></script>
-    
-    <!-- Notification filter script -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const notifications = document.querySelectorAll('.notification-item');
-        
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const filter = this.getAttribute('data-filter');
-                
-                // Update active button
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter notifications
-                notifications.forEach(notification => {
-                    if (filter === 'all' || notification.getAttribute('data-type') === filter) {
-                        notification.style.display = 'block';
-                        // Add animation
-                        notification.style.animation = 'none';
-                        setTimeout(() => {
-                            notification.style.animation = 'fadeIn 0.5s ease forwards';
-                        }, 10);
-                    } else {
-                        notification.style.display = 'none';
-                    }
-                });
-                
-                // Check if there are any visible notifications in each date group
-                document.querySelectorAll('.notification-group').forEach(group => {
-                    const visibleNotifications = group.querySelectorAll('.notification-item[style="display: block"]').length;
-                    const dateHeader = group.previousElementSibling;
-                    if (dateHeader && dateHeader.classList.contains('notification-date-header')) {
-                        dateHeader.style.display = visibleNotifications > 0 ? 'block' : 'none';
-                    }
-                });
-            });
-        });
-
-        // Add event listeners for marking notifications as read
-        document.querySelectorAll('.mark-read-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                const notificationId = form.querySelector('input[name="notification_id"]').value;
-                const notificationItem = this.closest('.notification-item');
-                
-                // Create form data for AJAX request
-                const formData = new FormData(form);
-                
-                // Send AJAX request
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    // Mark notification as read in UI without removing it from view
-                    notificationItem.classList.remove('unread');
-                    
-                    // Update title and message styling
-                    const title = notificationItem.querySelector('h6');
-                    const message = notificationItem.querySelector('p.mb-1');
-                    
-                    if (title) {
-                        title.classList.remove('fw-bold');
-                        title.classList.add('text-muted');
-                    }
-                    
-                    if (message) {
-                        message.classList.add('text-secondary');
-                    }
-                    
-                    // Remove notification badge
-                    const badge = notificationItem.querySelector('.notification-badge-page');
-                    if (badge) badge.remove();
-                    
-                    // Remove the mark as read button
-                    const markReadBtnContainer = this.closest('.mt-2');
-                    if (markReadBtnContainer) markReadBtnContainer.remove();
-                    
-                    // Update counter if exists
-                    const counter = document.querySelector('.notification-counter');
-                    if (counter) {
-                        let countText = counter.textContent.trim();
-                        let count = parseInt(countText);
-                        if (count > 1) {
-                            count -= 1;
-                            counter.textContent = count + ' New';
-                        } else {
-                            counter.remove();
-                        }
-                    }
-                    
-                    // Ensure notification remains visible with the proper style
-                    notificationItem.style.display = 'block';
-                    notificationItem.style.backgroundColor = '#fafafa';
-                    notificationItem.style.borderLeft = '5px solid #e9e9e9';
-                    notificationItem.style.opacity = '0.9';
-                })
-                .catch(error => {
-                    console.error('Error marking notification as read:', error);
-                });
-            });
-        });
-        
-        // Add event listener for "Mark All as Read" button
-        const markAllButton = document.querySelector('button[name="mark_all_read"]');
-        if (markAllButton) {
-            // All event listener functionality moved to notifications.js
-        }
-    });
-    </script>
 </body>
 </html>
 

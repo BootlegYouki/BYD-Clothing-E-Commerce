@@ -153,3 +153,19 @@ function getPendingOrdersCount($conn) {
     
     return $pending_count;
 }
+
+/**
+ * Get count of unread notifications
+ * @param mysqli $conn Database connection
+ * @return int Count of unread notifications
+ */
+function getUnreadNotificationsCount($conn) {
+    $query = "SELECT COUNT(*) as count FROM notifications WHERE is_read = 0";
+    $result = mysqli_query($conn, $query);
+    
+    if ($result && $row = mysqli_fetch_assoc($result)) {
+        return (int)$row['count'];
+    }
+    
+    return 0;
+}

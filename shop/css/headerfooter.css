@@ -1,3 +1,8 @@
+.text-coral{
+  color: coral;
+}
+
+
 .imglogo {
   width: clamp(120px, 15vw, 150px);
   height: auto;
@@ -167,6 +172,11 @@ input[type="checkbox"]:focus {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.notification-badge:empty {
+  display: none;
 }
 
 .notification-dropdown {
@@ -183,11 +193,13 @@ input[type="checkbox"]:focus {
 }
 
 .notification-item {
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  border-left: 3px solid transparent;
 }
 
 .notification-item:hover {
   background-color: #f8f9fa;
+  border-left-color: coral;
 }
 
 .notification-footer a {
@@ -203,6 +215,15 @@ input[type="checkbox"]:focus {
 
 .empty-notification {
   color: #6c757d;
+}
+
+/* Toast notifications */
+.toast-container {
+  z-index: 1060;
+}
+
+.toast {
+  opacity: 1 !important;
 }
 
 /* MODAL */

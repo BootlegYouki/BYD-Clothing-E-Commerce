@@ -14,6 +14,13 @@ if (function_exists('getPendingOrdersCount')) {
     $pending_orders_count = getPendingOrdersCount($conn);
 }
 
+// Get unread notifications count
+$notifications_count = 0;
+if (function_exists('getUnreadNotificationsCount')) {
+    $notifications_count = getUnreadNotificationsCount($conn);
+}
+$notification_badge_display = $notifications_count > 0 ? 'inline-flex' : 'none';
+
 // Only show badge if there are pending orders
 $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
 ?>
@@ -198,6 +205,15 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
             <?php endif; ?>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link <?php echo ($currentPage == 'notifications.php') ? 'active' : ''; ?>" href="notifications.php">
+            <i class="material-symbols-rounded">notifications</i>
+            <span>Notifications</span>
+            <?php if ($notifications_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $notification_badge_display ?>;"><?= $notifications_count ?></span>
+            <?php endif; ?>
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -285,6 +301,16 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
                href="customers.php" onclick="closeOffcanvas()">
               <i class="material-symbols-rounded">people</i>
               <span>Customers</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <?php echo ($currentPage == 'notifications.php') ? 'active' : ''; ?>" 
+               href="notifications.php" onclick="closeOffcanvas()">
+              <i class="material-symbols-rounded">notifications</i>
+              <span>Notifications</span>
+              <?php if ($notifications_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $notification_badge_display ?>;"><?= $notifications_count ?></span>
+              <?php endif; ?>
             </a>
           </li>
         </ul>

@@ -1,213 +1,233 @@
 /**
- * BYD Clothing - Notification System
- * Handles notification interactions such as marking as read
+ * Notifications System for BYD Clothing Shop
+ * Handles notification loading, marking as read, and counter updates
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize notifications
     initNotifications();
-    
-    // Check if we're on the full notifications page
+
+    // Check if we're on the notifications page
     const isNotificationsPage = window.location.pathname.includes('notifications.php');
-    
     if (isNotificationsPage) {
+        // Initialize additional functions for the notifications page
         initNotificationFilters();
         initMarkAllAsRead();
     }
 });
 
+/**
+ * Initialize notifications system
+ */
 function initNotifications() {
-    // Get all mark read buttons
-    const markReadButtons = document.querySelectorAll('.mark-read-btn');
-    
-    // Add event listeners to each button
-    markReadButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Check if we're in the dropdown or full page context
-            const isDropdown = this.closest('.notification-dropdown') !== null;
-            const notificationItem = this.closest('.notification-item');
-            const notificationId = this.closest('form')?.querySelector('input[name="notification_id"]')?.value || 
-                                   this.dataset.notificationId;
-            
-            if (isDropdown) {
-                // Dropdown behavior
-                markNotificationAsReadInDropdown(this);
-            } else {
-                // Full page behavior - use existing AJAX
-                markNotificationAsReadOnPage(notificationItem, notificationId);
-            }
-        });
+    // Get notification dropdown element
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    if (!notificationDropdown) return;
+
+    // Load notifications when dropdown is opened
+    notificationDropdown.addEventListener('click', function(e) {
+        loadNotifications();
     });
+
+    // Check for unread notifications on page load
+    checkUnreadNotifications();
 }
 
 /**
- * Mark a notification as read in the dropdown
- * @param {HTMLElement} button - The button that was clicked
+ * Load notifications into the dropdown
  */
-function markNotificationAsReadInDropdown(button) {
-    // Get the notification item
-    const notificationItem = button.closest('.notification-item');
+function loadNotifications() {
+    const notificationList = document.querySelector('.notification-list');
+    const emptyNotification = document.querySelector('.empty-notification');
+    const loadingNotifications = document.querySelector('.loading-notifications');
     
-    // Add a visual effect before removing - THIS WAS CAUSING DELAY
-    // Update to give immediate feedback instead of waiting
-    notificationItem.style.opacity = '0.5'; // Immediate feedback
-    
-    // Update notification badge count immediately
-    updateNotificationCount();
-    
-    // Here you would typically send an AJAX request to mark the notification as read in the database
-    const notificationId = button.dataset.notificationId;
-    if (notificationId) {
-        fetch('api/notifications/mark-read.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: notificationId }),
-        })
-        .then(() => {
-            // Complete the fade out and remove on success
-            notificationItem.style.transition = 'opacity 0.2s ease-out'; // Shorter transition
-            notificationItem.style.opacity = '0';
+    // Show loading, hide empty state
+    if (loadingNotifications) loadingNotifications.classList.remove('d-none');
+    if (emptyNotification) emptyNotification.classList.add('d-none');
+    if (notificationList) notificationList.innerHTML = '';
+
+    // Fetch notifications from the server
+    fetch('functions/notification/get-notifications.php?limit=5&unread_only=1') // Only load unread notifications
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading indicator
+            if (loadingNotifications) loadingNotifications.classList.add('d-none');
             
-            setTimeout(() => {
-                notificationItem.remove();
-                // Check if there are any notifications left
-                checkEmptyNotifications();
-            }, 200); // Shorter timeout
+            if (!data.notifications || data.notifications.length === 0) {
+                // Show empty state if no notifications
+                if (emptyNotification) emptyNotification.classList.remove('d-none');
+                return;
+            }
+
+            // Render notifications
+            if (notificationList) {
+                data.notifications.forEach(notification => {
+                    notificationList.innerHTML += createNotificationItem(notification);
+                });
+
+                // Add event listeners to newly created mark as read buttons
+                document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        markNotificationAsRead(this.getAttribute('data-notification-id'), this);
+                    });
+                });
+            }
+
+            // Update the notification badge
+            updateNotificationBadge(data.unread_count);
         })
         .catch(error => {
-            // Restore the notification on error
-            notificationItem.style.opacity = '1';
-            console.error('Error marking notification as read:', error);
+            console.error('Error loading notifications:', error);
+            // Hide loading, show error
+            if (loadingNotifications) loadingNotifications.classList.add('d-none');
+            if (notificationList) {
+                notificationList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bx bx-error-circle fs-1 text-danger"></i>
+                        <p class="text-muted mt-2">Error loading notifications</p>
+                    </div>
+                `;
+            }
         });
-    }
 }
 
 /**
- * Mark notification as read on the full notifications page
- * @param {HTMLElement} notificationItem - The notification item element
- * @param {string|number} notificationId - The notification ID
+ * Check for unread notifications and update badge
  */
-function markNotificationAsReadOnPage(notificationItem, notificationId) {
-    // Apply visual changes immediately (optimistic update)
-    notificationItem.classList.remove('unread');
-    
-    // Update title and message styling immediately
-    const title = notificationItem.querySelector('h6');
-    const message = notificationItem.querySelector('p.mb-1');
-    
-    if (title) {
-        title.classList.remove('fw-bold');
-        title.classList.add('text-muted');
-    }
-    
-    if (message) {
-        message.classList.add('text-secondary');
-    }
-    
-    // Remove notification badge immediately
-    const badge = notificationItem.querySelector('.notification-badge-page');
-    if (badge) badge.remove();
-    
-    // Remove the mark as read button immediately
-    const markReadBtnContainer = notificationItem.querySelector('.mt-2');
-    if (markReadBtnContainer) markReadBtnContainer.remove();
-    
-    // Update counter immediately
-    updatePageNotificationCounter();
-    
-    // Apply visual styles immediately
-    notificationItem.style.backgroundColor = '#fafafa';
-    notificationItem.style.borderLeft = '5px solid #e9e9e9';
-    notificationItem.style.opacity = '0.9';
-    
-    // Add a subtle highlight effect to show something happened
-    notificationItem.style.transition = 'background-color 0.3s ease';
-    const originalBackground = notificationItem.style.backgroundColor;
-    notificationItem.style.backgroundColor = '#f8f9fa';
-    setTimeout(() => {
-        notificationItem.style.backgroundColor = originalBackground;
-    }, 300);
-    
-    // Create form data for AJAX request
-    const formData = new FormData();
-    formData.append('notification_id', notificationId);
-    formData.append('mark_read', '1');
-    
-    // Send AJAX request (after UI is already updated)
-    fetch(window.location.href, {
-        method: 'POST',
-        body: formData
-    })
-    .catch(error => {
-        console.error('Error marking notification as read:', error);
-        // Could restore the UI state here if needed
-    });
+function checkUnreadNotifications() {
+    fetch('functions/notification/get-notifications.php?count_only=1')
+        .then(response => response.json())
+        .then(data => {
+            updateNotificationBadge(data.unread_count);
+        })
+        .catch(error => {
+            console.error('Error checking unread notifications:', error);
+        });
 }
 
 /**
- * Update the notification badge count in dropdown
+ * Update the notification badge count
+ * @param {number} count - Number of unread notifications
  */
-function updateNotificationCount() {
+function updateNotificationBadge(count) {
     const badge = document.querySelector('.notification-badge');
     if (!badge) return;
-    
-    const visibleNotifications = document.querySelectorAll('.notification-item:not(.d-none)').length;
-    
-    // Update the badge count
-    badge.textContent = visibleNotifications;
-    
-    // Hide badge if no notifications
-    if (visibleNotifications === 0) {
+
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+    } else {
         badge.style.display = 'none';
     }
 }
 
 /**
- * Update notification counter on the notifications page
+ * Mark a notification as read
+ * @param {string} notificationId - The notification ID
+ * @param {HTMLElement} button - The button element clicked
  */
-function updatePageNotificationCounter() {
-    const counter = document.querySelector('.notification-counter');
-    if (!counter) return;
+function markNotificationAsRead(notificationId, button) {
+    // Get the notification item container
+    const notificationItem = button.closest('.notification-item');
     
-    let countText = counter.textContent.trim();
-    let count = parseInt(countText);
-    if (count > 1) {
-        count -= 1;
-        counter.textContent = count + ' New';
-    } else {
-        counter.remove();
+    // Add visual feedback immediately
+    if (notificationItem) {
+        notificationItem.style.opacity = '0.5';
     }
+    
+    // Make AJAX request to mark notification as read
+    fetch('functions/notification/mark-notification-read.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `notification_id=${notificationId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the notification item with animation
+            if (notificationItem) {
+                notificationItem.style.transition = 'all 0.3s ease';
+                notificationItem.style.opacity = '0';
+                notificationItem.style.maxHeight = '0';
+                notificationItem.style.padding = '0';
+                notificationItem.style.margin = '0';
+                notificationItem.style.border = 'none';
+                notificationItem.style.overflow = 'hidden';
+                
+                setTimeout(() => {
+                    notificationItem.remove();
+                    
+                    // Check if there are any notifications left
+                    const notificationList = document.querySelector('.notification-list');
+                    const emptyNotification = document.querySelector('.empty-notification');
+                    
+                    if (notificationList && notificationList.children.length === 0 && emptyNotification) {
+                        emptyNotification.classList.remove('d-none');
+                    }
+                }, 300);
+            }
+            
+            // Update badge count
+            updateNotificationBadge(data.unread_count);
+        } else {
+            // Restore opacity if error
+            if (notificationItem) {
+                notificationItem.style.opacity = '1';
+            }
+            console.error('Error marking notification as read:', data.message);
+        }
+    })
+    .catch(error => {
+        // Restore opacity if error
+        if (notificationItem) {
+            notificationItem.style.opacity = '1';
+        }
+        console.error('Error marking notification as read:', error);
+    });
 }
 
 /**
- * Check if there are any notifications and show/hide empty state
+ * Create HTML for a notification item
+ * @param {Object} notification - Notification data
+ * @returns {string} HTML string for notification item
  */
-function checkEmptyNotifications() {
-    const notificationBody = document.querySelector('.notification-body');
-    const emptyNotification = document.querySelector('.empty-notification');
-    if (!notificationBody || !emptyNotification) return;
+function createNotificationItem(notification) {
+    const timeAgo = notification.time_ago || 'Just now';
     
-    const visibleNotifications = document.querySelectorAll('.notification-dropdown .notification-item:not(.d-none)').length;
-    
-    if (visibleNotifications === 0) {
-        // Show empty notification message
-        emptyNotification.classList.remove('d-none');
-    } else {
-        // Hide empty notification message
-        emptyNotification.classList.add('d-none');
-    }
+    return `
+        <div class="notification-item p-3 border-bottom" data-id="${notification.id}">
+            <div class="d-flex">
+                <div class="flex-shrink-0">
+                    <i class="${notification.icon || 'bx bx-bell'} fs-4"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="mb-1">${notification.title}</h6>
+                    <p class="text-muted small mb-1">${notification.message}</p>
+                    <small class="text-muted">${timeAgo}</small>
+                </div>
+                <div class="align-self-center ms-2">
+                    <button class="btn btn-sm btn-light rounded-circle mark-read-btn" 
+                            title="Mark as read" 
+                            data-notification-id="${notification.id}">
+                        <i class="bx bx-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 /**
  * Initialize notification filters on the notifications page
  */
 function initNotificationFilters() {
+    // Filter functionality for notification types
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const notifications = document.querySelectorAll('.notification-item');
+    if (filterButtons.length === 0) return;
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -218,88 +238,146 @@ function initNotificationFilters() {
             this.classList.add('active');
             
             // Filter notifications
-            notifications.forEach(notification => {
-                if (filter === 'all' || notification.getAttribute('data-type') === filter) {
-                    notification.style.display = 'block';
-                    // Add animation
-                    notification.style.animation = 'none';
-                    setTimeout(() => {
-                        notification.style.animation = 'fadeIn 0.5s ease forwards';
-                    }, 10);
+            const notifications = document.querySelectorAll('.notification-item');
+            notifications.forEach(item => {
+                if (filter === 'all' || item.getAttribute('data-type') === filter) {
+                    item.style.display = 'block';
                 } else {
-                    notification.style.display = 'none';
+                    item.style.display = 'none';
                 }
             });
             
-            // Check if there are any visible notifications in each date group
-            document.querySelectorAll('.notification-group').forEach(group => {
-                const visibleNotifications = group.querySelectorAll('.notification-item[style="display: block"]').length;
-                const dateHeader = group.previousElementSibling;
-                if (dateHeader && dateHeader.classList.contains('notification-date-header')) {
-                    dateHeader.style.display = visibleNotifications > 0 ? 'block' : 'none';
-                }
-            });
+            // Show/hide date headers based on visible items
+            updateDateHeaderVisibility();
         });
     });
 }
 
 /**
- * Initialize Mark All as Read functionality
+ * Update date header visibility based on visible notification items
+ */
+function updateDateHeaderVisibility() {
+    const groups = document.querySelectorAll('.notification-group');
+    groups.forEach(group => {
+        const visibleItems = group.querySelectorAll('.notification-item:not([style*="display: none"])').length;
+        const header = group.previousElementSibling;
+        
+        if (header && header.classList.contains('notification-date-header')) {
+            header.style.display = visibleItems > 0 ? 'block' : 'none';
+        }
+    });
+}
+
+/**
+ * Initialize mark all as read functionality
  */
 function initMarkAllAsRead() {
     const markAllButton = document.querySelector('button[name="mark_all_read"]');
-    if (markAllButton) {
-        markAllButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const form = this.closest('form');
-            
-            // Send AJAX request
-            fetch(form.action, {
-                method: 'POST',
-                body: new FormData(form)
-            })
-            .then(response => response.text())
-            .then(data => {
-                // Update all unread notifications in the UI
+    if (!markAllButton) return;
+    
+    markAllButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Add loading state
+        const originalHtml = this.innerHTML;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        this.disabled = true;
+        
+        // Make AJAX request to mark all as read
+        fetch('functions/notification/mark-all-read.php', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI to mark all as read
                 document.querySelectorAll('.notification-item.unread').forEach(item => {
-                    // Remove unread class
                     item.classList.remove('unread');
                     
-                    // Update title and message styling
+                    // Update styling
                     const title = item.querySelector('h6');
-                    const message = item.querySelector('p.mb-1');
-                    
                     if (title) {
                         title.classList.remove('fw-bold');
                         title.classList.add('text-muted');
                     }
                     
-                    if (message) {
-                        message.classList.add('text-secondary');
-                    }
+                    // Remove badges
+                    const badges = item.querySelectorAll('.notification-badge-page');
+                    badges.forEach(badge => badge.remove());
                     
-                    // Remove notification badge
-                    const badge = item.querySelector('.notification-badge-page');
-                    if (badge) badge.remove();
-                    
-                    // Remove the mark as read button
-                    const markReadBtn = item.querySelector('.mt-2');
-                    if (markReadBtn) markReadBtn.remove();
-                    
-                    // Ensure notification remains visible with the proper style
-                    item.style.display = 'block';
-                    item.style.backgroundColor = '#fafafa';
-                    item.style.borderLeft = '5px solid #e9e9e9';
-                    item.style.opacity = '0.9';
+                    // Remove mark as read buttons
+                    const markReadContainers = item.querySelectorAll('.mt-2');
+                    markReadContainers.forEach(container => container.remove());
                 });
                 
                 // Remove notification counter
                 const counter = document.querySelector('.notification-counter');
                 if (counter) counter.remove();
-            })
-            .catch(error => {
-                console.error('Error marking all notifications as read:', error);
-            });
+                
+                // Show success message
+                showToast('All notifications marked as read', 'success');
+            } else {
+                showToast(data.message || 'Error marking all as read', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking all as read:', error);
+            showToast('Error marking all as read', 'danger');
+        })
+        .finally(() => {
+            // Restore button state
+            this.innerHTML = originalHtml;
+            this.disabled = false;
         });
+    });
+}
+
+/**
+ * Show a toast notification
+ * @param {string} message - Message to display
+ * @param {string} type - Bootstrap alert type (success, danger, etc.)
+ */
+function showToast(message, type) {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '1060';
+        document.body.appendChild(toastContainer);
     }
+    
+    // Create toast element
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = 'toast';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="toast-header ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}">
+            <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast using Bootstrap
+    const bsToast = new bootstrap.Toast(toast, {
+        autohide: true,
+        delay: 3000
+    });
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
 }
