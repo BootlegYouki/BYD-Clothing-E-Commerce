@@ -202,8 +202,90 @@ function updateHeaderAfterAuth(username, isAdmin = false) {
   }
 }
 
-// Make the function globally available
+// New function to update header after logout
+function updateHeaderAfterLogout() {
+  // Update username displays
+  const navbarUsername = document.getElementById('navbarUsername');
+  const offcanvasUsername = document.getElementById('offcanvasUsername');
+  
+  if (navbarUsername) navbarUsername.textContent = 'Hello, Guest';
+  if (offcanvasUsername) offcanvasUsername.textContent = 'Hello, Guest';
+  
+  // Update user account section to show login link
+  const userAccountSection = document.getElementById('userAccountSection');
+  if (!userAccountSection) return;
+  
+  // Update data attributes
+  userAccountSection.dataset.userStatus = 'guest';
+  userAccountSection.dataset.isAdmin = 'false';
+  
+  // Replace dropdown with guest login link
+  userAccountSection.innerHTML = `
+    <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="nav-icon d-flex align-items-center me-lg-3 text-decoration-none d-lg-flex" id="guestLoginLink">
+      <i class="bx bx-user fs-4"></i>
+      <span class="ms-2 d-none d-md-flex d-lg-flex" id="navbarUsername">Hello, Guest</span>
+    </a>
+  `;
+  
+  // Hide notification icon
+  const notificationWrapper = document.querySelector('.notification-icon-wrapper');
+  if (notificationWrapper) {
+    notificationWrapper.classList.add('d-none');
+  }
+  
+  // Hide cart badge or reset to 0
+  const cartBadge = document.querySelector('.cart-badge');
+  if (cartBadge) {
+    cartBadge.textContent = '0';
+  }
+
+  // Show success toast notification
+  showLogoutSuccessToast();
+}
+
+// Function to show a toast notification after logout
+function showLogoutSuccessToast() {
+  // Create toast container if it doesn't exist
+  let toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    document.body.appendChild(toastContainer);
+  }
+  
+  // Create toast element
+  const toastId = 'logoutToast' + Date.now();
+  const toast = document.createElement('div');
+  toast.className = 'toast align-items-center text-white bg-dark';
+  toast.id = toastId;
+  toast.setAttribute('role', 'alert');
+  toast.setAttribute('aria-live', 'assertive');
+  toast.setAttribute('aria-atomic', 'true');
+  
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="fas fa-check-circle me-2"></i> You have been successfully logged out.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+  
+  toastContainer.appendChild(toast);
+  
+  // Initialize and show the toast
+  const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+  bsToast.show();
+  
+  // Remove toast after it's hidden
+  toast.addEventListener('hidden.bs.toast', function() {
+    toast.remove();
+  });
+}
+
+// Make the functions globally available
 window.updateHeaderAfterAuth = updateHeaderAfterAuth;
+window.updateHeaderAfterLogout = updateHeaderAfterLogout;
 </script>
 
 <script src="js/url-cleaner.js"></script>

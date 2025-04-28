@@ -10,9 +10,59 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-        <a href="includes/logout_process.php" class="btn btn-acc">Logout</a>
+        <button type="button" class="btn btn-acc" id="logoutConfirmBtn">Logout</button>
       </div>
     </div>
   </div>
 </div>
-<script src="js/url-cleaner.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
+  
+  if (logoutConfirmBtn) {
+    logoutConfirmBtn.addEventListener('click', function() {
+      // Show loading state
+      logoutConfirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Logging out...';
+      logoutConfirmBtn.disabled = true;
+      
+      // Make AJAX request to logout
+      fetch('includes/logout_process.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'logout' })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Hide modal
+          const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+          logoutModal.hide();
+          
+          // Update UI
+          if (typeof window.updateHeaderAfterLogout === 'function') {
+            window.updateHeaderAfterLogout();
+          } else {
+            // Fallback if function not available
+            window.location.href = 'index.php';
+          }
+        } else {
+          console.error('Logout failed:', data.message);
+          // Reset button state in case of error
+          logoutConfirmBtn.innerHTML = 'Logout';
+          logoutConfirmBtn.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error during logout:', error);
+        // Reset button state in case of error
+        logoutConfirmBtn.innerHTML = 'Logout';
+        logoutConfirmBtn.disabled = false;
+      });
+    });
+  }
+});
+</script>
