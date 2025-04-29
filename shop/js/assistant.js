@@ -196,8 +196,8 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     
                     // Add price info only if specifically requested
                     if (requiresPriceData) {
-                        const finalPrice = Math.round(product.original_price * (1 - (product.discount_percentage / 100)));
-                        tshirtInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + finalPrice : ''})`;
+                        // Use discount_price directly instead of calculating it
+                        tshirtInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + product.discount_price : ''})`;
                     }
                     
                     // Add new release tag if applicable
@@ -238,8 +238,8 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     
                     // Add price info only if specifically requested
                     if (requiresPriceData) {
-                        const finalPrice = Math.floor(product.original_price * (1 - (product.discount_percentage / 100)));
-                        longslvInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + finalPrice : ''})`;
+                        // Use discount_price directly instead of calculating it
+                        longslvInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + product.discount_price : ''})`;
                     }
                     
                     // Add new release tag if applicable

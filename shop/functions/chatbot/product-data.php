@@ -4,6 +4,9 @@ require_once '../../../admin/config/dbcon.php';
 
 // Get T-shirt products with stock by size
 $tshirt_query = "SELECT p.*, 
+                    p.original_price, 
+                    p.discount_price,
+                    p.discount_percentage,
                     GROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as sizes,
                     GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as size_stock,
                     DATE(p.created_at) as created_date,
@@ -17,6 +20,9 @@ $tshirt_result = mysqli_query($conn, $tshirt_query);
 
 // Get Long Sleeve products with stock by size
 $longslv_query = "SELECT p.*, 
+                    p.original_price, 
+                    p.discount_price,
+                    p.discount_percentage,
                     GROUP_CONCAT(DISTINCT ps.size ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as sizes,
                     GROUP_CONCAT(DISTINCT ps.size, ':', ps.stock ORDER BY FIELD(ps.size, 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL')) as size_stock,
                     DATE(p.created_at) as created_date,
