@@ -22,7 +22,7 @@ function updateCartCount() {
         
         // Show or hide based on count
         if (totalItems > 0) {
-            cartCountElement.style.display = '';
+            cartCountElement.style.display = 'flex';
         } else {
             cartCountElement.style.display = 'none';
         }
