@@ -42,10 +42,14 @@ function addToCart(item) {
     );
     
     if (existingItemIndex > -1) {
-        // Update quantity of existing item
-        cart[existingItemIndex].quantity += item.quantity;
+        // Update quantity of existing item, but respect stock limits
+        const newQuantity = cart[existingItemIndex].quantity + item.quantity;
+        // Make sure we don't exceed available stock
+        cart[existingItemIndex].quantity = Math.min(newQuantity, item.stock);
+        // Always ensure we store the latest stock information
+        cart[existingItemIndex].stock = item.stock;
     } else {
-        // Add as new item
+        // Add as new item (make sure stock info is included)
         cart.push(item);
     }
     
@@ -84,8 +88,11 @@ function updateCartItemQuantity(index, change) {
     
     const newQuantity = cart[index].quantity + change;
     
-    // Ensure quantity is between 1 and 10
-    cart[index].quantity = Math.max(1, Math.min(10, newQuantity));
+    // Get the stock from the cart item (or default to 10 if not set)
+    const maxStock = cart[index].stock || 10;
+    
+    // Ensure quantity is between 1 and available stock
+    cart[index].quantity = Math.max(1, Math.min(maxStock, newQuantity));
     
     // Save cart back to localStorage
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -132,6 +139,9 @@ function updateShoppingCart() {
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
         
+        // Get max stock (or default to 10)
+        const maxStock = item.stock || 10;
+        
         const cartItemElement = document.createElement('div');
         cartItemElement.className = 'cart-item mb-3 pb-3 border-bottom';
         cartItemElement.innerHTML = `
@@ -155,7 +165,7 @@ function updateShoppingCart() {
                         <div class="d-flex align-items-center">
                             <button class="btn btn-sm btn-outline-secondary cart-qty-btn minus" data-index="${index}">-</button>
                             <input type="text" class="form-control form-control-sm mx-1 text-center cart-item-quantity" value="${item.quantity}" readonly>
-                            <button class="btn btn-sm btn-outline-secondary cart-qty-btn plus" data-index="${index}">+</button>
+                            <button class="btn btn-sm btn-outline-secondary cart-qty-btn plus" data-index="${index}" ${item.quantity >= maxStock ? 'disabled' : ''}>+</button>
                         </div>
                     </div>
                 </div>
