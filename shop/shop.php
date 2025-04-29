@@ -2,14 +2,6 @@
 require_once '../admin/config/dbcon.php';
 require_once 'functions/productfetching/shop_product-handler.php';
 
-// Start session if not already started
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check if user is admin
-$is_admin = isset($_SESSION['auth_role']) && $_SESSION['auth_role'] == 1;
-
 // Get parameters from URL
 $view_product_id = isset($_GET['view_product']) ? intval($_GET['view_product']) : 0;
 $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
@@ -120,7 +112,8 @@ $categories = getAllCategories($conn);
                         <!-- Sort dropdown -->
                         <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
-                            <select id="product-sort" class="form-select">
+                            <select id="product-sort" class="form-select" 
+                            onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
                                 <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>Default</option>
                                 <option value="price-asc" <?= $sort === 'price-asc' ? 'selected' : '' ?>>Price: Low to High</option>
                                 <option value="price-desc" <?= $sort === 'price-desc' ? 'selected' : '' ?>>Price: High to Low</option>
@@ -246,23 +239,28 @@ $categories = getAllCategories($conn);
                     // Add up to 4 products per row
                     for ($j = $i; $j < min($i + $productsPerRow, $totalProducts); $j++) {
                         $product = $products[$j];
-                        // Use discount_price directly instead of calculating it
+                        // Use discount_price if available
                         $originalPrice = $product['price'];
-                        $discountPrice = $product['discount_price'];
                         $discountPercentage = $product['discount_percentage'];
+                        $discountPrice = isset($product['discount_price']) && $product['discount_price'] > 0 ? $product['discount_price'] : 0;
+                        
+                        // Calculate discount percentage for display if not provided
+                        if($discountPrice > 0 && $discountPercentage <= 0) {
+                            $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
+                        }
                         ?>
                         <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                             <div class="product-card" data-product-id="<?= $product['id'] ?>">
                                 <div class="product-img-container">
                                     <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                                    <?php if($discountPercentage > 0): ?>
+                                    <?php if($discountPrice > 0): ?>
                                         <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="product-info">
                                     <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                     <div class="price-container mb-3">
-                                        <?php if($discountPercentage > 0): ?>
+                                        <?php if($discountPrice > 0): ?>
                                             <div class="price-wrapper">
                                                 <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
                                                 <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
@@ -289,23 +287,28 @@ $categories = getAllCategories($conn);
                 <div class="swiper-wrapper">
                     <?php 
                     foreach($products as $product) { 
-                        // Use discount_price directly instead of calculating it
+                        // Use discount_price if available
                         $originalPrice = $product['price'];
-                        $discountPrice = $product['discount_price'];
+                        $discountPrice = isset($product['discount_price']) && $product['discount_price'] > 0 ? $product['discount_price'] : 0;
                         $discountPercentage = $product['discount_percentage'];
+                        
+                        // Calculate discount percentage for display if not provided
+                        if($discountPrice > 0 && $discountPercentage <= 0) {
+                            $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
+                        }
                     ?>
                     <div class="swiper-slide">
                         <div class="product-card" data-product-id="<?= $product['id'] ?>">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
+                            <?php if($discountPrice > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
                         </div>
                             <div class="product-info">
                                 <h5 class="text-uppercase mb-2 text-center"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                 <div class="price-container mb-3">
-                                    <?php if($discountPercentage > 0): ?>
+                                    <?php if($discountPrice > 0): ?>
                                         <div class="price-wrapper">
                                             <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
                                             <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
@@ -403,9 +406,7 @@ $categories = getAllCategories($conn);
                             </div>
                             
                             <!-- Action Button - Only Add to Cart -->
-                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100 <?= $is_admin ? 'd-none' : '' ?>">
-                                ADD TO CART
-                            </button>
+                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100">ADD TO CART</button>
                         </div>
                     </div>
                 </div>
@@ -492,3 +493,4 @@ $categories = getAllCategories($conn);
 <!-- SCRIPT -->
 <script src="js/shop.js"></script>
 <script src="js/url-cleaner.js"></script>
+<script src="js/assistant.js"></script>

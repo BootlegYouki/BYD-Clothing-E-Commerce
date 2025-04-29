@@ -36,13 +36,19 @@ function getShopProducts($conn, $params = []) {
         }
     }
     
-    // Add sorting logic - Updated to use discount_price directly instead of calculating it
+    // Add sorting logic
     switch ($sort) {
         case 'price-asc':
-            $base_query .= " ORDER BY p.discount_price ASC";
+            $base_query .= " ORDER BY CASE 
+                                WHEN p.discount_price > 0 THEN p.discount_price
+                                ELSE p.original_price 
+                              END ASC";
             break;
         case 'price-desc':
-            $base_query .= " ORDER BY p.discount_price DESC";
+            $base_query .= " ORDER BY CASE 
+                                WHEN p.discount_price > 0 THEN p.discount_price
+                                ELSE p.original_price 
+                              END DESC";
             break;
         case 'name-asc':
             $base_query .= " ORDER BY p.name ASC";
@@ -51,7 +57,7 @@ function getShopProducts($conn, $params = []) {
             $base_query .= " ORDER BY p.name DESC";
             break;
         case 'discount':
-            $base_query .= " ORDER BY p.discount_percentage DESC";
+            $base_query .= " ORDER BY (p.original_price - p.discount_price) DESC";
             break;
         default:
             $base_query .= " ORDER BY p.created_at DESC";
@@ -85,12 +91,12 @@ function getShopProducts($conn, $params = []) {
                 }
             }
             
-            // Format the product data for display - Add discount_price
+            // Format the product data for display
             $formatted_product = [
                 'id' => $product['id'],
                 'title' => $product['name'],
                 'price' => $product['original_price'],
-                'discount_price' => $product['discount_price'],
+                'discount_price' => $product['discount_price'], // Add the discount_price
                 'category' => $product['category'],
                 'discount_percentage' => $product['discount_percentage'],
                 'description' => $product['description'],
