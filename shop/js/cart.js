@@ -5,10 +5,31 @@
 
 // Initialize cart when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Ensure consistent localStorage key usage
+    migrateCartData();
     updateCartCount();
     updateShoppingCart();
     initializeViewCartButton();
 });
+
+/**
+ * Migrate cart data to ensure consistent key usage
+ */
+function migrateCartData() {
+    // Check if we have data under the old key and not under the new one
+    const oldCart = localStorage.getItem('cart');
+    const newCart = localStorage.getItem('shopping-cart');
+    
+    if (oldCart && !newCart) {
+        // Migrate data from old key to new key
+        localStorage.setItem('shopping-cart', oldCart);
+    } else if (newCart && !oldCart) {
+        // Ensure data exists in both places for backwards compatibility
+        localStorage.setItem('cart', newCart);
+    }
+    
+    // From now on, we'll use 'shopping-cart' as the primary key
+}
 
 /**
  * Update the cart count in the header
@@ -16,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateCartCount() {
     const cartCountElement = document.querySelector('.cart-badge');
     if (cartCountElement) {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
         const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
         cartCountElement.textContent = totalItems;
         
@@ -34,7 +55,7 @@ function updateCartCount() {
  * @param {Object} item - The product item to add
  */
 function addToCart(item) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
     
     // Check if product with same ID and size already exists
     const existingItemIndex = cart.findIndex(cartItem => 
@@ -53,7 +74,9 @@ function addToCart(item) {
         cart.push(item);
     }
     
-    // Save cart back to localStorage
+    // Save cart back to localStorage (use consistent key)
+    localStorage.setItem('shopping-cart', JSON.stringify(cart));
+    // For backwards compatibility
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Update UI
@@ -66,10 +89,11 @@ function addToCart(item) {
  * @param {number} index - The index of the item to remove
  */
 function removeCartItem(index) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
     
     // Remove the item
     cart.splice(index, 1);
+    localStorage.setItem('shopping-cart', JSON.stringify(cart));
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Update displays
@@ -83,7 +107,7 @@ function removeCartItem(index) {
  * @param {number} change - The amount to change the quantity by (+1 or -1)
  */
 function updateCartItemQuantity(index, change) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
     if (!cart[index]) return;
     
     const newQuantity = cart[index].quantity + change;
@@ -94,7 +118,8 @@ function updateCartItemQuantity(index, change) {
     // Ensure quantity is between 1 and available stock
     cart[index].quantity = Math.max(1, Math.min(maxStock, newQuantity));
     
-    // Save cart back to localStorage
+    // Save cart back to localStorage (use both keys for consistency)
+    localStorage.setItem('shopping-cart', JSON.stringify(cart));
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Update displays
@@ -114,8 +139,8 @@ function updateShoppingCart() {
     
     if (!cartItemsContainer || !emptyCart || !cartItemsWrapper) return;
     
-    // Get cart data
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    // Get cart data (from the standardized key)
+    const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
     
     // Clear existing items
     cartItemsContainer.innerHTML = '';
