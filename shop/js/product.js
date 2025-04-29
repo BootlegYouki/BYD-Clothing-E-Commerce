@@ -142,6 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeSizeButtons() {
         if (!sizeButtons.length) return;
         
+        // Initially disable the add to cart button until a size is selected
+        if (addToCartBtn && !isAdmin) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.classList.add('disabled');
+            addToCartBtn.title = 'Please select a size first';
+        }
+        
         sizeButtons.forEach(button => {
             button.addEventListener('click', function() {
                 // Remove active class from all size buttons
@@ -152,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Store selected size
                 const selectedSize = this.getAttribute('data-size');
-                const stockCount = this.getAttribute('data-stock');
+                const stockCount = parseInt(this.getAttribute('data-stock'));
                 
                 selectedSizeInput.value = selectedSize;
                 sizeError.style.display = 'none';
@@ -171,8 +178,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Update button states
                 updateQuantityButtonStates();
+                
+                // Update add to cart button based on stock availability
+                if (addToCartBtn && !isAdmin) {
+                    if (stockCount <= 0) {
+                        addToCartBtn.disabled = true;
+                        addToCartBtn.classList.add('out-of-stock');
+                        addToCartBtn.textContent = 'OUT OF STOCK';
+                        addToCartBtn.title = 'This size is currently out of stock';
+                    } else {
+                        addToCartBtn.disabled = false;
+                        addToCartBtn.classList.remove('disabled', 'out-of-stock');
+                        addToCartBtn.textContent = 'ADD TO CART';
+                        addToCartBtn.title = '';
+                    }
+                }
             });
         });
+        
+        // Automatically select Medium size or first available size if Medium isn't available
+        let mediumButton = null;
+        let firstAvailableButton = null;
+        
+        sizeButtons.forEach(button => {
+            // Skip disabled buttons (out of stock)
+            if (button.disabled) return;
+            
+            // Save the first available button we find
+            if (!firstAvailableButton) {
+                firstAvailableButton = button;
+            }
+            
+            // Check if this is the Medium size button
+            if (button.getAttribute('data-size') === 'M') {
+                mediumButton = button;
+            }
+        });
+        
+        // Click the Medium button if available, otherwise click the first available button
+        if (mediumButton) {
+            mediumButton.click();
+        } else if (firstAvailableButton) {
+            firstAvailableButton.click();
+        }
     }
     
     /**

@@ -140,7 +140,7 @@ function setupFilterHandlers() {
             
             window.shopState = {
                 category: '',
-                search: window.shopState.search,
+                search: '', // Changed: Clear search parameter as well
                 sort: 'default',
                 page: 1,
                 view_product_id: 0,
@@ -170,6 +170,29 @@ function setupFilterHandlers() {
                 
                 document.querySelector('#products').scrollIntoView({ behavior: 'smooth' });
             }
+        }
+        
+        // Handle "View all products" link clicks
+        if (e.target.closest('#view-all-products')) {
+            e.preventDefault();
+            
+            window.shopState = {
+                category: '',
+                search: '',
+                sort: 'default',
+                page: 1,
+                view_product_id: 0,
+            };
+            
+            document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.mobile-category-filter').forEach(f => {
+                f.classList.remove('btn-dark');
+                f.classList.add('btn-outline-secondary');
+            });
+            
+            if (sortDropdown) sortDropdown.value = 'default';
+            
+            fetchProducts();
         }
     });
 }
