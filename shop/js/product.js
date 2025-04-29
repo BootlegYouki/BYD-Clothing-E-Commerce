@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainProductImage = document.getElementById('main-product-image');
     const mainImageContainer = document.querySelector('.main-image-container');
     
+    // Check admin status
+    const userAccountSection = document.getElementById('userAccountSection');
+    const isAdmin = userAccountSection && userAccountSection.dataset.isAdmin === 'true';
+    
     initializeThumbnails();
     initializeMainImageNavigation();
     initializeSizeButtons();
@@ -215,6 +219,15 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function initializeAddToCart() {
         if (!addToCartBtn) return;
+        
+        // Disable Add to Cart button if user is admin
+        if (isAdmin) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.classList.add('disabled');
+            addToCartBtn.title = 'Admin accounts cannot add items to cart';
+            addToCartBtn.innerHTML = 'ADMIN VIEW ONLY';
+            return;
+        }
         
         addToCartBtn.addEventListener('click', function() {
             const selectedSize = selectedSizeInput.value;
