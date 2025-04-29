@@ -102,16 +102,14 @@ $categories = getAllCategories($conn);
                                 <?= htmlspecialchars($category) ?>
                             </a>
                         <?php endforeach; ?>
-                        <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)):?>
-                            <a href="javascript:void(0)" class="clear-filter ms-2" id="clear-filters">
-                                <i class="fa fa-times-circle me-1"></i>Clear
-                            </a>
-                        <?php endif; ?>
+                        <a href="javascript:void(0)" class="clear-filter ms-2" id="clear-filters" style="<?= (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)) ? '' : 'display: none;' ?>">
+                            <i class="fa fa-times-circle me-1"></i>Clear
+                        </a>
                     </div>
                 </div>
                 
                 <!-- Right side: Sort and Count -->
-                <div class="col-md-5">
+                <div class="col-md-5 py-2">
                     <div class="d-flex justify-content-md-end justify-content-center align-items-center">
                         <!-- Sort dropdown -->
                         <div class="d-flex align-items-center gap-2 justify-content-center">
@@ -137,11 +135,9 @@ $categories = getAllCategories($conn);
                 <!-- Mobile product count -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="mobile-products-count" class="text-muted"><?= $total_items ?> products</span>
-                    <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)): ?>
-                        <a href="javascript:void(0)" class="clear-filter btn btn-sm btn-outline-danger" id="clear-filters-mobile">
-                            <i class="fa fa-times-circle me-1"></i>Clear Filter
-                        </a>
-                    <?php endif; ?>
+                    <a href="javascript:void(0)" class="clear-filter btn btn-sm btn-outline-danger" id="clear-filters-mobile" style="<?= (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)) ? '' : 'display: none;' ?>">
+                        <i class="fa fa-times-circle me-1"></i>Clear Filter
+                    </a>
                 </div>
                 
                 <!-- Categories dropdown -->
@@ -378,6 +374,9 @@ $categories = getAllCategories($conn);
         page: <?= $page ?>,
         view_product_id: <?= $view_product_id ?>,
     };
+    
+    // Initialize clear filter buttons
+    updateClearFilterButtons();
 });
 </script>
 <!-- UTILITY SCRIPTS -->

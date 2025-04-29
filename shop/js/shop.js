@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update initial cart count
     updateCartCount();
+    
+    // Initialize clear filter buttons visibility
+    updateClearFilterButtons();
 });
 
 /**
@@ -329,16 +332,21 @@ function updateClearFilterButtons() {
     }
     
     if (clearFiltersMobile) {
+        // Fix for mobile: Make sure to show the button itself, not just its parent
         clearFiltersMobile.style.display = shouldShow ? 'inline-block' : 'none';
+        
+        // Also ensure the parent container is visible
+        if (clearFiltersMobile.parentElement) {
+            clearFiltersMobile.parentElement.style.display = 'flex';
+        }
     }
     
-    if (shouldShow) {
-        const clearFilterParent = clearFilters?.parentElement;
-        const clearFilterMobileParent = clearFiltersMobile?.parentElement;
-        
-        if (clearFilterParent) clearFilterParent.style.display = 'block';
-        if (clearFilterMobileParent) clearFilterMobileParent.style.display = 'flex';
-    }
+    // Debug output to help troubleshoot
+    console.log('Clear filter buttons visibility updated:', {
+        shouldShow,
+        desktopButton: clearFilters ? clearFilters.style.display : 'not found',
+        mobileButton: clearFiltersMobile ? clearFiltersMobile.style.display : 'not found'
+    });
 }
 
 /**

@@ -87,7 +87,7 @@
 /* Pricing */
 .price-container {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 15px;
     flex-wrap: wrap;
 }
