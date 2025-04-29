@@ -17,5 +17,9 @@ if ($is_ajax) {
         'message' => 'Successfully logged out'
     ]);
     exit;
+} else {
+    // For regular requests, redirect to index.php
+    header('Location: ../index.php');
+    exit;
 }
 ?>

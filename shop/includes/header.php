@@ -241,6 +241,9 @@ function updateHeaderAfterLogout() {
 
   // Show success toast notification
   showLogoutSuccessToast();
+  setTimeout(() => {
+    window.location.href = 'index.php';
+  }, 800);
 }
 
 // Function to show a toast notification after logout
