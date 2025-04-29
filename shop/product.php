@@ -53,16 +53,17 @@ while ($size = mysqli_fetch_assoc($sizes_result)) {
     $available_sizes[$size['size']] = intval($size['stock']);
 }
 
-// Get related products (same category, excluding current product)
+// Get related products (from all categories, excluding current product)
+$random_seed = mt_rand(); // Generate a random seed for each page load
 $related_query = "SELECT p.id, p.name, p.category, p.original_price, p.discount_price, p.discount_percentage, pi.image_url 
                  FROM products p
                  LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-                 WHERE p.category = ? AND p.id != ?
-                 ORDER BY p.created_at DESC
+                 WHERE p.id != ?
+                 ORDER BY RAND($random_seed)
                  LIMIT 4";
 
 $stmt = mysqli_prepare($conn, $related_query);
-mysqli_stmt_bind_param($stmt, "si", $product['category'], $product_id);
+mysqli_stmt_bind_param($stmt, "i", $product_id);
 mysqli_stmt_execute($stmt);
 $related_result = mysqli_stmt_get_result($stmt);
 
@@ -96,7 +97,6 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
-    <link rel="stylesheet" href="css/shop.css">
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/assistant.css">
     <link rel="stylesheet" href="css/product.css">
@@ -110,9 +110,6 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     <?php include 'includes/login.php'; ?>
     <!-- LOGOUT MODAL  -->
     <?php include 'includes/logout.php'; ?>
-    <!-- SUCCESS MODAL  -->
-    <?php include 'includes/loginsuccess.php'; ?>
-    <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
     <!-- SHOP CART -->
@@ -121,7 +118,8 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     <?php include 'includes/assistant.php'; ?>
     
     <!-- Breadcrumb -->
-    <div class="container-fluid px-md-5 px-3 py-3 bg-light">
+     <div class="my-5 py-4"></div>
+    <div class="container-fluid px-md-5 px-3">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
@@ -133,7 +131,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     </div>
     
     <!-- Product Detail Section -->
-    <section class="product-detail py-5">
+    <section class="product-detail pt-3 pb-5">
         <div class="container">
             <div class="row">
                 <!-- Product Images -->
@@ -147,7 +145,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         <!-- Thumbnail images -->
                         <?php if (!empty($additional_images) || !empty($primary_image)): ?>
                         <div class="thumbnail-navigation position-relative">
-                            <div class="thumbnail-container d-flex">
+                            <div class="thumbnail-container d-flex justify-content-center">
                                 <!-- Primary image thumbnail -->
                                 <div class="thumbnail active" data-image="<?= $primary_image ?>">
                                     <img src="<?= $primary_image ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="img-fluid">
@@ -170,13 +168,14 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                     <div class="product-info">
                         <h1 class="product-title mb-2"><?= htmlspecialchars($product['name']) ?></h1>
                         <h5 class="product-category text-uppercase text-muted mb-3"><?= htmlspecialchars($product['category']) ?></h5>
-                        <p class="product-sku text-muted mb-3">SKU: <?= $product['sku'] ?: 'N/A' ?></p>
                         
+                        <?php if($product['discount_price'] > 0): ?>
+                            <span class="original-price">₱<?= number_format($product['original_price'], 2) ?></span>
+                        <?php endif; ?>
                         <!-- Price display -->
-                        <div class="price-container mb-4">
+                        <div class="price-container mb-4 align-items-center">
                             <?php if($product['discount_price'] > 0): ?>
                                 <div class="price-wrapper">
-                                    <span class="original-price">₱<?= number_format($product['original_price'], 2) ?></span>
                                     <span class="current-price">₱<?= number_format($product['discount_price'], 2) ?></span>
                                 </div>
                                 <span class="discount-label">Save <?= $product['discount_percentage'] ?>%</span>
@@ -188,6 +187,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         </div>
                         
                         <!-- Product description -->
+                        <label class="form-label fw-bold d-block mb-2">Description</label>
                         <div class="product-description mb-4">
                             <?= nl2br(htmlspecialchars($product['description'])) ?>
                         </div>
@@ -247,8 +247,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                                 data-product-category="<?= htmlspecialchars($product['category']) ?>"
                                 data-product-price="<?= $product['discount_price'] > 0 ? $product['discount_price'] : $product['original_price'] ?>"
                                 data-product-original-price="<?= $product['original_price'] ?>"
-                                data-product-image="<?= htmlspecialchars($primary_image) ?>"
-                                data-product-sku="<?= htmlspecialchars($product['sku'] ?: '') ?>">
+                                data-product-image="<?= htmlspecialchars($primary_image) ?>">
                                 ADD TO CART
                             </button>
                         </form>
@@ -281,14 +280,14 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         </div>
                         <div class="product-info text-center">
                             <h5 class="text-uppercase mb-2"><?= htmlspecialchars($related['category']) ?> - "<?= htmlspecialchars($related['name']) ?>"</h5>
-                            <div class="price-container mb-3">
+                            <div class="price-container mb-3 justify-content-center">
                                 <?php if($discountPrice > 0): ?>
-                                    <div class="price-wrapper">
-                                        <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                        <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
+                                    <div class="price-wrapper-related">
+                                        <span class="original-price-related">₱<?= number_format($originalPrice, 2) ?></span>
+                                        <span class="current-price-related">₱<?= number_format($discountPrice, 2) ?></span>
                                     </div>
                                 <?php else: ?>
-                                    <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
+                                    <h5 class="current-price-related">₱<?= number_format($originalPrice, 2) ?></h5>
                                 <?php endif; ?>
                             </div>
                             <button class="buy-btn" onclick="window.location.href='product.php?id=<?= $related['id'] ?>'">View</button>

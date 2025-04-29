@@ -7,9 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFilterHandlers();
     setupLazyLoading();
     
-    // Update initial cart count
-    updateCartCount();
-    
     // Initialize clear filter buttons visibility
     updateClearFilterButtons();
 });
@@ -374,22 +371,4 @@ function updateBrowserURL() {
  */
 function viewProduct(productId) {
     window.location.href = `product.php?id=${productId}`;
-}
-
-/**
- * Update the cart count in the header
- */
-function updateCartCount() {
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        
-        if (totalItems > 0) {
-            cartCountElement.style.display = 'inline';
-        } else {
-            cartCountElement.style.display = 'none';
-        }
-    }
 }

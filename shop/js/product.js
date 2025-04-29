@@ -142,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const productPrice = parseFloat(this.getAttribute('data-product-price'));
             const productOriginalPrice = parseFloat(this.getAttribute('data-product-original-price'));
             const productImage = this.getAttribute('data-product-image');
-            const productSku = this.getAttribute('data-product-sku');
             
             // Create cart item object
             const cartItem = {
@@ -153,8 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 originalPrice: productOriginalPrice,
                 size: selectedSize,
                 quantity: quantity,
-                image: productImage,
-                sku: productSku
+                image: productImage
             };
             
             // Add to cart in localStorage
