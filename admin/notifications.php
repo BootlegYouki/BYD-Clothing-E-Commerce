@@ -252,6 +252,53 @@ $users_result = mysqli_query($conn, $users_query);
         font-size: 0.8rem;
         margin-left: 8px;
     }
+
+    /* Add styles for table checkboxes */
+    .notification-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .select-all-checkbox {
+        margin-right: 5px;
+    }
+    
+    .bulk-actions {
+        display: none;
+    }
+    
+    /* Center align checkboxes - updated styles */
+    td:first-child, th:first-child {
+        text-align: center;
+        vertical-align: middle;
+        width: 50px; /* Set consistent width */
+        padding: 0.75rem 0.5rem; /* Consistent padding */
+    }
+    
+    th:first-child .form-check,
+    td:first-child .form-check {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .form-check-input.notification-checkbox,
+    .form-check-input.select-all-checkbox {
+        position: relative;
+        margin: 0;
+        cursor: pointer;
+    }
+    
+    /* Improve checkbox styling */
+    .notification-checkbox, 
+    .select-all-checkbox {
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -470,18 +517,30 @@ $users_result = mysqli_query($conn, $users_query);
                     <?php echo mysqli_num_rows($result); ?> notifications found
                 </p>
             </div>
+            <div class="bulk-actions" id="bulk-actions">
+                <form method="POST" action="functions/manage_notifications.php" id="bulk-action-form">
+                    <input type="hidden" name="action" value="bulk_delete">
+                    <button type="button" class="btn btn-danger btn-sm" id="bulk-delete-btn">
+                        <i class="material-symbols-rounded">delete</i> Delete Selected (<span id="selected-count">0</span>)
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table align-items-center mb-0">
                     <thead>
                         <tr>
+                            <th>
+                                <div class="form-check">
+                                    <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
+                                </div>
+                            </th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-3">Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Title & Message</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Recipient</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date Sent</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -551,6 +610,11 @@ $users_result = mysqli_query($conn, $users_query);
                                     '<span class="badge bg-warning">Unread</span>';
                                 
                                 echo "<tr>
+                                    <td>
+                                        <div class='form-check'>
+                                            <input class='form-check-input notification-checkbox' type='checkbox' name='selected_notifications[]' value='{$row['id']}' form='bulk-action-form'>
+                                        </div>
+                                    </td>
                                     <td class='px-3'>
                                         <div class='d-flex align-items-center'>
                                             <div class='notification-icon {$row['type']}'>
@@ -575,11 +639,6 @@ $users_result = mysqli_query($conn, $users_query);
                                     </td>
                                     <td>
                                         {$status_badge}
-                                    </td>
-                                    <td class='text-center'>
-                                        <button type='button' class='btn btn-sm btn-outline-danger delete-notification' data-id='{$row['id']}'>
-                                            <i class='material-symbols-rounded'>delete</i>
-                                        </button>
                                     </td>
                                 </tr>";
                             }
@@ -612,6 +671,25 @@ $users_result = mysqli_query($conn, $users_query);
                     <input type="hidden" name="notification_id" id="delete_notification_id">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkDeleteModalLabel">Delete Multiple Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <span id="bulk-delete-count">0</span> notification(s)? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-bulk-delete">Delete</button>
             </div>
         </div>
     </div>
@@ -721,6 +799,58 @@ $users_result = mysqli_query($conn, $users_query);
             const count = $('.user-card input:checked').length;
             $('#selected-users-count').text(count);
         }
+
+        // Handle select all checkbox
+        $('#select-all').on('change', function() {
+            const isChecked = $(this).prop('checked');
+            $('.notification-checkbox').prop('checked', isChecked);
+            updateBulkActions();
+        });
+        
+        // Handle individual notification checkboxes
+        $('.notification-checkbox').on('change', function() {
+            updateBulkActions();
+            
+            // Check/uncheck "select all" if all checkboxes are checked/unchecked
+            const totalCheckboxes = $('.notification-checkbox').length;
+            const checkedCheckboxes = $('.notification-checkbox:checked').length;
+            $('#select-all').prop('checked', totalCheckboxes === checkedCheckboxes && totalCheckboxes > 0);
+        });
+        
+        // Show/hide bulk actions and update selected count
+        function updateBulkActions() {
+            const selectedCount = $('.notification-checkbox:checked').length;
+            $('#selected-count').text(selectedCount);
+            
+            if (selectedCount > 0) {
+                $('#bulk-actions').show();
+            } else {
+                $('#bulk-actions').hide();
+            }
+        }
+        
+        // Replace confirmation alert with modal for bulk delete
+        $('#bulk-delete-btn').on('click', function(e) {
+            const selectedCount = $('.notification-checkbox:checked').length;
+            
+            if (selectedCount === 0) {
+                e.preventDefault();
+                alert('Please select at least one notification to delete.');
+                return;
+            }
+            
+            // Update the count in the modal
+            $('#bulk-delete-count').text(selectedCount);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+            modal.show();
+        });
+        
+        // Handle the confirm button in the bulk delete modal
+        $('#confirm-bulk-delete').on('click', function() {
+            $('#bulk-action-form').submit();
+        });
     });
 </script>
 

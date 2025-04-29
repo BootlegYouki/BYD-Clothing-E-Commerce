@@ -25,6 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             deleteNotification($conn);
             break;
             
+        case 'bulk_delete':
+            bulkDeleteNotifications($conn);
+            break;
+            
         default:
             setMessage('Invalid action specified', 'error');
             header('Location: ../notifications.php');
@@ -208,6 +212,45 @@ function deleteNotification($conn) {
     }
     
     $stmt->close();
+    header('Location: ../notifications.php');
+    exit();
+}
+
+/**
+ * Delete multiple notifications at once
+ */
+function bulkDeleteNotifications($conn) {
+    // Get the selected notification IDs
+    $notification_ids = $_POST['selected_notifications'] ?? [];
+    
+    if (empty($notification_ids)) {
+        setMessage('No notifications selected for deletion', 'error');
+        header('Location: ../notifications.php');
+        exit();
+    }
+    
+    // Count how many notifications we need to delete
+    $count = count($notification_ids);
+    
+    // Convert array to comma-separated string of IDs, safely escaped
+    $ids = [];
+    foreach ($notification_ids as $id) {
+        $ids[] = (int)$id; // Cast to int for security
+    }
+    
+    $id_list = implode(',', $ids);
+    
+    // Delete all selected notifications
+    $query = "DELETE FROM notifications WHERE id IN ($id_list)";
+    $result = mysqli_query($conn, $query);
+    
+    if ($result) {
+        $affected = mysqli_affected_rows($conn);
+        setMessage("Successfully deleted {$affected} notification(s)", 'success');
+    } else {
+        setMessage('Error deleting notifications: ' . mysqli_error($conn), 'error');
+    }
+    
     header('Location: ../notifications.php');
     exit();
 }
