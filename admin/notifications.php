@@ -65,241 +65,7 @@ $users_result = mysqli_query($conn, $users_query);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/custom.css">
   <link rel="stylesheet" href="assets/css/sidebar.css">
-  
-  <style>
-    .notification-preview {
-        border-left: 4px solid;
-        background-color: rgba(255, 255, 255, 0.5);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-    .notification-preview.order_status, 
-    .notification-preview.order_shipped {
-        border-left-color: #3498db;
-    }
-    .notification-preview.order_delivered {
-        border-left-color: #2ecc71;
-    }
-    .notification-preview.promotion {
-        border-left-color: #e74c3c;
-    }
-    .notification-preview.account {
-        border-left-color: #9b59b6;
-    }
-    .notification-preview.review_reminder {
-        border-left-color: #f39c12;
-    }
-    .notification-preview.new_release {
-        border-left-color: #1abc9c;
-    }
-    .notification-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-    }
-    .notification-icon i {
-        font-size: 20px;
-    }
-    .notification-icon.order_status, 
-    .notification-icon.order_shipped {
-        background-color: rgba(52, 152, 219, 0.1);
-        color: #3498db;
-    }
-    .notification-icon.order_delivered {
-        background-color: rgba(46, 204, 113, 0.1);
-        color: #2ecc71;
-    }
-    .notification-icon.promotion {
-        background-color: rgba(231, 76, 60, 0.1);
-        color: #e74c3c;
-    }
-    .notification-icon.account {
-        background-color: rgba(155, 89, 182, 0.1);
-        color: #9b59b6;
-    }
-    .notification-icon.review_reminder {
-        background-color: rgba(243, 156, 18, 0.1);
-        color: #f39c12;
-    }
-    .notification-icon.new_release {
-        background-color: rgba(26, 188, 156, 0.1);
-        color: #1abc9c;
-    }
-    .message-counter {
-        display: flex;
-        justify-content: flex-end;
-        bottom: 10px;
-        color: #777;
-        font-size: 0.8rem;
-    }
-    .recipient-badge {
-        margin-right: 5px;
-        margin-bottom: 5px;
-        display: inline-block;
-    }
-    
-    .users-container {
-        max-height: 350px;
-        overflow-y: auto;
-        border: 1px solid #d2d6da;
-        border-radius: 0.375rem;
-        padding: 10px;
-    }
-    
-    .user-search {
-        position: sticky;
-        top: 0;
-        background-color: #fff;
-        padding: 10px 0;
-        margin-bottom: 10px;
-        z-index: 10;
-    }
-    
-    .users-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 10px;
-    }
-    
-    .user-card {
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        padding: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-    
-    .user-card:hover {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
-    }
-    
-    .user-card.selected {
-        background-color: rgba(13, 110, 253, 0.1);
-        border-color: #0d6efd;
-    }
-    
-    .user-card input[type="checkbox"] {
-        position: absolute;
-        opacity: 0;
-    }
-    
-    .user-card-content {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .user-avatar {
-        width: 36px;
-        height: 36px;
-        background-color: #e9ecef;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
-        color: #6c757d;
-        font-size: 14px;
-        font-weight: 500;
-        box-sizing: border-box;
-        border: 1px solid #dee2e6;
-        flex-shrink: 0;
-        overflow: hidden;
-        text-align: center;
-        line-height: 1;
-    }
-    
-    .user-card.selected .user-avatar {
-        background-color: #0d6efd;
-        color: #fff;
-        border-color: #0d6efd;
-    }
-    
-    .user-info {
-        flex-grow: 1;
-        overflow: hidden;
-    }
-    
-    .user-name {
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin-bottom: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .user-email {
-        font-size: 0.75rem;
-        color: #6c757d;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .selected-count {
-        background-color: #0d6efd;
-        color: white;
-        border-radius: 20px;
-        padding: 2px 8px;
-        font-size: 0.8rem;
-        margin-left: 8px;
-    }
-
-    /* Add styles for table checkboxes */
-    .notification-checkbox {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .select-all-checkbox {
-        margin-right: 5px;
-    }
-    
-    .bulk-actions {
-        display: none;
-    }
-    
-    /* Center align checkboxes - updated styles */
-    td:first-child, th:first-child {
-        text-align: center;
-        vertical-align: middle;
-        width: 50px; /* Set consistent width */
-        padding: 0.75rem 0.5rem; /* Consistent padding */
-    }
-    
-    th:first-child .form-check,
-    td:first-child .form-check {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .form-check-input.notification-checkbox,
-    .form-check-input.select-all-checkbox {
-        position: relative;
-        margin: 0;
-        cursor: pointer;
-    }
-    
-    /* Improve checkbox styling */
-    .notification-checkbox, 
-    .select-all-checkbox {
-        width: 18px !important;
-        height: 18px !important;
-        border-radius: 3px;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 <body>
 <?php include 'includes/sidebar.php'; ?>
@@ -500,7 +266,7 @@ $users_result = mysqli_query($conn, $users_query);
 
                 <!-- Submit Button -->
                 <div class="col-lg-2 col-md-6 d-flex align-items-end">
-                    <div class="d-grid gap-2 w-100">
+                    <div class="d-flex">
                         <button type="submit" class="btn btn-primary">Apply Filters</button>
                     </div>
                 </div>
@@ -520,7 +286,7 @@ $users_result = mysqli_query($conn, $users_query);
             <div class="bulk-actions" id="bulk-actions">
                 <form method="POST" action="functions/manage_notifications.php" id="bulk-action-form">
                     <input type="hidden" name="action" value="bulk_delete">
-                    <button type="button" class="btn btn-danger btn-sm" id="bulk-delete-btn">
+                    <button type="button" class="btn btn-danger btn-sm" id="bulk-delete-btn" disabled>
                         <i class="material-symbols-rounded">delete</i> Delete Selected (<span id="selected-count">0</span>)
                     </button>
                 </form>
@@ -817,15 +583,16 @@ $users_result = mysqli_query($conn, $users_query);
             $('#select-all').prop('checked', totalCheckboxes === checkedCheckboxes && totalCheckboxes > 0);
         });
         
-        // Show/hide bulk actions and update selected count
+        // Update the bulk actions function to enable/disable rather than show/hide
         function updateBulkActions() {
             const selectedCount = $('.notification-checkbox:checked').length;
             $('#selected-count').text(selectedCount);
             
+            // Enable or disable the button based on selection count
             if (selectedCount > 0) {
-                $('#bulk-actions').show();
+                $('#bulk-delete-btn').prop('disabled', false);
             } else {
-                $('#bulk-actions').hide();
+                $('#bulk-delete-btn').prop('disabled', true);
             }
         }
         
