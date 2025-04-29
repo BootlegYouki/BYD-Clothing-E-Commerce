@@ -104,16 +104,51 @@ function getIconClassForType(type) {
 function initRecipientTypeHandler() {
     const recipientRadios = document.querySelectorAll('input[name="recipient_type"]');
     const specificUserContainer = document.getElementById('specific_user_container');
+    const usersContainer = specificUserContainer ? specificUserContainer.querySelector('.users-container') : null;
+    const userLabel = specificUserContainer ? specificUserContainer.querySelector('label.form-label') : null;
+    const buttonsContainer = specificUserContainer ? specificUserContainer.querySelector('.d-flex.justify-content-between') : null;
     
-    if (recipientRadios.length && specificUserContainer) {
+    if (recipientRadios.length && specificUserContainer && usersContainer) {
+        // Initialize with hidden class
+        usersContainer.classList.add('users-container-hidden');
+        
+        // Add animation end listener
+        usersContainer.addEventListener('animationend', function() {
+            if (usersContainer.classList.contains('users-container-hide')) {
+                usersContainer.classList.remove('users-container-animating', 'users-container-hide');
+                usersContainer.classList.add('users-container-hidden');
+                specificUserContainer.style.display = 'none';
+                // Reset display properties for next time
+                if (userLabel) userLabel.style.display = '';
+                if (buttonsContainer) buttonsContainer.style.display = '';
+            }
+        });
+        
         recipientRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'specific') {
+                    // Show the container with animation
                     specificUserContainer.style.display = 'block';
+                    if (userLabel) userLabel.style.display = 'block';
+                    if (buttonsContainer) buttonsContainer.style.display = 'flex';
+                    
+                    // Trigger reflow to ensure animation plays
+                    void usersContainer.offsetWidth;
+                    
+                    usersContainer.classList.remove('users-container-hidden');
+                    usersContainer.classList.add('users-container-animating', 'users-container-show');
+                    
                     // Make at least one checkbox required on form submission
                     document.getElementById('createNotificationForm').addEventListener('submit', validateUserSelection);
                 } else {
-                    specificUserContainer.style.display = 'none';
+                    // Hide label and buttons immediately
+                    if (userLabel) userLabel.style.display = 'none';
+                    if (buttonsContainer) buttonsContainer.style.display = 'none';
+                    
+                    // Hide container with animation
+                    usersContainer.classList.remove('users-container-show');
+                    usersContainer.classList.add('users-container-animating', 'users-container-hide');
+                    
                     // Remove validation if all users selected
                     document.getElementById('createNotificationForm').removeEventListener('submit', validateUserSelection);
                 }

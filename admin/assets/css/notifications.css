@@ -80,6 +80,49 @@
     border: 1px solid #d2d6da;
     border-radius: 0.375rem;
     padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.users-container-hidden {
+    display: none;
+}
+
+.users-container-animating {
+    display: block;
+}
+
+.users-container-show {
+    animation: slideDown 0.3s ease forwards;
+}
+
+.users-container-hide {
+    animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 350px;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 350px;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
 }
 
 .user-search {
@@ -113,7 +156,7 @@
 
 .user-card.selected {
     background-color: rgba(13, 110, 253, 0.1);
-    border-color: #0d6efd;
+    border-color: coral;
 }
 
 .user-card input[type="checkbox"] {
@@ -148,9 +191,9 @@
 }
 
 .user-card.selected .user-avatar {
-    background-color: #0d6efd;
+    background-color: coral;
     color: #fff;
-    border-color: #0d6efd;
+    border-color: coral;
 }
 
 .user-info {
@@ -176,7 +219,7 @@
 }
 
 .selected-count {
-    background-color: #0d6efd;
+    background-color: coral;
     color: white;
     border-radius: 20px;
     padding: 2px 8px;
@@ -261,7 +304,7 @@ body.theme-dark .user-card:hover {
 
 body.theme-dark .user-card.selected {
     background-color: rgba(13, 110, 253, 0.2);
-    border-color: #0d6efd;
+    border-color: coral;
 }
 
 body.theme-dark .user-avatar {
@@ -271,7 +314,7 @@ body.theme-dark .user-avatar {
 }
 
 body.theme-dark .user-card.selected .user-avatar {
-    background-color: #0d6efd;
+    background-color: coral;
     color: #fff;
 }
 
