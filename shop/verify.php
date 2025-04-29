@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../admin/config/dbcon.php';
-include 'functions/otp_verification.php';
+include 'functions/account/otp_verification.php';
 
 if (!isset($_SESSION['verify_email'])) {
     header("Location: index.php");
@@ -229,7 +229,7 @@ $email = $_SESSION['verify_email'];
             <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
             <p class="spam-note"><i class="fas fa-info-circle"></i> If you don't see the email, please check your spam or junk folder.</p>
             
-            <form id="verificationForm" action="functions/authcode.php" method="POST">
+            <form id="verificationForm" action="functions/account/authcode.php" method="POST">
                 <div class="otp-inputs">
                     <input type="text" class="otp-input" maxlength="1" autofocus inputmode="numeric" pattern="[0-9]*">
                     <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
@@ -253,7 +253,7 @@ $email = $_SESSION['verify_email'];
             
             <div class="resend">
                 <p>Didn't receive the code?</p>
-                <form id="resendForm" action="functions/authcode.php" method="POST">
+                <form id="resendForm" action="functions/account/authcode.php" method="POST">
                     <input type="hidden" name="resend_otp" value="1">
                     <button type="submit" id="resendBtn" class="btn-resend" disabled>
                         <span class="resend-normal-state">Resend Code</span>
@@ -386,7 +386,7 @@ $email = $_SESSION['verify_email'];
                     
                     // AJAX for OTP verification
                     $.ajax({
-                        url: 'functions/authcode.php',
+                        url: 'functions/account/authcode.php',
                         type: 'POST',
                         data: $(this).serialize(),
                         dataType: 'json',
@@ -434,7 +434,7 @@ $email = $_SESSION['verify_email'];
                 
                 // AJAX for resending OTP
                 $.ajax({
-                    url: 'functions/authcode.php',
+                    url: 'functions/account/authcode.php',
                     type: 'POST',
                     data: $(this).serialize(),
                     dataType: 'json',

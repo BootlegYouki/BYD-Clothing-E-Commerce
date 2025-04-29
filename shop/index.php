@@ -1,7 +1,7 @@
 <?php
 // At the top of your file after requiring dbcon.php
 require_once '../admin/config/dbcon.php';
-require_once 'functions/index_product-handler.php'; // Move this line here
+require_once 'functions/productfetching/index_product-handler.php'; // Move this line here
 
 // Get homepage settings
 $settings = [];

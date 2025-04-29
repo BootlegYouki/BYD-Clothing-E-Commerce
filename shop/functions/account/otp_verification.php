@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../admin/config/env_loader.php'; // Add this to include env_loader
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../admin/config/env_loader.php'; // Adjust path for deeper directory
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

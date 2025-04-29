@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
       formData.append('signupButton', '1'); // Add the button name to identify the action
       
       // AJAX request
-      fetch('functions/authcode.php', {
+      fetch('functions/account/authcode.php', {
         method: 'POST',
         headers: {
           'X-Requested-With': 'XMLHttpRequest'

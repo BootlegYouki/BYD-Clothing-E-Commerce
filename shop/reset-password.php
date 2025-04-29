@@ -484,7 +484,7 @@ $tokenValid = ($result->num_rows > 0);
                 const serialized = new URLSearchParams(formData).toString();
                 
                 // Send AJAX request
-                fetch('functions/password_reset.php', {
+                fetch('functions/account/password_reset.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

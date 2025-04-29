@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../admin/config/dbcon.php';
+require_once __DIR__ . '/../../../admin/config/dbcon.php';
 require_once __DIR__ . '/otp_verification.php';
 session_start();
 

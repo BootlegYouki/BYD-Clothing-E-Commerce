@@ -1,6 +1,6 @@
 <?php
 require_once '../admin/config/dbcon.php';
-require_once 'functions/shop_product-handler.php';
+require_once 'functions/productfetching/shop_product-handler.php';
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {

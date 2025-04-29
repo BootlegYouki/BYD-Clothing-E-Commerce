@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const loginPassword = document.getElementById('loginpassword').value;
       
       // Create AJAX request
-      fetch('functions/authcode.php', {
+      fetch('functions/account/authcode.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const email = document.getElementById('recovery_email').value;
           
           // Create AJAX request
-          fetch('functions/password_reset.php', {
+          fetch('functions/account/password_reset.php', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',

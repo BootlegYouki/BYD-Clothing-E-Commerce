@@ -1,6 +1,6 @@
 <?php 
 session_start();
-include '../../admin/config/dbcon.php';
+include '../../../admin/config/dbcon.php';
 include 'otp_verification.php';
 
 /* HELPER FUNCTIONS FOR LOGIN */
@@ -111,9 +111,9 @@ if (isset($_POST['signupButton'])) {
            
            // Redirect to verification page or respond with JSON for AJAX
            if (isAjaxRequest()) {
-               sendJsonResponse('success', 'Please check your email for verification code.', ['redirect' => '../verify.php']);
+               sendJsonResponse('success', 'Please check your email for verification code.', ['redirect' => '/shop/verify.php']);
            } else {
-               redirectWithSessionFlag('../verify.php', 'verify_needed');
+               redirectWithSessionFlag('/shop/verify.php', 'verify_needed');
            }
        } else {
            // Failed to send email
@@ -163,7 +163,7 @@ else if (isset($_POST['loginButton'])) {
             if (isAjaxRequest()) {
                 sendJsonResponse('error', 'Please verify your email address first. A new verification code has been sent to your email.');
             } else {
-                redirectWithSessionFlag("../verify.php", "verify_required");
+                redirectWithSessionFlag("/shop/verify.php", "verify_required");
             }
         } else {
             if (isAjaxRequest()) {
@@ -303,7 +303,7 @@ if(isset($_POST['verify_otp'])) {
             sendJsonResponse('error', 'Invalid or expired verification code. Please try again.');
         } else {
             $_SESSION['error_message'] = "Invalid or expired verification code. Please try again.";
-            redirectWithSessionFlag("../verify.php", "invalid_otp");
+            redirectWithSessionFlag("/shop/verify.php", "invalid_otp");
         }
     }
 }
