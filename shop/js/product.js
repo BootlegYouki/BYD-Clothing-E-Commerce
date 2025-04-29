@@ -271,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('toast-product-name').textContent = cartItem.title;
             document.getElementById('toast-product-size').textContent = cartItem.size;
             document.getElementById('toast-product-quantity').textContent = cartItem.quantity;
+            document.getElementById('toast-product-image').src = cartItem.image;
             toast.show();
         });
     }

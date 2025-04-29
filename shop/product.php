@@ -271,7 +271,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                     $originalPrice = $related['original_price'];
                     $discountPercentage = $related['discount_percentage'];
                 ?>
-                <div class="col-md-3 col-6 mb-4">
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
                     <div class="product-card">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $relatedImageUrl ?>" alt="<?= htmlspecialchars($related['name']) ?>">
@@ -340,7 +340,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     <?php endif; ?>
     
     <!-- Toast notification for cart -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="cartAddedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="fa fa-check-circle text-success me-2"></i>
@@ -348,10 +348,17 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
-                <p><span id="toast-product-name"></span> - Size: <span id="toast-product-size"></span> (x<span id="toast-product-quantity"></span>) has been added to your cart.</p>
-                <div class="mt-2 pt-2 border-top">
-                    <a href="cart.php" class="btn btn-dark btn-sm">View Cart</a>
-                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="toast">Continue Shopping</button>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-product-image me-3">
+                            <img id="toast-product-image" src="" alt="Product Image" class="img-fluid rounded">
+                        </div>
+                        <div>
+                            <p class="mb-1 fw-bold" id="toast-product-name"></p>
+                            <p class="mb-0 text-muted">Size: <span id="toast-product-size"></span> | Qty: <span id="toast-product-quantity"></span></p>
+                        </div>
+                    </div>
+                    <a href="cart.php" class="btn btn-primary btn-sm ms-3">View Cart</a>
                 </div>
             </div>
         </div>
