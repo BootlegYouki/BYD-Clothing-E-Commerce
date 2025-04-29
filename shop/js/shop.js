@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Swiper
     initShopSwiper();
     
-    // Setup quick view and filtering functionalities
-    setupQuickViewBehaviors();
+    // Setup filtering functionalities
     setupFilterHandlers();
     setupLazyLoading();
     
@@ -27,46 +26,6 @@ function initShopSwiper() {
                 640: {
                     slidesPerView: 2,
                     spaceBetween: 20,
-                }
-            }
-        });
-    }
-}
-
-/**
- * Setup quickView behaviors
- */
-function setupQuickViewBehaviors() {
-    const productQuickView = document.getElementById('productQuickView');
-    if (productQuickView) {
-        productQuickView.addEventListener('show.bs.collapse', function () {
-            setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-        });
-        
-        // Setup global size button click handlers
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-size') || e.target.parentElement.classList.contains('btn-size')) {
-                const button = e.target.classList.contains('btn-size') ? e.target : e.target.parentElement;
-                const sizeButtons = document.querySelectorAll('.btn-size');
-                sizeButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                const selectedSize = button.dataset.size;
-                const stockInfo = button.dataset.stock;
-                
-                document.getElementById('quick-view-size').value = selectedSize;
-                document.getElementById('size-error').style.display = 'none';
-                
-                if (stockInfo) {
-                    const quantityInput = document.getElementById('quick-view-quantity');
-                    document.getElementById('stock-info').textContent = `Available: ${stockInfo} in stock`;
-                    document.getElementById('stock-info').style.display = 'block';
-                    
-                    quantityInput.max = stockInfo;
-                    if (parseInt(quantityInput.value) > parseInt(stockInfo)) {
-                        quantityInput.value = stockInfo;
-                    }
-                    updateQuantityButtonStates();
                 }
             }
         });
@@ -119,23 +78,6 @@ function setupLazyLoading() {
         if (!img.src) img.src = img.dataset.src;
         observer.observe(img);
     });
-}
-
-/**
- * Updates the quantity button states
- */
-function updateQuantityButtonStates() {
-    const quantityInput = document.getElementById('quick-view-quantity');
-    const minusBtn = document.getElementById('quick-view-quantity-minus');
-    const plusBtn = document.getElementById('quick-view-quantity-plus');
-    
-    if (!quantityInput || !minusBtn || !plusBtn) return;
-    
-    const currentValue = parseInt(quantityInput.value);
-    const max = parseInt(quantityInput.getAttribute('max')) || 10;
-    
-    minusBtn.classList.toggle('disabled', currentValue <= 1);
-    plusBtn.classList.toggle('disabled', currentValue >= max);
 }
 
 /**
