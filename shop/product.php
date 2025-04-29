@@ -138,7 +138,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                 <div class="col-lg-6 mb-4 mb-lg-0 mt-2">
                     <div class="product-images">
                         <!-- Main product image -->
-                        <div class="main-image-container mb-3">
+                        <div class="main-image-container" title="Click to zoom">
                             <img id="main-product-image" src="<?= $primary_image ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="img-fluid">
                         </div>
                         
@@ -263,7 +263,8 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
         <div class="container">
             <h3 class="text-center mb-4">You May Also Like</h3>
             
-            <div class="row">
+            <!-- Products for larger screens (hidden on small screens) -->
+            <div class="row d-none d-md-flex">
                 <?php foreach($related_products as $related): 
                     $relatedImageUrl = !empty($related['image_url']) ? '../' . $related['image_url'] : 'img/placeholder.jpg';
                     $discountPrice = $related['discount_price'] > 0 ? $related['discount_price'] : 0;
@@ -295,6 +296,44 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                     </div>
                 </div>
                 <?php endforeach; ?>
+            </div>
+            
+            <!-- Swiper for mobile view (hidden on larger screens) -->
+            <div class="swiper-container related-products-swiper d-block d-md-none">
+                <div class="swiper-wrapper">
+                    <?php foreach($related_products as $related): 
+                        $relatedImageUrl = !empty($related['image_url']) ? '../' . $related['image_url'] : 'img/placeholder.jpg';
+                        $discountPrice = $related['discount_price'] > 0 ? $related['discount_price'] : 0;
+                        $originalPrice = $related['original_price'];
+                        $discountPercentage = $related['discount_percentage'];
+                    ?>
+                    <div class="swiper-slide">
+                        <div class="product-card">
+                            <div class="product-img-container">
+                                <img class="product-img mb-3" src="<?= $relatedImageUrl ?>" alt="<?= htmlspecialchars($related['name']) ?>">
+                                <?php if($discountPrice > 0): ?>
+                                    <span class="discount-badge">-<?= $discountPercentage ?>%</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="product-info text-center">
+                                <h5 class="text-uppercase mb-2"><?= htmlspecialchars($related['category']) ?> - "<?= htmlspecialchars($related['name']) ?>"</h5>
+                                <div class="price-container mb-3 justify-content-center">
+                                    <?php if($discountPrice > 0): ?>
+                                        <div class="price-wrapper-related">
+                                            <span class="original-price-related">₱<?= number_format($originalPrice, 2) ?></span>
+                                            <span class="current-price-related">₱<?= number_format($discountPrice, 2) ?></span>
+                                        </div>
+                                    <?php else: ?>
+                                        <h5 class="current-price-related">₱<?= number_format($originalPrice, 2) ?></h5>
+                                    <?php endif; ?>
+                                </div>
+                                <button class="buy-btn" onclick="window.location.href='product.php?id=<?= $related['id'] ?>'">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="swiper-pagination"></div>
             </div>
         </div>
     </section>

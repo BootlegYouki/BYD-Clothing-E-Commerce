@@ -13,13 +13,50 @@
     font-weight: 300;
 }
 /* Product Images */
+/* Image Zoom Functionality */
 .main-image-container {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     border-radius: 8px;
     object-fit: cover;
+    cursor: zoom-in;
+}
+
+/* Main image navigation buttons */
+.main-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    color: #333;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 100;
+    opacity: 0.7;
+}
+
+.main-nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    opacity: 1;
+}
+
+.main-nav-btn.prev {
+    left: 10px;
+}
+
+.main-nav-btn.next {
+    right: 10px;
 }
 
 #main-product-image {
@@ -28,6 +65,103 @@
     max-width: 70%;
     object-fit: cover;
     transition: transform 0.3s ease;
+}
+
+#image-zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: zoom-out;
+}
+
+#zoomed-image {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+}
+
+/* Zoom Controls */
+.zoom-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.zoom-btn {
+    background-color: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Navigation arrows for zoom overlay */
+.zoom-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10000;
+}
+
+.zoom-nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.zoom-nav-btn.prev {
+    left: 20px;
+}
+
+.zoom-nav-btn.next {
+    right: 20px;
+}
+
+/* Hide navigation arrows on mobile */
+@media (max-width: 767px) {
+    .zoom-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .zoom-nav-btn.prev {
+        left: 10px;
+    }
+    
+    .zoom-nav-btn.next {
+        right: 10px;
+    }
 }
 
 /* Thumbnail navigation */
@@ -271,6 +405,51 @@
     text-align: center;
 }
 
+/* Related Products Swiper Styles */
+.related-products .swiper-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 10px 0 40px;
+}
+
+.related-products .swiper-slide {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+.related-products .swiper-pagination {
+    position: relative;
+    bottom: 0;
+    margin-top: 10px;
+}
+
+.related-products .swiper-pagination-bullet-active {
+    background: coral;
+}
+
+/* Mobile adjustments for related products */
+@media (max-width: 767px) {
+    .related-products .swiper-slide .product-card {
+        text-align: center;
+        width: 90%;
+    }
+    
+    .related-products .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    
+    .related-products .swiper-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
 /* Product Card in Related Products */
 .product-card {
     border-radius: 12px;
@@ -369,9 +548,11 @@
 }
 
 /* Responsive Styles */
-@media (max-width: 767px) {
-    .main-image-container {
-        height: 350px;
+@media (max-width: 767px) {   
+    .main-nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
     }
     
     .thumbnail {
@@ -402,5 +583,19 @@
     
     .product-img {
         height: 200px;
+    }
+    
+    .zoom-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .zoom-nav-btn.prev {
+        left: 10px;
+    }
+    
+    .zoom-nav-btn.next {
+        right: 10px;
     }
 }
