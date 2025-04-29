@@ -317,7 +317,6 @@ a {
   font-size: 0.875rem;
   border-radius: 6px;
   transition: all 0.25s ease;
-  color: var(--white);
   display: inline-flex;
   align-items: center;
 }
