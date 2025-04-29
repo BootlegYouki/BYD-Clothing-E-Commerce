@@ -255,8 +255,6 @@ function fetchProducts() {
         formData.append(key, window.shopState[key]);
     }
     
-    console.log('Fetching products with filters:', window.shopState);
-    
     fetch('functions/productfetching/filter_products.php', {
         method: 'POST',
         body: formData
@@ -264,7 +262,6 @@ function fetchProducts() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log('Products fetched successfully:', data.total_items);
             
             if (productsContainer) {
                 productsContainer.innerHTML = data.products_html;
@@ -319,9 +316,9 @@ function updateClearFilterButtons() {
     const clearFilters = document.getElementById('clear-filters');
     const clearFiltersMobile = document.getElementById('clear-filters-mobile');
     
+    // Only show clear buttons when category, search, or specific product view is active
     const shouldShow = window.shopState.category || 
                       window.shopState.search || 
-                      window.shopState.sort !== 'default' || 
                       window.shopState.view_product_id > 0;
     
     if (clearFilters) {
@@ -337,13 +334,6 @@ function updateClearFilterButtons() {
             clearFiltersMobile.parentElement.style.display = 'flex';
         }
     }
-    
-    // Debug output to help troubleshoot
-    console.log('Clear filter buttons visibility updated:', {
-        shouldShow,
-        desktopButton: clearFilters ? clearFilters.style.display : 'not found',
-        mobileButton: clearFiltersMobile ? clearFiltersMobile.style.display : 'not found'
-    });
 }
 
 /**

@@ -233,7 +233,7 @@ if ($action == 'filter_products') {
         $header_html = ob_get_clean();
         
         // Generate clear filter button HTML
-        $show_clear_buttons = !empty($category_filter) || !empty($search_query) || $sort !== 'default' || $view_product_id > 0;
+        $show_clear_buttons = !empty($category_filter) || !empty($search_query) || $view_product_id > 0;
 
         // Send the JSON response
         echo json_encode([

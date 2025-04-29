@@ -386,4 +386,3 @@ $categories = getAllCategories($conn);
 <!-- SCRIPT -->
 <script src="js/shop.js"></script>
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>

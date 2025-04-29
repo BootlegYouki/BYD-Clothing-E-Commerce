@@ -203,7 +203,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                                                 <?php $isOutOfStock = $stock <= 0; ?>
                                                 <div class="col-auto">
                                                     <button type="button" 
-                                                        class="btn-size w-75 <?= $isOutOfStock ? 'out-of-stock' : '' ?>" 
+                                                        class="btn-size w-50 <?= $isOutOfStock ? 'out-of-stock' : '' ?>" 
                                                         data-size="<?= $size ?>" 
                                                         data-stock="<?= $stock ?>" 
                                                         <?= $isOutOfStock ? 'disabled' : '' ?>>
@@ -328,7 +328,6 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
-    <script src="js/assistant.js"></script>
     <script src="js/product.js"></script>
 </body>
 </html>
