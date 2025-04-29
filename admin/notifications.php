@@ -67,7 +67,6 @@ $users_result = mysqli_query($conn, $users_query);
   <link rel="stylesheet" href="assets/css/sidebar.css">
   
   <style>
-
     .notification-preview {
         border-left: 4px solid;
         background-color: rgba(255, 255, 255, 0.5);
@@ -143,6 +142,116 @@ $users_result = mysqli_query($conn, $users_query);
         margin-bottom: 5px;
         display: inline-block;
     }
+    
+    .users-container {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #d2d6da;
+        border-radius: 0.375rem;
+        padding: 10px;
+    }
+    
+    .user-search {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        z-index: 10;
+    }
+    
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+    }
+    
+    .user-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .user-card:hover {
+        background-color: #f8f9fa;
+        border-color: #ced4da;
+    }
+    
+    .user-card.selected {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-color: #0d6efd;
+    }
+    
+    .user-card input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .user-card-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        background-color: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        color: #6c757d;
+        font-size: 14px;
+        font-weight: 500;
+        box-sizing: border-box;
+        border: 1px solid #dee2e6;
+        flex-shrink: 0;
+        overflow: hidden;
+        text-align: center;
+        line-height: 1;
+    }
+    
+    .user-card.selected .user-avatar {
+        background-color: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+    }
+    
+    .user-info {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+    
+    .user-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .user-email {
+        font-size: 0.75rem;
+        color: #6c757d;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .selected-count {
+        background-color: #0d6efd;
+        color: white;
+        border-radius: 20px;
+        padding: 2px 8px;
+        font-size: 0.8rem;
+        margin-left: 8px;
+    }
   </style>
 </head>
 <body>
@@ -206,7 +315,7 @@ $users_result = mysqli_query($conn, $users_query);
                             </div>
                             <div class="form-check me-3">
                                 <input class="form-check-input" type="radio" name="recipient_type" id="specific_user" value="specific">
-                                <label class="form-check-label" for="specific_user">Specific User</label>
+                                <label class="form-check-label" for="specific_user">Specific Users</label>
                             </div>
                         </div>
                     </div>
@@ -214,16 +323,41 @@ $users_result = mysqli_query($conn, $users_query);
 
                 <div class="row mb-3" id="specific_user_container" style="display: none;">
                     <div class="col-md-12">
-                        <label for="user_id" class="form-label">Select User</label>
-                        <select class="form-select" id="user_id" name="user_id">
-                            <option value="">Select a user</option>
-                            <?php 
-                            mysqli_data_seek($users_result, 0); // Reset pointer
-                            while ($user = mysqli_fetch_assoc($users_result)) {
-                                echo '<option value="'.$user['id'].'">'.$user['fullname'].' ('.$user['email'].')</option>';
-                            }
-                            ?>
-                        </select>
+                        <label class="form-label">Select Users <span id="selected-users-count" class="selected-count">0</span></label>
+                        <div class="users-container">
+                            <div class="user-search">
+                                <input type="text" class="form-control" id="user-search-input" placeholder="Search users...">
+                            </div>
+                            <div class="users-grid">
+                                <?php 
+                                mysqli_data_seek($users_result, 0); // Reset pointer
+                                while ($user = mysqli_fetch_assoc($users_result)) {
+                                    $name_parts = explode(' ', trim($user['fullname']));
+                                    $first_initial = isset($name_parts[0]) && !empty($name_parts[0]) ? strtoupper(substr($name_parts[0], 0, 1)) : '';
+                                    $last_initial = isset($name_parts[1]) && !empty($name_parts[1]) ? strtoupper(substr($name_parts[1], 0, 1)) : '';
+                                    $initials = $first_initial . $last_initial;
+                                    $initials = !empty($initials) ? $initials : 'U';
+                                    echo '<div class="user-card" data-user-id="'.$user['id'].'" data-user-name="'.$user['fullname'].'" data-user-email="'.$user['email'].'">';
+                                    echo '<input type="checkbox" name="user_ids[]" id="user_'.$user['id'].'" value="'.$user['id'].'">';
+                                    echo '<div class="user-card-content">';
+                                    echo '<div class="user-avatar">'.$initials.'</div>';
+                                    echo '<div class="user-info">';
+                                    echo '<p class="user-name">'.$user['fullname'].'</p>';
+                                    echo '<p class="user-email">'.$user['email'].'</p>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="selectAllUsers">Select All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="deselectAllUsers">Deselect All</button>
+                            </div>
+                            <small class="text-muted">Click on a user card to select/deselect</small>
+                        </div>
                     </div>
                 </div>
 
@@ -535,7 +669,60 @@ $users_result = mysqli_query($conn, $users_query);
 
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="assets/js/notifications.js"></script>
+<script>
+    $(document).ready(function() {
+        // Handle user card selection
+        $('.user-card').on('click', function() {
+            const checkbox = $(this).find('input[type="checkbox"]');
+            checkbox.prop('checked', !checkbox.prop('checked'));
+            $(this).toggleClass('selected');
+            updateSelectedCount();
+        });
+        
+        // Prevent checkbox click from triggering card click
+        $('.user-card input').on('click', function(e) {
+            e.stopPropagation();
+            $(this).closest('.user-card').toggleClass('selected');
+            updateSelectedCount();
+        });
+        
+        // Handle select/deselect all buttons
+        $('#selectAllUsers').on('click', function() {
+            $('.user-card input').prop('checked', true);
+            $('.user-card').addClass('selected');
+            updateSelectedCount();
+        });
+        
+        $('#deselectAllUsers').on('click', function() {
+            $('.user-card input').prop('checked', false);
+            $('.user-card').removeClass('selected');
+            updateSelectedCount();
+        });
+        
+        // Search functionality
+        $('#user-search-input').on('input', function() {
+            const searchTerm = $(this).val().toLowerCase();
+            
+            $('.user-card').each(function() {
+                const name = $(this).data('user-name').toLowerCase();
+                const email = $(this).data('user-email').toLowerCase();
+                
+                if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+        
+        function updateSelectedCount() {
+            const count = $('.user-card input:checked').length;
+            $('#selected-users-count').text(count);
+        }
+    });
+</script>
 
 </body>
 </html>

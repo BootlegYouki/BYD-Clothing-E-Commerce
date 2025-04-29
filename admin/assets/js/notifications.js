@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize mass notification modal
     initMassNotificationModal();
+    
+    // Initialize checkbox selection tools
+    initCheckboxSelectionTools();
 });
 
 /**
@@ -107,11 +110,51 @@ function initRecipientTypeHandler() {
             radio.addEventListener('change', function() {
                 if (this.value === 'specific') {
                     specificUserContainer.style.display = 'block';
-                    document.getElementById('user_id').setAttribute('required', 'required');
+                    // Make at least one checkbox required on form submission
+                    document.getElementById('createNotificationForm').addEventListener('submit', validateUserSelection);
                 } else {
                     specificUserContainer.style.display = 'none';
-                    document.getElementById('user_id').removeAttribute('required');
+                    // Remove validation if all users selected
+                    document.getElementById('createNotificationForm').removeEventListener('submit', validateUserSelection);
                 }
+            });
+        });
+    }
+}
+
+/**
+ * Validate that at least one user is selected when submitting the form
+ * @param {Event} e - The form submission event
+ */
+function validateUserSelection(e) {
+    const checkboxes = document.querySelectorAll('input[name="user_ids[]"]:checked');
+    if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one user to send the notification to.');
+    }
+}
+
+/**
+ * Initialize the select all/deselect all buttons
+ */
+function initCheckboxSelectionTools() {
+    const selectAllBtn = document.getElementById('selectAllUsers');
+    const deselectAllBtn = document.getElementById('deselectAllUsers');
+    
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="user_ids[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        });
+    }
+    
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="user_ids[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
             });
         });
     }
@@ -184,6 +227,34 @@ function initDeleteModal() {
                 const modal = new bootstrap.Modal(deleteModal);
                 modal.show();
             });
+        });
+    }
+}
+
+/**
+ * Initialize mass notification modal
+ */
+function initMassNotificationModal() {
+    const massNotificationBtn = document.getElementById('massNotificationBtn');
+    const submitMassBtn = document.getElementById('submitMassNotification');
+    const massForm = document.getElementById('massNotificationForm');
+    
+    if (massNotificationBtn && submitMassBtn && massForm) {
+        massNotificationBtn.addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('massNotificationModal'));
+            modal.show();
+        });
+        
+        submitMassBtn.addEventListener('click', function() {
+            massForm.submit();
+        });
+    }
+    
+    // Initialize multi-select enhancement if available
+    if (typeof $('#user_ids').select2 === 'function') {
+        $('#user_ids').select2({
+            placeholder: 'Select users',
+            width: '100%'
         });
     }
 }

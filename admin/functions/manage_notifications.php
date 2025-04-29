@@ -50,27 +50,39 @@ function createNotification($conn) {
     }
     
     if ($recipient_type === 'specific') {
-        // Send to specific user
-        $user_id = $_POST['user_id'] ?? '';
+        // Send to specific users
+        $user_ids = $_POST['user_ids'] ?? [];
         
-        if (empty($user_id)) {
-            setMessage('Please select a user', 'error');
+        if (empty($user_ids)) {
+            setMessage('Please select at least one user', 'error');
             header('Location: ../notifications.php');
             exit();
         }
         
-        // Create notification for specific user
+        // Create notification for each selected user
+        $success_count = 0;
+        $error_count = 0;
+        
+        // Prepare the insertion statement
         $query = "INSERT INTO notifications (user_id, type, title, message) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("isss", $user_id, $type, $title, $message);
         
-        if ($stmt->execute()) {
-            setMessage('Notification created successfully', 'success');
-        } else {
-            setMessage('Error creating notification: ' . $stmt->error, 'error');
+        foreach ($user_ids as $user_id) {
+            if ($stmt->execute()) {
+                $success_count++;
+            } else {
+                $error_count++;
+            }
         }
         
         $stmt->close();
+        
+        if ($error_count === 0) {
+            setMessage("Notification sent successfully to {$success_count} users", 'success');
+        } else {
+            setMessage("Notification sent to {$success_count} users with {$error_count} errors", 'error');
+        }
     } else {
         // Send to all users
         
