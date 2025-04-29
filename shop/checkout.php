@@ -68,18 +68,46 @@ $shipping_fee = 50;
             z-index: 1000;
         }
     </style>
+    <!-- Add checkout-specific CSS -->
+    <link rel="stylesheet" href="css/checkout.css">
 </head>
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>
     <?php include 'includes/logout.php'; ?>
     
-    <section id="checkout" class="my-5 py-5">
+    <section id="checkout" class="mt-5 py-5">
         <div class="container mt-5">
             <div class="row">
                 <div class="col-12 text-center mb-4">
                     <h2>Checkout</h2>
                     <hr class="body-hr mx-auto">
+                </div>
+            </div>
+            
+            <!-- Add checkout progress steps -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="checkout-steps">
+                        <div class="checkout-step completed">
+                            <div class="step-number">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-name">Cart</div>
+                        </div>
+                        <div class="checkout-step active">
+                            <div class="step-number">2</div>
+                            <div class="step-name">Checkout</div>
+                        </div>
+                        <div class="checkout-step">
+                            <div class="step-number">3</div>
+                            <div class="step-name">Payment</div>
+                        </div>
+                        <div class="checkout-step">
+                            <div class="step-number">4</div>
+                            <div class="step-name">Confirmation</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -201,7 +229,7 @@ $shipping_fee = 50;
                     </div>
 
                     <!-- Right column - Order summary -->
-                    <div class="col-md-5 pb-3">
+                    <div class="col-md-5">
                         <div class="card position-sticky" style="top: 150px;">
                             <div class="card-header bg-white">
                                 <h5 class="mb-0">Order Summary</h5>
