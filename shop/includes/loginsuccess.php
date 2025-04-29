@@ -74,11 +74,15 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     <?php if(isset($_SESSION['admin_login_success'])): ?>
-    var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
-    adminLoginModal.show();
+    // Check if we've already shown this modal in the current session
+    if (!sessionStorage.getItem('adminLoginShown')) {
+        var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
+        adminLoginModal.show();
+        // Set a flag in sessionStorage so we don't show it again
+        sessionStorage.setItem('adminLoginShown', 'true');
+    }
     
     <?php 
-    // Clear the flag after showing the modal
     unset($_SESSION['admin_login_success']);
     endif; ?>
 });
