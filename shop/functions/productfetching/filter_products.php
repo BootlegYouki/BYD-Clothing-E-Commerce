@@ -1,7 +1,7 @@
 <?php
 // Include the required files
 require_once '../../../admin/config/dbcon.php';
-require_once '../productfetching/shop_product-handler.php';
+require_once 'shop_product-handler.php';
 
 // Get parameters from request
 $action = isset($_POST['action']) ? $_POST['action'] : '';
@@ -101,9 +101,7 @@ if ($action == 'filter_products') {
                                             <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                    data-row-index="<?= floor($j / $productsPerRow) ?>" 
-                                    onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                    <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                                 </div>
                             </div>
                         </div>
@@ -149,8 +147,7 @@ if ($action == 'filter_products') {
                                         <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                             </div>
                         </div>
                     </div>

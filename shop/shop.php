@@ -270,9 +270,7 @@ $categories = getAllCategories($conn);
                                             <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                    data-row-index="<?= floor($j / $productsPerRow) ?>" 
-                                    onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                    <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                                 </div>
                             </div>
                         </div>
@@ -318,8 +316,7 @@ $categories = getAllCategories($conn);
                                         <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                             </div>
                         </div>
                     </div>
@@ -361,92 +358,6 @@ $categories = getAllCategories($conn);
     </div>
 </section>
 
-<!-- PRODUCT QUICK VIEW COLLAPSE -->
-<div class="container px-md-5 pt-sm-3 px-4 mb-5 w-90 w-md-100">
-    <div class="collapse" id="productQuickView">
-        <div class="card quick-view-card">
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- Image Column -->
-                    <div class="col-md-6 mb-4 mb-md-0">
-                        <!-- Main product image -->
-                        <div class="main-image-container mb-3">
-                            <img src="" alt="Product image" class="quick-view-img img-fluid" loading="lazy">
-                        </div>
-                        
-                        <!-- Thumbnail images -->
-                        <div class="thumbnail-navigation position-relative">
-                            <div class="thumbnail-container d-flex justify-content-center">
-                                <!-- These will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Product Info Column -->
-                    <div class="col-md-6">
-                        <div class="product-info">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h3 class="quick-view-title m-0 text-uppercase"></h3>
-                                <button type="button" class="btn-close ms-2" data-bs-toggle="collapse" data-bs-target="#productQuickView" aria-label="Close"></button>
-                            </div>
-                            
-                            <!-- Star ratings -->
-                            <!-- <div class="star-rating mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-half-o"></i>
-                                <span class="rating-count">(24 reviews)</span>
-                            </div> -->
-                            
-                            <h5 class="quick-view-category text-uppercase mb-3"></h5>
-                            <p class="quick-view-sku text-muted mb-2"></p>
-                            
-                            <div class="quick-view-description mb-4">
-                                <!-- Description will be populated by JavaScript -->
-                            </div>
-                            
-                            <div class="quick-view-price-container mb-4">
-                                <!-- Price container - will be populated by JavaScript -->
-                            </div>
-                            
-                            <div class="mb-4">
-                                <!-- Size Selection -->
-                                <label class="form-label fw-bold d-block mb-2">Size</label>
-                                <div class="size-buttons mb-4">
-                                    <div class="row g-2" id="size-buttons-container">
-                                        <!-- Will be populated dynamically by JavaScript -->
-                                    </div>
-                                </div>
-                                <input type="hidden" id="quick-view-size" value="">
-                                <div id="size-error" class="text-danger mb-2" style="display: none;">Please select a size</div>
-                                
-                                <!-- Quantity Selection -->
-                                <label class="form-label fw-bold d-block mb-2">Quantity</label>
-                                <div class="quantity-selector d-flex mb-4">
-                                    <button type="button" class="btn-quantity minus" id="quick-view-quantity-minus">
-                                        <i class="fa fa-minus"></i>
-                                    </button>
-                                    <input type="number" class="quantity-input" id="quick-view-quantity" value="1" min="1" max="10" readonly>
-                                    <button type="button" class="btn-quantity plus" id="quick-view-quantity-plus">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-                                </div>
-                                <p id="stock-info" class="text-muted"></p>
-                            </div>
-                            
-                            <!-- Action Button - Only Add to Cart -->
-                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100">ADD TO CART</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <!-- FOOTER -->
 <?php include 'includes/footer.php'; ?>
 <script>
@@ -455,38 +366,8 @@ $categories = getAllCategories($conn);
     const viewProductId = urlParams.get('view_product');
     
     if (viewProductId) {
-        // Find the product with matching ID in our products array
-        const products = <?= json_encode($products) ?>;
-        const productToShow = products.find(product => product.id == viewProductId);
-        
-        if (productToShow) {
-            // Find the product card in the DOM that matches this product ID
-            const productCard = document.querySelector(`.product-card[data-product-id="${productToShow.id}"]`);
-            
-            // Small delay to ensure all scripts are loaded
-            setTimeout(() => {
-                // Trigger quick view modal
-                showQuickView(productToShow, null);
-                
-                // Show the modal using Bootstrap API
-                const quickViewCollapse = document.getElementById('productQuickView');
-                const quickViewModal = new bootstrap.Collapse(quickViewCollapse);
-                quickViewModal.show();
-                
-                // Manually set up the scroll-back functionality that's missing
-                // when showQuickView is called with null event
-                if (productCard) {
-                    const closeButton = quickViewCollapse.querySelector('.btn-close');
-                    if (closeButton) {
-                        closeButton.removeEventListener('click', function() {});
-                        
-                        closeButton.addEventListener('click', function() {
-                            scrollBackToProduct(productCard);
-                        });
-                    }
-                }
-            }, 300);
-        }
+        // Redirect to product page if view_product parameter is present
+        window.location.href = `product.php?id=${viewProductId}`;
     }
     
     // Store initial state for use with filters

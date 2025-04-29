@@ -109,7 +109,7 @@ function renderProductCard($product, $for_swiper = false) {
                 
     $output .= '
                 </div>
-                <button class="buy-btn" onclick="window.location.href=\'shop.php?view_product=' . $product['id'] . '\'">View</button>
+                <button class="buy-btn" onclick="window.location.href=\'product.php?id=' . $product['id'] . '\'">View</button>
             </div>
         </div>
     </div>';
