@@ -541,7 +541,7 @@ document.addEventListener("DOMContentLoaded", function() {
     emailInput.addEventListener("blur", function() {
       const emailVal = emailInput.value.trim();
       if(emailVal !== "") {
-        fetch("functions/check_email.php?email=" + encodeURIComponent(emailVal))
+        fetch("functions/account/check_email.php?email=" + encodeURIComponent(emailVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('emailRegisteredFeedback');
@@ -571,7 +571,7 @@ document.addEventListener("DOMContentLoaded", function() {
     phoneInput.addEventListener("blur", function() {
       const phoneVal = phoneInput.value.trim();
       if(phoneVal !== "") {
-        fetch("functions/check_phone.php?phone_number=" + encodeURIComponent(phoneVal))
+        fetch("functions/account/check_phone.php?phone_number=" + encodeURIComponent(phoneVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('phoneRegisteredFeedback');
@@ -601,7 +601,7 @@ document.addEventListener("DOMContentLoaded", function() {
     usernameInput.addEventListener("blur", function() {
       const usernameVal = usernameInput.value.trim();
       if(usernameVal !== "") {
-        fetch("functions/check_username.php?username=" + encodeURIComponent(usernameVal))
+        fetch("functions/account/check_username.php?username=" + encodeURIComponent(usernameVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('usernameTakenFeedback');

@@ -1,5 +1,5 @@
 <?php
-require_once '../../admin/config/dbcon.php';
+require_once '../../../admin/config/dbcon.php';
 session_start();
 
 if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true) {

@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
             orderModal.show();
             
             // Fetch order details
-            fetch(`functions/get_order_details.php?order_id=${orderId}`)
+            fetch(`functions/profile/get_order_details.php?order_id=${orderId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
@@ -596,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkUsername(username) {
-        fetch(`functions/check_username.php?username=${encodeURIComponent(username)}`)
+        fetch(`functions/account/check_username.php?username=${encodeURIComponent(username)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.exists) {
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkPhone(phone) {
-        fetch(`functions/check_phone.php?phone_number=${encodeURIComponent(phone)}`)
+        fetch(`functions/account/check_phone.php?phone_number=${encodeURIComponent(phone)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.exists) {
@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkEmail(email) {
-        fetch(`functions/check_email.php?email=${encodeURIComponent(email)}`)
+        fetch(`functions/account/check_email.php?email=${encodeURIComponent(email)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.exists) {
