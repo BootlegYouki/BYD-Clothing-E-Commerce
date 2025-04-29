@@ -56,7 +56,6 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     // Store current theme before navigation
     const currentTheme = localStorage.getItem('theme') || 'light';
     
-    
     // First close the offcanvas if it's open
     const offcanvasElement = document.getElementById('sidebarOffcanvas');
     const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
@@ -64,6 +63,9 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     if (bsOffcanvas) {
       bsOffcanvas.hide();
     }
+    
+    // Add a class that will temporarily disable all transitions during navigation
+    document.documentElement.classList.add('theme-transition');
     
     // Add a consistent delay to allow dark mode processing before navigation
     // Using the same delay as navbar.php for consistency

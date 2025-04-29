@@ -5,6 +5,30 @@ html.theme-preload * {
   transition: none !important;
 }
 
+/* Define global transitions for theme changes */
+:root {
+  --theme-transition-time: 300ms;
+}
+
+/* Apply transitions to all elements that should change with theme */
+html:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease;
+}
+
+body:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease, color var(--theme-transition-time) ease;
+}
+
+.sidebar:not(.theme-preload):not(.theme-transition),
+.top-navbar:not(.theme-preload):not(.theme-transition),
+.card:not(.theme-preload):not(.theme-transition),
+.main-content:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease, 
+              border-color var(--theme-transition-time) ease,
+              box-shadow var(--theme-transition-time) ease;
+}
+
+/* Theme logo visibility */
 .theme-light-logo, .theme-dark-logo {
   display: none;
 }
