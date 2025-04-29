@@ -246,7 +246,7 @@ if ($stmt) {
                   <p class='font-weight-bold mb-0'>".$row['payment_method']."</p>
                 </td>
                 <td class='align-middle text-center'>
-                    <a href='#' class='btn btn-link text-dark px-2 mb-0' data-bs-toggle='modal' data-bs-target='#updateStatusModal' 
+                    <a href='#' class='btn text-dark px-2 mb-0' data-bs-toggle='modal' data-bs-target='#updateStatusModal' 
                       data-orderid='".$row['order_id']."' data-status='".$row['status']."'>
                       <i class='bx bx-edit bx-sm'></i>
                     </a>
@@ -287,8 +287,8 @@ if ($stmt) {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary-modal" data-bs-dismiss="modal">Close</button>
-          <button type="submit" name="update_order_status_btn" class="btn btn-primary-modal">Update Status</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" name="update_order_status_btn" class="btn btn-primary">Update Status</button>
         </div>
       </form>
     </div>
