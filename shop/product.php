@@ -355,10 +355,11 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         </div>
                         <div>
                             <p class="mb-1 fw-bold" id="toast-product-name"></p>
-                            <p class="mb-0 text-muted">Size: <span id="toast-product-size"></span> | Qty: <span id="toast-product-quantity"></span></p>
+                            <p class="mb-0 small text-muted text-uppercase" id="toast-product-category"></p>
+                            <p class="mt-1 mb-0 text-muted">Size: <span id="toast-product-size"></span> | Qty: <span id="toast-product-quantity"></span></p>
                         </div>
                     </div>
-                    <a href="cart.php" class="btn btn-primary btn-sm ms-3">View Cart</a>
+                    <button type="button" class="btn btn-primary btn-sm ms-3" id="view-cart-btn" data-bs-dismiss="toast">View Cart</button>
                 </div>
             </div>
         </div>

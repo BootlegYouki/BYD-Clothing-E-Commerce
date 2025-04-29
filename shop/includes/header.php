@@ -137,7 +137,7 @@ $hide_cart = ($current_page == 'checkout.php');
            aria-controls="offcanvasCart">
         </i>
     </a>
-    <span class="cart-badge">0</span>
+    <span class="cart-badge"></span>
     </div>
     <?php endif; ?>
     <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
@@ -294,3 +294,4 @@ window.updateHeaderAfterLogout = updateHeaderAfterLogout;
 <script src="js/url-cleaner.js"></script>
 <script src="js/header-notifications.js"></script>
 <script src="js/assistant.js"></script>
+<script src="js/cart.js"></script>

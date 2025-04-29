@@ -83,5 +83,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
     }
+    
+    // Make sure to display the initial cart state when the page loads
+    if (typeof updateShoppingCart === 'function') {
+        updateShoppingCart();
+    }
 });
 </script>

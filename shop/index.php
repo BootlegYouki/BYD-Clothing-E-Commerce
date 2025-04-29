@@ -64,7 +64,7 @@ function get_setting($key, $default = '') {
     <?php include 'includes/terms.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
-  <div class="container-fluid py-3 pb-5">
+  <div class="container-fluid py-3 pb-5 px-lg-0 px-5">
     <div class="small-container">
       <div class="row align-items-center">
         <!-- Left Column: Text -->
@@ -331,6 +331,5 @@ function get_setting($key, $default = '') {
 <!-- SCRIPT -->
 <script src="js/indexscript.js"></script>
 <script src="js/url-cleaner.js"></script>
-<script src="js/shop.js"></script>
 </body>
 </html>
