@@ -4,7 +4,10 @@ require_once 'functions/productfetching/shop_product-handler.php';
 
 // Get parameters from URL
 $view_product_id = isset($_GET['view_product']) ? intval($_GET['view_product']) : 0;
-$category_filter = isset($_GET['category']) ? $_GET['category'] : '';
+
+// Clean up category filter to handle spaces correctly
+$category_filter = isset($_GET['category']) ? str_replace('+', ' ', $_GET['category']) : '';
+
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -93,13 +96,14 @@ $categories = getAllCategories($conn);
                 <div class="col-md-7 d-none d-md-block">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php foreach($categories as $category): ?>
-                            <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
-                               class="category-filter <?= $category_filter === $category ? 'active' : '' ?>">
+                            <a href="javascript:void(0)" 
+                               class="category-filter <?= $category_filter === $category ? 'active' : '' ?>"
+                               data-category="<?= urlencode($category) ?>">
                                 <?= htmlspecialchars($category) ?>
                             </a>
                         <?php endforeach; ?>
                         <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)):?>
-                            <a href="shop.php" class="clear-filter ms-2">
+                            <a href="javascript:void(0)" class="clear-filter ms-2" id="clear-filters">
                                 <i class="fa fa-times-circle me-1"></i>Clear
                             </a>
                         <?php endif; ?>
@@ -112,8 +116,7 @@ $categories = getAllCategories($conn);
                         <!-- Sort dropdown -->
                         <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
-                            <select id="product-sort" class="form-select" 
-                            onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
+                            <select id="product-sort" class="form-select">
                                 <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>Default</option>
                                 <option value="price-asc" <?= $sort === 'price-asc' ? 'selected' : '' ?>>Price: Low to High</option>
                                 <option value="price-desc" <?= $sort === 'price-desc' ? 'selected' : '' ?>>Price: High to Low</option>
@@ -135,7 +138,7 @@ $categories = getAllCategories($conn);
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="mobile-products-count" class="text-muted"><?= $total_items ?> products</span>
                     <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)): ?>
-                        <a href="shop.php" class="clear-filter btn btn-sm btn-outline-danger">
+                        <a href="javascript:void(0)" class="clear-filter btn btn-sm btn-outline-danger" id="clear-filters-mobile">
                             <i class="fa fa-times-circle me-1"></i>Clear Filter
                         </a>
                     <?php endif; ?>
@@ -149,8 +152,9 @@ $categories = getAllCategories($conn);
                     <div class="card card-body mt-2">
                         <div class="d-flex flex-wrap gap-2">
                             <?php foreach($categories as $category): ?>
-                                <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
-                                class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm">
+                                <a href="javascript:void(0)" 
+                                class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm mobile-category-filter"
+                                data-category="<?= urlencode($category) ?>">
                                     <?= htmlspecialchars($category) ?>
                                 </a>
                             <?php endforeach; ?>
@@ -167,56 +171,53 @@ $categories = getAllCategories($conn);
     <div class="container-fluid px-md-5 px-2">
         <div class="row">
             <div class="col-12">
+                <div id="filter-results-header" class="search-results-header my-3">
                 <?php if (!empty($search_query)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">Search results for: "<?= htmlspecialchars($search_query) ?>"</h4>
-                        
-                        <?php if(empty($products)): ?>
-                            <div class="alert alert-info mt-3">
-                                <i class="fa fa-info-circle me-2"></i>No products found matching your search.
-                                <a href="shop.php" class="alert-link ms-2">View all products</a>
-                            </div>
-                        <?php else: ?>
-                            <p class="text-muted mb-0 mt-2">Found <?= count($products) ?> <?= count($products) === 1 ? 'product' : 'products' ?> matching your search</p>
-                        <?php endif; ?>
-                    </div>
+                    <h4 class="mb-0">Search results for: "<?= htmlspecialchars($search_query) ?>"</h4>
+                    
+                    <?php if(empty($products)): ?>
+                        <div class="alert alert-info mt-3">
+                            <i class="fa fa-info-circle me-2"></i>No products found matching your search.
+                            <a href="shop.php" class="alert-link ms-2">View all products</a>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0 mt-2">Found <?= count($products) ?> <?= count($products) === 1 ? 'product' : 'products' ?> matching your search</p>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <?php if (!empty($category_filter) && empty($search_query)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">Category: "<?= htmlspecialchars($category_filter) ?>"</h4>
-                        
-                        <?php if(empty($products)): ?>
-                            <div class="alert alert-info mt-3">
-                                <i class="fa fa-info-circle me-2"></i>No products found in this category.
-                                <a href="shop.php" class="alert-link ms-2">View all products</a>
-                            </div>
-                        <?php else: ?>
-                        <?php endif; ?>
-                    </div>
+                    <h4 class="mb-0">Category: "<?= htmlspecialchars($category_filter) ?>"</h4>
+                    
+                    <?php if(empty($products)): ?>
+                        <div class="alert alert-info mt-3">
+                            <i class="fa fa-info-circle me-2"></i>No products found in this category.
+                            <a href="shop.php" class="alert-link ms-2">View all products</a>
+                        </div>
+                    <?php else: ?>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <?php if ($sort !== 'default' && empty($search_query) && empty($category_filter)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">
-                            Sorted by: 
-                            <?php 
-                                switch ($sort) {
-                                    case 'price-asc': echo 'Price: Low to High'; break;
-                                    case 'price-desc': echo 'Price: High to Low'; break;
-                                    case 'name-asc': echo 'Name: A to Z'; break;
-                                    case 'name-desc': echo 'Name: Z to A'; break;
-                                    case 'discount': echo 'Best Discount'; break;
-                                }
-                            ?>
-                        </h4>
-                    </div>
+                    <h4 class="mb-0">
+                        Sorted by: 
+                        <?php 
+                            switch ($sort) {
+                                case 'price-asc': echo 'Price: Low to High'; break;
+                                case 'price-desc': echo 'Price: High to Low'; break;
+                                case 'name-asc': echo 'Name: A to Z'; break;
+                                case 'name-desc': echo 'Name: Z to A'; break;
+                                case 'discount': echo 'Best Discount'; break;
+                            }
+                        ?>
+                    </h4>
                 <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
 </div>
     <div class="container-fluid px-md-5 px-2">
+        <div id="products-container">
         <?php if(empty($products)): ?>
             <div class="row">
                 <div class="col-12 text-center py-5">
@@ -327,6 +328,36 @@ $categories = getAllCategories($conn);
                 <div class="swiper-pagination"></div>
             </div>
         <?php endif; ?>
+        </div>
+        
+        <!-- Pagination container -->
+        <div id="pagination-container">
+            <?php if ($total_pages > 1): ?>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                        <a class="page-link" href="javascript:void(0)" data-page="<?= $page - 1 ?>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                            <a class="page-link" href="javascript:void(0)" data-page="<?= $i ?>">
+                                <?= $i ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                    
+                    <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                        <a class="page-link" href="javascript:void(0)" data-page="<?= $page + 1 ?>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <?php endif; ?>
+        </div>
     </div>
 </section>
 
@@ -416,33 +447,6 @@ $categories = getAllCategories($conn);
 </div>
 
 
-<!-- PAGINATION -->
-<?php if ($total_pages > 1): ?>
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>">
-                    <?= $i ?>
-                </a>
-            </li>
-        <?php endfor; ?>
-        
-        <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-    </ul>
-</nav>
-<?php endif; ?>
-
 <!-- FOOTER -->
 <?php include 'includes/footer.php'; ?>
 <script>
@@ -484,6 +488,15 @@ $categories = getAllCategories($conn);
             }, 300);
         }
     }
+    
+    // Store initial state for use with filters
+    window.shopState = {
+        category: '<?= addslashes($category_filter) ?>',
+        search: '<?= addslashes($search_query) ?>',
+        sort: '<?= addslashes($sort) ?>',
+        page: <?= $page ?>,
+        view_product_id: <?= $view_product_id ?>,
+    };
 });
 </script>
 <!-- UTILITY SCRIPTS -->

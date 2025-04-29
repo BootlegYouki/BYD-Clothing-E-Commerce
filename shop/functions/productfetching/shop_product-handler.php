@@ -21,18 +21,20 @@ function getShopProducts($conn, $params = []) {
         $base_query .= " AND p.id = $view_product_id";
     } else {
         // Only apply these filters when NOT viewing a specific product
-        // Add category filter if specified
+        // Add category filter if specified - make it case-insensitive
         if (!empty($category_filter)) {
             $category_filter = mysqli_real_escape_string($conn, $category_filter);
-            $base_query .= " AND p.category = '$category_filter'";
+            $base_query .= " AND LOWER(p.category) = LOWER('$category_filter')";
         }
         
-        // Add search filter if specified
+        // Add search filter if specified - make it case-insensitive
         if (!empty($search_query)) {
             $search_query = mysqli_real_escape_string($conn, $search_query);
-            $base_query .= " AND (p.name LIKE '$search_query%' OR p.name LIKE '% $search_query%' OR 
-                                 p.description LIKE '$search_query%' OR p.description LIKE '% $search_query%' OR 
-                                 p.category LIKE '$search_query%' OR p.category LIKE '% $search_query%')";
+            $base_query .= " AND (
+                LOWER(p.name) LIKE LOWER('%$search_query%') OR 
+                LOWER(p.description) LIKE LOWER('%$search_query%') OR 
+                LOWER(p.category) LIKE LOWER('%$search_query%')
+            )";
         }
     }
     
