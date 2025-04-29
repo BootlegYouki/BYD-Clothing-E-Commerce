@@ -135,7 +135,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
         <div class="container">
             <div class="row">
                 <!-- Product Images -->
-                <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="col-lg-6 mb-4 mb-lg-0 mt-2">
                     <div class="product-images">
                         <!-- Main product image -->
                         <div class="main-image-container mb-3">
@@ -165,7 +165,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                 
                 <!-- Product Info -->
                 <div class="col-lg-6">
-                    <div class="product-info">
+                    <div class="product-info px-3">
                         <h1 class="product-title mb-2"><?= htmlspecialchars($product['name']) ?></h1>
                         <h5 class="product-category text-uppercase text-muted mb-3"><?= htmlspecialchars($product['category']) ?></h5>
                         
@@ -187,7 +187,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         </div>
                         
                         <!-- Product description -->
-                        <label class="form-label fw-bold d-block mb-2">Description</label>
+                        <label class="form-label fw-bold d-block">Description</label>
                         <div class="product-description mb-4">
                             <?= nl2br(htmlspecialchars($product['description'])) ?>
                         </div>
@@ -259,7 +259,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     
     <!-- Related Products Section -->
     <?php if (!empty($related_products)): ?>
-    <section class="related-products py-5 bg-light">
+    <section class="related-products py-5">
         <div class="container">
             <h3 class="text-center mb-4">You May Also Like</h3>
             
