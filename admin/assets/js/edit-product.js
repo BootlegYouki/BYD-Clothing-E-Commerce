@@ -592,6 +592,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <li class="alert-container px-3"></li>
             `;
             
+            // Add event listener for the "Select Category" option
+            const selectCategoryButton = document.querySelector('#category_dropdown button[data-value=""]');
+            if (selectCategoryButton) {
+                selectCategoryButton.addEventListener('click', function() {
+                    categoryInput.value = '';
+                    document.getElementById('selected_category').textContent = 'Select Category';
+                });
+            }
+            
             if (!categories || categories.length === 0) {
                 categoryContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No categories found</li>';
                 return;
@@ -689,6 +698,15 @@ document.addEventListener('DOMContentLoaded', function() {
             fabricContainer.innerHTML = `
                 <li class="alert-container px-3"></li>
             `;
+            
+            // Add event listener for the "Select Fabric" option
+            const selectFabricButton = document.querySelector('#fabric_dropdown button[data-value=""]');
+            if (selectFabricButton) {
+                selectFabricButton.addEventListener('click', function() {
+                    fabricInput.value = '';
+                    document.getElementById('selected_fabric').textContent = 'Select Fabric';
+                });
+            }
             
             if (!fabrics || fabrics.length === 0) {
                 fabricContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No fabrics found</li>';

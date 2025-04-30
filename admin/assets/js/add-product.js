@@ -560,6 +560,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <li class="alert-container px-3"></li>
             `;
             
+            // Add event listener for the "Select Category" option
+            const selectCategoryButton = document.querySelector('#category_dropdown button[data-value=""]');
+            if (selectCategoryButton) {
+                selectCategoryButton.addEventListener('click', function() {
+                    categoryInput.value = '';
+                    categoryDisplay.textContent = 'Select Category';
+                });
+            }
+            
             if (!categories || categories.length === 0) {
                 categoryContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No categories found</li>';
                 return;
@@ -665,6 +674,15 @@ document.addEventListener('DOMContentLoaded', function() {
             fabricContainer.innerHTML = `
                 <li class="alert-container px-3"></li>
             `;
+            
+            // Add event listener for the "Select Fabric" option
+            const selectFabricButton = document.querySelector('#fabric_dropdown button[data-value=""]');
+            if (selectFabricButton) {
+                selectFabricButton.addEventListener('click', function() {
+                    fabricInput.value = '';
+                    fabricDisplay.textContent = 'Select Fabric';
+                });
+            }
             
             if (!fabrics || fabrics.length === 0) {
                 fabricContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No fabrics found</li>';
@@ -926,60 +944,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Simplify the cancel function to avoid DOM replacement errors
-        function cancelEdit() {
-            // Don't try again if already triggered
-            if (input._saveTriggered) return;
-            input._saveTriggered = true;
-            
-            // Reset the button back to edit mode
-            if (editBtnParent && editBtnParent.contains(editBtn)) {
-                editBtn.innerHTML = originalEditBtnHTML;
-                editBtn.title = "Rename " + type.charAt(0).toUpperCase() + type.slice(1);
-            }
-            
-            // Just restore original content - don't do complex DOM replacements
-            element.innerHTML = originalContent;
-            element.classList.remove('editing');
-            
-            // Re-initialize click handlers on the items
-            initializeDropdownClickHandlers();
-        }
+        // We'll rely on the explicit save/cancel buttons instead
         
-        // Replace with a simpler approach for the edit-save button
-        // Just add a click handler directly to the existing button
-        editBtn.onclick = function(e) {
-            e.stopPropagation();
-            saveChanges();
-        };
-        
-        // Handle keyboard events
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveChanges();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                cancelEdit();
-            }
-        });
-        
-        // Handle focusout event
-        input.addEventListener('focusout', function(e) {
-            // Check if we're clicking the save button or save already triggered
-            if ((editBtn && editBtn.contains(e.relatedTarget)) || input._saveTriggered) {
-                return;
-            }
-            
-            // Small delay to let other handlers execute first
-            setTimeout(() => {
-                if (!input._saveTriggered && element.contains(input)) {
-                    saveChanges();
-                }
-            }, 50);
-        });
-        
-        // Stop propagation on input click
-        input.addEventListener('click', function(e) {
+        // Prevent dropdown from closing when clicking on form
+        inlineForm.addEventListener('click', function(e) {
             e.stopPropagation();
         });
     }
