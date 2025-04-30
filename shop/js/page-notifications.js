@@ -129,72 +129,52 @@ function markPageNotificationAsRead(notificationId, button) {
  */
 function syncNotificationFromHeader(notificationId, unreadCount) {
     // Find the notification item on the page
-    const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+    const notificationItems = document.querySelectorAll(`.notification-item[data-id="${notificationId}"]`);
     
-    if (!notificationItem) {
-        // Use AJAX to refresh only the notification data
-        fetch(`functions/notification/get-notification.php?id=${notificationId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Find all instances of this notification in the page
-                    document.querySelectorAll(`.notification-item[data-id="${notificationId}"]`).forEach(item => {
-                        // Force remove all styles that might be applied from the header script
-                        item.removeAttribute('style');
-                        
-                        // Mark as read
-                        item.classList.remove('unread');
-                        
-                        // Update title styling
-                        const title = item.querySelector('h6');
-                        if (title) {
-                            title.classList.remove('fw-bold');
-                            title.classList.add('text-muted');
-                        }
-                        
-                        // Remove badges
-                        const badges = item.querySelectorAll('.notification-badge-page');
-                        badges.forEach(badge => badge.remove());
-                        
-                        // Remove mark as read button
-                        const markReadContainer = item.querySelector('.mt-2');
-                        if (markReadContainer) {
-                            markReadContainer.remove();
-                        }
-                    });
-                    
-                    // Update counter
-                    updatePageNotificationCounter(unreadCount);
-                }
-            })
-            .catch(error => {
-                console.error('Error syncing notification:', error);
-            });
+    if (notificationItems.length === 0) {
+        console.log('Notification not found on page, cannot sync from header');
+        // Still update the counter even if we can't find the notification
+        updatePageNotificationCounter(unreadCount);
         return;
     }
     
-    // Update UI to mark as read
-    notificationItem.classList.remove('unread');
-    
-    // Update styling
-    const title = notificationItem.querySelector('h6');
-    if (title) {
-        title.classList.remove('fw-bold');
-        title.classList.add('text-muted');
-    }
-    
-    // Remove badges
-    const badges = notificationItem.querySelectorAll('.notification-badge-page');
-    badges.forEach(badge => badge.remove());
-    
-    // Remove mark as read button
-    const markReadContainer = notificationItem.querySelector('.mt-2');
-    if (markReadContainer) {
-        markReadContainer.remove();
-    }
+    // Update all instances of this notification on the page
+    notificationItems.forEach(item => {
+        // Force remove all styles that might be applied from the header script
+        item.removeAttribute('style');
+        
+        // Mark as read
+        item.classList.remove('unread');
+        
+        // Update title styling
+        const title = item.querySelector('h6');
+        if (title) {
+            title.classList.remove('fw-bold');
+            title.classList.add('text-muted');
+        }
+        
+        // Update message styling
+        const message = item.querySelector('p.mb-1');
+        if (message) {
+            message.classList.add('text-secondary');
+        }
+        
+        // Remove badges
+        const badges = item.querySelectorAll('.notification-badge-page');
+        badges.forEach(badge => badge.remove());
+        
+        // Remove mark as read button
+        const markReadContainer = item.querySelector('.mt-2');
+        if (markReadContainer) {
+            markReadContainer.remove();
+        }
+    });
     
     // Update counter
     updatePageNotificationCounter(unreadCount);
+    
+    // Also update the "Mark All as Read" button state
+    updateMarkAllButtonState(unreadCount);
 }
 
 /**
