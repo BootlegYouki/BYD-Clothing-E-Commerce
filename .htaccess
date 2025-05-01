@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Remove trailing slashes
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+  # Rewrite clean URLs to .php files
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([^\.]+)$ $1.php [NC,L]
+</IfModule>
