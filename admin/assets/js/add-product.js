@@ -1,7 +1,118 @@
 // Primary image handling
-document.getElementById('primary_image_btn').addEventListener('click', function() {
+document.getElementById('primary_image_container_clickable').addEventListener('click', function(e) {
+    // Don't trigger file input if clicking on any element within the preview section
+    if (e.target.closest('#primary_image_preview') || 
+        e.target.id === 'primary_image_text' ||
+        e.target.classList.contains('file-name-display')) {
+        return;
+    }
+    
+    // Add active state visual feedback
+    this.classList.add('uploading');
+    setTimeout(() => {
+        this.classList.remove('uploading');
+    }, 300);
+    
     document.getElementById('primary_image').click();
 });
+
+// Add drag and drop event listeners for primary image container
+const primaryImageContainer = document.getElementById('primary_image_container_clickable');
+primaryImageContainer.addEventListener('dragover', handleDragOver);
+primaryImageContainer.addEventListener('dragenter', handleDragEnter);
+primaryImageContainer.addEventListener('dragleave', handleDragLeave);
+primaryImageContainer.addEventListener('drop', function(e) {
+    handleDrop(e, 'primary');
+});
+
+// Additional images container drag and drop
+const additionalImagesContainer = document.getElementById('additional_images_container_clickable');
+additionalImagesContainer.addEventListener('dragover', handleDragOver);
+additionalImagesContainer.addEventListener('dragenter', handleDragEnter);
+additionalImagesContainer.addEventListener('dragleave', handleDragLeave);
+additionalImagesContainer.addEventListener('drop', function(e) {
+    handleDrop(e, 'additional');
+});
+
+// Drag and drop handler functions
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.classList.add('uploading');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only remove the class if we're leaving the entire container
+    if (!e.relatedTarget || !this.contains(e.relatedTarget)) {
+        this.classList.remove('uploading');
+    }
+}
+
+function handleDrop(e, type) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const container = e.currentTarget;
+    container.classList.remove('uploading');
+    
+    // Get dropped files
+    const files = e.dataTransfer.files;
+    if (!files.length) return;
+    
+    if (type === 'primary') {
+        // Allow only one file for primary image
+        if (files.length > 1) {
+            const errorContainer = container.querySelector('.error-message');
+            errorContainer.textContent = 'You can only upload one primary image.';
+            return;
+        }
+        
+        // Set the files to the input
+        const input = document.getElementById('primary_image');
+        
+        // Create a new DataTransfer object
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        input.files = dt.files;
+        
+        // Trigger the change event manually
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+    } else if (type === 'additional') {
+        // For additional images
+        const input = document.getElementById('additional_images');
+        
+        // Create a new DataTransfer object
+        const dt = new DataTransfer();
+        
+        // Check how many files we can still add
+        const availableSlots = 3 - additionalFilesCollection.length;
+        const filesToAdd = Math.min(files.length, availableSlots);
+        
+        if (filesToAdd <= 0) {
+            const errorContainer = container.querySelector('.error-message');
+            errorContainer.textContent = `You can only upload up to 3 additional images. You already have ${additionalFilesCollection.length}.`;
+            return;
+        }
+        
+        for (let i = 0; i < filesToAdd; i++) {
+            dt.items.add(files[i]);
+        }
+        
+        input.files = dt.files;
+        
+        // Trigger the change event manually
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+    }
+}
 
 // Convert image to WebP format with fixed square resolution
 function convertImageToWebP(file) {
@@ -80,9 +191,19 @@ async function convertMultipleImagesToWebP(fileList) {
     return dt.files;
 }
 
+// Add file size formatting utility function
+function formatFileSize(bytes) {
+    if (bytes < 1024) {
+        return bytes + ' B';
+    } else if (bytes < (1024 * 1024)) {
+        return (bytes / 1024).toFixed(1) + ' KB';
+    } else {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+}
+
 document.getElementById('primary_image').addEventListener('change', async function() {
     const files = this.files;
-    let previewHtml = '';
     const errorContainer = this.parentNode.querySelector('.error-message');
     errorContainer.textContent = ''; // Clear previous error
 
@@ -102,28 +223,23 @@ document.getElementById('primary_image').addEventListener('change', async functi
             const webpFiles = await convertMultipleImagesToWebP(files);
             this.files = webpFiles;
             
-            document.getElementById('primary_image_text').value = webpFiles.length + ' file selected (WebP)';
+            // Get file size for display
+            const fileSize = formatFileSize(webpFiles[0].size);
             
-            for (let i = 0; i < webpFiles.length; i++) {
-                const file = webpFiles[i];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHtml += `
-                        <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                   onclick="removePrimaryImage(${i})"
-                                   title="Remove image">
-                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                            </button>
-                            <small class="d-block mt-1 text-success">Converted to WebP</small>
+            document.getElementById('primary_image_text').value = webpFiles.length + ' file selected';
+            
+            // Create a simple text-based preview with improved responsive layout
+            document.getElementById('primary_image_preview').innerHTML = `
+                <div class="alert alert-success removable-image" onclick="event.stopPropagation(); removePrimaryImage(0);" title="Click to remove image">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>Primary Image</strong>
+                            <div class="small">File converted to WebP (${fileSize})</div>
+                            <div class="small">Click to remove image</div>
                         </div>
-                    `;
-                    document.getElementById('primary_image_preview').innerHTML = previewHtml;
-                }
-                reader.readAsDataURL(file);
-            }
+                    </div>
+                </div>
+            `;
         } catch (error) {
             console.error('Error during WebP conversion:', error);
             errorContainer.textContent = 'Image conversion failed. Please try again.';
@@ -136,7 +252,10 @@ document.getElementById('primary_image').addEventListener('change', async functi
     }
 });
 
-function removePrimaryImage(index) {
+function removePrimaryImage(index, e) {
+    // If an event is passed, stop propagation
+    if (e) e.stopPropagation();
+
     const dt = new DataTransfer()
     const input = document.getElementById('primary_image')
     const { files } = input
@@ -153,21 +272,36 @@ function removePrimaryImage(index) {
 }
 
 // Additional images handling
-document.getElementById('additional_images_btn').addEventListener('click', function() {
+let additionalFilesCollection = [];
+
+document.getElementById('additional_images_container_clickable').addEventListener('click', function(e) {
+    // Don't trigger file input if clicking on any element within the preview section
+    if (e.target.closest('#additional_images_preview') || 
+        e.target.id === 'additional_images_text' ||
+        e.target.classList.contains('file-name-display')) {
+        return;
+    }
+    
+    // Add active state visual feedback
+    this.classList.add('uploading');
+    setTimeout(() => {
+        this.classList.remove('uploading');
+    }, 300);
+    
     document.getElementById('additional_images').click();
 });
 
 document.getElementById('additional_images').addEventListener('change', async function() {
     const files = this.files;
-    let previewHtml = '';
     const errorContainer = this.parentNode.querySelector('.error-message');
     errorContainer.textContent = ''; // Clear previous error
     
-    if (files.length > 3) {
-        errorContainer.textContent = 'You can only upload up to 3 additional images.';
+    // Count how many files will be in total after this upload
+    const totalFilesAfterUpload = additionalFilesCollection.length + files.length;
+    
+    if (totalFilesAfterUpload > 4) {
+        errorContainer.textContent = `You can only upload up to 4 additional images. You already have ${additionalFilesCollection.length}.`;
         this.value = ''; // Clear the input
-        document.getElementById('additional_images_text').value = 'No files selected';
-        document.getElementById('additional_images_preview').innerHTML = '';
         return;
     }
     
@@ -177,30 +311,46 @@ document.getElementById('additional_images').addEventListener('change', async fu
         try {
             // Convert images to WebP
             const webpFiles = await convertMultipleImagesToWebP(files);
-            this.files = webpFiles;
             
-            document.getElementById('additional_images_text').value = webpFiles.length + ' files selected (WebP)';
+            // Create combined list of all files (existing + new)
+            const dt = new DataTransfer();
             
-            for (let i = 0; i < webpFiles.length; i++) {
-                const file = webpFiles[i];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHtml += `
-                        <div style="display:inline-block; margin-right:5px; text-align: center; position: relative;">
-                            <img src="${e.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 0.5rem;">
-                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 p-1 rounded-circle d-flex align-items-center justify-content-center" 
-                                   style="width: 24px; height: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                                   onclick="removeAdditionalImage(${i})"
-                                   title="Remove image">
-                                <i class="material-symbols-rounded" style="font-size: 16px; margin: 0; padding: 0; line-height: 1;">close</i>
-                            </button>
-                            <small class="d-block mt-1 text-success">Converted to WebP</small>
-                        </div>
-                    `;
-                    document.getElementById('additional_images_preview').innerHTML = previewHtml;
-                }
-                reader.readAsDataURL(file);
+            // Add existing files to collection
+            for (let i = 0; i < additionalFilesCollection.length; i++) {
+                dt.items.add(additionalFilesCollection[i]);
             }
+            
+            // Add new files to collection
+            for (let i = 0; i < webpFiles.length; i++) {
+                dt.items.add(webpFiles[i]);
+                additionalFilesCollection.push(webpFiles[i]);
+            }
+            
+            // Update the file input with all files
+            this.files = dt.files;
+            
+            document.getElementById('additional_images_text').value = additionalFilesCollection.length + ' files selected';
+            
+            // Generate text-based preview HTML with improved responsive layout
+            let previewHtml = '';
+            for (let i = 0; i < additionalFilesCollection.length; i++) {
+                const fileSize = formatFileSize(additionalFilesCollection[i].size);
+                previewHtml += `
+                    <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
+                         onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                         title="Click to remove image">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 min-width-0">
+                                <strong>Image ${i+1}</strong>
+                                <div class="small">File converted to WebP (${fileSize})</div>
+                                <div class="small">Click to remove image</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('additional_images_preview').innerHTML = previewHtml;
+            
         } catch (error) {
             console.error('Error during WebP conversion:', error);
             errorContainer.textContent = 'Image conversion failed. Please try again.';
@@ -213,377 +363,916 @@ document.getElementById('additional_images').addEventListener('change', async fu
     }
 });
 
-function removeAdditionalImage(index) {
-    const dt = new DataTransfer()
-    const input = document.getElementById('additional_images')
-    const { files } = input
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (index !== i)
-            dt.items.add(file)
+// Update the removeAdditionalImage function to remove from our collection
+function removeAdditionalImage(index, e) {
+    // If an event is passed, stop propagation
+    if (e) e.stopPropagation();
+    
+    // Remove the specific file from our collection
+    additionalFilesCollection.splice(index, 1);
+    
+    // Rebuild the DataTransfer object
+    const dt = new DataTransfer();
+    for (let i = 0; i < additionalFilesCollection.length; i++) {
+        dt.items.add(additionalFilesCollection[i]);
     }
-
-    input.files = dt.files
-    const event = new Event('change', { bubbles: true });
-    input.dispatchEvent(event);
+    
+    // Update the file input
+    const input = document.getElementById('additional_images');
+    input.files = dt.files;
+    
+    // Update the text display
+    document.getElementById('additional_images_text').value = 
+        additionalFilesCollection.length > 0 ? additionalFilesCollection.length + ' files selected' : 'No files selected';
+    
+    // Rebuild all preview elements with updated indices
+    let previewHtml = '';
+    for (let i = 0; i < additionalFilesCollection.length; i++) {
+        const fileSize = formatFileSize(additionalFilesCollection[i].size);
+        previewHtml += `
+            <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
+                 onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                 title="Click to remove image">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 min-width-0">
+                        <strong>Image ${i+1}</strong>
+                        <div class="small">File converted to WebP (${fileSize})</div>
+                        <div class="small">Click to remove image</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    document.getElementById('additional_images_preview').innerHTML = previewHtml;
 }
 
-// SKU generation
-function generateSKU_JS(productName, category) {
-    const prefix = category.substring(0, 3).toUpperCase();
-    const shortName = productName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
-    const randomNumber = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
-    return prefix + "-" + shortName + "-" + randomNumber;
-}
-
-document.getElementById('name').addEventListener('input', updateSKU);
-document.getElementById('category').addEventListener('change', updateSKU);
-
-function updateSKU() {
-    const productName = document.getElementById('name').value;
-    const category = document.getElementById('category').value;
-    const sku = generateSKU_JS(productName, category);
-    document.getElementById('sku').value = sku;
-}
-
-// Fabric dropdown functionality
+// SKU generation and category/fabric management
 document.addEventListener('DOMContentLoaded', function() {
+    // Existing code for product name and SKU generation
+    const productNameInput = document.getElementById('name');
     const categorySelect = document.getElementById('category');
-    const newCategoryContainer = document.getElementById('new_category_container');
-    const newCategoryInput = document.getElementById('new_category');
-    const addCategoryBtn = document.getElementById('add_category_btn');
-    const removeCategoryContainer = document.getElementById('remove_category_container');
-    const removeCategorySelect = document.getElementById('remove_category');
-    const removeCategoryBtn = document.getElementById('remove_category_btn');
-    
-    if(categorySelect) {
-        categorySelect.addEventListener('change', function() {
-            if(this.value === 'new') {
-                newCategoryContainer.style.display = 'block';
-                removeCategoryContainer.style.display = 'none';
-                // Don't add required here if it causes validation issues
-                // newCategoryInput.setAttribute('required', 'required');
-                newCategoryInput.focus();
-            } else if(this.value === 'remove') {
-                newCategoryContainer.style.display = 'none';
-                removeCategoryContainer.style.display = 'block';
-                // Make sure to remove required when hiding
-                if(newCategoryInput.hasAttribute('required')) {
-                    newCategoryInput.removeAttribute('required');
-                }
-                newCategoryInput.value = '';
-            } else {
-                newCategoryContainer.style.display = 'none';
-                removeCategoryContainer.style.display = 'none';
-                // Make sure to remove required when hiding
-                if(newCategoryInput.hasAttribute('required')) {
-                    newCategoryInput.removeAttribute('required');
-                }
-                newCategoryInput.value = '';
-                
-                // Update SKU when category changes
-                updateSKU();
-            }
-        });
-    }
-    
-    // Handle add category button
-    if(addCategoryBtn) {
-        addCategoryBtn.addEventListener('click', function() {
-            const newCategoryValue = newCategoryInput.value.trim();
-            const msgContainer = document.getElementById('add_category_msg');
-            
-            if(!newCategoryValue) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">Please enter a category name</div>';
-                return;
-            }
-            
-            // Check if category already exists in the dropdown
-            let categoryExists = false;
-            Array.from(categorySelect.options).forEach(option => {
-                if(option.value === newCategoryValue) {
-                    categoryExists = true;
-                }
-            });
-            
-            if(categoryExists) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">This category already exists</div>';
-                return;
-            }
-            
-            // Add the new category to both dropdowns
-            const newOption = document.createElement('option');
-            newOption.value = newCategoryValue;
-            newOption.text = newCategoryValue;
-            
-            // Insert before the "+ Add New Category" option
-            const addNewIndex = Array.from(categorySelect.options).findIndex(option => option.value === 'new');
-            categorySelect.add(newOption.cloneNode(true), addNewIndex);
-            
-            // Add to the remove category dropdown as well
-            if(removeCategorySelect) {
-                removeCategorySelect.add(newOption.cloneNode(true));
-            }
-            
-            // Set the main dropdown to the new category
-            categorySelect.value = newCategoryValue;
-            
-            // Reset the new category input and hide the container
-            newCategoryInput.value = '';
-            newCategoryContainer.style.display = 'none';
-            
-            // Update SKU based on new category
-            updateSKU();
-            
-            // Show success message
-            msgContainer.innerHTML = '<div class="alert alert-success">New category added successfully</div>';
-            
-            // Hide container after a delay
-            setTimeout(() => {
-                newCategoryContainer.style.display = 'none';
-                msgContainer.innerHTML = '';
-            }, 2000);
-        });
-    }
-    
-    // Handle category removal
-    if(removeCategoryBtn) {
-        removeCategoryBtn.addEventListener('click', function() {
-            const selectedCategory = removeCategorySelect.value;
-            const msgContainer = document.getElementById('remove_category_msg');
-            
-            if(!selectedCategory) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">Please select a category to remove</div>';
-                return;
-            }
-            
-            // Confirm before removal
-            if(!confirm(`Are you sure you want to remove "${selectedCategory}" category? All products in this category will be set to "Uncategorized".`)) {
-                return;
-            }
-            
-            // Send AJAX request to remove the category
-            fetch('functions/remove-category.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `category=${encodeURIComponent(selectedCategory)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    msgContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    
-                    // Remove the category option from both dropdowns
-                    const options = document.querySelectorAll(`option[value="${selectedCategory}"]`);
-                    options.forEach(option => option.remove());
-                    
-                    // Reset selects
-                    categorySelect.value = '';
-                    removeCategorySelect.value = '';
-                    
-                    // Hide the removal container after successful removal
-                    setTimeout(() => {
-                        removeCategoryContainer.style.display = 'none';
-                    }, 2000);
-                } else {
-                    msgContainer.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                msgContainer.innerHTML = '<div class="alert alert-danger">An error occurred while removing the category</div>';
-            });
-        });
-    }
-
-    // Fabric dropdown functionality
+    const skuInput = document.getElementById('sku');
     const fabricSelect = document.getElementById('fabric');
-    const newFabricContainer = document.getElementById('new_fabric_container');
-    const newFabricInput = document.getElementById('new_fabric');
-    const addFabricBtn = document.getElementById('add_fabric_btn');
-    const removeFabricContainer = document.getElementById('remove_fabric_container');
-    const removeFabricSelect = document.getElementById('remove_fabric');
-    const removeFabricBtn = document.getElementById('remove_fabric_btn');
-    
-    if(fabricSelect) {
-        fabricSelect.addEventListener('change', function() {
-            if(this.value === 'new') {
-                newFabricContainer.style.display = 'block';
-                removeFabricContainer.style.display = 'none';
-                newFabricInput.focus();
-            } else if(this.value === 'remove') {
-                newFabricContainer.style.display = 'none';
-                removeFabricContainer.style.display = 'block';
-                // Make sure to remove required when hiding
-                if(newFabricInput.hasAttribute('required')) {
-                    newFabricInput.removeAttribute('required');
-                }
-                newFabricInput.value = '';
-            } else {
-                newFabricContainer.style.display = 'none';
-                removeFabricContainer.style.display = 'none';
-                // Make sure to remove required when hiding
-                if(newFabricInput.hasAttribute('required')) {
-                    newFabricInput.removeAttribute('required');
-                }
-                newFabricInput.value = '';
-            }
-        });
-    }
-    
-    // Handle add fabric button
-    if(addFabricBtn) {
-        addFabricBtn.addEventListener('click', function() {
-            const newFabricValue = newFabricInput.value.trim();
-            const msgContainer = document.getElementById('add_fabric_msg');
+
+    let lastSelectedCategory = '';
+    let lastSelectedFabric = '';
+
+    function updateSKU() {
+        if (productNameInput.value && categorySelect.value && 
+            !['add_new_category', 'rename_category', 'delete_category'].includes(categorySelect.value)) {
             
-            if(!newFabricValue) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">Please enter a fabric type</div>';
-                return;
-            }
+            lastSelectedCategory = categorySelect.value;
             
-            // Check if fabric already exists in the dropdown
-            let fabricExists = false;
-            Array.from(fabricSelect.options).forEach(option => {
-                if(option.value === newFabricValue) {
-                    fabricExists = true;
-                }
-            });
-            
-            if(fabricExists) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">This fabric already exists</div>';
-                return;
-            }
-            
-            // Add the new fabric to both dropdowns
-            const newOption = document.createElement('option');
-            newOption.value = newFabricValue;
-            newOption.text = newFabricValue;
-            
-            // Insert before the "+ Add New Fabric" option
-            const addNewIndex = Array.from(fabricSelect.options).findIndex(option => option.value === 'new');
-            fabricSelect.add(newOption.cloneNode(true), addNewIndex);
-            
-            // Add to the remove fabric dropdown as well
-            if(removeFabricSelect) {
-                removeFabricSelect.add(newOption.cloneNode(true));
-            }
-            
-            // Set the main dropdown to the new fabric
-            fabricSelect.value = newFabricValue;
-            
-            // Reset the new fabric input and hide the container
-            newFabricInput.value = '';
-            newFabricContainer.style.display = 'none';
-            
-            // Show success message
-            msgContainer.innerHTML = '<div class="alert alert-success">New fabric added successfully</div>';
-            
-            // Hide container after a delay
-            setTimeout(() => {
-                newFabricContainer.style.display = 'none';
-                msgContainer.innerHTML = '';
-            }, 2000);
-        });
-    }
-    
-    // Handle fabric removal
-    if(removeFabricBtn) {
-        removeFabricBtn.addEventListener('click', function() {
-            const selectedFabric = removeFabricSelect.value;
-            const msgContainer = document.getElementById('remove_fabric_msg');
-            
-            if(!selectedFabric) {
-                msgContainer.innerHTML = '<div class="alert alert-warning">Please select a fabric to remove</div>';
-                return;
-            }
-            
-            // Confirm before removal
-            if(!confirm(`Are you sure you want to remove "${selectedFabric}" fabric? This will affect all products using this fabric.`)) {
-                return;
-            }
-            
-            // Send AJAX request to remove the fabric
-            fetch('functions/remove-fabric.php', {
+            fetch('functions/generate_sku.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `fabric=${encodeURIComponent(selectedFabric)}`
+                body: `name=${encodeURIComponent(productNameInput.value)}&category=${encodeURIComponent(categorySelect.value)}`
             })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    msgContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    
-                    // Remove the fabric option from both dropdowns
-                    const options = document.querySelectorAll(`option[value="${selectedFabric}"]`);
-                    options.forEach(option => option.remove());
-                    
-                    // Reset selects
-                    fabricSelect.value = '';
-                    removeFabricSelect.value = '';
-                    
-                    // Hide the removal container after successful removal
-                    setTimeout(() => {
-                        removeFabricContainer.style.display = 'none';
-                    }, 2000);
-                } else {
-                    msgContainer.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+            .then(response => response.text())
+            .then(sku => {
+                skuInput.value = sku;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    productNameInput.addEventListener('blur', updateSKU);
+    
+    // Handle category dropdown special options
+    categorySelect.addEventListener('change', function() {
+        if (this.value === 'add_new_category') {
+            showInlineAddForm(this, 'category');
+        } 
+        else if (this.value === 'rename_category') {
+            const renameCategoryModal = new bootstrap.Modal(document.getElementById('renameCategoryModal'));
+            renameCategoryModal.show();
+            setTimeout(() => {
+                this.value = lastSelectedCategory || '';
+            }, 100);
+        } 
+        else if (this.value === 'delete_category') {
+            const removeCategoryModal = new bootstrap.Modal(document.getElementById('removeCategoryModal'));
+            removeCategoryModal.show();
+            setTimeout(() => {
+                this.value = lastSelectedCategory || '';
+            }, 100);
+        } 
+        else {
+            lastSelectedCategory = this.value;
+            updateSKU();
+        }
+    });
+    
+    // Handle fabric dropdown special options
+    fabricSelect.addEventListener('change', function() {
+        if (this.value === 'add_new_fabric') {
+            showInlineAddForm(this, 'fabric');
+        } 
+        else if (this.value === 'rename_fabric') {
+            const renameFabricModal = new bootstrap.Modal(document.getElementById('renameFabricModal'));
+            renameFabricModal.show();
+            setTimeout(() => {
+                this.value = lastSelectedFabric || '';
+            }, 100);
+        } 
+        else if (this.value === 'delete_fabric') {
+            const removeFabricModal = new bootstrap.Modal(document.getElementById('removeFabricModal'));
+            removeFabricModal.show();
+            setTimeout(() => {
+                this.value = lastSelectedFabric || '';
+            }, 100);
+        }
+        else {
+            lastSelectedFabric = this.value;
+        }
+    });
+
+    // Helper function to update dropdown options
+    function updateDropdownOptions(selectElement, oldValue, newValue) {
+        for (let i = 0; i < selectElement.options.length; i++) {
+            if (selectElement.options[i].value === oldValue) {
+                selectElement.options[i].value = newValue;
+                selectElement.options[i].textContent = newValue;
+                break;
+            }
+        }
+    }
+
+    function fetchCategories() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'functions/get-categories.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        console.log('Categories loaded:', response.categories); // Debug log
+                        resolve(response.categories);
+                    } else {
+                        console.error('Error fetching categories:', response.message);
+                        resolve([]);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error loading categories:', error);
+                    console.log('Response:', xhr.responseText); // Debug log
+                    resolve([]);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                msgContainer.innerHTML = '<div class="alert alert-danger">An error occurred while removing the fabric</div>';
             });
         });
     }
 
-    // Set page title based on current page
-    // Get the current page from PHP
-    const currentPagePath = window.location.pathname;
-    const currentPage = currentPagePath.split('/').pop().replace('.php', '');
-    
-    const titleMap = {
-        'index': 'Dashboard',
-        'products': 'Products Management',
-        'add-product': 'Add New Product',
-        'homepage-customize': 'Homepage Customization',
-        'categories': 'Categories',
-        'orders': 'Orders Management',
-        'customers': 'Customer Management'
-    };
-    
-    // Update navbar title
-    const navbarTitle = document.querySelector('.top-navbar h4');
-    if (navbarTitle && titleMap[currentPage]) {
-        navbarTitle.textContent = titleMap[currentPage];
+    function fetchFabrics() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'functions/get-fabrics.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        console.log('Fabrics loaded:', response.fabrics); // Debug log
+                        resolve(response.fabrics);
+                    } else {
+                        console.error('Error fetching fabrics:', response.message);
+                        resolve([]);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error loading fabrics:', error);
+                    console.log('Response:', xhr.responseText); // Debug log
+                    resolve([]);
+                }
+            });
+        });
     }
-    
-    // Handle alert auto-dismiss
-    const successAlert = document.getElementById('success-alert');
-    if (successAlert) {
-        setTimeout(function() {
-            successAlert.classList.remove('show');
-            setTimeout(function() {
-                if (successAlert) successAlert.remove();
-            }, 150);
-        }, 3000);
-    }
-    const productForm = document.querySelector('form[action="functions/code.php"]');
-    if (productForm) {
-        productForm.addEventListener('submit', function(event) {
-            // Remove required attribute from all inputs in hidden containers
-            const hiddenContainers = document.querySelectorAll('[style*="display: none"]');
-            hiddenContainers.forEach(container => {
-                const requiredInputs = container.querySelectorAll('[required]');
-                requiredInputs.forEach(input => {
-                    input.removeAttribute('required');
+
+    initializeCategoryDropdown = function() {
+        const categoryContainer = document.querySelector('.category-items-container');
+        const categoryInput = document.getElementById('category');
+        const categoryDisplay = document.getElementById('selected_category');
+        
+        categoryContainer.innerHTML = '<li class="px-3 py-2 text-center text-muted">Loading categories...</li>';
+        
+        fetchCategories().then(categories => {
+            categoryContainer.innerHTML = `
+                <li class="alert-container px-3"></li>
+            `;
+            
+            // Add event listener for the "Select Category" option
+            const selectCategoryButton = document.querySelector('#category_dropdown button[data-value=""]');
+            if (selectCategoryButton) {
+                selectCategoryButton.addEventListener('click', function() {
+                    categoryInput.value = '';
+                    categoryDisplay.textContent = 'Select Category';
+                });
+            }
+            
+            if (!categories || categories.length === 0) {
+                categoryContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No categories found</li>';
+                return;
+            }
+            
+            categories.forEach(category => {
+                const categoryItem = document.createElement('li');
+                categoryItem.className = 'category-item';
+                categoryItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                        <span class="category-name" data-value="${category}">${category}</span>
+                        <div class="category-actions">
+                            <button type="button" class="category-action-btn edit-btn" title="Rename Category" data-category="${category}">
+                                <i class="material-symbols-rounded">edit</i>
+                            </button>
+                            <button type="button" class="category-action-btn delete-btn" title="Delete Category" data-category="${category}">
+                                <i class="material-symbols-rounded">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                categoryContainer.appendChild(categoryItem);
+                
+                categoryItem.querySelector('.category-name').addEventListener('click', function() {
+                    if (!this.classList.contains('editing')) {
+                        const value = this.getAttribute('data-value');
+                        categoryInput.value = value;
+                        categoryDisplay.textContent = value;
+                        
+                        const productName = document.getElementById('name').value;
+                        if (productName) {
+                            updateSKU(productName, value);
+                        }
+                    }
+                });
+                
+                categoryItem.querySelector('.edit-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nameElement = this.closest('.category-item').querySelector('.category-name');
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, 'category');
+                });
+                
+                categoryItem.querySelector('.delete-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const categoryToDelete = this.getAttribute('data-category');
+                    const button = this;
+                    const originalHTML = button.innerHTML;
+                    
+                    // Show loading state on the button
+                    button.disabled = true;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    
+                    // Make AJAX request to delete the category
+                    $.ajax({
+                        url: 'functions/manage-categories.php',
+                        type: 'POST',
+                        data: {
+                            action: 'delete',
+                            category: categoryToDelete
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                // Refresh the category dropdown
+                                initializeCategoryDropdown();
+                                // Show success message
+                                showBootstrapAlert('.category-items-container .alert-container', 'success', response.message);
+                            } else {
+                                // Show error and restore button
+                                showBootstrapAlert('.category-items-container .alert-container', 'danger', response.message);
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.log('Response:', xhr.responseText);
+                            showBootstrapAlert('.category-items-container .alert-container', 'danger', 'Server error occurred. Please try again.');
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        }
+                    });
                 });
             });
         });
+        
+        document.getElementById('add_new_category').addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            showInlineAddForm(this, 'category');
+        });
+    };
+
+    initializeFabricDropdown = function() {
+        const fabricContainer = document.querySelector('.fabric-items-container');
+        const fabricInput = document.getElementById('fabric');
+        const fabricDisplay = document.getElementById('selected_fabric');
+        
+        fabricContainer.innerHTML = '<li class="px-3 py-2 text-center text-muted">Loading fabrics...</li>';
+        
+        fetchFabrics().then(fabrics => {
+            fabricContainer.innerHTML = `
+                <li class="alert-container px-3"></li>
+            `;
+            
+            // Add event listener for the "Select Fabric" option
+            const selectFabricButton = document.querySelector('#fabric_dropdown button[data-value=""]');
+            if (selectFabricButton) {
+                selectFabricButton.addEventListener('click', function() {
+                    fabricInput.value = '';
+                    fabricDisplay.textContent = 'Select Fabric';
+                });
+            }
+            
+            if (!fabrics || fabrics.length === 0) {
+                fabricContainer.innerHTML += '<li class="px-3 py-2 text-center text-muted">No fabrics found</li>';
+                return;
+            }
+            
+            fabrics.forEach(fabric => {
+                const fabricItem = document.createElement('li');
+                fabricItem.className = 'fabric-item';
+                fabricItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                        <span class="fabric-name" data-value="${fabric}">${fabric}</span>
+                        <div class="fabric-actions">
+                            <button type="button" class="fabric-action-btn edit-btn" title="Rename Fabric" data-fabric="${fabric}">
+                                <i class="material-symbols-rounded">edit</i>
+                            </button>
+                            <button type="button" class="fabric-action-btn delete-btn" title="Delete Fabric" data-fabric="${fabric}">
+                                <i class="material-symbols-rounded">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                fabricContainer.appendChild(fabricItem);
+                
+                fabricItem.querySelector('.fabric-name').addEventListener('click', function() {
+                    if (!this.classList.contains('editing')) {
+                        const value = this.getAttribute('data-value');
+                        fabricInput.value = value;
+                        fabricDisplay.textContent = value;
+                    }
+                });
+                
+                fabricItem.querySelector('.edit-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nameElement = this.closest('.fabric-item').querySelector('.fabric-name');
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, 'fabric');
+                });
+                
+                fabricItem.querySelector('.delete-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const fabricToDelete = this.getAttribute('data-fabric');
+                    const button = this;
+                    const originalHTML = button.innerHTML;
+                    
+                    // Show loading state on the button
+                    button.disabled = true;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    
+                    // Make AJAX request to delete the fabric
+                    $.ajax({
+                        url: 'functions/manage-fabrics.php',
+                        type: 'POST',
+                        data: {
+                            action: 'delete',
+                            fabric: fabricToDelete
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                // Refresh the fabric dropdown
+                                initializeFabricDropdown();
+                                // Show success message just like categories
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'success', response.message);
+                            } else {
+                                // Show error and restore button - identical to categories
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'danger', response.message);
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.log('Response:', xhr.responseText);
+                            showBootstrapAlert('.fabric-items-container .alert-container', 'danger', 'Server error occurred. Please try again.');
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        }
+                    });
+                });
+            });
+        });
+        
+        document.getElementById('add_new_fabric').addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            showInlineAddForm(this, 'fabric');
+        });
+    };
+
+    function enableInlineEdit(element, currentValue, type) {
+        // Don't allow editing if already in edit mode
+        if (element.classList.contains('editing')) return;
+        
+        element.classList.add('editing');
+        
+        const originalContent = element.innerHTML;
+        
+        // Store a reference to the parent element that contains our buttons
+        const listItem = element.closest('.' + type + '-item');
+        const editBtn = listItem.querySelector('.edit-btn');
+        const editBtnParent = editBtn.parentNode; // Store parent reference
+        const originalEditBtnHTML = editBtn.innerHTML;
+        
+        // Replace edit icon with save icon
+        editBtn.innerHTML = '<i class="material-symbols-rounded">check</i>';
+        editBtn.title = "Save changes";
+        
+        const deleteBtn = listItem.querySelector('.delete-btn');
+        if (deleteBtn) {
+            deleteBtn.style.display = 'none'; // Hide delete button during edit mode
+        }
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm inline-edit-input';
+        input.value = currentValue;
+        
+        element.innerHTML = '';
+        element.appendChild(input);
+        
+        input.focus();
+        input.select();
+        
+        const dropdownMenu = element.closest('.dropdown-menu');
+        if (dropdownMenu) {
+            dropdownMenu.classList.add('show');
+        }
+        
+        // Create a fresh save handler function
+        function saveChanges() {
+            // If save was already triggered, bail out
+            if (input._saveTriggered) return;
+            input._saveTriggered = true;
+            
+            const newValue = input.value.trim();
+            
+            // Reset the button back to edit mode first
+            editBtn.innerHTML = originalEditBtnHTML;
+            editBtn.title = "Rename " + type.charAt(0).toUpperCase() + type.slice(1);
+            
+            // Create a new button but don't replace it yet - check if parent exists
+            const newEditBtn = editBtn.cloneNode(true);
+            
+            const deleteBtn = listItem.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.style.display = '';
+            }
+            // Safely handle button replacement
+            if (editBtnParent && editBtnParent.contains(editBtn)) {
+                try {
+                    editBtnParent.replaceChild(newEditBtn, editBtn);
+                    
+                    // Re-add click handler for edit mode to the new button
+                    newEditBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
+                        if (nameElement) {
+                            const currentName = nameElement.getAttribute('data-value');
+                            enableInlineEdit(nameElement, currentName, type);
+                        }
+                    });
+                } catch (err) {
+                    console.warn('Error replacing edit button:', err);
+                    // Just restore the original content and avoid further DOM manipulation
+                }
+            } else {
+                // If parent is gone, we can't replace - just restore content
+                console.warn('Edit button parent not available - restoring content only');
+            }
+            
+            if (newValue && newValue !== currentValue) {
+                // Show loading state in element
+                element.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
+                
+                const data = {
+                    action: 'rename'
+                };
+                
+                if (type === 'category') {
+                    data.old_category = currentValue;
+                    data.new_category = newValue;
+                } else {
+                    data.old_fabric = currentValue;
+                    data.new_fabric = newValue;
+                }
+                
+                const url = type === 'category' ? 'functions/manage-categories.php' : 'functions/manage-fabrics.php';
+                
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            element.innerHTML = newValue;
+                            element.setAttribute('data-value', newValue);
+                            
+                            // Only update button attributes if we successfully replaced the button
+                            const currentEditBtn = listItem.querySelector('.edit-btn');
+                            if (currentEditBtn) {
+                                currentEditBtn.setAttribute('data-' + type, newValue);
+                            }
+                            
+                            const deleteBtn = listItem.querySelector('.delete-btn');
+                            if (deleteBtn) {
+                                deleteBtn.setAttribute('data-' + type, newValue);
+                            }
+                            
+                            // Update the selected value if it was the current one
+                            const categoryInput = document.getElementById('category');
+                            const fabricInput = document.getElementById('fabric');
+                            
+                            if (type === 'category' && categoryInput && categoryInput.value === currentValue) {
+                                categoryInput.value = newValue;
+                                const selectedCategory = document.getElementById('selected_category');
+                                if (selectedCategory) {
+                                    selectedCategory.textContent = newValue;
+                                }
+                                
+                                // Update SKU if needed
+                                const productName = document.getElementById('name');
+                                if (productName && productName.value) {
+                                    updateSKU();
+                                }
+                            } else if (type === 'fabric' && fabricInput && fabricInput.value === currentValue) {
+                                fabricInput.value = newValue;
+                                const selectedFabric = document.getElementById('selected_fabric');
+                                if (selectedFabric) {
+                                    selectedFabric.textContent = newValue;
+                                }
+                            }
+                            
+                        } else {
+                            element.innerHTML = originalContent;
+                            showBootstrapAlert(
+                                type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container',
+                                'danger',
+                                response.message || 'Error occurred'
+                            );
+                        }
+                        element.classList.remove('editing');
+                    },
+                    error: function() {
+                        element.innerHTML = originalContent;
+                        element.classList.remove('editing');
+                        showBootstrapAlert(
+                            type === 'category' ? '.category-items-container .alert-container' : '.fabric-items-container .alert-container',
+                            'danger',
+                            'Server error occurred'
+                        );
+                    }
+                });
+            } else {
+                element.innerHTML = originalContent;
+                element.classList.remove('editing');
+            }
+        }
+        
+        // Simplify the cancel function to avoid DOM replacement errors
+        // We'll rely on the explicit save/cancel buttons instead
+        
+        // Prevent dropdown from closing when clicking on form
+        inlineForm.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
+
+    // Helper function to re-initialize click handlers after edits
+    function initializeDropdownClickHandlers() {
+        // Re-add click handlers to edit buttons
+        document.querySelectorAll('.category-item .edit-btn, .fabric-item .edit-btn').forEach(button => {
+            button.onclick = function(e) {
+                e.stopPropagation();
+                const type = this.closest('.category-item') ? 'category' : 'fabric';
+                const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
+                if (nameElement) {
+                    const currentName = nameElement.getAttribute('data-value');
+                    enableInlineEdit(nameElement, currentName, type);
+                }
+            };
+        });
+    }
+
+    function showInlineAddForm(button, type) {
+        // Remove any existing forms first
+        const existingForms = document.querySelectorAll('.inline-add-form');
+        existingForms.forEach(form => form.remove());
+        
+        // Create inline form element with check and close icons, matching the style of existing items
+        const inlineForm = document.createElement('li');
+        inlineForm.className = 'dropdown-item inline-add-form';
+        inlineForm.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                <span class="${type}-name" style="position: relative;">
+                    <input type="text" class="form-control form-control-sm inline-edit-input" 
+                           placeholder="Enter new ${type} name" 
+                           id="new_${type}_inline" 
+                           style="width: 100%;">
+                </span>
+                <div class="${type}-actions">
+                    <button type="button" class="${type}-action-btn save-btn" title="Save ${type}" id="save_${type}_btn">
+                        <i class="material-symbols-rounded">check</i>
+                    </button>
+                    <button type="button" class="${type}-action-btn cancel-btn" title="Cancel" id="cancel_${type}_btn">
+                        <i class="material-symbols-rounded">close</i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-danger small px-3 mt-1" id="new_${type}_error"></div>
+        `;
+        
+        // Find the "Add New" button's list item
+        const addNewBtn = type === 'category' ? 
+            document.getElementById('add_new_category') : 
+            document.getElementById('add_new_fabric');
+        
+        if (addNewBtn) {
+            // Insert form right before the "Add New" button's list item
+            const addNewBtnLi = addNewBtn.closest('li');
+            if (addNewBtnLi && addNewBtnLi.parentNode) {
+                addNewBtnLi.parentNode.insertBefore(inlineForm, addNewBtnLi);
+                
+                // Make sure the dropdown stays open
+                const dropdownMenu = addNewBtnLi.closest('.dropdown-menu');
+                if (dropdownMenu) {
+                    // Force dropdown to stay open
+                    dropdownMenu.classList.add('show');
+                    
+                    // Ensure the dropdown toggle button shows as active
+                    const dropdownToggle = document.querySelector(`[data-bs-toggle="dropdown"][aria-expanded="true"]`);
+                    if (dropdownToggle) {
+                        dropdownToggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            }
+        }
+        
+        // Focus the input
+        const input = inlineForm.querySelector(`#new_${type}_inline`);
+        setTimeout(() => {
+            input.focus();
+        }, 10);
+        
+        // Setup event handlers for keyboard actions
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveNewItem(type);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                inlineForm.remove();
+            }
+        });
+        
+        // Add event handler for the save button
+        const saveBtn = inlineForm.querySelector(`#save_${type}_btn`);
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveNewItem(type);
+            });
+        }
+        
+        // Add event handler for the cancel button
+        const cancelBtn = inlineForm.querySelector(`#cancel_${type}_btn`);
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                inlineForm.remove();
+            }); 
+        }
+        
+        // Remove blur handler to avoid conflicts with button clicks
+        // We'll rely on the explicit save/cancel buttons instead
+        
+        // Prevent dropdown from closing when clicking on form
+        inlineForm.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+
+    function saveNewItem(type) {
+        const input = document.getElementById(`new_${type}_inline`);
+        const errorElem = document.getElementById(`new_${type}_error`);
+        const newValue = input.value.trim();
+        
+        if (!newValue) {
+            errorElem.textContent = `Please enter a ${type} name`;
+            return;
+        }
+        
+        // Show minimal loading state - just disable the input
+        input.disabled = true;
+        
+        // Fix URL construction to handle "category" -> "categories" pluralization
+        const endpoint = type === 'category' ? 'functions/manage-categories.php' : `functions/manage-${type}s.php`;
+        
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            data: {
+                action: 'add',
+                [`new_${type}`]: newValue
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    // No visual feedback except for the dropdown refreshing
+                    if (type === 'category') {
+                        initializeCategoryDropdown();
+                        
+                        setTimeout(() => {
+                            const categoryInput = document.getElementById('category');
+                            const categoryDisplay = document.getElementById('selected_category');
+                            categoryInput.value = newValue;
+                            categoryDisplay.textContent = newValue;
+                            
+                            const productName = document.getElementById('name').value;
+                            if (productName) {
+                                updateSKU();
+                            }
+                            
+                            // Show success message only for categories
+                            setTimeout(() => {
+                                showBootstrapAlert('.category-items-container .alert-container', 'success', `${type} added successfully`);
+                            }, 400);
+                        }, 300);
+                    } else {
+                        initializeFabricDropdown();
+                        
+                        setTimeout(() => {
+                            const fabricInput = document.getElementById('fabric');
+                            const fabricDisplay = document.getElementById('selected_fabric');
+                            fabricInput.value = newValue;
+                            fabricDisplay.textContent = newValue;
+                            
+                            // Add success message for fabrics (matching category)
+                            setTimeout(() => {
+                                showBootstrapAlert('.fabric-items-container .alert-container', 'success', `${type} added successfully`);
+                            }, 400);
+                        }, 300);
+                    }
+                    
+                    // Simply remove the form on success
+                    document.querySelector('.inline-add-form').remove();
+                } else {
+                    errorElem.textContent = response.message || `Failed to add ${type}`;
+                    input.disabled = false;
+                }
+            },
+            error: function(xhr, status, errorThrown) {
+                console.error(`AJAX Error when adding ${type}:`, status, errorThrown);
+                console.log("Server Response:", xhr.responseText);
+                
+                try {
+                    // Try to parse the response as JSON to get detailed error message
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse && errorResponse.message) {
+                        errorElem.textContent = errorResponse.message;
+                    } else {
+                        errorElem.textContent = `Server error: ${status}`;
+                    }
+                } catch (e) {
+                    // If not valid JSON, show the raw response or a generic message
+                    if (xhr.responseText) {
+                        errorElem.textContent = `Server error: ${xhr.responseText.substring(0, 50)}...`;
+                    } else {
+                        errorElem.textContent = `Server error occurred. Check console for details.`;
+                    }
+                }
+                
+                input.disabled = false;
+            }
+        });
+    }
+
+    // Function to show Bootstrap alerts
+    function showBootstrapAlert(containerSelector, type, message) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} fade show my-2 p-2`;
+        alert.setAttribute('role', 'alert');
+        alert.innerHTML = message;
+        
+        container.innerHTML = '';
+        container.appendChild(alert);
+        
+        // Auto dismiss after 3 seconds
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => {
+                if (container.contains(alert)) {
+                    container.removeChild(alert);
+                }
+            }, 150);
+        }, 3000);
+
+        // Make sure dropdown stays open
+        const dropdown = container.closest('.dropdown-menu');
+        if (dropdown) {
+            dropdown.classList.add('show');
+        }
+    }
+
+    initializeCategoryDropdown();
+    initializeFabricDropdown();
+
+    // Add arrow key navigation for size inputs
+    function setupSizeInputNavigation() {
+        const sizeInputs = document.querySelectorAll('.size-stock-grid input[type="number"]');
+        const sizeArray = Array.from(sizeInputs);
+        
+        sizeArray.forEach((input, index) => {
+            input.addEventListener('keydown', function(e) {
+                // Right arrow key - move to next input
+                if (e.key === 'ArrowRight' && index < sizeArray.length - 1) {
+                    e.preventDefault();
+                    sizeArray[index + 1].focus();
+                }
+                
+                // Left arrow key - move to previous input
+                if (e.key === 'ArrowLeft' && index > 0) {
+                    e.preventDefault();
+                    sizeArray[index - 1].focus();
+                }
+            });
+            
+            // Position cursor at the end of the input value when focused
+            input.addEventListener('focus', function(e) {
+                // Move cursor to the end by temporarily storing the value and reassigning it
+                const val = this.value;
+                this.value = '';
+                this.value = val;
+            });
+        });
+    }
+    
+    // Call the function to set up navigation
+    setupSizeInputNavigation();
+});
+
+// Pricing calculator updates
+document.addEventListener('DOMContentLoaded', function() {
+    const originalPriceInput = document.getElementById('original_price');
+    const discountPriceInput = document.getElementById('discount_price');
+    const originalPriceDisplay = document.getElementById('original_price_display');
+    const finalPriceDisplay = document.getElementById('final_price_display');
+    const discountText = document.getElementById('discount_text');
+    const savingsContainer = document.getElementById('savings_container');
+    const savingsAmount = document.getElementById('savings_amount');
+    
+    function updatePricePreview() {
+        const originalPrice = parseFloat(originalPriceInput.value) || 0;
+        let discountPrice = parseFloat(discountPriceInput.value) || originalPrice;
+        
+        // Don't allow discount price to be higher than original price
+        if (discountPrice > originalPrice) {
+            discountPrice = originalPrice;
+            discountPriceInput.value = originalPrice;
+        }
+        
+        // Calculate discount percentage for display only
+        let discountPercentage = 0;
+        if (originalPrice > 0 && discountPrice < originalPrice) {
+            discountPercentage = Math.round(((originalPrice - discountPrice) / originalPrice) * 100);
+        }
+        
+        // Update display
+        originalPriceDisplay.textContent = `₱${originalPrice.toFixed(2)}`;
+        finalPriceDisplay.textContent = `₱${discountPrice.toFixed(2)}`;
+        
+        if (discountPercentage > 0) {
+            discountText.textContent = `(${discountPercentage}% off)`;
+            savingsContainer.classList.remove('d-none');
+            savingsAmount.textContent = `₱${(originalPrice - discountPrice).toFixed(2)}`;
+        } else {
+            discountText.textContent = '';
+            savingsContainer.classList.add('d-none');
+        }
+    }
+    
+    originalPriceInput.addEventListener('input', updatePricePreview);
+    discountPriceInput.addEventListener('input', updatePricePreview);
+    
+    // Initialize price display
+    updatePricePreview();
 });

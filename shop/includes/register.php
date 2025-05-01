@@ -29,7 +29,11 @@
         </style>
         
         <p>Already have an account? <a href="#loginModal" data-bs-toggle="modal" data-bs-dismiss="modal" class="modal-link text-decoration-none">Log in</a></p>
-        <form action="functions/authcode.php" method="POST" id="signupForm" class="needs-validation" novalidate> 
+        
+        <!-- Add signup error alert (initially hidden) -->
+        <div class="alert alert-danger mb-3 d-none" id="signupErrorMessage"></div>
+        
+        <form id="signupForm" class="needs-validation" novalidate> 
           <div class="row gy-3">
             <div class="col-md-4">
               <div class="form-floating">
@@ -62,10 +66,10 @@
           <div class="row mt-3">
             <div class="col-12">
               <div class="form-floating mb-3">
-                <input type="tel" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" required>
+                <input type="tel" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" required pattern="^09\d{9}$">
                 <label for="phone_number" class="form-label">Phone Number</label>
                 <div class="invalid-feedback" id="phoneInvalidFeedback">
-                  Please enter your phone number.
+                  Please enter a valid phone number.
                 </div>
                 <div class="invalid-feedback d-none" id="phoneRegisteredFeedback">
                   Phone number already registered.
@@ -97,24 +101,29 @@
               </div>
             </div>
             <div class="col-12">
-              <div class="form-floating mb-1">
-                <input type="text" class="form-control" name="full_address" id="full_address" placeholder="Full Address" required>
-                <label for="full_address" class="form-label">Full Address</label>
+              <div class="alert alert-info small py-2 mb-2">
+                <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
+              </div>
+              <div id="map" style="height: 300px;" class="rounded mb-3"></div>
+              <input type="hidden" id="latitude" name="latitude" required>
+              <input type="hidden" id="longitude" name="longitude" required>
+              <div class="form mb-3 bg-light">
+                <input type="text" class="form-control py-3" name="full_address" id="full_address" placeholder="Click on map to select your address" readonly required style="cursor: default; color: #495057;">
                 <div class="invalid-feedback">
-                  Please provide your address.
+                  Please provide your address by selecting a location on the map.
                 </div>
               </div>
-              <div id="map" style="height: 300px; display: none;" class="rounded mb-3"></div>
-              <input type="hidden" id="latitude" name="latitude">
-              <input type="hidden" id="longitude" name="longitude">
             </div>
             <div class="col-12">
-              <div class="form-floating mb-3">
+              <div class="form-floating mb-2">
                 <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder="Zipcode" required>
                 <label for="zipcode" class="form-label">Zipcode</label>
                 <div class="invalid-feedback">
                   Please enter your zipcode.
                 </div>
+              </div>
+              <div class="form-text text-muted small pb-2">
+                Please verify your zipcode as it may be incorrect sometimes.
               </div>
             </div>
           </div>
@@ -158,7 +167,13 @@
           </div>
           <div class="col-12 mt-3">
             <div class="d-grid">
-            <button type="submit" name="signupButton" class="btn-modal btn-lg" id="signupButton">Sign up now</button>
+            <button type="submit" name="signupButton" class="btn-modal btn-lg" id="signupButton">
+              <span class="normal-state">Sign up now</span>
+              <span class="loading-state" style="display: none;">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Signing up...
+              </span>
+            </button>
             </div>
           </div>
         </form>
@@ -175,146 +190,242 @@ document.addEventListener('DOMContentLoaded', function() {
   const latInput     = document.getElementById('latitude');
   const lngInput     = document.getElementById('longitude');
   const zipcodeInput = document.getElementById('zipcode');
+  
+  // Map initialization variables
+  let map = null;
+  let marker = null;
+  let mainLayer = null;
+  let fallbackLayer = null;
+  
+  // Initialize map only when modal is shown to avoid sizing issues
+  document.getElementById('SignupModal').addEventListener('shown.bs.modal', function() {
+    // Initialize map if not already initialized
+    if (!map) {
+      initMap();
+    } else {
+      // If map exists, just update its size
+      map.invalidateSize(true);
+    }
+  });
+  
+  // Function to initialize the map
+  function initMap() {
+    // If map already exists, destroy it first to avoid duplicates
+    if (map) {
+      map.remove();
+      map = null;
+    }
+    
+    // Create the map with better options
+    map = L.map('map', {
+      scrollWheelZoom: true,
+      zoomControl: true,
+      attributionControl: true
+    }).setView([14.6760, 121.0437], 16);
+    
+    // Primary tile layer with error handling
+    mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+      crossOrigin: true
+    }).addTo(map);
+    
+    // Fallback tile layer
+    fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors, © CARTO',
+      maxZoom: 19,
+      crossOrigin: true
+    });
+    
+    // Handle tile error
+    mainLayer.on('tileerror', function(error) {
+      console.log("Tile error detected, switching to fallback");
+      map.removeLayer(mainLayer);
+      fallbackLayer.addTo(map);
+    });
+    
+    // Add a draggable marker
+    marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
+    
+    // Add geocoder control with better configuration
+    const geocoder = L.Control.geocoder({
+      defaultMarkGeocode: false,
+      geocoder: L.Control.Geocoder.nominatim({
+        timeout: 5000, // 5 seconds timeout
+        serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
+      }),
+      placeholder: 'Search address...',
+      errorMessage: 'Unable to find that address.'
+    }).on('markgeocode', function(e) {
+      marker.setLatLng(e.geocode.center);
+      map.setView(e.geocode.center, 16);
+      updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+      fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
+    }).addTo(map);
+    
+    // Map click => move marker + reverse geocode + zipcode
+    map.on('click', e => {
+      marker.setLatLng(e.latlng);
+      updateCoordinates(e.latlng.lat, e.latlng.lng);
+      reverseGeocode(e.latlng.lat, e.latlng.lng);
+      fetchZipcode(e.latlng.lat, e.latlng.lng);
+    });
+    
+    // Marker drag end => same as click
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      updateCoordinates(pos.lat, pos.lng);
+      reverseGeocode(pos.lat, pos.lng);
+      fetchZipcode(pos.lat, pos.lng);
+    });
+    
+    // Force map to recalculate its size after a short delay
+    setTimeout(() => {
+      map.invalidateSize(true);
+    }, 300);
+  }
 
-  // 1) Initialize map and tile layer
-  const map = L.map('map').setView([14.5995, 120.9842], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-
-  // 2) Add a draggable marker
-  const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
-
-  // 3) Helper text under the address field
-  const formFloating = addressInput.closest('.form-floating');
-  const helpText = document.createElement('div');
-  helpText.className = 'form-text text-muted small';
-  helpText.innerText = 'Start typing your address; the map will update automatically.';
-  formFloating.insertAdjacentElement('afterend', helpText);
-
-  // 4) Geocoder control (no default marker)
-  const geocoder = L.Control.geocoder({
-    defaultMarkGeocode: false,
-    geocoder: L.Control.Geocoder.nominatim(),
-    placeholder: 'Search address...'
-  }).on('markgeocode', function(e) {
-    marker.setLatLng(e.geocode.center);
-    map.setView(e.geocode.center, 16);
-    updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
-    fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
-  }).addTo(map);
-
-  // 5) Core helper functions
+  // Core helper functions
   function updateCoordinates(lat, lng) {
-  latInput.value = lat;
-  lngInput.value = lng;
-}
+    latInput.value = lat;
+    lngInput.value = lng;
+  }
 
   function reverseGeocode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-      .then(r => r.json())
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data && data.display_name) addressInput.value = data.display_name;
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error('Error with reverse geocoding:', error);
+        addressInput.value = `Location at ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      });
   }
 
   function fetchZipcode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-      .then(r => r.json())
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data && data.address && data.address.postcode) {
           zipcodeInput.value = data.address.postcode;
+        } else {
+          zipcodeInput.value = '';
         }
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error('Error fetching zipcode:', error);
+        zipcodeInput.value = '';
+      });
   }
 
-  // 6) Map click => move marker + reverse geocode + zipcode
-  map.on('click', e => {
-    marker.setLatLng(e.latlng);
-    updateCoordinates(e.latlng.lat, e.latlng.lng);
-    reverseGeocode(e.latlng.lat, e.latlng.lng);
-    fetchZipcode(e.latlng.lat, e.latlng.lng);
-  });
-
-  // 7) Marker drag end => same as click
-  marker.on('dragend', () => {
-    const pos = marker.getLatLng();
-    updateCoordinates(pos.lat, pos.lng);
-    reverseGeocode(pos.lat, pos.lng);
-    fetchZipcode(pos.lat, pos.lng);
-  });
-
-  // 8) Show map when focusing the address field
+  // Show map when focusing the address field
   addressInput.addEventListener('focus', () => {
-    if (mapDiv.style.display === 'none') {
-      mapDiv.style.display = 'block';
-      map.invalidateSize();
+    if (map) {
+      map.invalidateSize(true);
+    } else {
+      initMap();
     }
   });
 
-  // 9) Debounced auto-search as you type
-  let typingTimer;
-  const doneTypingInterval = 200; // ms
-
-  addressInput.addEventListener('keydown', () => clearTimeout(typingTimer));
-  addressInput.addEventListener('input', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-
-    // ensure map is visible
-    if (mapDiv.style.display === 'none') {
-      mapDiv.style.display = 'block';
-      map.invalidateSize();
-    }
-
-    if (val.length > 2) {
-      typingTimer = setTimeout(() => {
-        // Use Nominatim API directly for address search
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data && data.length > 0) {
-              const result = data[0];
-              const lat = parseFloat(result.lat);
-              const lng = parseFloat(result.lon);
-              const latlng = L.latLng(lat, lng);
-              
-              map.setView(latlng, 16);
-              marker.setLatLng(latlng);
-              updateCoordinates(lat, lng);
-              fetchZipcode(lat, lng);
-            }
-          })
-          .catch(console.error);
-      }, doneTypingInterval);
-    }
-  });
-
-  // 10) Fallback on change (paste + blur)
-  addressInput.addEventListener('change', function() {
-    clearTimeout(typingTimer);
-    const val = this.value.trim();
-    if (!val) return;
-    
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=1`)
+  // Add AJAX form submission for signup
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Check if form is valid
+      if (!signupForm.checkValidity()) {
+        e.stopPropagation();
+        signupForm.classList.add('was-validated');
+        return;
+      }
+      
+      // Show loading state
+      const signupBtn = document.getElementById('signupButton');
+      signupBtn.querySelector('.normal-state').style.display = 'none';
+      signupBtn.querySelector('.loading-state').style.display = 'inline-block';
+      signupBtn.disabled = true;
+      
+      // Hide any previous error messages
+      document.getElementById('signupErrorMessage').classList.add('d-none');
+      
+      // Create form data
+      const formData = new FormData(signupForm);
+      formData.append('signupButton', '1'); // Add the button name to identify the action
+      
+      // AJAX request
+      fetch('functions/account/authcode.php', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
       .then(response => response.json())
       .then(data => {
-        if (data && data.length > 0) {
-          const result = data[0];
-          const lat = parseFloat(result.lat);
-          const lng = parseFloat(result.lon);
-          const latlng = L.latLng(lat, lng);
+        // Reset button state
+        signupBtn.querySelector('.normal-state').style.display = 'inline-block';
+        signupBtn.querySelector('.loading-state').style.display = 'none';
+        signupBtn.disabled = false;
+        
+        if (data.status === 'success') {
+          // Handle success - either verification needed or direct registration
+          if (data.redirect && data.redirect.includes('verify.php')) {
+            // Redirect to verification page if needed
+            window.location.href = data.redirect;
+          } else {
+            // Close signup modal
+            const signupModal = bootstrap.Modal.getInstance(document.getElementById('SignupModal'));
+            signupModal.hide();
+            
+            // Update the header with the new username if available
+            if (data.username && typeof window.updateHeaderAfterAuth === 'function') {
+              window.updateHeaderAfterAuth(data.username, false); // Regular user, not admin
+            }
+            
+            // Show registration success modal
+            const registerSuccessModal = new bootstrap.Modal(document.getElementById('registersuccessmodal'));
+            registerSuccessModal.show();
+          }
+        } else {
+          // Handle error
+          const errorMsg = document.getElementById('signupErrorMessage');
+          errorMsg.textContent = data.message || 'An error occurred during signup. Please try again.';
+          errorMsg.classList.remove('d-none');
           
-          map.setView(latlng, 16);
-          marker.setLatLng(latlng);
-          updateCoordinates(lat, lng);
-          fetchZipcode(lat, lng);
+          // Scroll to top of modal to show error
+          document.querySelector('.modal-body').scrollTop = 0;
         }
       })
-      .catch(console.error);
-  });
+      .catch(error => {
+        console.error('Error:', error);
+        
+        // Reset button state
+        signupBtn.querySelector('.normal-state').style.display = 'inline-block';
+        signupBtn.querySelector('.loading-state').style.display = 'none';
+        signupBtn.disabled = false;
+        
+        // Show error message
+        const errorMsg = document.getElementById('signupErrorMessage');
+        errorMsg.textContent = 'A server error occurred. Please try again later.';
+        errorMsg.classList.remove('d-none');
+        
+        // Scroll to top of modal to show error
+        document.querySelector('.modal-body').scrollTop = 0;
+      });
+    });
+  }
 });
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -332,11 +443,11 @@ document.addEventListener("DOMContentLoaded", function() {
       if (passwordField.type === 'password') {
         // Show password
         passwordField.type = 'text';
-        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
+        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
       } else {
         // Hide password
         passwordField.type = 'password';
-        this.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i>';
+        this.innerHTML = '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i>';
       }
     });
   }
@@ -430,7 +541,7 @@ document.addEventListener("DOMContentLoaded", function() {
     emailInput.addEventListener("blur", function() {
       const emailVal = emailInput.value.trim();
       if(emailVal !== "") {
-        fetch("functions/check_email.php?email=" + encodeURIComponent(emailVal))
+        fetch("functions/account/check_email.php?email=" + encodeURIComponent(emailVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('emailRegisteredFeedback');
@@ -454,13 +565,44 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   
-  // Real-time Phone Number Validation
+  // Phone number validation
   const phoneInput = document.getElementById('phone_number');
   if(phoneInput) {
+    // Add input event for real-time validation
+    phoneInput.addEventListener("input", function() {
+      const phoneVal = phoneInput.value.trim();
+      
+      // Remove non-digit characters
+      let digitsOnly = phoneVal.replace(/\D/g, '');
+      
+      // Limit to 11 digits
+      digitsOnly = digitsOnly.substring(0, 11);
+      
+      // Update input value if changed
+      if (digitsOnly !== phoneVal) {
+        phoneInput.value = digitsOnly;
+      }
+      
+      // Validate format
+      if (digitsOnly.length === 11 && digitsOnly.startsWith('09')) {
+        phoneInput.setCustomValidity('');
+        phoneInput.classList.remove('is-invalid');
+        phoneInput.classList.add('is-valid');
+      } else if (digitsOnly.length === 0) {
+        phoneInput.setCustomValidity('');
+        phoneInput.classList.remove('is-invalid', 'is-valid');
+      } else {
+        phoneInput.setCustomValidity('Phone number must be 11 digits starting with 09');
+        phoneInput.classList.add('is-invalid');
+        phoneInput.classList.remove('is-valid');
+      }
+    });
+    
+    // Keep the existing blur event for checking if phone is registered
     phoneInput.addEventListener("blur", function() {
       const phoneVal = phoneInput.value.trim();
       if(phoneVal !== "") {
-        fetch("functions/check_phone.php?phone_number=" + encodeURIComponent(phoneVal))
+        fetch("functions/account/check_phone.php?phone_number=" + encodeURIComponent(phoneVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('phoneRegisteredFeedback');
@@ -490,7 +632,7 @@ document.addEventListener("DOMContentLoaded", function() {
     usernameInput.addEventListener("blur", function() {
       const usernameVal = usernameInput.value.trim();
       if(usernameVal !== "") {
-        fetch("functions/check_username.php?username=" + encodeURIComponent(usernameVal))
+        fetch("functions/account/check_username.php?username=" + encodeURIComponent(usernameVal))
           .then(response => response.json())
           .then(data => {
             const feedback = document.getElementById('usernameTakenFeedback');

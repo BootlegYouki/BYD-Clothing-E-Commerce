@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //FUNCTIONS TO SAVE/CLEAR CONVERSATIONS
 async function checkUserAuth() {
     try {
-        const response = await fetch('../shop/functions/check-auth.php');
+        const response = await fetch('../shop/functions/chatbot/check-auth.php');
         const data = await response.json();
         return data.isLoggedIn;
     } catch (error) {
@@ -46,20 +46,19 @@ async function checkUserAuth() {
 }
 async function loadConversation() {
     try {
-        // Check local storage first
-        const savedConversation = localStorage.getItem('conversationHistory');
-        if (savedConversation) {
-            return JSON.parse(savedConversation);
-        }
-
-        // Fallback to server
         const isLoggedIn = await checkUserAuth();
+        
         if (!isLoggedIn) {
-            console.log('User not logged in, cannot load conversation');
+            // For non-logged-in users, only check localStorage
+            const savedConversation = localStorage.getItem('conversationHistory');
+            if (savedConversation) {
+                return JSON.parse(savedConversation);
+            }
             return false;
         }
-
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        
+        // For logged-in users, prioritize server storage
+        const response = await fetch('../shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -75,6 +74,11 @@ async function loadConversation() {
         if (data && data.status === 'success' && data.conversation) {
             return data.conversation;
         } else {
+            // If no server conversation, fallback to localStorage
+            const savedConversation = localStorage.getItem('conversationHistory');
+            if (savedConversation) {
+                return JSON.parse(savedConversation);
+            }
             console.log('No conversation found or invalid response structure');
             return false;
         }
@@ -85,18 +89,18 @@ async function loadConversation() {
 }
 async function saveConversation() {
     try {
-        // Always save to localStorage for page navigation persistence
-        localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
-        
         const isLoggedIn = await checkUserAuth();
+        
         if (!isLoggedIn) {
+            // For non-logged-in users, save only to localStorage
+            localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
             console.log('User not logged in, saving only to local storage');
             return false;
         }
 
-        // Save to server - add proper error handling and logging
+        // For logged-in users, only save to server (skip localStorage)
         console.log('Saving conversation to server:', conversationHistory);
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        const response = await fetch('../shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,7 +130,7 @@ async function clearServerConversation() {
         const isLoggedIn = await checkUserAuth();
         if (!isLoggedIn) return false;
 
-        const response = await fetch('../shop/functions/conversation-handler.php', {
+        const response = await fetch('../shop/functions/chatbot/conversation-handler.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -176,7 +180,7 @@ IMPORTANT DISPLAY INSTRUCTIONS:
     // Only fetch product data if the prompt requires it
     if (requiresProductData) {
         try {
-            const response = await fetch('../shop/functions/product-data.php');
+            const response = await fetch('../shop/functions/chatbot/product-data.php');
             if (!response.ok) throw new Error('Failed to fetch product data');
             
             const products = await response.json();
@@ -192,8 +196,8 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     
                     // Add price info only if specifically requested
                     if (requiresPriceData) {
-                        const finalPrice = Math.round(product.original_price * (1 - (product.discount_percentage / 100)));
-                        tshirtInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + finalPrice : ''})`;
+                        // Use discount_price directly instead of calculating it
+                        tshirtInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + product.discount_price : ''})`;
                     }
                     
                     // Add new release tag if applicable
@@ -234,8 +238,8 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     
                     // Add price info only if specifically requested
                     if (requiresPriceData) {
-                        const finalPrice = Math.floor(product.original_price * (1 - (product.discount_percentage / 100)));
-                        longslvInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + finalPrice : ''})`;
+                        // Use discount_price directly instead of calculating it
+                        longslvInfo += ` (Price: ₱${product.original_price}${product.discount_percentage > 0 ? ', ' + product.discount_percentage + '% off, Final: ₱' + product.discount_price : ''})`;
                     }
                     
                     // Add new release tag if applicable
@@ -280,11 +284,60 @@ async function initializeBot() {
     // Check if conversation is already loaded in session storage
     const conversationLoaded = sessionStorage.getItem('conversationLoaded');
     
-    // If conversation already loaded in this session AND user is logged in, restore UI
-    if (conversationLoaded === 'true' && isLoggedIn) {
+    // Create initial basic system prompt without product data
+    const baseSystemPrompt = await createDynamicSystemPrompt(false);
+    
+    // If logged in, prioritize loading from server
+    if (isLoggedIn) {
         try {
-            // Get saved messages to restore UI
-            const savedConversation = JSON.parse(localStorage.getItem('conversationHistory'));
+            // Try to load from server first for logged-in users
+            const serverConversation = await loadConversation();
+            
+            if (serverConversation) {
+                conversationHistory = serverConversation;
+                
+                // Ensure system prompt is at index 0
+                if (conversationHistory.length > 0) {
+                    conversationHistory[0] = {
+                        "role": "system", 
+                        "content": baseSystemPrompt
+                    };
+                }
+                
+                // Render previous messages in the UI
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = ''; // Clear default greeting
+                
+                // Skip the system message (index 0) when rendering
+                for (let i = 1; i < conversationHistory.length; i++) {
+                    const message = conversationHistory[i];
+                    const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
+                    
+                    chatMessages.innerHTML += `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${
+                                message.role === 'assistant' 
+                                    ? marked.parse(message.content) 
+                                    : message.content
+                            }</div>
+                        </div>
+                    `;
+                }
+                
+                // Mark as loaded in this session
+                sessionStorage.setItem('conversationLoaded', 'true');
+                return; // Exit early since we loaded from server
+            }
+        } catch (error) {
+            console.error('Error loading conversation from server:', error);
+        }
+    }
+    
+    // For non-logged-in users or if server load failed, check localStorage
+    const savedConversationFromStorage = localStorage.getItem('conversationHistory');
+    if (savedConversationFromStorage) {
+        try {
+            const savedConversation = JSON.parse(savedConversationFromStorage);
             
             if (savedConversation && savedConversation.length > 1) {
                 conversationHistory = savedConversation;
@@ -308,119 +361,55 @@ async function initializeBot() {
                         </div>
                     `;
                 }
-                return; // Exit early since we restored from session
+                
+                // Mark as loaded in this session
+                sessionStorage.setItem('conversationLoaded', 'true');
+                return; // Exit early since we restored from localStorage
             }
         } catch (error) {
-            console.error('Error restoring chat UI from session:', error);
+            console.error('Error restoring chat UI from localStorage:', error);
         }
-    } else if (!isLoggedIn) {
-        // User is not logged in, clear any existing conversation data
-        localStorage.removeItem('conversationHistory');
-        sessionStorage.removeItem('conversationLoaded');
     }
-
-    // Original initialization code continues here
+    
+    // If no existing conversation found, create a new one with dynamic greeting
     try {
-        // Create initial basic system prompt without product data
-        const baseSystemPrompt = await createDynamicSystemPrompt(false);
-        
-        // Only try to load conversation from server if logged in
-        const savedConversation = isLoggedIn ? await loadConversation() : null;
-
-        if (savedConversation) {
-            conversationHistory = savedConversation;
-            
-            // Ensure system prompt is at index 0
-            if (conversationHistory.length > 0) {
-                conversationHistory[0] = {
-                    "role": "system", 
-                    "content": baseSystemPrompt
-                };
-            }
-            
-            // Render previous messages in the UI
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = ''; // Clear default greeting
-            
-            // Skip the system message (index 0) when rendering
-            for (let i = 1; i < conversationHistory.length; i++) {
-                const message = conversationHistory[i];
-                const messageClass = message.role === 'assistant' ? 'bot-message' : 'user-message';
-                
-                chatMessages.innerHTML += `
-                    <div class="message ${messageClass}">
-                        <div class="message-content">${
-                            message.role === 'assistant' 
-                                ? marked.parse(message.content) 
-                                : message.content
-                        }</div>
-                    </div>
-                `;
-            }
-        } else {
-            // If no conversation found, create a new one with dynamic greeting
-            try {
-                // Try to get username
-                let username = null;
-                const userResponse = await fetch('../shop/functions/get-username.php');
-                const userData = await userResponse.json();
-                if (userData.status === 'success' && userData.username) {
-                    username = userData.username;
-                }
-                
-                // Get dynamic greeting
-                const greeting = getDynamicGreeting(username);
-                
-                // Create new conversation with dynamic greeting
-                conversationHistory = [
-                    {"role": "system", "content": baseSystemPrompt},
-                    {"role": "assistant", "content": greeting}
-                ];
-                
-                // Update the UI to show the greeting
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML = `
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <p>${greeting}</p>
-                        </div>
-                    </div>
-                `;
-                
-            } catch (error) {
-                console.error('Error getting username:', error);
-                // Fallback to generic greeting
-                const genericGreeting = getDynamicGreeting();
-                conversationHistory = [
-                    {"role": "system", "content": baseSystemPrompt},
-                    {"role": "assistant", "content": genericGreeting}
-                ];
-                
-                // Update UI with generic greeting
-                const chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML = `
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <p>${genericGreeting}</p>
-                        </div>
-                    </div>
-                `;
-            }
+        // Try to get username
+        let username = null;
+        const userResponse = await fetch('../shop/functions/chatbot/get-username.php');
+        const userData = await userResponse.json();
+        if (userData.status === 'success' && userData.username) {
+            username = userData.username;
         }
         
-        // Mark that we've loaded the conversation for this session
-        sessionStorage.setItem('conversationLoaded', 'true');
+        // Get dynamic greeting
+        const greeting = getDynamicGreeting(username);
+        
+        // Create new conversation with dynamic greeting
+        conversationHistory = [
+            {"role": "system", "content": baseSystemPrompt},
+            {"role": "assistant", "content": greeting}
+        ];
+        
+        // Update the UI to show the greeting
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>${greeting}</p>
+                </div>
+            </div>
+        `;
         
     } catch (error) {
-        console.error('Error initializing bot:', error);
-        // Use base system prompt on error with dynamic greeting
+        console.error('Error getting username:', error);
+        // Fallback to generic greeting
         const genericGreeting = getDynamicGreeting();
         conversationHistory = [
-            {"role": "system", "content": await createDynamicSystemPrompt(false)},
+            {"role": "system", "content": baseSystemPrompt},
             {"role": "assistant", "content": genericGreeting}
         ];
         
-        // Update UI with generic greeting on error
+        // Update UI with generic greeting
         const chatMessages = document.getElementById('chat-messages');
         chatMessages.innerHTML = `
             <div class="message bot-message">
@@ -430,6 +419,9 @@ async function initializeBot() {
             </div>
         `;
     }
+    
+    // Mark that we've loaded the conversation for this session
+    sessionStorage.setItem('conversationLoaded', 'true');
 }
 
 async function sendMessage() {
@@ -505,7 +497,7 @@ async function sendMessage() {
         currentController = new AbortController();
         const signal = currentController.signal;
         
-        const response = await fetch("../shop/functions/openrouter-proxy.php", {
+        const response = await fetch("../shop/functions/chatbot/openrouter-proxy.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -683,7 +675,7 @@ async function regenerateResponse(messageId) {
             currentController = new AbortController();
             const signal = currentController.signal;
             
-            const response = await fetch("../shop/functions/openrouter-proxy.php", {
+            const response = await fetch("../shop/functions/chatbot/openrouter-proxy.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -892,7 +884,7 @@ async function clearChat() {
     // Get the username if available
     let username = null;
     try {
-        const response = await fetch('../shop/functions/get-username.php');
+        const response = await fetch('../shop/functions/chatbot/get-username.php');
         const data = await response.json();
         if (data.status === 'success' && data.username) {
             username = data.username;

@@ -111,20 +111,26 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('darkModeToggle').classList.add('active');
   }
   
-  // Toggle dark/light mode
+  // Toggle dark/light mode with synchronized transitions
   document.getElementById('darkModeToggle').addEventListener('click', function() {
+    // First toggle the active state for the button
     this.classList.toggle('active');
     
-    // If body has dark theme, switch to light, else switch to dark
-    if (document.body.classList.contains('theme-dark')) {
-      document.body.classList.replace('theme-dark', 'theme-light');
-      document.documentElement.classList.replace('theme-dark', 'theme-light');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.body.classList.replace('theme-light', 'theme-dark');
-      document.documentElement.classList.replace('theme-light', 'theme-dark');
-      localStorage.setItem('theme', 'dark');
-    }
+    const isDark = document.body.classList.contains('theme-dark');
+    const newTheme = isDark ? 'light' : 'dark';
+    const oldTheme = isDark ? 'dark' : 'light';
+    
+    // Store the new theme preference
+    localStorage.setItem('theme', newTheme);
+    
+    // Apply the new theme immediately to all elements
+    document.documentElement.classList.replace(`theme-${oldTheme}`, `theme-${newTheme}`);
+    document.body.classList.replace(`theme-${oldTheme}`, `theme-${newTheme}`);
+    
+    // Let all other elements know about the theme change
+    document.dispatchEvent(new CustomEvent('themeChanged', {
+      detail: { theme: newTheme }
+    }));
   });
 });
 </script>

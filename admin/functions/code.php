@@ -9,31 +9,29 @@ if(isset($_POST['add_product'])) {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
-    $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
+    $discount_price = !empty($_POST['discount_price']) ? mysqli_real_escape_string($conn, $_POST['discount_price']) : $original_price;
+    
+    // Calculate discount percentage based on prices
+    $discount_percentage = 0;
+    if($original_price > 0 && $discount_price < $original_price) {
+        $discount_percentage = round((($original_price - $discount_price) / $original_price) * 100);
+    }
 
-    // Process category selection or new category entry
+    // Process category selection
     $category = '';
-    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
-        // New category was entered
-        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
-    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
-        // Existing category was selected
+    if(isset($_POST['category']) && !empty($_POST['category'])) {
+        // Use the selected category
         $category = mysqli_real_escape_string($conn, $_POST['category']);
     } else {
         // Default category if none selected
         $category = 'Uncategorized';
     }
 
-    // Process fabric selection or new fabric entry
+    // Process fabric selection
     $fabric = '';
-    if(isset($_POST['fabric'])) {
-        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
-            // New fabric was entered
-            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
-        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
-            // Existing fabric was selected
-            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
-        }
+    if(isset($_POST['fabric']) && !empty($_POST['fabric'])) {
+        // Use the selected fabric
+        $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
     }
     
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -51,9 +49,9 @@ if(isset($_POST['add_product'])) {
     mysqli_begin_transaction($conn);
     
     try {
-        // Insert into products table - updated to include fabric column
-        $product_query = "INSERT INTO products (sku, name, description, original_price, discount_percentage, category, fabric, is_featured, is_new_release) 
-                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', '$category', '$fabric', '$is_featured', '$is_new_release')";
+        // Insert into products table - updated to include discount_price column
+        $product_query = "INSERT INTO products (sku, name, description, original_price, discount_percentage, discount_price, category, fabric, is_featured, is_new_release) 
+                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', '$discount_price', '$category', '$fabric', '$is_featured', '$is_new_release')";
         $product_result = mysqli_query($conn, $product_query);
         
         if(!$product_result) {
@@ -93,6 +91,9 @@ if(isset($_POST['add_product'])) {
         if(isset($_FILES['additional_images']) && $_FILES['additional_images']['name'][0] != '') {
             $files = $_FILES['additional_images'];
             $file_count = count($files['name']);
+            
+            // Limit to 4 additional images instead of 3
+            $file_count = min($file_count, 4);
             
             for($i = 0; $i < $file_count; $i++) {
                 if($files['error'][$i] === UPLOAD_ERR_OK) {
@@ -222,31 +223,29 @@ if(isset($_POST['update_product'])) {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
-    $discount_percentage = !empty($_POST['discount_percentage']) ? mysqli_real_escape_string($conn, $_POST['discount_percentage']) : 0;
+    $discount_price = !empty($_POST['discount_price']) ? mysqli_real_escape_string($conn, $_POST['discount_price']) : $original_price;
     
-    // Process category selection or new category entry
+    // Calculate discount percentage based on prices
+    $discount_percentage = 0;
+    if($original_price > 0 && $discount_price < $original_price) {
+        $discount_percentage = round((($original_price - $discount_price) / $original_price) * 100);
+    }
+    
+    // Process category selection
     $category = '';
-    if(isset($_POST['category']) && $_POST['category'] == 'new' && isset($_POST['new_category']) && !empty($_POST['new_category'])) {
-        // New category was entered
-        $category = mysqli_real_escape_string($conn, $_POST['new_category']);
-    } elseif(isset($_POST['category']) && !empty($_POST['category']) && $_POST['category'] != 'new' && $_POST['category'] != 'remove') {
-        // Existing category was selected
+    if(isset($_POST['category']) && !empty($_POST['category'])) {
+        // Use the selected category
         $category = mysqli_real_escape_string($conn, $_POST['category']);
     } else {
         // Default category if none selected
         $category = 'Uncategorized';
     }
     
-    // Process fabric selection or new fabric entry
+    // Process fabric selection
     $fabric = '';
-    if(isset($_POST['fabric'])) {
-        if($_POST['fabric'] == 'new' && isset($_POST['new_fabric']) && !empty($_POST['new_fabric'])) {
-            // New fabric was entered
-            $fabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
-        } elseif(!empty($_POST['fabric']) && $_POST['fabric'] != 'new' && $_POST['fabric'] != 'remove') {
-            // Existing fabric was selected
-            $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
-        }
+    if(isset($_POST['fabric']) && !empty($_POST['fabric'])) {
+        // Use the selected fabric
+        $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
     }
     
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -291,13 +290,14 @@ if(isset($_POST['update_product'])) {
                 }
             }
         }
-        // Update product in products table - updated to include fabric
+        // Update product in products table - added discount_price field
         $product_query = "UPDATE products SET 
                             sku = '$sku', 
                             name = '$name', 
                             description = '$description', 
                             original_price = '$original_price', 
                             discount_percentage = '$discount_percentage', 
+                            discount_price = '$discount_price', 
                             category = '$category',
                             fabric = '$fabric',
                             is_featured = '$is_featured',
@@ -378,6 +378,9 @@ if(isset($_POST['update_product'])) {
             $additional_images = $_FILES['additional_images'];
             $additional_image_count = count($additional_images['name']);
             
+            // Limit to 4 additional images instead of 3
+            $additional_image_count = min($additional_image_count, 4);
+            
             for($i = 0; $i < $additional_image_count; $i++) {
                 $additional_image_name = $additional_images['name'][$i];
                 $additional_image_tmp = $additional_images['tmp_name'][$i];
@@ -415,6 +418,7 @@ if(isset($_POST['update_product'])) {
         // If everything is successful, commit the transaction
         mysqli_commit($conn);
         $_SESSION['message'] = "Product updated successfully";
+        $_SESSION['message_type'] = "success"; // Add message type for proper styling
         header('Location: ../products.php');
         exit();
         

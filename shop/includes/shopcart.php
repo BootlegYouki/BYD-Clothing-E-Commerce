@@ -41,7 +41,7 @@
                     <?php if(isset($_SESSION['auth_user'])): ?>
                     <a href="checkout.php" class="btn btn-dark">Checkout</a>
                     <?php else: ?>
-                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="offcanvas">Login to Checkout</button>
+                    <button type="button" class="btn btn-dark" id="loginToCheckoutBtn" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="offcanvas">Login to Checkout</button>
                     <?php endif; ?>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Continue Shopping</button>
                     </div>
@@ -50,3 +50,43 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set checkout redirect flag when "Login to Checkout" is clicked
+    const loginToCheckoutBtn = document.getElementById('loginToCheckoutBtn');
+    if (loginToCheckoutBtn) {
+        loginToCheckoutBtn.addEventListener('click', function() {
+            sessionStorage.setItem('redirectToCheckout', 'true');
+            
+            // Add checkout message to login modal if not already there
+            setTimeout(() => {
+                const loginModalBody = document.querySelector('#loginModal .modal-body');
+                if (loginModalBody && !document.getElementById('checkout-login-message')) {
+                    const checkoutMessage = document.createElement('div');
+                    checkoutMessage.id = 'checkout-login-message';
+                    checkoutMessage.className = 'alert alert-info mb-3';
+                    checkoutMessage.innerHTML = '<i class="fas fa-info-circle me-2"></i> Please log in to continue with checkout.';
+                    loginModalBody.insertBefore(checkoutMessage, loginModalBody.firstChild);
+                    
+                    // Auto-hide message after 5 seconds
+                    setTimeout(() => {
+                        checkoutMessage.style.transition = 'opacity 0.5s';
+                        checkoutMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            if (checkoutMessage.parentNode) {
+                                checkoutMessage.remove();
+                            }
+                        }, 500);
+                    }, 5000);
+                }
+            }, 300);
+        });
+    }
+    
+    // Make sure to display the initial cart state when the page loads
+    if (typeof updateShoppingCart === 'function') {
+        updateShoppingCart();
+    }
+});
+</script>

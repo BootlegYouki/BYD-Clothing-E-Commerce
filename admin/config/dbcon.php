@@ -1,4 +1,7 @@
 <?php
+// Set the default timezone for the application
+date_default_timezone_set('Asia/Manila'); // Philippines timezone (UTC+8:00)
+
 // Include the environment loader
 require_once __DIR__ . '/env_loader.php';
 
@@ -15,4 +18,7 @@ $conn = mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
+
+// Set MySQL timezone to match PHP timezone
+mysqli_query($conn, "SET time_zone = '+08:00'");
 ?>

@@ -1,3 +1,6 @@
+.text-coral{
+  color: coral;
+}
 .imglogo {
   width: clamp(120px, 15vw, 150px);
   height: auto;
@@ -142,6 +145,84 @@ input[type="checkbox"]:focus {
   display: flex;
   justify-content: center;
   align-items: center;
+  display: none;
+}
+
+/* Notification styles */
+.notification-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-sm{
+  padding: 0.375rem 0.6rem !important;
+}
+.notification-badge {
+  position: absolute;
+  top: -7px;
+  right: -12px;
+  background-color: coral;
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.notification-badge:empty {
+  display: none;
+}
+
+.notification-dropdown {
+  width: 322px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  transform: translateX(25%);
+}
+
+.notification-header {
+  background-color: #f8f9fa;
+}
+
+.notification-item {
+  transition: all 0.3s;
+  border-left: 3px solid transparent;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+  border-left-color: coral;
+}
+
+.notification-footer a {
+  color: coral;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.notification-footer a:hover {
+  color: #ff7f50;
+  text-decoration: underline !important;
+}
+
+.empty-notification {
+  color: #6c757d;
+}
+
+/* Toast notifications */
+.toast-container {
+  z-index: 1060;
+}
+
+.toast {
+  opacity: 1 !important;
 }
 
 /* MODAL */

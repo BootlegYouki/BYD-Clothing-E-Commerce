@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../admin/config/dbcon.php';
-include 'functions/otp_verification.php';
+include 'functions/account/otp_verification.php';
 
 if (!isset($_SESSION['verify_email'])) {
     header("Location: index.php");
@@ -16,6 +16,7 @@ $email = $_SESSION['verify_email'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Your Email - BYD Clothing</title>
+    <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,8 +37,6 @@ $email = $_SESSION['verify_email'];
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
         
         .verification-container {
@@ -46,7 +45,7 @@ $email = $_SESSION['verify_email'];
             background: #fff;
             border-radius: var(--border-radius);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            padding: 40px 30px;
+            padding: 20px 15px;
             transition: all 0.3s ease;
             margin: 20px;
         }
@@ -54,6 +53,12 @@ $email = $_SESSION['verify_email'];
         .logo {
             text-align: center;
             margin-bottom: clamp(20px, 4vw, 25px);
+        }
+        
+        .logo img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
         }
         
         .logo h2 {
@@ -82,19 +87,19 @@ $email = $_SESSION['verify_email'];
         
         .otp-inputs {
             display: flex;
-            gap: 10px;
+            gap: clamp(4px, 1vw, 10px);
             justify-content: center;
             margin: 30px 0;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         
         .otp-inputs input {
-            width: 55px;
-            height: 55px;
+            width: clamp(30px, 10vw, 55px); 
+            height: clamp(30px, 10vw, 55px);
             border: 2px solid #ddd;
             border-radius: 12px;
             text-align: center;
-            font-size: 24px;
+            font-size: clamp(16px, 4vw, 24px);
             font-weight: 600;
             color: var(--primary-color);
             background-color: #fcfcfc;
@@ -172,7 +177,7 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
-
+        
         /* Add styles for message display */
         .message {
             padding: 15px;
@@ -192,12 +197,28 @@ $email = $_SESSION['verify_email'];
             background-color: #e8f5e9;
             color: #388e3c;
         }
+        
+        /* Styling for spam reminder */
+        .spam-note {
+            color: #777;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .spam-note i {
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4">
         <div class="verification-container">
             <div class="logo">
+                <img src="img/logo/logo_admin_light.png" alt="BYD Clothing Logo">
                 <h2>BYD Clothing</h2>
             </div>
             
@@ -206,8 +227,9 @@ $email = $_SESSION['verify_email'];
             
             <h4 class="text-center">Verify Your Email</h4>
             <p class="text-center email-info">We've sent a verification code to <span class="email-value"><?php echo htmlspecialchars($email); ?></span></p>
+            <p class="spam-note"><i class="fas fa-info-circle"></i> If you don't see the email, please check your spam or junk folder.</p>
             
-            <form id="verificationForm" action="functions/authcode.php" method="POST">
+            <form id="verificationForm" action="functions/account/authcode.php" method="POST">
                 <div class="otp-inputs">
                     <input type="text" class="otp-input" maxlength="1" autofocus inputmode="numeric" pattern="[0-9]*">
                     <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
@@ -231,7 +253,7 @@ $email = $_SESSION['verify_email'];
             
             <div class="resend">
                 <p>Didn't receive the code?</p>
-                <form id="resendForm" action="functions/authcode.php" method="POST">
+                <form id="resendForm" action="functions/account/authcode.php" method="POST">
                     <input type="hidden" name="resend_otp" value="1">
                     <button type="submit" id="resendBtn" class="btn-resend" disabled>
                         <span class="resend-normal-state">Resend Code</span>
@@ -364,7 +386,7 @@ $email = $_SESSION['verify_email'];
                     
                     // AJAX for OTP verification
                     $.ajax({
-                        url: 'functions/authcode.php',
+                        url: 'functions/account/authcode.php',
                         type: 'POST',
                         data: $(this).serialize(),
                         dataType: 'json',
@@ -412,7 +434,7 @@ $email = $_SESSION['verify_email'];
                 
                 // AJAX for resending OTP
                 $.ajax({
-                    url: 'functions/authcode.php',
+                    url: 'functions/account/authcode.php',
                     type: 'POST',
                     data: $(this).serialize(),
                     dataType: 'json',

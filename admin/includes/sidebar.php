@@ -1,5 +1,3 @@
-
-
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 
@@ -15,6 +13,13 @@ if (function_exists('getPendingOrdersCount')) {
     include_once dirname(__FILE__) . '/../config/dbcon.php';
     $pending_orders_count = getPendingOrdersCount($conn);
 }
+
+// Get unread notifications count
+$notifications_count = 0;
+if (function_exists('getUnreadNotificationsCount')) {
+    $notifications_count = getUnreadNotificationsCount($conn);
+}
+$notification_badge_display = $notifications_count > 0 ? 'inline-flex' : 'none';
 
 // Only show badge if there are pending orders
 $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
@@ -51,7 +56,6 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     // Store current theme before navigation
     const currentTheme = localStorage.getItem('theme') || 'light';
     
-    
     // First close the offcanvas if it's open
     const offcanvasElement = document.getElementById('sidebarOffcanvas');
     const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
@@ -59,6 +63,9 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
     if (bsOffcanvas) {
       bsOffcanvas.hide();
     }
+    
+    // Add a class that will temporarily disable all transitions during navigation
+    document.documentElement.classList.add('theme-transition');
     
     // Add a consistent delay to allow dark mode processing before navigation
     // Using the same delay as navbar.php for consistency
@@ -186,6 +193,12 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
       <span class="nav-section-title">Customers</span>
       <ul class="navbar-nav">
         <li class="nav-item">
+          <a class="nav-link <?php echo ($currentPage == 'customers.php') ? 'active' : ''; ?>" href="customers.php">
+            <i class="material-symbols-rounded">people</i>
+            <span>Customers</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link <?php echo ($currentPage == 'orders.php') ? 'active' : ''; ?>" href="orders.php">
             <i class="material-symbols-rounded">receipt_long</i>
             <span>Orders</span>
@@ -195,9 +208,31 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?php echo ($currentPage == 'customers.php') ? 'active' : ''; ?>" href="customers.php">
-            <i class="material-symbols-rounded">people</i>
-            <span>Customers</span>
+          <a class="nav-link <?php echo ($currentPage == 'notifications.php') ? 'active' : ''; ?>" href="notifications.php">
+            <i class="material-symbols-rounded">notifications</i>
+            <span>Notifications</span>
+            <?php if ($notifications_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $notification_badge_display ?>;"><?= $notifications_count ?></span>
+            <?php endif; ?>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Payment Management Section -->
+    <div class="nav-section">
+      <span class="nav-section-title">Payments</span>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link <?php echo ($currentPage == 'payment-settings.php') ? 'active' : ''; ?>" href="transactions.php">
+            <i class="material-symbols-rounded">payments</i>
+            <span>Transactions</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <?php echo ($currentPage == 'manage_webhooks.php') ? 'active' : ''; ?>" href="paymongo/webhook/manage_webhooks.php">
+            <i class="material-symbols-rounded">webhook</i>
+            <span>Manage Webhooks</span>
           </a>
         </li>
       </ul>
@@ -287,6 +322,37 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
                href="customers.php" onclick="closeOffcanvas()">
               <i class="material-symbols-rounded">people</i>
               <span>Customers</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <?php echo ($currentPage == 'notifications.php') ? 'active' : ''; ?>" 
+               href="notifications.php" onclick="closeOffcanvas()">
+              <i class="material-symbols-rounded">notifications</i>
+              <span>Notifications</span>
+              <?php if ($notifications_count > 0): ?>
+                <span class="nav-badge" style="display: <?= $notification_badge_display ?>;"><?= $notifications_count ?></span>
+              <?php endif; ?>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Payment Management (New Section for mobile) -->
+      <div class="nav-section">
+        <span class="nav-section-title">Payments</span>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link <?php echo ($currentPage == 'transactions.php') ? 'active' : ''; ?>" 
+               href="payment-settings.php" onclick="closeOffcanvas()">
+              <i class="material-symbols-rounded">payments</i>
+              <span>Transactions</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <?php echo (strpos($currentPage, 'manage_webhooks.php') !== false) ? 'active' : ''; ?>" 
+               href="paymongo/webhook/manage_webhooks.php" onclick="closeOffcanvas()">
+              <i class="material-symbols-rounded">webhook</i>
+              <span>Manage Webhooks</span>
             </a>
           </li>
         </ul>

@@ -3,19 +3,53 @@
     <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title" id="loginsuccessmodalLabel">Login Successful!</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
-            onclick="window.location.href='index'"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>Welcome back, <?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Customer'; ?>! You have successfully logged in.</p>
+      <p>Welcome back, <span id="login-username"><?php echo isset($_SESSION['auth_user']['username']) ? $_SESSION['auth_user']['username'] : $_SESSION['username'] ?? 'User'; ?></span>! You have successfully logged in.</p>
       </div>
       <div class="modal-footer">
-        <a href="index" class="btn" style="background-color: #FF7F50; color: white;">Continue</a>
+        <button type="button" class="btn" id="loginSuccessContinueBtn" style="background-color: #FF7F50; color: white;">Continue</button>
       </div>
     </div>
   </div>
 </div>
-<script src="js/url-cleaner.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Show login success modal if session flag is set
+    <?php if(isset($_SESSION['login_success'])): ?>
+    var loginSuccessModal = new bootstrap.Modal(document.getElementById('loginsuccessmodal'));
+    loginSuccessModal.show();
+    <?php 
+    // Clear the flag after showing the modal
+    unset($_SESSION['login_success']);
+    endif; ?>
+    
+    // Update the username in the modal with the latest from AJAX response if available
+    window.updateLoginSuccessUsername = function(username) {
+      const usernameElement = document.getElementById('login-username');
+      if (usernameElement && username) {
+        usernameElement.textContent = username;
+      }
+    };
+    
+    // Handle the continue button click based on redirect flag
+    const continueBtn = document.getElementById('loginSuccessContinueBtn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function() {
+        if (sessionStorage.getItem('redirectToCheckout') === 'true') {
+          sessionStorage.removeItem('redirectToCheckout');
+          window.location.href = 'checkout.php';
+        } else {
+          const loginSuccessModal = bootstrap.Modal.getInstance(document.getElementById('loginsuccessmodal'));
+          if (loginSuccessModal) {
+            loginSuccessModal.hide();
+          }
+        }
+      });
+    }
+  });
+</script>
 
 <!-- Admin Login Success Modal -->
 <div class="modal fade" id="adminLoginSuccessModal" tabindex="-1" aria-labelledby="adminLoginSuccessModalLabel" aria-hidden="true">
@@ -39,12 +73,16 @@
 <!-- Script to show admin login modal -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    <?php if(isset($_SESSION['admin_login_success']) || isset($_GET['adminLogin'])): ?>
-    var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
-    adminLoginModal.show();
+    <?php if(isset($_SESSION['admin_login_success'])): ?>
+    // Check if we've already shown this modal in the current session
+    if (!sessionStorage.getItem('adminLoginShown')) {
+        var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
+        adminLoginModal.show();
+        // Set a flag in sessionStorage so we don't show it again
+        sessionStorage.setItem('adminLoginShown', 'true');
+    }
     
     <?php 
-    // Clear the flag after showing the modal
     unset($_SESSION['admin_login_success']);
     endif; ?>
 });

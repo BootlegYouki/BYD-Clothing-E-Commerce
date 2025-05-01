@@ -16,24 +16,7 @@
     </div>
     <div class="chat-messages" id="chat-messages">
         <div class="message bot-message">
-            <div class="message-content">
-            <?php
-            $hour = date('H');
-            if ($hour >= 5 && $hour < 12) {
-                $greeting = "Good morning";
-            } elseif ($hour >= 12 && $hour < 18) {
-                $greeting = "Good afternoon";
-            } else {
-                $greeting = "Good evening";
-            }
-            
-            if (isset($username) && !empty($username)) {
-                echo "<p>{$greeting}, {$username}! How can I help you with BYD-CLOTHING products today?</p>";
-            } else {
-                echo "<p>{$greeting}! How can I help you with BYD-CLOTHING products today?</p>";
-            }
-            ?>
-            </div>
+            <div class="message-content"></div>
         </div>
     </div>
     <div class="chat-input">

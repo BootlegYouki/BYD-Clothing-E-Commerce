@@ -11,6 +11,15 @@
     --warning: #ECC94B;
     --danger: #F56565;
   }
+
+  .form-control.is-invalid, 
+  .was-validated, 
+  .form-control:invalid,
+  .form-control.is-valid, 
+  .was-validated, 
+  .form-control:valid {
+  background-image: none !important;
+}
   
   .text-coral {
     color: var(--coral) !important;
@@ -86,6 +95,12 @@
     transition: all 0.2s ease;
   }
 
+  .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    color: #fff;
+    background-color: var(--coral-dark);
+    border-color: var(--bs-coral-dark);
+}
+
   .btn-outline-coral {
     color: var(--coral);
     border-color: var(--coral);
@@ -160,7 +175,15 @@
     margin-top: 0.5rem;
   }
   
-  /* User Info Display */
+  /* Readonly inputs - make them visually disabled */
+.form-control:read-only {
+  background-color: #e9ecef;  /* Light gray background */
+  cursor: not-allowed;        /* Show "not-allowed" cursor */
+  color: #6c757d;             /* Gray text */
+  opacity: 0.8;
+}
+
+/* User Info Display */
   .fw-bold {
     font-weight: 600 !important;
     color: var(--dark-text);
@@ -237,6 +260,48 @@
   .form-control.is-invalid {
     border-color: var(--danger);
   }
+
+  /* Validation styling */
+  .form-control.is-invalid:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+  }
+  
+  .form-control.is-valid {
+    border-color: var(--success);
+  }
+  
+  .form-control.is-valid:focus {
+    border-color: var(--success);
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  }
+  
+  /* Focus state for form fields */
+  .form-control:focus {
+    border-color: var(--coral);
+    box-shadow: 0 0 0 0.25rem rgba(255, 127, 80, 0.25);
+  }
+  
+  .password-field-container {
+    position: relative;
+  }
+    
+  .password-toggle-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6c757d;
+      z-index: 5;
+  }
+
+  .form-control.is-invalid ~ .password-toggle-btn,
+  .was-validated .form-control:invalid ~ .password-toggle-btn {
+    top: calc(50% - 13px);
+  }
   
   /* Row & Column Spacing */
   .row > [class^="col-"] {
@@ -266,4 +331,14 @@
     height: 100% !important;
   }
 
-  
+  /* Map highlight effect for validation */
+  #map.map-invalid {
+    border: 2px solid var(--danger);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+  }
+
+  /* Transition for validation highlight effects */
+  .form-control, #map {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+

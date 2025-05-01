@@ -1,10 +1,13 @@
 <?php
 require_once '../admin/config/dbcon.php';
-require_once 'functions/shop_product-handler.php';
+require_once 'functions/productfetching/shop_product-handler.php';
 
 // Get parameters from URL
 $view_product_id = isset($_GET['view_product']) ? intval($_GET['view_product']) : 0;
-$category_filter = isset($_GET['category']) ? $_GET['category'] : '';
+
+// Clean up category filter to handle spaces correctly
+$category_filter = isset($_GET['category']) ? str_replace('+', ' ', $_GET['category']) : '';
+
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -93,27 +96,25 @@ $categories = getAllCategories($conn);
                 <div class="col-md-7 d-none d-md-block">
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <?php foreach($categories as $category): ?>
-                            <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
-                               class="category-filter <?= $category_filter === $category ? 'active' : '' ?>">
+                            <a href="javascript:void(0)" 
+                               class="category-filter <?= $category_filter === $category ? 'active' : '' ?>"
+                               data-category="<?= urlencode($category) ?>">
                                 <?= htmlspecialchars($category) ?>
                             </a>
                         <?php endforeach; ?>
-                        <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)):?>
-                            <a href="shop.php" class="clear-filter ms-2">
-                                <i class="fa fa-times-circle me-1"></i>Clear
-                            </a>
-                        <?php endif; ?>
+                        <a href="javascript:void(0)" class="clear-filter ms-2" id="clear-filters" style="<?= (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)) ? '' : 'display: none;' ?>">
+                            <i class="fa fa-times-circle me-1"></i>Clear
+                        </a>
                     </div>
                 </div>
                 
                 <!-- Right side: Sort and Count -->
-                <div class="col-md-5">
+                <div class="col-md-5 py-2">
                     <div class="d-flex justify-content-md-end justify-content-center align-items-center">
                         <!-- Sort dropdown -->
                         <div class="d-flex align-items-center gap-2 justify-content-center">
                             <label for="product-sort" class="form-label mb-0">Sort by:</label>
-                            <select id="product-sort" class="form-select" 
-                            onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sort', this.value)">
+                            <select id="product-sort" class="form-select">
                                 <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>Default</option>
                                 <option value="price-asc" <?= $sort === 'price-asc' ? 'selected' : '' ?>>Price: Low to High</option>
                                 <option value="price-desc" <?= $sort === 'price-desc' ? 'selected' : '' ?>>Price: High to Low</option>
@@ -134,11 +135,9 @@ $categories = getAllCategories($conn);
                 <!-- Mobile product count -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="mobile-products-count" class="text-muted"><?= $total_items ?> products</span>
-                    <?php if (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)): ?>
-                        <a href="shop.php" class="clear-filter btn btn-sm btn-outline-danger">
-                            <i class="fa fa-times-circle me-1"></i>Clear Filter
-                        </a>
-                    <?php endif; ?>
+                    <a href="javascript:void(0)" class="clear-filter btn btn-sm btn-outline-danger" id="clear-filters-mobile" style="<?= (!empty($category_filter) || !empty($search_query) || !empty($view_product_id)) ? '' : 'display: none;' ?>">
+                        <i class="fa fa-times-circle me-1"></i>Clear Filter
+                    </a>
                 </div>
                 
                 <!-- Categories dropdown -->
@@ -149,8 +148,9 @@ $categories = getAllCategories($conn);
                     <div class="card card-body mt-2">
                         <div class="d-flex flex-wrap gap-2">
                             <?php foreach($categories as $category): ?>
-                                <a href="?<?= !empty($search_query) ? 'search=' . urlencode($search_query) . '&' : '' ?>category=<?= urlencode($category) ?>" 
-                                class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm">
+                                <a href="javascript:void(0)" 
+                                class="btn <?= $category_filter === $category ? 'btn-dark' : 'btn-outline-secondary' ?> btn-sm mobile-category-filter"
+                                data-category="<?= urlencode($category) ?>">
                                     <?= htmlspecialchars($category) ?>
                                 </a>
                             <?php endforeach; ?>
@@ -167,56 +167,53 @@ $categories = getAllCategories($conn);
     <div class="container-fluid px-md-5 px-2">
         <div class="row">
             <div class="col-12">
+                <div id="filter-results-header" class="search-results-header my-3">
                 <?php if (!empty($search_query)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">Search results for: "<?= htmlspecialchars($search_query) ?>"</h4>
-                        
-                        <?php if(empty($products)): ?>
-                            <div class="alert alert-info mt-3">
-                                <i class="fa fa-info-circle me-2"></i>No products found matching your search.
-                                <a href="shop.php" class="alert-link ms-2">View all products</a>
-                            </div>
-                        <?php else: ?>
-                            <p class="text-muted mb-0 mt-2">Found <?= count($products) ?> <?= count($products) === 1 ? 'product' : 'products' ?> matching your search</p>
-                        <?php endif; ?>
-                    </div>
+                    <h4 class="mb-0">Search results for: "<?= htmlspecialchars($search_query) ?>"</h4>
+                    
+                    <?php if(empty($products)): ?>
+                        <div class="alert alert-info mt-3">
+                            <i class="fa fa-info-circle me-2"></i>No products found matching your search.
+                            <a href="shop.php" class="alert-link ms-2">View all products</a>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0 mt-2">Found <?= count($products) ?> <?= count($products) === 1 ? 'product' : 'products' ?> matching your search</p>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <?php if (!empty($category_filter) && empty($search_query)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">Category: "<?= htmlspecialchars($category_filter) ?>"</h4>
-                        
-                        <?php if(empty($products)): ?>
-                            <div class="alert alert-info mt-3">
-                                <i class="fa fa-info-circle me-2"></i>No products found in this category.
-                                <a href="shop.php" class="alert-link ms-2">View all products</a>
-                            </div>
-                        <?php else: ?>
-                        <?php endif; ?>
-                    </div>
+                    <h4 class="mb-0">Category: "<?= htmlspecialchars($category_filter) ?>"</h4>
+                    
+                    <?php if(empty($products)): ?>
+                        <div class="alert alert-info mt-3">
+                            <i class="fa fa-info-circle me-2"></i>No products found in this category.
+                            <a href="shop.php" class="alert-link ms-2">View all products</a>
+                        </div>
+                    <?php else: ?>
+                    <?php endif; ?>
                 <?php endif; ?>
                 
                 <?php if ($sort !== 'default' && empty($search_query) && empty($category_filter)): ?>
-                    <div class="search-results-header my-3">
-                        <h4 class="mb-0">
-                            Sorted by: 
-                            <?php 
-                                switch ($sort) {
-                                    case 'price-asc': echo 'Price: Low to High'; break;
-                                    case 'price-desc': echo 'Price: High to Low'; break;
-                                    case 'name-asc': echo 'Name: A to Z'; break;
-                                    case 'name-desc': echo 'Name: Z to A'; break;
-                                    case 'discount': echo 'Best Discount'; break;
-                                }
-                            ?>
-                        </h4>
-                    </div>
+                    <h4 class="mb-0">
+                        Sorted by: 
+                        <?php 
+                            switch ($sort) {
+                                case 'price-asc': echo 'Price: Low to High'; break;
+                                case 'price-desc': echo 'Price: High to Low'; break;
+                                case 'name-asc': echo 'Name: A to Z'; break;
+                                case 'name-desc': echo 'Name: Z to A'; break;
+                                case 'discount': echo 'Best Discount'; break;
+                            }
+                        ?>
+                    </h4>
                 <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
 </div>
     <div class="container-fluid px-md-5 px-2">
+        <div id="products-container">
         <?php if(empty($products)): ?>
             <div class="row">
                 <div class="col-12 text-center py-5">
@@ -239,38 +236,37 @@ $categories = getAllCategories($conn);
                     // Add up to 4 products per row
                     for ($j = $i; $j < min($i + $productsPerRow, $totalProducts); $j++) {
                         $product = $products[$j];
-                        // Calculate discounted price if discount_percentage exists
+                        // Use discount_price if available
                         $originalPrice = $product['price'];
                         $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
+                        $discountPrice = isset($product['discount_price']) && $product['discount_price'] > 0 ? $product['discount_price'] : 0;
                         
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
+                        // Calculate discount percentage for display if not provided
+                        if($discountPrice > 0 && $discountPercentage <= 0) {
+                            $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
                         }
                         ?>
                         <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                             <div class="product-card" data-product-id="<?= $product['id'] ?>">
                                 <div class="product-img-container">
                                     <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                                    <?php if($discountPercentage > 0): ?>
+                                    <?php if($discountPrice > 0): ?>
                                         <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="product-info">
                                     <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                     <div class="price-container mb-3">
-                                        <?php if($discountPercentage > 0): ?>
+                                        <?php if($discountPrice > 0): ?>
                                             <div class="price-wrapper">
                                                 <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                                <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
+                                                <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
                                             </div>
                                         <?php else: ?>
                                             <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                    data-row-index="<?= floor($j / $productsPerRow) ?>" 
-                                    onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                    <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                                 </div>
                             </div>
                         </div>
@@ -286,37 +282,37 @@ $categories = getAllCategories($conn);
                 <div class="swiper-wrapper">
                     <?php 
                     foreach($products as $product) { 
-                        // Calculate discounted price if discount_percentage exists
+                        // Use discount_price if available
                         $originalPrice = $product['price'];
+                        $discountPrice = isset($product['discount_price']) && $product['discount_price'] > 0 ? $product['discount_price'] : 0;
                         $discountPercentage = $product['discount_percentage'];
-                        $discountedPrice = $originalPrice;
                         
-                        if($discountPercentage > 0) {
-                            $discountedPrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
+                        // Calculate discount percentage for display if not provided
+                        if($discountPrice > 0 && $discountPercentage <= 0) {
+                            $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
                         }
                     ?>
                     <div class="swiper-slide">
                         <div class="product-card" data-product-id="<?= $product['id'] ?>">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                            <?php if($discountPercentage > 0): ?>
+                            <?php if($discountPrice > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
                         </div>
                             <div class="product-info">
                                 <h5 class="text-uppercase mb-2 text-center"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                 <div class="price-container mb-3">
-                                    <?php if($discountPercentage > 0): ?>
+                                    <?php if($discountPrice > 0): ?>
                                         <div class="price-wrapper">
                                             <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
-                                            <span class="current-price">₱<?= number_format($discountedPrice, 2) ?></span>
+                                            <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
                                         </div>
                                     <?php else: ?>
                                         <span class="current-price">₱<?= number_format($originalPrice, 2) ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <button class="buy-btn" data-bs-toggle="collapse" data-bs-target="#productQuickView" 
-                                onclick="showQuickView(<?= htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') ?>, event)">View</button>
+                                <button class="buy-btn" onclick="viewProduct(<?= $product['id'] ?>)">View</button>
                             </div>
                         </div>
                     </div>
@@ -325,121 +321,38 @@ $categories = getAllCategories($conn);
                 <div class="swiper-pagination"></div>
             </div>
         <?php endif; ?>
-    </div>
-</section>
-
-<!-- PRODUCT QUICK VIEW COLLAPSE -->
-<div class="container px-md-5 pt-sm-3 px-4 mb-5 w-90 w-md-100">
-    <div class="collapse" id="productQuickView">
-        <div class="card quick-view-card">
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- Image Column -->
-                    <div class="col-md-6 mb-4 mb-md-0">
-                        <!-- Main product image -->
-                        <div class="main-image-container mb-3">
-                            <img src="" alt="Product image" class="quick-view-img img-fluid" loading="lazy">
-                        </div>
-                        
-                        <!-- Thumbnail images -->
-                        <div class="thumbnail-navigation position-relative">
-                            <div class="thumbnail-container d-flex justify-content-center">
-                                <!-- These will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        
+        <!-- Pagination container -->
+        <div id="pagination-container">
+            <?php if ($total_pages > 1): ?>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                        <a class="page-link" href="javascript:void(0)" data-page="<?= $page - 1 ?>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
                     
-                    <!-- Product Info Column -->
-                    <div class="col-md-6">
-                        <div class="product-info">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h3 class="quick-view-title m-0 text-uppercase"></h3>
-                                <button type="button" class="btn-close ms-2" data-bs-toggle="collapse" data-bs-target="#productQuickView" aria-label="Close"></button>
-                            </div>
-                            
-                            <!-- Star ratings -->
-                            <!-- <div class="star-rating mb-2">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-half-o"></i>
-                                <span class="rating-count">(24 reviews)</span>
-                            </div> -->
-                            
-                            <h5 class="quick-view-category text-uppercase mb-3"></h5>
-                            <p class="quick-view-sku text-muted mb-2"></p>
-                            
-                            <div class="quick-view-description mb-4">
-                                <!-- Description will be populated by JavaScript -->
-                            </div>
-                            
-                            <div class="quick-view-price-container mb-4">
-                                <!-- Price container - will be populated by JavaScript -->
-                            </div>
-                            
-                            <div class="mb-4">
-                                <!-- Size Selection -->
-                                <label class="form-label fw-bold d-block mb-2">Size</label>
-                                <div class="size-buttons mb-4">
-                                    <div class="row g-2" id="size-buttons-container">
-                                        <!-- Will be populated dynamically by JavaScript -->
-                                    </div>
-                                </div>
-                                <input type="hidden" id="quick-view-size" value="">
-                                <div id="size-error" class="text-danger mb-2" style="display: none;">Please select a size</div>
-                                
-                                <!-- Quantity Selection -->
-                                <label class="form-label fw-bold d-block mb-2">Quantity</label>
-                                <div class="quantity-selector d-flex mb-4">
-                                    <button type="button" class="btn-quantity minus" id="quick-view-quantity-minus">
-                                        <i class="fa fa-minus"></i>
-                                    </button>
-                                    <input type="number" class="quantity-input" id="quick-view-quantity" value="1" min="1" max="10" readonly>
-                                    <button type="button" class="btn-quantity plus" id="quick-view-quantity-plus">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-                                </div>
-                                <p id="stock-info" class="text-muted"></p>
-                            </div>
-                            
-                            <!-- Action Button - Only Add to Cart -->
-                            <button id="quick-view-add-to-cart" class="add-to-cart-btn w-100">ADD TO CART</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                            <a class="page-link" href="javascript:void(0)" data-page="<?= $i ?>">
+                                <?= $i ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+                    
+                    <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                        <a class="page-link" href="javascript:void(0)" data-page="<?= $page + 1 ?>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <?php endif; ?>
         </div>
     </div>
-</div>
-
-
-<!-- PAGINATION -->
-<?php if ($total_pages > 1): ?>
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>">
-                    <?= $i ?>
-                </a>
-            </li>
-        <?php endfor; ?>
-        
-        <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-    </ul>
-</nav>
-<?php endif; ?>
+</section>
 
 <!-- FOOTER -->
 <?php include 'includes/footer.php'; ?>
@@ -449,39 +362,21 @@ $categories = getAllCategories($conn);
     const viewProductId = urlParams.get('view_product');
     
     if (viewProductId) {
-        // Find the product with matching ID in our products array
-        const products = <?= json_encode($products) ?>;
-        const productToShow = products.find(product => product.id == viewProductId);
-        
-        if (productToShow) {
-            // Find the product card in the DOM that matches this product ID
-            const productCard = document.querySelector(`.product-card[data-product-id="${productToShow.id}"]`);
-            
-            // Small delay to ensure all scripts are loaded
-            setTimeout(() => {
-                // Trigger quick view modal
-                showQuickView(productToShow, null);
-                
-                // Show the modal using Bootstrap API
-                const quickViewCollapse = document.getElementById('productQuickView');
-                const quickViewModal = new bootstrap.Collapse(quickViewCollapse);
-                quickViewModal.show();
-                
-                // Manually set up the scroll-back functionality that's missing
-                // when showQuickView is called with null event
-                if (productCard) {
-                    const closeButton = quickViewCollapse.querySelector('.btn-close');
-                    if (closeButton) {
-                        closeButton.removeEventListener('click', function() {});
-                        
-                        closeButton.addEventListener('click', function() {
-                            scrollBackToProduct(productCard);
-                        });
-                    }
-                }
-            }, 300);
-        }
+        // Redirect to product page if view_product parameter is present
+        window.location.href = `product.php?id=${viewProductId}`;
     }
+    
+    // Store initial state for use with filters
+    window.shopState = {
+        category: '<?= addslashes($category_filter) ?>',
+        search: '<?= addslashes($search_query) ?>',
+        sort: '<?= addslashes($sort) ?>',
+        page: <?= $page ?>,
+        view_product_id: <?= $view_product_id ?>,
+    };
+    
+    // Initialize clear filter buttons
+    updateClearFilterButtons();
 });
 </script>
 <!-- UTILITY SCRIPTS -->
@@ -491,4 +386,3 @@ $categories = getAllCategories($conn);
 <!-- SCRIPT -->
 <script src="js/shop.js"></script>
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>

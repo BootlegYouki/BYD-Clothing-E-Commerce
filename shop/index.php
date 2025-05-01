@@ -1,7 +1,7 @@
 <?php
 // At the top of your file after requiring dbcon.php
 require_once '../admin/config/dbcon.php';
-require_once 'functions/index_product-handler.php'; // Move this line here
+require_once 'functions/productfetching/index_product-handler.php'; // Move this line here
 
 // Get homepage settings
 $settings = [];
@@ -62,11 +62,12 @@ function get_setting($key, $default = '') {
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
-    <!-- FORGOT PASSWORD MODAL -->
-    <?php include 'includes/forgot-password.php'; ?>
-<!-- HOME SECTION -->
-<section id="home">
-  <div class="container-fluid px-3 pb-5">
+    <!-- PAYMENT MODALS -->
+    <?php include 'includes/payment_modals.php'; ?>
+    
+    <!-- HOME SECTION -->
+    <section id="home">
+  <div class="container-fluid py-3 pb-5 px-lg-0 px-5">
     <div class="small-container">
       <div class="row align-items-center">
         <!-- Left Column: Text -->
@@ -229,7 +230,7 @@ function get_setting($key, $default = '') {
       endforeach; 
       ?>
     </ul>
-    <button class="btn-body">Learn More</button>
+    <button class="btn-body" onclick="window.location.href='aboutus.php'">Learn More</button>
   </div>
 </section>
 <!-- T-SHIRT SECTION  -->
@@ -333,67 +334,5 @@ function get_setting($key, $default = '') {
 <!-- SCRIPT -->
 <script src="js/indexscript.js"></script>
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>
-<script src="js/shop.js"></script>
-<script src="js/password-reset.js"></script>
-
-<!-- Payment Status Modal -->
-<div class="modal fade" id="paymentStatusModal" tabindex="-1" aria-labelledby="paymentStatusModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="paymentStatusModalLabel">Order Status</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="paymentStatusMessage">
-        <!-- Message will be inserted here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" style="background-color: #FF7F50; color: white;" data-bs-dismiss="modal">Continue Shopping</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-
-// Check for payment status in URL parameters
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get('payment');
-    const orderId = urlParams.get('order_id');
-    
-    if (paymentStatus === 'success') {
-        document.getElementById('paymentStatusMessage').innerHTML = `
-            <div class="alert alert-success">
-                <h4><i class="fa fa-check-circle"></i> Payment Successful!</h4>
-                <p>Your order (${orderId}) has been successfully processed.</p>
-                <p>A confirmation email with your invoice has been sent to your email address.</p>
-                <p>Thank you for shopping with BYD Clothing!</p>
-            </div>
-        `;
-        var paymentModal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
-        paymentModal.show();
-        
-        // Clear cart after successful payment
-        localStorage.removeItem('cart');
-    } else if (paymentStatus === 'failed') {
-        document.getElementById('paymentStatusMessage').innerHTML = `
-            <div class="alert alert-danger">
-                <h4><i class="fa fa-times-circle"></i> Payment Failed</h4>
-                <p>We're sorry, but your payment could not be processed.</p>
-                <p>Please try again or contact our customer support for assistance.</p>
-            </div>
-        `;
-        var paymentModal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
-        paymentModal.show();
-    }
-    
-    // Remove payment status from URL to prevent showing modal on refresh
-    if (paymentStatus) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-});
-</script>
 </body>
 </html>

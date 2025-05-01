@@ -35,19 +35,28 @@ include 'config/dbcon.php';
 
 <div class="container-fluid">
     <?php if(isset($_SESSION['message'])) : ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-            <strong>Success!</strong> <?= $_SESSION['message']; ?>
+        <?php 
+        // Default to error if message_type isn't set
+        $messageType = isset($_SESSION['message_type']) ? $_SESSION['message_type'] : "error";
+        $alertClass = ($messageType == "success") ? "alert-success" : "alert-danger";
+        $alertTitle = ($messageType == "success") ? "Success!" : "Error!";
+        ?>
+        <div class="alert <?= $alertClass ?> alert-dismissible fade show" role="alert" id="alert-message">
+            <strong><?= $alertTitle ?></strong> <?= $_SESSION['message']; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <script>
             setTimeout(function() {
-                document.getElementById('success-alert').classList.remove('show');
+                document.getElementById('alert-message').classList.remove('show');
                 setTimeout(function() {
-                    document.getElementById('success-alert')?.remove();
+                    document.getElementById('alert-message')?.remove();
                 }, 150);
             }, 3000);
         </script>
-        <?php unset($_SESSION['message']); ?>
+        <?php 
+        unset($_SESSION['message']); 
+        unset($_SESSION['message_type']);
+        ?>
     <?php endif; ?>
 
     <div class="row">
@@ -99,9 +108,11 @@ include 'config/dbcon.php';
 
                                     if(mysqli_num_rows($products_result) > 0) {
                                         while($product = mysqli_fetch_assoc($products_result)) {
-                                            // Calculate sale price if discount exists
+                                            // Use discount_price if available, otherwise calculate from discount_percentage
                                             $sale_price = $product['original_price'];
-                                            if($product['discount_percentage'] > 0) {
+                                            if(isset($product['discount_price']) && $product['discount_price'] > 0) {
+                                                $sale_price = $product['discount_price'];
+                                            } elseif($product['discount_percentage'] > 0) {
                                                 $discount_amount = ($product['original_price'] * $product['discount_percentage']) / 100;
                                                 $sale_price = $product['original_price'] - $discount_amount;
                                             }
@@ -128,7 +139,7 @@ include 'config/dbcon.php';
                                             <p class="text-xs font-weight-bold mb-0"><?= $product['category'] ?></p>
                                         </td>
                                         <td class="text-center align-middle">
-                                            <?php if($product['discount_percentage'] > 0): ?>
+                                            <?php if($product['discount_price'] > 0 || $product['discount_percentage'] > 0): ?>
                                             <p class="text-xs font-weight-bold mb-0">₱<?= number_format($sale_price, 2) ?></p>
                                             <p class="text-xs text-secondary mb-0"><del>₱<?= number_format($product['original_price'], 2) ?></del> (<?= $product['discount_percentage'] ?>% off)</p>
                                             <?php else: ?>
@@ -158,10 +169,10 @@ include 'config/dbcon.php';
                                         </td>
                                         <td>
                                             <div class="d-flex justify-content-center pt-lg-2 pt-4">
-                                                <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm btn-link text-secondary p-1 me-1" title="Edit product">
+                                                <a href="edit-product.php?id=<?= $product['id'] ?>" class="btn btn-sm text-secondary p-1 me-1" title="Edit product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">edit</i>
                                                 </a>
-                                                <a href="javascript:void(0);" onclick="confirmDelete(<?= $product['id'] ?>)" class="btn btn-sm btn-link text-danger p-1" title="Delete product">
+                                                <a href="javascript:void(0);" onclick="confirmDelete(<?= $product['id'] ?>)" class="btn btn-sm text-danger p-1" title="Delete product">
                                                     <i class="material-symbols-rounded" style="font-size: 20px;">delete</i>
                                                 </a>
                                             </div>

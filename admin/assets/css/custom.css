@@ -5,6 +5,30 @@ html.theme-preload * {
   transition: none !important;
 }
 
+/* Define global transitions for theme changes */
+:root {
+  --theme-transition-time: 300ms;
+}
+
+/* Apply transitions to all elements that should change with theme */
+html:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease;
+}
+
+body:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease, color var(--theme-transition-time) ease;
+}
+
+.sidebar:not(.theme-preload):not(.theme-transition),
+.top-navbar:not(.theme-preload):not(.theme-transition),
+.card:not(.theme-preload):not(.theme-transition),
+.main-content:not(.theme-preload):not(.theme-transition) {
+  transition: background-color var(--theme-transition-time) ease, 
+              border-color var(--theme-transition-time) ease,
+              box-shadow var(--theme-transition-time) ease;
+}
+
+/* Theme logo visibility */
 .theme-light-logo, .theme-dark-logo {
   display: none;
 }
@@ -317,7 +341,8 @@ a {
   font-size: 0.875rem;
   border-radius: 6px;
   transition: all 0.25s ease;
-  color: var(--white);
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-gradient-primary {
@@ -346,17 +371,6 @@ a {
   transform: translateY(0);
 }
 
-.btn-coral {
-  background: var(--primary);
-  color: white;
-  border: none;
-  box-shadow: 0 3px 6px rgba(255, 99, 71, 0.3);
-}
-
-.btn-coral:hover {
-  box-shadow: 0 5px 12px rgba(255, 99, 71, 0.4);
-  transform: translateY(-2px);
-}
 
 .btn-outline-coral {
   border-color: #FF7F50;
@@ -378,8 +392,26 @@ a {
   color: white;
 }
 
-.btn-outline-coral.active:hover {
-  background-color: #FF6347;
+/* Improved Button Icon Alignment */
+.btn .material-symbols-rounded,
+.btn i {
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Specific alignment for different sized buttons */
+.btn-sm .material-symbols-rounded,
+.btn-sm i {
+  font-size: 0.9rem;
+}
+
+.btn-lg .material-symbols-rounded,
+.btn-lg i {
+  font-size: 1.3rem;
 }
 
 /* ICONS WITH DARK BACKGROUNDS */
@@ -662,10 +694,6 @@ body.theme-dark {
     color: var(--text-color) !important;
   }
   
-  .alert-success strong {
-    color: var(--success);
-  }
-  
   .alert-success .btn-close {
     filter: brightness(0.8) !important;
   }
@@ -830,15 +858,159 @@ body.theme-dark {
   .dropdown-divider {
     border-color: var(--border-color);
   }
+  
+  /* Modal styling - forceful overrides for dark mode */
+  .modal .modal-content {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  .modal .modal-header,
+  .modal .modal-footer {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  .modal .modal-body {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+  }
+  
+  .modal .modal-title {
+    color: var(--text-color) !important;
+  }
+  
+  .modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(70%) !important;
+  }
+  
+  .modal .avatar.bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .modal .avatar .material-symbols-rounded {
+    color: var(--text-color) !important;
+  }
+  
+  .modal .text-muted,
+  .modal small.text-muted,
+  .modal .form-label.text-muted {
+    color: var(--text-muted) !important;
+  }
+  
+  .modal h5,
+  .modal h6,
+  .modal p:not(.text-muted),
+  .modal span:not(.text-muted) {
+    color: var(--text-color) !important;
+  }
+  
+  .modal hr {
+    border-color: var(--border-color) !important;
+    opacity: 0.2;
+  }
+
+  /* Fix for input group text */
+  .input-group-text {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+  }
+  
+  /* Fix for discount preset buttons */
+  .discount-preset-btn {
+    background-color: rgba(255, 127, 80, 0.15);
+    border-color: rgba(255, 127, 80, 0.3);
+    color: var(--text-color);
+  }
+  
+  /* Fix for size input containers */
+  .size-input-container {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  /* Fix for image upload container */
+  .image-upload-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+  }
+  .image-upload-container .upload-icon {
+    color: var(--text-muted);
+  }
+
+  /* Fix for removable image hover in dark mode */
+  .removable-image:hover {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+  }
 }
 
-/* Make Home breadcrumb coral colored */
-.breadcrumb-item a[href="index.php"] {
-  color: var(--primary) !important;
-  transition: all 0.2s ease;
+/* Icon Button Styles */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: none;
+  margin-left: 6px;
 }
 
-.breadcrumb-item a[href="index.php"]:hover {
-  text-decoration: underline !important;
-  opacity: 0.9;
+.btn-icon i, 
+.btn-icon .material-symbols-rounded {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon.btn-add {
+  background: linear-gradient(195deg, #64e89d, #2dce89);
+  color: white;
+  box-shadow: 0 3px 6px rgba(45, 206, 137, 0.3);
+}
+
+.btn-icon.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(45, 206, 137, 0.4);
+}
+
+.btn-icon.btn-remove {
+  background: linear-gradient(195deg, #f56969, #f5365c);
+  color: white;
+  box-shadow: 0 3px 6px rgba(245, 54, 92, 0.3);
+}
+
+.btn-icon.btn-remove:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(245, 54, 92, 0.4);
+}
+
+/* Input group with icon buttons */
+.input-group {
+  align-items: center;
+}
+
+/* Dark mode specific styles for icon buttons */
+body.theme-dark .btn-icon.btn-add {
+  background: linear-gradient(195deg, #57c388, #25aa71);
+}
+
+body.theme-dark .btn-icon.btn-remove {
+  background: linear-gradient(195deg, #e25a5a, #d92e4e);
+}
+
+/* Form controls with icon buttons */
+.input-group .form-control {
+  border-top-right-radius: 0.375rem !important;
+  border-bottom-right-radius: 0.375rem !important;
+}
+
+hr {
+  margin: 0;
 }

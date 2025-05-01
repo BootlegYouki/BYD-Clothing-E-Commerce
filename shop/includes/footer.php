@@ -35,6 +35,9 @@
                 <h6 class="text-uppercase">phone</h6>
                 <p id="phoneCopy" onclick="copyPhoneNumber()" title="Click to copy to clipboard" style="cursor: pointer;">0905 507 9634</p>
               </div>
+              <h6 class="pb-2">Privacy & Terms</h6>
+              <li class="list-unstyled text-uppercase"><a href="privacy-policy.php">Privacy Policy</a></li>
+              <li class="list-unstyled mb-3 text-uppercase"><a href="terms-of-service.php">Terms of Service</a></li>
             </div>
           </div>
         </div>

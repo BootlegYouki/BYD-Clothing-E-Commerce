@@ -8,8 +8,8 @@
  * 4. Handles form submission and payment processing
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Load cart data from localStorage
-    const cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+    // Load cart data from localStorage - check both possible keys
+    const cart = JSON.parse(localStorage.getItem('shopping-cart') || localStorage.getItem('cart')) || [];
     
     // If cart is empty, redirect to shop
     if (cart.length === 0) {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Submitting payment with total:', (subtotal + SHIPPING_FEE).toFixed(2));
                 
                 // Submit order data to backend
-                const response = await fetch('functions/process_payment.php', {
+                const response = await fetch('functions/paymongo/process_payment.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -121,8 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.success) {
                     console.log('Payment URL received:', data.payment_url);
-                    // Clear cart before redirecting
+                    // Clear cart before redirecting - clear both possible keys
                     localStorage.removeItem('shopping-cart');
+                    localStorage.removeItem('cart');
                     
                     // Store the order ID in session storage for retrieval after payment
                     sessionStorage.setItem('pending_order_id', data.order_id);
@@ -141,28 +142,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
-
-// Find the section that handles the form submission and AJAX response
-// Look for code similar to this:
-
-// After receiving the response from process_payment.php
-$.ajax({
-    // ... existing AJAX settings ...
-    success: function(response) {
-        if (response.success) {
-            // Instead of using window.open, use window.location.href
-            window.location.href = response.payment_url;
-            
-            // Remove any code that might be using window.open like:
-            // if (response.open_in_new_tab) {
-            //     window.open(response.payment_url, '_blank');
-            // } else {
-            //     window.location.href = response.payment_url;
-            // }
-        } else {
-            // Error handling
-        }
-    },
-    // ... rest of AJAX settings ...
 });

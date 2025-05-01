@@ -156,36 +156,51 @@ while ($row = $orders_result->fetch_assoc()) {
                             </div>
                         </div>
                         
-                        <!-- Edit Mode -->
+                        <!-- Edit Mode with Enhanced Validation -->
                         <div id="profile-edit" style="display: none;">
-                            <form id="update-profile-form" action="functions/update_profile.php" method="post">
+                            <form id="update-profile-form" action="functions/profile/update_profile.php" method="post" class="needs-validation" novalidate>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label for="edit-firstname" class="form-label">First Name</label>
                                         <input type="text" class="form-control" id="edit-firstname" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>" required>
+                                        <div class="invalid-feedback">
+                                            Please enter your first name.
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="edit-middlename" class="form-label">Middle Name</label>
                                         <input type="text" class="form-control" id="edit-middlename" name="middlename" value="<?php echo htmlspecialchars($user['middlename']); ?>">
+                                        <div class="valid-feedback">
+                                            Middle name is optional.
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="edit-lastname" class="form-label">Last Name</label>
                                         <input type="text" class="form-control" id="edit-lastname" name="lastname" value="<?php echo htmlspecialchars($user['lastname']); ?>" required>
+                                        <div class="invalid-feedback">
+                                            Please enter your last name.
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="edit-username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="edit-username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
-                                        <div class="invalid-feedback" id="username-feedback"></div>
+                                        <input type="text" class="form-control" id="edit-username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required minlength="3">
+                                        <div class="invalid-feedback" id="username-feedback">
+                                            Please enter a valid username (at least 3 characters).
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="edit-phone" class="form-label">Phone</label>
                                         <input type="tel" class="form-control" id="edit-phone" name="phone_number" value="<?php echo htmlspecialchars($user['phone_number']); ?>" required>
-                                        <div class="invalid-feedback" id="phone-feedback"></div>
+                                        <div class="invalid-feedback" id="phone-feedback">
+                                            Please enter a valid phone number.
+                                        </div>
                                     </div>
                                     <div class="col-md-12">
                                         <label for="edit-email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="edit-email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                                        <div class="invalid-feedback" id="email-feedback"></div>
+                                        <div class="invalid-feedback" id="email-feedback">
+                                            Please enter a valid email address.
+                                        </div>
                                     </div>
                                     <div class="col-12 mt-3">
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -250,7 +265,7 @@ while ($row = $orders_result->fetch_assoc()) {
                     </div>
                 </div>
                 
-                <!-- Address Section -->
+                <!-- Address Section with Enhanced Validation -->
                 <div id="address-section" class="card mb-4" style="display: none;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">My Address</h5>
@@ -271,20 +286,34 @@ while ($row = $orders_result->fetch_assoc()) {
                             </div>
                         </div>
                         
-                        <!-- Edit Mode -->
+                        <!-- Edit Mode with Enhanced Validation - Updated to match register.php -->
                         <div id="address-edit" style="display: none;">
-                            <form id="update-address-form" action="functions/update_address.php" method="post">
-                                <div class="mb-4">
-                                    <label for="edit-full-address" class="form-label">Full Address</label>
-                                    <input type="text" class="form-control" id="edit-full-address" name="full_address" value="<?php echo htmlspecialchars($user['full_address']); ?>" required>
+                            <form id="update-address-form" action="functions/profile/update_address.php" method="post" class="needs-validation" novalidate>
+                                <div class="alert alert-info small py-2 mb-2">
+                                    <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
                                 </div>
-                                <div id="map" class="mb-4 rounded shadow-sm"></div>
-                                <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($user['latitude']); ?>">
-                                <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($user['longitude']); ?>">
+                                <div class="mb-4">
+                                    <div id="map" class="mb-3 rounded shadow-sm" style="height: 300px;"></div>
+                                    <label for="edit-full-address" class="form-label">Full Address</label>
+                                    <input type="text" class="form-control" id="edit-full-address" name="full_address" 
+                                        value="<?php echo htmlspecialchars($user['full_address']); ?>" 
+                                        placeholder="Click on map to select your address" 
+                                        readonly required style="cursor: default; color: #495057;">
+                                    <div class="invalid-feedback">
+                                        Please provide your address by selecting a location on the map.
+                                    </div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="fa-solid fa-circle-info me-1"></i> You can search for an address above or click directly on the map to select your location.
+                                    </div>
+                                </div>
+                                <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($user['latitude']); ?>" required>
+                                <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($user['longitude']); ?>" required>
                                 <div class="mb-4">
                                     <label for="edit-zipcode" class="form-label">Zipcode</label>
                                     <input type="text" class="form-control" id="edit-zipcode" name="zipcode" value="<?php echo htmlspecialchars($user['zipcode']); ?>" required>
-                                    <div class="form-text text-muted mt-2">Zipcode is automatically determined from your map location.</div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="fa-solid fa-circle-info me-1"></i> Zipcode is automatically determined from your map location, but you may edit it if needed.
+                                    </div>
                                 </div>
                                 <div class="d-flex gap-3">
                                     <button type="submit" class="btn btn-primary">Save Address</button>
@@ -295,28 +324,52 @@ while ($row = $orders_result->fetch_assoc()) {
                     </div>
                 </div>
                 
-                <!-- Change Password Section -->
+                <!-- Change Password Section with Enhanced Validation -->
                 <div id="password-section" class="card" style="display: none;">
                     <div class="card-header">
                         <h5 class="mb-0">Change Password</h5>
                     </div>
                     <div class="card-body">
-                        <form id="change-password-form" action="functions/update_password.php" method="post">
+                        <form id="change-password-form" action="functions/profile/update_password.php" method="post" class="needs-validation" novalidate>
                             <div class="mb-4">
                                 <label for="current-password" class="form-label">Current Password</label>
-                                <input type="password" class="form-control profile-form-control" id="current-password" name="current_password" required>
-                                <div class="invalid-feedback" id="current-password-feedback"></div>
+                                <div class="form-floating password-field-container">
+                                    <input type="password" class="form-control profile-form-control" id="current-password" name="current_password" placeholder="Current Password" required>
+                                    <label for="current-password">Current Password</label>
+                                    <button type="button" class="password-toggle-btn" data-target="current-password" tabindex="-1" aria-label="Show password">
+                                        <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="invalid-feedback" id="current-password-feedback">
+                                        Please enter your current password.
+                                    </div>
+                                </div>
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="new-password" class="form-label">New Password</label>
-                                    <input type="password" class="form-control profile-form-control" id="new-password" name="new_password" required minlength="8">
-                                    <div class="form-text text-muted mt-2">Password must be at least 8 characters.</div>
+                                    <div class="form-floating password-field-container">
+                                        <input type="password" class="form-control profile-form-control" id="new-password" name="new_password" placeholder="New Password" required minlength="8">
+                                        <label for="new-password">New Password</label>
+                                        <button type="button" class="password-toggle-btn" data-target="new-password" tabindex="-1" aria-label="Show password">
+                                            <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            Password must be at least 8 characters.
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="confirm-new-password" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control profile-form-control" id="confirm-new-password" name="confirm_password" required>
-                                    <div class="invalid-feedback">Passwords don't match.</div>
+                                    <div class="form-floating password-field-container">
+                                        <input type="password" class="form-control profile-form-control" id="confirm-new-password" name="confirm_password" placeholder="Confirm New Password" required>
+                                        <label for="confirm-new-password">Confirm New Password</label>
+                                        <button type="button" class="password-toggle-btn" data-target="confirm-new-password" tabindex="-1" aria-label="Show password">
+                                            <i class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            Passwords don't match.
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -357,7 +410,6 @@ while ($row = $orders_result->fetch_assoc()) {
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <!-- CUSTOM SCRIPTS -->
 <script src="js/url-cleaner.js"></script>
-<script src="js/assistant.js"></script>
 <script src="js/profile.js"></script>
 </body>
 </html>
