@@ -1,45 +1,63 @@
 <?php
 // paymongo-webhook.php
 
-// Load environment variables (use vlucas/phpdotenv if installed)
-$WEBHOOK_SECRET = getenv('PAYMONGO_WEBHOOK_SECRET'); // Get this from PayMongo dashboard
+// 1. Set timezone to match PayMongo's servers (critical for timestamp validation)
+date_default_timezone_set('Asia/Manila');
 
-// Get raw payload and headers
+// 2. Retrieve webhook secret from Heroku environment variables
+$WEBHOOK_SECRET = getEnvVar('PAYMONGO_WEBHOOK_SECRET');
+
+// 3. Get raw payload and signature header
 $payload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_PAYMONGO_SIGNATURE'] ?? '';
 
-// Verify signature
+// 4. Add debug logging (temporarily)
+error_log("Raw Payload: " . $payload);
+error_log("Received Signature: " . $signature);
+error_log("Stored Secret: " . $WEBHOOK_SECRET);
+
+// 5. Signature validation function
 function verifySignature($payload, $signature, $secret) {
     $computedSignature = hash_hmac('sha256', $payload, $secret);
+    error_log("Computed Signature: " . $computedSignature); // Debug log
     return hash_equals($signature, $computedSignature);
 }
 
+// 6. Validate signature
 if (!verifySignature($payload, $signature, $WEBHOOK_SECRET)) {
+    error_log("❌ Signature validation failed");
     http_response_code(403);
     die('Invalid signature');
 }
 
-// Parse JSON payload
-$event = json_decode($payload, true);
+// 7. Process valid event
+try {
+    $event = json_decode($payload, true);
+    error_log("Valid event received: " . print_r($event, true));
 
-// Process event
-switch ($event['data']['attributes']['type']) {
-    case 'payment.paid':
-        $paymentData = $event['data']['attributes']['data'];
-        // Update database, send email, etc.
-        error_log("Payment succeeded: " . $paymentData['id']);
-        break;
-        
-    case 'payment.failed':
-        $paymentData = $event['data']['attributes']['data'];
-        // Notify admin or handle failure
-        error_log("Payment failed: " . $paymentData['id']);
-        break;
-        
-    default:
-        error_log("Unhandled event type: " . $event['data']['attributes']['type']);
+    switch ($event['data']['attributes']['type'] ?? '') {
+        case 'payment.paid':
+            $paymentId = $event['data']['attributes']['data']['id'];
+            error_log("✅ Payment succeeded: $paymentId");
+            // Add your order fulfillment logic here
+            break;
+            
+        case 'payment.failed':
+            $paymentId = $event['data']['attributes']['data']['id'];
+            error_log("❌ Payment failed: $paymentId");
+            // Add failure handling logic
+            break;
+            
+        default:
+            error_log("⚠️ Unhandled event type: " . ($event['data']['attributes']['type'] ?? 'unknown'));
+    }
+
+    http_response_code(200);
+    echo 'Webhook processed';
+
+} catch (Exception $e) {
+    error_log("Error processing event: " . $e->getMessage());
+    http_response_code(500);
+    echo 'Error processing webhook';
 }
-
-http_response_code(200);
-echo 'Webhook processed';
 ?>
