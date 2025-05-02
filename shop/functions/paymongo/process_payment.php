@@ -266,7 +266,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         // Commit all database changes
         mysqli_commit($conn);
         
-        // Send order confirmation email with invoice using the EmailService class
+        // Send order confirmation email with invoice using the EmailConfirmation class
         EmailConfirmation::sendOrderConfirmationEmail($data, $order_id, $paymentId);
         
         return $order_id;
