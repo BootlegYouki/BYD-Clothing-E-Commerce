@@ -2,7 +2,7 @@
 // paymongo-webhook.php
 
 // Load environment variables (use vlucas/phpdotenv if installed)
-$WEBHOOK_SECRET = 'whsk_X5G7D4xjMmw2UYDZzxvhLq2v'; // Get this from PayMongo dashboard
+$WEBHOOK_SECRET = getenv('PAYMONGO_WEBHOOK_SECRET'); // Get this from PayMongo dashboard
 
 // Get raw payload and headers
 $payload = file_get_contents('php://input');
