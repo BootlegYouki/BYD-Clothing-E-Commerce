@@ -18,53 +18,46 @@ if (empty($WEBHOOK_SECRET)) {
 $payload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_PAYMONGO_SIGNATURE'] ?? '';
 
-// 4. Debug logging (temporary)
-error_log("Raw Payload: " . $payload);
-error_log("Received Signature: " . $signature);
-error_log("Stored Secret: " . $WEBHOOK_SECRET);
-
-// 5. Signature validation function
+// 4. Validate signature first
 function verifySignature($payload, $signature, $secret) {
     $computedSignature = hash_hmac('sha256', $payload, $secret);
-    error_log("Computed Signature: " . $computedSignature);
     return hash_equals($signature, $computedSignature);
 }
 
-// 6. Validate signature
 if (!verifySignature($payload, $signature, $WEBHOOK_SECRET)) {
     error_log("❌ Signature validation failed");
     http_response_code(403);
     die('Invalid signature');
 }
 
-// 7. Process valid event
+// 5. Immediately return 200 to stop retries
+http_response_code(200);
+echo 'Webhook received';
+
+// 6. Process event after sending response
 try {
     $event = json_decode($payload, true);
     error_log("Valid event received: " . print_r($event, true));
 
+    // Add your event processing logic here
     switch ($event['data']['attributes']['type'] ?? '') {
         case 'payment.paid':
             $paymentId = $event['data']['attributes']['data']['id'];
             error_log("✅ Payment succeeded: $paymentId");
-            // Add order fulfillment logic
+            // Update database, send email, etc.
             break;
             
         case 'payment.failed':
             $paymentId = $event['data']['attributes']['data']['id'];
             error_log("❌ Payment failed: $paymentId");
-            // Add failure handling
+            // Handle failed payments
             break;
             
         default:
             error_log("⚠️ Unhandled event type: " . ($event['data']['attributes']['type'] ?? 'unknown'));
     }
 
-    http_response_code(200);
-    echo 'Webhook processed';
-
 } catch (Exception $e) {
     error_log("Error processing event: " . $e->getMessage());
-    http_response_code(500);
-    echo 'Error processing webhook';
 }
 ?>
