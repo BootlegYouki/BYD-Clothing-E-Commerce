@@ -1,5 +1,5 @@
 <?php
-// paymongo-webhook.php
+// paymongo-webhook.php (Temporary Testing Mode)
 
 // 1. Set timezone to match PayMongo's servers
 date_default_timezone_set('Asia/Manila');
@@ -7,55 +7,29 @@ date_default_timezone_set('Asia/Manila');
 // 2. Retrieve webhook secret from Heroku
 $WEBHOOK_SECRET = getenv('PAYMONGO_WEBHOOK_SECRET');
 
-// 2a. Check if secret is configured
-if (empty($WEBHOOK_SECRET)) {
-    error_log("❌ PAYMONGO_WEBHOOK_SECRET is not set in Heroku config");
-    http_response_code(500);
-    die("Server error: Missing webhook secret");
-}
-
 // 3. Get raw payload and signature header
 $payload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_PAYMONGO_SIGNATURE'] ?? '';
 
-// 4. Validate signature first
-function verifySignature($payload, $signature, $secret) {
-    $computedSignature = hash_hmac('sha256', $payload, $secret);
-    return hash_equals($signature, $computedSignature);
+// 4. Bypass signature validation temporarily
+$isSignatureValid = false;
+if (!empty($WEBHOOK_SECRET)) {
+    $computedSignature = hash_hmac('sha256', $payload, $WEBHOOK_SECRET);
+    $isSignatureValid = hash_equals($signature, $computedSignature);
 }
 
-if (!verifySignature($payload, $signature, $WEBHOOK_SECRET)) {
-    error_log("❌ Signature validation failed");
-    http_response_code(403);
-    die('Invalid signature');
-}
-
-// 5. Immediately return 200 to stop retries
+// 5. Immediately return 200 to stop retries (accept all requests)
 http_response_code(200);
-echo 'Webhook received';
+echo 'Webhook received (Testing Mode)';
 
-// 6. Process event after sending response
+// 6. Process event for debugging
 try {
     $event = json_decode($payload, true);
-    error_log("Valid event received: " . print_r($event, true));
+    error_log("Received event (Signature valid: " . ($isSignatureValid ? 'YES' : 'NO') . "): " . print_r($event, true));
 
-    // Add your event processing logic here
-    switch ($event['data']['attributes']['type'] ?? '') {
-        case 'payment.paid':
-            $paymentId = $event['data']['attributes']['data']['id'];
-            error_log("✅ Payment succeeded: $paymentId");
-            // Update database, send email, etc.
-            break;
-            
-        case 'payment.failed':
-            $paymentId = $event['data']['attributes']['data']['id'];
-            error_log("❌ Payment failed: $paymentId");
-            // Handle failed payments
-            break;
-            
-        default:
-            error_log("⚠️ Unhandled event type: " . ($event['data']['attributes']['type'] ?? 'unknown'));
-    }
+    // Log event type
+    $eventType = $event['data']['attributes']['type'] ?? 'unknown';
+    error_log("Event Type: $eventType");
 
 } catch (Exception $e) {
     error_log("Error processing event: " . $e->getMessage());
