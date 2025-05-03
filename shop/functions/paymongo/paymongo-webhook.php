@@ -8,7 +8,7 @@ date_default_timezone_set('Asia/Manila');
 require_once __DIR__ . '/env_loader.php';
 
 // 2. Retrieve the webhook secret key from Heroku config variables
-$WEBHOOK_SECRET = getenv('PAYMONGO_WEBHOOK_SECRET');
+$WEBHOOK_SECRET = getEnvVar('PAYMONGO_WEBHOOK_SECRET');
 
 // 2a. Check if the secret is set
 if (empty($WEBHOOK_SECRET)) {
