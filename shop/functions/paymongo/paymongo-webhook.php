@@ -1,58 +1,58 @@
 <?php
-try {
-    // Decode the payload and validate structure
-    $event = json_decode($payload, true);
-    
-    // Validate payload structure
-    if (!isset($event['data']['attributes']['type'], $event['data']['attributes']['data'])) {
-        throw new Exception("Invalid PayMongo event structure");
-    }
+include '/../../../admin/config/dbcon.php';;
 
-    // Extract event type (e.g., "checkout_session.payment.paid")
-    $eventType = $event['data']['attributes']['type'];
-    error_log("✅ Valid event received: $eventType");
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
 
-    switch ($eventType) {
-        case 'checkout_session.payment.paid':
-            // Validate checkout session data structure
-            $checkoutData = $event['data']['attributes']['data'];
-            if (!isset($checkoutData['id'], $checkoutData['attributes'])) {
-                throw new Exception("Invalid checkout session data");
+file_put_contents('webhook.log', $input . PHP_EOL, FILE_APPEND);
+
+if ($data && isset($data['data']['attributes']['type'])) {
+    $eventType = $data['data']['attributes']['type'];
+
+    if ($eventType == 'checkout_session.payment.paid') {
+        // Extract checkout session data
+        $checkoutData = $data['data']['attributes']['data'];
+        $checkoutAttributes = $checkoutData['attributes'];
+        $paymentIntent = $checkoutAttributes['payment_intent'];
+        
+        // Get reference number from checkout session
+        $referenceNumber = $checkoutAttributes['reference_number'] ?? null;
+
+        if ($referenceNumber) {
+            // Update order status to "Paid"
+            $stmt = $conn->prepare("
+                UPDATE orders 
+                SET 
+                    status = 'Paid',
+                    payment_id = ?,
+                    updated_at = NOW()
+                WHERE order_number = ?
+            ");
+
+            $checkoutSessionId = $checkoutData['id']; // payment_id
+            $stmt->bind_param("ss", $checkoutSessionId, $referenceNumber);
+
+            if ($stmt->execute()) {
+                http_response_code(200);
+                echo "Order status updated to Paid";
+            } else {
+                file_put_contents('webhook_error.log', "DB Error: " . $stmt->error, FILE_APPEND);
+                http_response_code(500);
+                echo "Failed to update order status";
             }
-
-            $checkoutSessionId = $checkoutData['id'];
-            error_log("💰 Checkout Session Paid: $checkoutSessionId");
-
-            // Extract payment intent safely
-            $paymentIntent = $checkoutData['attributes']['payment_intent'] ?? [];
-            $paymentIntentId = $paymentIntent['id'] ?? 'unknown';
-            error_log("🔗 Payment Intent ID: $paymentIntentId");
-
-            // Extract metadata with validation
-            $metadata = $checkoutData['attributes']['metadata'] ?? [];
-            $userId = $metadata['user_id'] ?? 'unknown';
-            error_log("👤 User ID: $userId");
-
-            // TODO: Add order fulfillment logic here
-            break;
-
-        case 'checkout_session.payment.failed':
-            // Add failure handling logic (e.g., notify user)
-            error_log("❌ Checkout Session Failed: " . print_r($event, true));
-            break;
-
-        default:
-            error_log("⚠️ Unhandled event type: $eventType");
-            break;
+            $stmt->close();
+        } else {
+            http_response_code(400);
+            echo "Missing reference number";
+        }
+    } else {
+        http_response_code(400);
+        echo "Unsupported event type: $eventType";
     }
-
-    http_response_code(200);
-    echo 'Webhook processed';
-
-} catch (Exception $e) {
-    error_log("🚨 Critical Error: " . $e->getMessage());
-    error_log("📦 Raw Payload: " . $payload); // Debugging aid
-    http_response_code(400); // Bad Request for invalid payloads
-    echo 'Error processing webhook';
+} else {
+    http_response_code(400);
+    echo "Invalid webhook payload";
 }
+
+$conn->close();
 ?>
