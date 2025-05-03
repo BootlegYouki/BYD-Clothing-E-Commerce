@@ -1,6 +1,5 @@
 <?php
-// Include the environment loader
-require_once __DIR__ . '/../../../admin/config/env_loader.php';
+
 require_once __DIR__ . '/../../../admin/config/dbcon.php';
 
 // Create logs directory if it doesn't exist
@@ -18,6 +17,13 @@ file_put_contents($logDir . '/webhook.log', date('Y-m-d H:i:s') . " - Received w
 
 // Always respond with 200 OK to prevent retries
 http_response_code(200);
+
+// Verify database connection
+if (!isset($conn) || $conn->connect_error) {
+    file_put_contents($logDir . '/webhook_error.log', date('Y-m-d H:i:s') . " - Database connection failed: " . ($conn->connect_error ?? "Unknown error") . PHP_EOL, FILE_APPEND);
+    echo "Database connection error";
+    exit;
+}
 
 if ($data && isset($data['data']['attributes']['type'])) {
     $eventType = $data['data']['attributes']['type'];
@@ -50,6 +56,13 @@ if ($data && isset($data['data']['attributes']['type'])) {
             $externalReferenceNumber = isset($metadata['reference_number']) ? 
                                       $metadata['reference_number'] : null;
             
+            // Validate reference number
+            if (empty($externalReferenceNumber)) {
+                file_put_contents($logDir . '/webhook_error.log', date('Y-m-d H:i:s') . " - Missing reference number in metadata for payment: " . $paymongoPayID . PHP_EOL, FILE_APPEND);
+                echo "Missing reference number";
+                exit;
+            }
+            
             // Determine payment method
             $paymentMethod = 'card'; // Default to card
             if (isset($checkoutSessionData['attributes']['payment_method_used'])) {
@@ -69,6 +82,12 @@ if ($data && isset($data['data']['attributes']['type'])) {
                     status = 'PAID' 
                 WHERE order_number = ?
             ");
+
+            if (!$stmt) {
+                file_put_contents($logDir . '/webhook_error.log', date('Y-m-d H:i:s') . " - Prepare statement failed: " . $conn->error . PHP_EOL, FILE_APPEND);
+                echo "Database prepare error";
+                exit;
+            }
 
             $stmt->bind_param(
                 "sss",
