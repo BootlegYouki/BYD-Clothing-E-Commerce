@@ -17,6 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
             updateNotificationBadge(e.detail.unreadCount);
         }
     });
+    
+    // Listen for user logged in event
+    document.addEventListener('userLoggedIn', function(e) {
+        if (e.detail && !e.detail.isAdmin) {
+            // Short delay to ensure DOM is updated first
+            setTimeout(() => {
+                // Re-initialize notifications system
+                initHeaderNotifications();
+                checkUnreadNotifications();
+            }, 300);
+        }
+    });
 });
 
 /**
@@ -28,7 +40,14 @@ function initHeaderNotifications() {
     if (!notificationDropdown) return;
 
     // Load notifications when dropdown is opened
-    notificationDropdown.addEventListener('click', function(e) {
+    // Remove any existing event listeners first
+    const newDropdown = notificationDropdown.cloneNode(true);
+    if (notificationDropdown.parentNode) {
+        notificationDropdown.parentNode.replaceChild(newDropdown, notificationDropdown);
+    }
+
+    // Add new event listener
+    newDropdown.addEventListener('click', function(e) {
         loadHeaderNotifications();
     });
 }

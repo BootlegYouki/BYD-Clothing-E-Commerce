@@ -14,6 +14,16 @@ document.addEventListener('DOMContentLoaded', function() {
         initNotificationFilters();
         initMarkAllAsRead();
     }
+    
+    // Listen for user logged in event
+    document.addEventListener('userLoggedIn', function(e) {
+        if (e.detail && !e.detail.isAdmin) {
+            // Wait a moment to ensure DOM is updated first
+            setTimeout(() => {
+                checkUnreadNotifications();
+            }, 300);
+        }
+    });
 });
 
 /**

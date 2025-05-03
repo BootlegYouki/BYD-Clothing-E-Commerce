@@ -193,10 +193,80 @@ function updateHeaderAfterAuth(username, isAdmin = false) {
     userAccountSection.innerHTML = dropdownHtml;
   }
   
-  // Show notification icon if not admin
+  // Add notification icon and dropdown if not admin
   if (!isAdmin) {
-    const notificationWrapper = document.querySelector('.notification-icon-wrapper');
-    if (notificationWrapper && notificationWrapper.classList.contains('d-none')) {
+    // Check if notification wrapper already exists
+    let notificationWrapper = document.querySelector('.notification-icon-wrapper');
+    
+    // If it doesn't exist or is hidden, create/show it
+    if (!notificationWrapper) {
+      // Create the notification wrapper and insert before the last element (hamburger menu)
+      const navbarContainer = document.querySelector('.container-fluid.px-lg-4.px-1');
+      if (navbarContainer) {
+        notificationWrapper = document.createElement('div');
+        notificationWrapper.className = 'notification-icon-wrapper mx-1';
+        
+        // Add the notification HTML structure
+        notificationWrapper.innerHTML = `
+          <div class="dropdown">
+            <a class="nav-icon d-flex text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationDropdown">
+              <i class="bx bx-bell fs-4"></i>
+            </a>
+            <span class="notification-badge" style="display: none;">0</span>
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notificationDropdown">
+              <div class="notification-header p-3 border-bottom position-sticky top-0 bg-white z-index-1000">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="m-0 z">Notifications</h5>
+                  <h5 class="m-0"><a href="notifications.php" class="text-decoration-none text-coral">View All</a></h5>
+                </div>
+              </div>
+              <div class="notification-body">
+                <!-- If no notifications -->
+                <div class="text-center py-4 empty-notification d-none">
+                  <i class="bx bx-bell-off fs-1 text-muted"></i>
+                  <p class="text-muted mt-2">No new notifications</p>
+                </div>
+                
+                <!-- Loading indicator -->
+                <div class="text-center py-4 loading-notifications">
+                  <div class="spinner-border spinner-border-sm text-coral" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="text-muted mt-2">Loading notifications...</p>
+                </div>
+
+                <!-- Notifications will be dynamically loaded here -->
+                <div class="notification-list"></div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Find the order icon or navbar toggler to insert before
+        const orderIconWrapper = document.querySelector('.order-icon-wrapper');
+        if (orderIconWrapper) {
+          navbarContainer.insertBefore(notificationWrapper, orderIconWrapper);
+        } else {
+          const navbarToggler = document.querySelector('.navbar-toggler');
+          if (navbarToggler) {
+            navbarContainer.insertBefore(notificationWrapper, navbarToggler);
+          }
+        }
+        
+        // Initialize the notification system for this new element
+        // Allow some time for the DOM to update
+        setTimeout(() => {
+          // Initialize dropdown functionality for the notification dropdown
+          new bootstrap.Dropdown(document.getElementById('notificationDropdown'));
+          
+          // Check for notifications
+          if (typeof checkUnreadNotifications === 'function') {
+            checkUnreadNotifications();
+          }
+        }, 100);
+      }
+    } else if (notificationWrapper.classList.contains('d-none')) {
+      // If it exists but is hidden, show it
       notificationWrapper.classList.remove('d-none');
     }
   }

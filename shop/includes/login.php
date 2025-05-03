@@ -255,6 +255,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.updateHeaderAfterAuth(username, isAdmin);
           }
           
+          // Dispatch event to trigger notification check after login
+          document.dispatchEvent(new CustomEvent('userLoggedIn', { 
+            detail: { username: username, isAdmin: isAdmin } 
+          }));
+          
           if (data.role === 1) {
             // Admin user - show admin success modal directly
             const adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
