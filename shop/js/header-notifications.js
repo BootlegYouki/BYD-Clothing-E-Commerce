@@ -1,38 +1,42 @@
 /**
  * Header Notifications System for BYD Clothing Shop
- * Handles notification dropdown, loading, marking as read, and counter updates
+ * Handles notification loading, marking as read, and counter updates in the header
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize header notifications
     initHeaderNotifications();
     
-    // Check for unread notifications on page load
-    checkUnreadNotifications();
-    
-    // Listen for notification read events from the notifications page
-    document.addEventListener('notificationRead', function(e) {
+    // Listen for notification updates from other parts of the app
+    document.addEventListener('notificationMarkedAsRead', function(e) {
+        // Update badge count
         if (e.detail && typeof e.detail.unreadCount !== 'undefined') {
-            // Update the badge count directly from the event data
             updateNotificationBadge(e.detail.unreadCount);
+        } else {
+            // If count not provided, fetch current count
+            checkUnreadNotifications();
+        }
+        
+        // If notification dropdown is open, refresh its content
+        if (document.querySelector('.notification-dropdown.show')) {
+            loadHeaderNotifications();
         }
     });
     
-    // Listen for user logged in event
-    document.addEventListener('userLoggedIn', function(e) {
-        if (e.detail && !e.detail.isAdmin) {
-            // Short delay to ensure DOM is updated first
-            setTimeout(() => {
-                // Re-initialize notifications system
-                initHeaderNotifications();
-                checkUnreadNotifications();
-            }, 300);
+    // Listen for all notifications marked as read
+    document.addEventListener('allNotificationsMarkedAsRead', function() {
+        // Update badge to zero
+        updateNotificationBadge(0);
+        
+        // If notification dropdown is open, refresh to show empty state
+        if (document.querySelector('.notification-dropdown.show')) {
+            loadHeaderNotifications();
         }
     });
 });
 
 /**
- * Initialize notifications system for header dropdown
+ * Initialize header notifications system
  */
 function initHeaderNotifications() {
     // Get notification dropdown element
@@ -40,20 +44,19 @@ function initHeaderNotifications() {
     if (!notificationDropdown) return;
 
     // Load notifications when dropdown is opened
-    // Remove any existing event listeners first
-    const newDropdown = notificationDropdown.cloneNode(true);
-    if (notificationDropdown.parentNode) {
-        notificationDropdown.parentNode.replaceChild(newDropdown, notificationDropdown);
-    }
-
-    // Add new event listener
-    newDropdown.addEventListener('click', function(e) {
+    notificationDropdown.addEventListener('click', function() {
         loadHeaderNotifications();
     });
+
+    // Check for unread notifications on page load
+    checkUnreadNotifications();
+    
+    // Setup automatic polling every 5 seconds
+    setInterval(checkUnreadNotifications, 5000);
 }
 
 /**
- * Load notifications into the dropdown
+ * Load notifications into the header dropdown
  */
 function loadHeaderNotifications() {
     const notificationList = document.querySelector('.notification-list');
@@ -65,7 +68,7 @@ function loadHeaderNotifications() {
     if (emptyNotification) emptyNotification.classList.add('d-none');
     if (notificationList) notificationList.innerHTML = '';
 
-    // Fetch notifications from the server
+    // Fetch notifications from the server - only get unread notifications for the header
     fetch('functions/notification/get-notifications.php?limit=5&unread_only=1')
         .then(response => response.json())
         .then(data => {
@@ -80,13 +83,20 @@ function loadHeaderNotifications() {
 
             // Render notifications
             if (notificationList) {
-                notificationList.innerHTML = ''; // Clear the list first to prevent duplicates
+                notificationList.innerHTML = ''; // Clear the list first
                 data.notifications.forEach(notification => {
-                    notificationList.innerHTML += createNotificationItem(notification);
+                    notificationList.innerHTML += createHeaderNotificationItem(notification);
                 });
 
-                // Add event listeners to mark as read buttons
-                addMarkAsReadListeners();
+                // Add event listeners to "mark as read" buttons
+                document.querySelectorAll('.notification-list .mark-read-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const notificationId = this.getAttribute('data-notification-id');
+                        markNotificationAsReadFromHeader(notificationId, this);
+                    });
+                });
             }
 
             // Update the notification badge
@@ -108,32 +118,15 @@ function loadHeaderNotifications() {
 }
 
 /**
- * Add event listeners to mark as read buttons
- */
-function addMarkAsReadListeners() {
-    document.querySelectorAll('.notification-list .mark-read-btn').forEach(btn => {
-        // Remove any existing event listeners first
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-        
-        newBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const notificationId = this.getAttribute('data-notification-id');
-            markNotificationAsRead(notificationId, this);
-            return false; // Prevent any further propagation
-        });
-    });
-}
-
-/**
  * Check for unread notifications and update badge
  */
 function checkUnreadNotifications() {
     fetch('functions/notification/get-notifications.php?count_only=1')
         .then(response => response.json())
         .then(data => {
-            updateNotificationBadge(data.unread_count);
+            if (data.success) {
+                updateNotificationBadge(data.unread_count);
+            }
         })
         .catch(error => {
             console.error('Error checking unread notifications:', error);
@@ -157,17 +150,22 @@ function updateNotificationBadge(count) {
 }
 
 /**
- * Mark a notification as read
+ * Mark a notification as read from the header dropdown
  * @param {string} notificationId - The notification ID
  * @param {HTMLElement} button - The button element clicked
  */
-function markNotificationAsRead(notificationId, button) {
+function markNotificationAsReadFromHeader(notificationId, button) {
     // Get the notification item container
     const notificationItem = button.closest('.notification-item');
     
     // Prevent multiple clicks
     if (button.disabled) return;
     button.disabled = true;
+    
+    // Add visual feedback immediately
+    if (notificationItem) {
+        notificationItem.style.opacity = '0.5';
+    }
     
     // Make AJAX request to mark notification as read
     fetch('functions/notification/mark-notification-read.php', {
@@ -180,45 +178,40 @@ function markNotificationAsRead(notificationId, button) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // IMPORTANT: Dispatch event BEFORE modifying the DOM
-            // This ensures the notifications page can find and update the element
-            // before it gets hidden or removed from the header
-            const event = new CustomEvent('headerNotificationRead', {
+            // Remove the notification item with animation
+            if (notificationItem) {
+                notificationItem.style.transition = 'all 0.3s ease';
+                notificationItem.style.opacity = '0';
+                notificationItem.style.maxHeight = '0';
+                notificationItem.style.padding = '0';
+                notificationItem.style.margin = '0';
+                notificationItem.style.border = 'none';
+                setTimeout(() => {
+                    notificationItem.remove();
+                    
+                    // Check if there are any notifications left
+                    const notificationList = document.querySelector('.notification-list');
+                    const emptyNotification = document.querySelector('.empty-notification');
+                    const loadingNotifications = document.querySelector('.loading-notifications');
+                    
+                    if (notificationList && notificationList.children.length === 0) {
+                        // No notifications left - show empty state and hide loading
+                        if (emptyNotification) emptyNotification.classList.remove('d-none');
+                        if (loadingNotifications) loadingNotifications.classList.add('d-none');
+                    }
+                }, 300);
+            }
+            
+            // Update badge count
+            updateNotificationBadge(data.unread_count);
+            
+            // Dispatch event for other parts of the app
+            document.dispatchEvent(new CustomEvent('notificationMarkedAsRead', {
                 detail: {
                     notificationId: notificationId,
                     unreadCount: data.unread_count
                 }
-            });
-            document.dispatchEvent(event);
-            
-            // Add a small delay before removing notification from header
-            setTimeout(() => {
-                // Apply visual changes to header notification
-                if (notificationItem) {
-                    notificationItem.style.transition = 'all 0.3s ease';
-                    notificationItem.style.opacity = '0';
-                    notificationItem.style.maxHeight = '0';
-                    notificationItem.style.padding = '0';
-                    notificationItem.style.margin = '0';
-                    notificationItem.style.border = 'none';
-                    notificationItem.style.overflow = 'hidden';
-                    
-                    setTimeout(() => {
-                        notificationItem.remove();
-                        
-                        // Check if there are any notifications left
-                        const notificationList = document.querySelector('.notification-list');
-                        const emptyNotification = document.querySelector('.empty-notification');
-                        
-                        if (notificationList && notificationList.children.length === 0 && emptyNotification) {
-                            emptyNotification.classList.remove('d-none');
-                        }
-                    }, 300);
-                }
-                
-                // Update badge count
-                updateNotificationBadge(data.unread_count);
-            }, 500); // Longer delay to ensure page has time to process
+            }));
         } else {
             // Restore opacity if error
             if (notificationItem) {
@@ -239,11 +232,11 @@ function markNotificationAsRead(notificationId, button) {
 }
 
 /**
- * Create HTML for a notification item
+ * Create HTML for a notification item in header dropdown
  * @param {Object} notification - Notification data
  * @returns {string} HTML string for notification item
  */
-function createNotificationItem(notification) {
+function createHeaderNotificationItem(notification) {
     const timeAgo = notification.time_ago || 'Just now';
     
     return `
@@ -253,7 +246,7 @@ function createNotificationItem(notification) {
                     <i class="${notification.icon || 'bx bx-bell'} fs-4"></i>
                 </div>
                 <div class="flex-grow-1 ms-3">
-                    <h6 class="mb-1">${notification.title}</h6>
+                    <h6 class="mb-1 fw-bold">${notification.title}</h6>
                     <p class="text-muted small mb-1">${notification.message}</p>
                     <small class="text-muted">${timeAgo}</small>
                 </div>

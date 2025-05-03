@@ -1,50 +1,99 @@
 /**
- * Notifications Page System for BYD Clothing Shop
- * Handles page-specific notification functions like filters and mark all as read
+ * Page Notifications System for BYD Clothing Shop
+ * Handles notification management on the notifications page
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize notifications page functionality
+    initPageNotifications();
+    
+    // Listen for notifications marked as read from header
+    document.addEventListener('notificationMarkedAsRead', function(e) {
+        if (e.detail && e.detail.notificationId) {
+            // Update the UI for this notification on the page
+            updateNotificationUIAfterRead(e.detail.notificationId);
+        }
+    });
+});
+
+/**
+ * Initialize notifications page functionality
+ */
+function initPageNotifications() {
     // Initialize notification filters
     initNotificationFilters();
     
     // Initialize mark all as read functionality
     initMarkAllAsRead();
     
-    // Add event listeners for mark as read buttons on the page
-    addPageMarkAsReadListeners();
-    
-    // Listen for notification read events from the header dropdown
-    document.addEventListener('headerNotificationRead', function(e) {
-        if (e.detail && e.detail.notificationId) {
-            // Find and update the notification on the page
-            syncNotificationFromHeader(e.detail.notificationId, e.detail.unreadCount);
-        }
-    });
-    
-    // Check if "Mark All as Read" button should be disabled (if all notifications are already read)
-    updateMarkAllButtonState();
-});
-
-/**
- * Add event listeners to mark as read buttons on notifications page
- */
-function addPageMarkAsReadListeners() {
-    document.querySelectorAll('.notification-group .mark-read-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    // Add event listeners to individual "mark as read" buttons
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
             const notificationId = this.getAttribute('data-notification-id');
-            markPageNotificationAsRead(notificationId, this);
+            markNotificationAsReadFromPage(notificationId, this);
         });
     });
+    
+    // Setup automatic polling every 5 seconds
+    setInterval(checkPageNotifications, 5000);
 }
 
 /**
- * Mark a notification as read on the notifications page
+ * Check for new notifications and update the page
+ */
+function checkPageNotifications() {
+    // Fetch notifications from the server
+    fetch('functions/notification/get-notifications.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update notification counter
+                updatePageNotificationCounter(data.unread_count);
+                
+                // Check if we need to update the notifications list
+                updatePageNotificationsIfNeeded(data.notifications);
+                
+                // Enable/disable mark all as read button based on unread count
+                const markAllButton = document.querySelector('button[name="mark_all_read"]');
+                if (markAllButton) {
+                    markAllButton.disabled = data.unread_count === 0;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking notifications:', error);
+        });
+}
+
+/**
+ * Update page notifications if there are changes
+ * @param {Array} notifications - Latest notifications from server
+ */
+function updatePageNotificationsIfNeeded(notifications) {
+    if (!notifications || !notifications.length) return;
+    
+    // Check if any new notifications need to be added
+    const currentIds = Array.from(document.querySelectorAll('.notification-item'))
+        .map(item => item.getAttribute('data-id'));
+    
+    // Find notifications that aren't already on the page
+    const newNotifications = notifications.filter(notification => 
+        !currentIds.includes(notification.id.toString()));
+    
+    if (newNotifications.length > 0) {
+        // Refresh the page to show new notifications
+        // This is a simple approach; for a more sophisticated implementation,
+        // you could dynamically insert the new notifications
+        location.reload();
+    }
+}
+
+/**
+ * Mark a notification as read from the notifications page
  * @param {string} notificationId - The notification ID
  * @param {HTMLElement} button - The button element clicked
  */
-function markPageNotificationAsRead(notificationId, button) {
+function markNotificationAsReadFromPage(notificationId, button) {
     // Get the notification item container
     const notificationItem = button.closest('.notification-item');
     
@@ -54,7 +103,7 @@ function markPageNotificationAsRead(notificationId, button) {
     
     // Add visual feedback immediately
     if (notificationItem) {
-        notificationItem.style.opacity = '0.5';
+        notificationItem.style.opacity = '0.7';
     }
     
     // Make AJAX request to mark notification as read
@@ -68,47 +117,55 @@ function markPageNotificationAsRead(notificationId, button) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update the notification item instead of removing it
+            // Update UI to show notification as read
             if (notificationItem) {
+                // Remove unread class
                 notificationItem.classList.remove('unread');
                 
-                // Update styling
+                // Update the title style
                 const title = notificationItem.querySelector('h6');
                 if (title) {
                     title.classList.remove('fw-bold');
                     title.classList.add('text-muted');
                 }
                 
-                // Remove badges
-                const badges = notificationItem.querySelectorAll('.notification-badge-page');
-                badges.forEach(badge => badge.remove());
-                
-                // Remove mark as read button
-                const markReadContainer = button.closest('.mt-2');
-                if (markReadContainer) {
-                    markReadContainer.remove();
+                // Remove the notification badge indicator
+                const badge = notificationItem.querySelector('.notification-badge-page');
+                if (badge) {
+                    badge.remove();
                 }
                 
-                // Restore opacity
+                // Hide the mark as read button container
+                const btnContainer = button.closest('.mt-2');
+                if (btnContainer) {
+                    btnContainer.style.display = 'none';
+                }
+                
+                // Restore full opacity
                 notificationItem.style.opacity = '1';
             }
             
-            // Update counter if present
+            // Update notification counter in page header if exists
             updatePageNotificationCounter(data.unread_count);
             
-            // Dispatch a custom event to update the header notification badge
-            const event = new CustomEvent('notificationRead', { 
-                detail: { unreadCount: data.unread_count } 
-            });
-            document.dispatchEvent(event);
+            // Dispatch event for other parts of the app (like the header)
+            document.dispatchEvent(new CustomEvent('notificationMarkedAsRead', {
+                detail: {
+                    notificationId: notificationId,
+                    unreadCount: data.unread_count
+                }
+            }));
+            
+            // Show success message
+            showToast('Notification marked as read', 'success');
         } else {
             // Restore opacity if error
             if (notificationItem) {
                 notificationItem.style.opacity = '1';
             }
             button.disabled = false;
-            showToast(data.message || 'Error marking notification as read', 'danger');
             console.error('Error marking notification as read:', data.message);
+            showToast(data.message || 'Error marking notification as read', 'danger');
         }
     })
     .catch(error => {
@@ -117,97 +174,68 @@ function markPageNotificationAsRead(notificationId, button) {
             notificationItem.style.opacity = '1';
         }
         button.disabled = false;
-        showToast('Error marking notification as read', 'danger');
         console.error('Error marking notification as read:', error);
+        showToast('Error marking notification as read', 'danger');
     });
 }
 
 /**
- * Sync a notification marked as read from the header dropdown
- * @param {string} notificationId - The notification ID that was marked as read
- * @param {number} unreadCount - Updated unread count
+ * Update UI after a notification is marked as read (for sync from header)
+ * @param {string} notificationId - ID of the notification that was marked as read
  */
-function syncNotificationFromHeader(notificationId, unreadCount) {
+function updateNotificationUIAfterRead(notificationId) {
     // Find the notification item on the page
-    const notificationItems = document.querySelectorAll(`.notification-item[data-id="${notificationId}"]`);
+    const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+    if (!notificationItem) return;
     
-    if (notificationItems.length === 0) {
-        console.log('Notification not found on page, cannot sync from header');
-        // Still update the counter even if we can't find the notification
-        updatePageNotificationCounter(unreadCount);
-        return;
+    // Remove unread class
+    notificationItem.classList.remove('unread');
+    
+    // Update the title style
+    const title = notificationItem.querySelector('h6');
+    if (title) {
+        title.classList.remove('fw-bold');
+        title.classList.add('text-muted');
     }
     
-    // Update all instances of this notification on the page
-    notificationItems.forEach(item => {
-        // Force remove all styles that might be applied from the header script
-        item.removeAttribute('style');
-        
-        // Mark as read
-        item.classList.remove('unread');
-        
-        // Update title styling
-        const title = item.querySelector('h6');
-        if (title) {
-            title.classList.remove('fw-bold');
-            title.classList.add('text-muted');
-        }
-        
-        // Update message styling
-        const message = item.querySelector('p.mb-1');
-        if (message) {
-            message.classList.add('text-secondary');
-        }
-        
-        // Remove badges
-        const badges = item.querySelectorAll('.notification-badge-page');
-        badges.forEach(badge => badge.remove());
-        
-        // Remove mark as read button
-        const markReadContainer = item.querySelector('.mt-2');
-        if (markReadContainer) {
-            markReadContainer.remove();
-        }
-    });
+    // Remove the notification badge indicator
+    const badge = notificationItem.querySelector('.notification-badge-page');
+    if (badge) {
+        badge.remove();
+    }
     
-    // Update counter
-    updatePageNotificationCounter(unreadCount);
+    // Hide the mark as read button container
+    const btnContainer = notificationItem.querySelector('.mt-2');
+    if (btnContainer) {
+        btnContainer.style.display = 'none';
+    }
     
-    // Also update the "Mark All as Read" button state
-    updateMarkAllButtonState(unreadCount);
+    // Get the current unread count
+    fetch('functions/notification/get-notifications.php?count_only=1')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update counter in page header
+                updatePageNotificationCounter(data.unread_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error getting unread count:', error);
+        });
 }
 
 /**
- * Update notification counter on the page
- * @param {number} count - Number of unread notifications
- */
-function updatePageNotificationCounter(count) {
-    const counter = document.querySelector('.notification-counter');
-    if (!counter) return;
-    
-    if (count > 0) {
-        counter.textContent = count + ' New';
-    } else {
-        counter.remove();
-    }
-    
-    // Update the "Mark All as Read" button state
-    updateMarkAllButtonState(count);
-}
-
-/**
- * Initialize notification filters on the notifications page
+ * Initialize notification filters
  */
 function initNotificationFilters() {
-    // Filter functionality for notification types
     const filterButtons = document.querySelectorAll('.filter-btn');
-    if (filterButtons.length === 0) return;
+    if (!filterButtons.length) return;
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             const filter = this.getAttribute('data-filter');
             
-            // Update active button
+            // Update active button state
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
@@ -221,7 +249,7 @@ function initNotificationFilters() {
                 }
             });
             
-            // Show/hide date headers based on visible items
+            // Update date header visibility
             updateDateHeaderVisibility();
         });
     });
@@ -249,8 +277,18 @@ function initMarkAllAsRead() {
     const markAllButton = document.querySelector('button[name="mark_all_read"]');
     if (!markAllButton) return;
     
+    // Initial button state
+    const unreadItems = document.querySelectorAll('.notification-item.unread');
+    markAllButton.disabled = unreadItems.length === 0;
+    
     markAllButton.addEventListener('click', function(e) {
         e.preventDefault();
+        
+        // Check if there are any unread notifications
+        const unreadItems = document.querySelectorAll('.notification-item.unread');
+        if (unreadItems.length === 0) {
+            return; // Don't proceed if nothing to mark as read
+        }
         
         // Add loading state
         const originalHtml = this.innerHTML;
@@ -268,7 +306,7 @@ function initMarkAllAsRead() {
                 document.querySelectorAll('.notification-item.unread').forEach(item => {
                     item.classList.remove('unread');
                     
-                    // Update styling
+                    // Update styling for title
                     const title = item.querySelector('h6');
                     if (title) {
                         title.classList.remove('fw-bold');
@@ -284,52 +322,58 @@ function initMarkAllAsRead() {
                     markReadContainers.forEach(container => container.remove());
                 });
                 
-                // Remove notification counter
-                const counter = document.querySelector('.notification-counter');
-                if (counter) counter.remove();
+                // Remove notification counter in page header
+                updatePageNotificationCounter(0);
                 
-                // Dispatch a custom event to update the header notification badge
-                const event = new CustomEvent('notificationRead', { 
-                    detail: { unreadCount: 0 } 
-                });
-                document.dispatchEvent(event);
+                // Dispatch event for other parts of the app (like the header)
+                document.dispatchEvent(new CustomEvent('allNotificationsMarkedAsRead'));
                 
-                // Keep the button disabled since all notifications are now read
-                this.disabled = true;
+                // Only show success message if there were actually unread notifications
+                if (unreadItems.length > 0) {
+                    showToast('All notifications marked as read', 'success');
+                }
             } else {
                 showToast(data.message || 'Error marking all as read', 'danger');
-                // Restore button state
-                this.innerHTML = originalHtml;
-                this.disabled = false;
             }
         })
         .catch(error => {
             console.error('Error marking all as read:', error);
             showToast('Error marking all as read', 'danger');
+        })
+        .finally(() => {
             // Restore button state
             this.innerHTML = originalHtml;
-            this.disabled = false;
+            this.disabled = true; // Keep disabled as there are no more unread notifications
         });
     });
 }
 
 /**
- * Update the state of the "Mark All as Read" button based on unread count
- * @param {number|null} count - Optional unread count, if not provided it will be calculated
+ * Update notification counter in page header
+ * @param {number} count - Unread notification count
  */
-function updateMarkAllButtonState(count = null) {
-    const markAllButton = document.querySelector('button[name="mark_all_read"]');
-    if (!markAllButton) return;
+function updatePageNotificationCounter(count) {
+    // First try to update the counter
+    let counter = document.querySelector('.notification-counter');
     
-    if (count !== null) {
-        // If count is explicitly provided, use it
-        markAllButton.disabled = count <= 0;
-        return;
+    if (count > 0) {
+        if (counter) {
+            // Update existing counter
+            counter.textContent = `${count} New`;
+        } else {
+            // Create new counter if it doesn't exist
+            const pageHeader = document.querySelector('h2.fw-bold');
+            if (pageHeader) {
+                counter = document.createElement('span');
+                counter.className = 'notification-counter';
+                counter.textContent = `${count} New`;
+                pageHeader.appendChild(counter);
+            }
+        }
+    } else if (counter) {
+        // Remove counter if count is 0
+        counter.remove();
     }
-    
-    // Otherwise count unread notifications in the DOM
-    const unreadItems = document.querySelectorAll('.notification-item.unread').length;
-    markAllButton.disabled = unreadItems <= 0;
 }
 
 /**
@@ -339,27 +383,27 @@ function updateMarkAllButtonState(count = null) {
  */
 function showToast(message, type) {
     // Create toast container if it doesn't exist
-    let toastContainer = document.getElementById('toast-container');
+    let toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-        toastContainer.style.zIndex = '1060';
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
         document.body.appendChild(toastContainer);
     }
     
     // Create toast element
-    const toastId = 'toast-' + Date.now();
+    const toastId = 'toast' + Date.now();
     const toast = document.createElement('div');
-    toast.id = toastId;
     toast.className = 'toast';
+    toast.id = toastId;
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'assertive');
     toast.setAttribute('aria-atomic', 'true');
     
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+    
     toast.innerHTML = `
-        <div class="toast-header ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}">
-            <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+        <div class="toast-header ${bgClass} text-white">
+            <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
@@ -369,15 +413,14 @@ function showToast(message, type) {
     
     toastContainer.appendChild(toast);
     
-    // Show toast using Bootstrap
+    // Initialize and show the toast
     const bsToast = new bootstrap.Toast(toast, {
-        autohide: true,
         delay: 3000
     });
     bsToast.show();
     
     // Remove toast after it's hidden
     toast.addEventListener('hidden.bs.toast', function() {
-        this.remove();
+        toast.remove();
     });
 }
