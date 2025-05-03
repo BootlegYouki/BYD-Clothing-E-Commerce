@@ -246,13 +246,18 @@ document.addEventListener('DOMContentLoaded', function() {
           const errorMessage = document.getElementById('loginErrorMessage');
           errorMessage.classList.add('d-none');
           
-          // Update the header with username and role - NEW CODE
+          // Update the header with username and role
           const username = data.username || loginIdentifier;
           const isAdmin = data.role === 1;
           
           // Call the header update function if it exists
           if (typeof window.updateHeaderAfterAuth === 'function') {
             window.updateHeaderAfterAuth(username, isAdmin);
+            
+            // Ensure notifications are initialized after header update
+            if (!isAdmin && typeof window.initHeaderNotifications === 'function') {
+              setTimeout(() => window.initHeaderNotifications(), 500);
+            }
           }
           
           // Dispatch event to trigger notification check after login

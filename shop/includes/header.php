@@ -259,15 +259,27 @@ function updateHeaderAfterAuth(username, isAdmin = false) {
           // Initialize dropdown functionality for the notification dropdown
           new bootstrap.Dropdown(document.getElementById('notificationDropdown'));
           
-          // Check for notifications
-          if (typeof checkUnreadNotifications === 'function') {
-            checkUnreadNotifications();
+          // Initialize the notification system
+          if (typeof window.initHeaderNotifications === 'function') {
+            window.initHeaderNotifications();
+          } else {
+            // Fallback: Check for notifications
+            if (typeof checkUnreadNotifications === 'function') {
+              checkUnreadNotifications();
+            }
           }
         }, 100);
       }
     } else if (notificationWrapper.classList.contains('d-none')) {
       // If it exists but is hidden, show it
       notificationWrapper.classList.remove('d-none');
+      
+      // Re-initialize the notification system
+      setTimeout(() => {
+        if (typeof window.initHeaderNotifications === 'function') {
+          window.initHeaderNotifications();
+        }
+      }, 100);
     }
   }
 }

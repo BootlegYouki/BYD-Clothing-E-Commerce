@@ -55,6 +55,9 @@ function initHeaderNotifications() {
     setInterval(checkUnreadNotifications, 5000);
 }
 
+// Make initHeaderNotifications function globally available
+window.initHeaderNotifications = initHeaderNotifications;
+
 /**
  * Load notifications into the header dropdown
  */
