@@ -5,7 +5,7 @@
 date_default_timezone_set('Asia/Manila');
 
 // Include the environment loader
-require_once __DIR__ . '/env_loader.php';
+require_once __DIR__ . '/../../../admin/config/env_loader.php';
 
 // 2. Retrieve the webhook secret key from Heroku config variables
 $WEBHOOK_SECRET = getEnvVar('PAYMONGO_WEBHOOK_SECRET');
