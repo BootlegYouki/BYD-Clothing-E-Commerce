@@ -38,22 +38,11 @@ if (!isset($data['data']) || !isset($data['data']['id'])) {
 // Process the webhook based on the event type
 $eventType = $data['data']['attributes']['type'] ?? 'unknown';
 
-// Check if the event type is "checkout_session.payment.paid"
-if ($eventType === 'checkout_session.payment.paid') {
+// Check if the event type is "link.payment.paid"
+if ($eventType === 'link.payment.paid') {
     // Output message to terminal
-    error_log('Received checkout_session.payment.paid event from PayMongo');
-    
-    // Extract checkout session ID
-    $checkoutSessionId = $data['data']['id'] ?? '';
-    
-    // Extract payment details if available
-    $paymentId = $data['data']['attributes']['payment_id'] ?? '';
-    $amount = $data['data']['attributes']['amount'] ?? 0;
-    $currency = $data['data']['attributes']['currency'] ?? 'PHP';
-    
-    // Log the payment details
-    error_log("Payment successful: ID: $paymentId, Amount: $amount $currency");
-    
+    error_log('Received link.payment.paid event from PayMongo');
+
     // You can add additional processing for this specific event type here
     // For example, update your database, send notifications, etc.
 }
