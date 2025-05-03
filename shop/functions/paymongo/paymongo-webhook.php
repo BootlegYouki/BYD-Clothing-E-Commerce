@@ -1,52 +1,54 @@
 <?php
 // paymongo-webhook.php
 
-// 1. Set timezone to match PayMongo's server timezone
-date_default_timezone_set('Asia/Manila');
+// Enforce POST requests
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Only POST requests are allowed');
+}
 
-// Include the environment loader
+date_default_timezone_set('Asia/Manila');
 require_once __DIR__ . '/../../../admin/config/env_loader.php';
 
-// 2. Retrieve the webhook secret key from Heroku config variables
 $WEBHOOK_SECRET = getEnvVar('PAYMONGO_WEBHOOK_SECRET');
-
-// 2a. Check if the secret is set
 if (empty($WEBHOOK_SECRET)) {
-    error_log("❌ PAYMONGO_WEBHOOK_SECRET is not set in Heroku config");
+    error_log("❌ PAYMONGO_WEBHOOK_SECRET is not set");
     http_response_code(500);
     exit("Server error: Missing webhook secret");
 }
 
-// 3. Get the raw JSON payload sent by PayMongo
 $payload = file_get_contents('php://input');
+$signatureHeader = $_SERVER['HTTP_PAYMONGO_SIGNATURE'] ?? '';
 
-// 4. Get the PayMongo signature from the headers
-$signature = $_SERVER['HTTP_X_PAYMONGO_SIGNATURE'] ?? '';
-
-// 5. Set response header type to plain text
-header('Content-Type: text/plain');
-
-// 6. Log payload and signature for debugging (remove in production)
-error_log("📦 Raw Payload: " . $payload);
-error_log("🔐 Received Signature: " . $signature);
-error_log("🗝️  Stored Secret: " . $WEBHOOK_SECRET);
-
-// 7. Signature validation function using HMAC SHA-256
-function verifySignature($payload, $signature, $secret) {
-    // Compute the HMAC hash of the payload using the shared secret
-    $computedSignature = hash_hmac('sha256', $payload, $secret);
-    error_log("🧮 Computed Signature: " . $computedSignature);
-
-    // Securely compare signatures to prevent timing attacks
-    return hash_equals($signature, $computedSignature);
+// Safely extract signature (v1=...)
+$receivedSignature = '';
+foreach (explode(',', $signatureHeader) as $part) {
+    if (str_starts_with($part, 'v1=')) {
+        $receivedSignature = substr($part, 3); // Get value after "v1="
+        break;
+    }
 }
 
-// 8. Verify the signature
-if (!verifySignature($payload, $signature, $WEBHOOK_SECRET)) {
+// Debugging: Log secret length
+error_log("🗝️  Stored Secret Length: " . strlen($WEBHOOK_SECRET));
+
+header('Content-Type: text/plain');
+error_log("📦 Raw Payload: " . $payload);
+error_log("🔐 Received Signature: " . $receivedSignature);
+
+function verifySignature($payload, $receivedSignature, $secret) {
+    $computedSignature = hash_hmac('sha256', $payload, $secret);
+    error_log("🧮 Computed Signature: " . $computedSignature);
+    return hash_equals($receivedSignature, $computedSignature);
+}
+
+if (!verifySignature($payload, $receivedSignature, $WEBHOOK_SECRET)) {
     error_log("❌ Signature validation failed");
     http_response_code(403);
     exit('Invalid signature');
 }
+
+// Rest of your processing logic...
 
 // 9. Process the webhook event only if signature is valid
 try {
