@@ -37,6 +37,7 @@ $formData = [
 // Add shipping fee to the total amount
 $shipping_cost = isset($_POST['shipping_cost']) ? floatval($_POST['shipping_cost']) : 50;
 $formData['total'] += $shipping_cost;
+$formData['shipping_cost'] = $shipping_cost; // Store shipping cost in formData
 
 try {
     // Initialize PayMongo helper
@@ -197,9 +198,13 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         }
         
         // Set additional order details
-        $shipping_cost = isset($_POST['shipping_cost']) ? floatval($_POST['shipping_cost']) : 50;
+        // Use shipping cost from the data array instead of getting it from $_POST again
+        $shipping_cost = $data['shipping_cost'];
         $payment_method = 'paymongo';
         $status = 'pending'; // Initial status
+        
+        // Make sure total_amount is exactly subtotal + shipping_cost to avoid any discrepancies
+        $total_amount = $subtotal + $shipping_cost;
         
         // Bind parameters to prepared statement
         mysqli_stmt_bind_param(
@@ -216,7 +221,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             $paymentId,
             $subtotal,
             $shipping_cost,
-            $data['total'],
+            $total_amount,  // Use the calculated total instead of $data['total']
             $status
         );
         
