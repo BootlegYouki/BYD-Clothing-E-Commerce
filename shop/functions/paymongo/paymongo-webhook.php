@@ -4,6 +4,9 @@
 // 1. Set timezone to match PayMongo's server timezone
 date_default_timezone_set('Asia/Manila');
 
+// Include the environment loader
+require_once __DIR__ . '/env_loader.php';
+
 // 2. Retrieve the webhook secret key from Heroku config variables
 $WEBHOOK_SECRET = getenv('PAYMONGO_WEBHOOK_SECRET');
 

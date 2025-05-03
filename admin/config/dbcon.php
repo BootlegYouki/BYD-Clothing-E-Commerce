@@ -3,6 +3,7 @@
 date_default_timezone_set('Asia/Manila'); // Philippines timezone (UTC+8:00)
 
 // Include the environment loader
+require_once __DIR__ . '/env_loader.php';
 
 // Get database credentials from environment variables
 $host = getEnvVar('DB_HOST');
