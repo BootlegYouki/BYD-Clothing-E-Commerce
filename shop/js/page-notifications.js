@@ -155,9 +155,6 @@ function markNotificationAsReadFromPage(notificationId, button) {
                     unreadCount: data.unread_count
                 }
             }));
-            
-            // Show success message
-            showToast('Notification marked as read', 'success');
         } else {
             // Restore opacity if error
             if (notificationItem) {
@@ -165,7 +162,6 @@ function markNotificationAsReadFromPage(notificationId, button) {
             }
             button.disabled = false;
             console.error('Error marking notification as read:', data.message);
-            showToast(data.message || 'Error marking notification as read', 'danger');
         }
     })
     .catch(error => {
@@ -175,7 +171,6 @@ function markNotificationAsReadFromPage(notificationId, button) {
         }
         button.disabled = false;
         console.error('Error marking notification as read:', error);
-        showToast('Error marking notification as read', 'danger');
     });
 }
 
@@ -327,18 +322,12 @@ function initMarkAllAsRead() {
                 
                 // Dispatch event for other parts of the app (like the header)
                 document.dispatchEvent(new CustomEvent('allNotificationsMarkedAsRead'));
-                
-                // Only show success message if there were actually unread notifications
-                if (unreadItems.length > 0) {
-                    showToast('All notifications marked as read', 'success');
-                }
             } else {
-                showToast(data.message || 'Error marking all as read', 'danger');
+                console.error('Error marking all as read:', data.message);
             }
         })
         .catch(error => {
             console.error('Error marking all as read:', error);
-            showToast('Error marking all as read', 'danger');
         })
         .finally(() => {
             // Restore button state
@@ -374,53 +363,4 @@ function updatePageNotificationCounter(count) {
         // Remove counter if count is 0
         counter.remove();
     }
-}
-
-/**
- * Show a toast notification
- * @param {string} message - Message to display
- * @param {string} type - Bootstrap alert type (success, danger, etc.)
- */
-function showToast(message, type) {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Create toast element
-    const toastId = 'toast' + Date.now();
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.id = toastId;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-    
-    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
-    
-    toast.innerHTML = `
-        <div class="toast-header ${bgClass} text-white">
-            <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${message}
-        </div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Initialize and show the toast
-    const bsToast = new bootstrap.Toast(toast, {
-        delay: 3000
-    });
-    bsToast.show();
-    
-    // Remove toast after it's hidden
-    toast.addEventListener('hidden.bs.toast', function() {
-        toast.remove();
-    });
 }
