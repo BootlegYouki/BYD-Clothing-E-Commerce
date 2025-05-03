@@ -15,6 +15,9 @@ $data = json_decode($input, true);
 // Log the raw webhook data for debugging
 file_put_contents($logDir . '/webhook.log', date('Y-m-d H:i:s') . " - Received webhook: " . $input . PHP_EOL, FILE_APPEND);
 
+// Add a more detailed data dump for debugging
+file_put_contents($logDir . '/webhook_data.log', date('Y-m-d H:i:s') . " - Data structure: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
+
 // Always respond with 200 OK to prevent retries
 http_response_code(200);
 
@@ -36,25 +39,50 @@ if ($data && isset($data['data']['attributes']['type'])) {
         // Extract the checkout session data
         $checkoutSessionData = $data['data']['attributes']['data'];
         
+        // Log the checkout session data for debugging
+        file_put_contents($logDir . '/webhook_session.log', date('Y-m-d H:i:s') . " - Checkout session data: " . print_r($checkoutSessionData, true) . PHP_EOL, FILE_APPEND);
+        
         // Get the payment ID from the checkout session
         $paymongoPayID = null;
-        if (isset($checkoutSessionData['attributes']['payments']) && !empty($checkoutSessionData['attributes']['payments'])) {
-            // For checkout_session.payment.paid events
+        
+        // Handle the payment structure from the example
+        if (isset($data['data']['attributes']['payments']) && !empty($data['data']['attributes']['payments'])) {
+            $paymentData = $data['data']['attributes']['payments'][0];
+            $paymongoPayID = $paymentData['id'];
+            file_put_contents($logDir . '/webhook_payment.log', date('Y-m-d H:i:s') . " - Found payment in root attributes: " . $paymongoPayID . PHP_EOL, FILE_APPEND);
+        }
+        // Fallback to the original code paths
+        elseif (isset($checkoutSessionData['attributes']['payments']) && !empty($checkoutSessionData['attributes']['payments'])) {
             $paymentData = $checkoutSessionData['attributes']['payments'][0];
             $paymongoPayID = $paymentData['id'];
+            file_put_contents($logDir . '/webhook_payment.log', date('Y-m-d H:i:s') . " - Found payment in session data: " . $paymongoPayID . PHP_EOL, FILE_APPEND);
         } elseif (isset($checkoutSessionData['id']) && strpos($checkoutSessionData['id'], 'pay_') === 0) {
-            // For payment.paid events
             $paymongoPayID = $checkoutSessionData['id'];
+            file_put_contents($logDir . '/webhook_payment.log', date('Y-m-d H:i:s') . " - Found payment ID in session data: " . $paymongoPayID . PHP_EOL, FILE_APPEND);
         }
         
         if ($paymongoPayID) {
-            // Get metadata from the checkout session
-            $metadata = isset($checkoutSessionData['attributes']['metadata']) ? 
-                        $checkoutSessionData['attributes']['metadata'] : [];
+            // Get metadata from the checkout session or payment
+            $metadata = [];
+            
+            // Try to get metadata from different possible locations
+            if (isset($data['data']['attributes']['payments'][0]['attributes']['metadata'])) {
+                $metadata = $data['data']['attributes']['payments'][0]['attributes']['metadata'];
+                file_put_contents($logDir . '/webhook_metadata.log', date('Y-m-d H:i:s') . " - Found metadata in root payments: " . print_r($metadata, true) . PHP_EOL, FILE_APPEND);
+            } elseif (isset($checkoutSessionData['attributes']['metadata'])) {
+                $metadata = $checkoutSessionData['attributes']['metadata'];
+                file_put_contents($logDir . '/webhook_metadata.log', date('Y-m-d H:i:s') . " - Found metadata in session data: " . print_r($metadata, true) . PHP_EOL, FILE_APPEND);
+            }
             
             // Get the reference number from metadata
             $externalReferenceNumber = isset($metadata['reference_number']) ? 
                                       $metadata['reference_number'] : null;
+            
+            // If reference number is not in metadata, try to use customer_number as fallback
+            if (empty($externalReferenceNumber) && isset($metadata['customer_number'])) {
+                $externalReferenceNumber = $metadata['customer_number'];
+                file_put_contents($logDir . '/webhook_metadata.log', date('Y-m-d H:i:s') . " - Using customer_number as reference: " . $externalReferenceNumber . PHP_EOL, FILE_APPEND);
+            }
             
             // Validate reference number
             if (empty($externalReferenceNumber)) {
