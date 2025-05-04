@@ -186,9 +186,8 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             subtotal, 
             shipping_cost, 
             total_amount, 
-            status,
-            created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = mysqli_prepare($conn, $order_query);
         
@@ -268,39 +267,6 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
             // Execute item insertion
             mysqli_stmt_execute($item_stmt);
         }
-        
-        // 3. Create initial transaction record
-        $transaction_query = "INSERT INTO transactions (
-            payment_intent_id,
-            session_id,
-            order_reference_number,
-            status,
-            payment_method,
-            description,
-            amount,
-            created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
-        
-        $trans_stmt = mysqli_prepare($conn, $transaction_query);
-        
-        $reference_number = 'ORDER-' . time() . '-' . $data['user_id'];
-        $status = 'pending';
-        $payment_method = 'Pending Selection';
-        $description = 'Payment initiated';
-        $amount = $total_amount;
-        
-        mysqli_stmt_bind_param(
-            $trans_stmt, 
-            "ssssssd", 
-            $paymentId,
-            $paymentId,
-            $reference_number,
-            $status,
-            $payment_method,
-            $description,
-            $amount
-        );
-        mysqli_stmt_execute($trans_stmt);
         
         // Commit all database changes
         mysqli_commit($conn);

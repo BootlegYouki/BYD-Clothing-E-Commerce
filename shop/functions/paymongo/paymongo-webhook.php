@@ -234,13 +234,14 @@ function storePaymentData($conn, $data) {
     try {
         // First, check if this payment has already been processed
         $checkQuery = "SELECT id FROM transactions WHERE 
-            (payment_intent_id = ? OR session_id = ?)";
+            (payment_id = ? OR payment_intent_id = ? OR session_id = ?)";
         
         $stmt = mysqli_prepare($conn, $checkQuery);
+        $paymentId = $data['payment_id'] ?? null;
         $paymentIntentId = $data['payment_intent_id'] ?? null;
         $sessionId = $data['session_id'] ?? null;
         
-        mysqli_stmt_bind_param($stmt, "ss", $paymentIntentId, $sessionId);
+        mysqli_stmt_bind_param($stmt, "sss", $paymentId, $paymentIntentId, $sessionId);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         
@@ -255,7 +256,7 @@ function storePaymentData($conn, $data) {
                 description = ?,
                 amount = ?,
                 paid_at = ?,
-                order_reference_number = ?
+                updated_at = NOW()
                 WHERE id = ?";
             
             $stmt = mysqli_prepare($conn, $updateQuery);
@@ -265,26 +266,17 @@ function storePaymentData($conn, $data) {
             $description = "Payment completed via " . $paymentMethod;
             $amount = $data['amount'] ?? 0;
             $paidAt = $data['paid_at'] ?? null;
-            $referenceNumber = $data['reference_number'] ?? null;
             
-            mysqli_stmt_bind_param($stmt, "sssdssi", 
-                $status, 
-                $paymentMethod, 
-                $description, 
-                $amount, 
-                $paidAt,
-                $referenceNumber,
-                $transactionId
-            );
+            mysqli_stmt_bind_param($stmt, "sssdsi", $status, $paymentMethod, $description, $amount, $paidAt, $transactionId);
             mysqli_stmt_execute($stmt);
             
             error_log("Updated transaction ID: $transactionId with payment method: $paymentMethod and status: $status");
         } else {
             // Insert new transaction record
             $insertQuery = "INSERT INTO transactions (
+                payment_id, 
                 payment_intent_id,
                 session_id,
-                order_reference_number,
                 status,
                 payment_method,
                 description,
@@ -295,9 +287,9 @@ function storePaymentData($conn, $data) {
             
             $stmt = mysqli_prepare($conn, $insertQuery);
             
+            $paymentId = $data['payment_id'] ?? null;
             $paymentIntentId = $data['payment_intent_id'] ?? null;
             $sessionId = $data['session_id'] ?? null;
-            $referenceNumber = $data['reference_number'] ?? null;
             $status = $data['status'] === 'succeeded' || $data['status'] === 'paid' ? 'successful' : $data['status'];
             $paymentMethod = $data['payment_method_display'] ?? 'Unknown';
             $description = "Payment completed via " . $paymentMethod;
@@ -305,9 +297,9 @@ function storePaymentData($conn, $data) {
             $paidAt = $data['paid_at'] ?? null;
             
             mysqli_stmt_bind_param($stmt, "ssssssds", 
+                $paymentId, 
                 $paymentIntentId,
                 $sessionId,
-                $referenceNumber,
                 $status,
                 $paymentMethod,
                 $description,
@@ -324,14 +316,15 @@ function storePaymentData($conn, $data) {
         $orderUpdateQuery = "UPDATE orders SET 
             status = ?,
             payment_method = ?
-            WHERE payment_id = ? OR payment_id = ?";
+            WHERE payment_id = ? OR payment_id = ? OR payment_id = ?";
         
         $stmt = mysqli_prepare($conn, $orderUpdateQuery);
         $orderStatus = ($data['status'] === 'succeeded' || $data['status'] === 'paid') ? 'processing' : 'pending';
         
-        mysqli_stmt_bind_param($stmt, "ssss", 
+        mysqli_stmt_bind_param($stmt, "sssss", 
             $orderStatus,
             $paymentMethod, 
+            $paymentId, 
             $paymentIntentId, 
             $sessionId
         );
