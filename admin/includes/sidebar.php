@@ -218,19 +218,6 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
         </li>
       </ul>
     </div>
-    
-    <!-- Payment Management Section -->
-    <div class="nav-section">
-      <span class="nav-section-title">Payments</span>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link <?php echo ($currentPage == 'payment-settings.php') ? 'active' : ''; ?>" href="transactions.php">
-            <i class="material-symbols-rounded">payments</i>
-            <span>Transactions</span>
-          </a>
-        </li>
-      </ul>
-    </div>
   </div>
   
 <div class="sidebar-footer">
@@ -326,20 +313,6 @@ $badge_display = $pending_orders_count > 0 ? 'inline-flex' : 'none';
               <?php if ($notifications_count > 0): ?>
                 <span class="nav-badge" style="display: <?= $notification_badge_display ?>;"><?= $notifications_count ?></span>
               <?php endif; ?>
-            </a>
-          </li>
-        </ul>
-      </div>
-      
-      <!-- Payment Management (New Section for mobile) -->
-      <div class="nav-section">
-        <span class="nav-section-title">Payments</span>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link <?php echo ($currentPage == 'transactions.php') ? 'active' : ''; ?>" 
-               href="payment-settings.php" onclick="closeOffcanvas()">
-              <i class="material-symbols-rounded">payments</i>
-              <span>Transactions</span>
             </a>
           </li>
         </ul>

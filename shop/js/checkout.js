@@ -121,13 +121,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.success) {
                     console.log('Payment URL received:', data.payment_url);
-                    // Clear cart before redirecting - clear both possible keys
-                    localStorage.removeItem('shopping-cart');
-                    localStorage.removeItem('cart');
                     
-                    // Store the reference in session storage
+                    // CHANGED: Don't clear the cart yet - wait until payment is confirmed
+                    // Store the reference in both localStorage and sessionStorage for better persistence
                     if (data.reference) {
                         sessionStorage.setItem('order_reference', data.reference);
+                        localStorage.setItem('order_reference', data.reference);
+                        localStorage.setItem('pending_payment', 'true');
                     }
                     
                     // Redirect directly to the payment URL in the same tab

@@ -1,4 +1,4 @@
-  .sortable {
+.sortable {
     position: relative;
     white-space: nowrap;
   }
@@ -24,4 +24,13 @@
     .table-responsive table {
       min-width: 800px;
     }
+  }
+  
+  /* Center checkboxes in table cells */
+  th.checkbox-cell, td.checkbox-cell {
+    text-align: center;
+  }
+  
+  th.checkbox-cell input, td.checkbox-cell input {
+    margin: 0 auto;
   }

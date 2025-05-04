@@ -346,7 +346,7 @@ if(isset($_GET['msg'])) {
                   
                   // Generate table row
                   echo "<tr>
-                  <td class='ps-3'>
+                  <td class='px-3 align-middle'>
                     <div class='form-check'>
                       <input class='form-check-input order-checkbox' type='checkbox' name='order_ids[]' value='".$order['id']."'>
                     </div>
