@@ -309,7 +309,8 @@ if(isset($_GET['msg'])) {
                   Payment
                   <i class='bx <?= $sort_column == 'payment_method' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'payment_method' ? 'active-sort' : '' ?>'></i>
                 </th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status Update</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Details</th>
               </tr>
             </thead>
             <tbody>
@@ -356,7 +357,7 @@ if(isset($_GET['msg'])) {
                     <p class='text-xs text-secondary mb-0'>".($order['reference_number'] ?? 'N/A')."</p>
                   </td>
                   <td class='align-middle'>
-                    <div class='d-flex px-2 py-1'>
+                    <div class='d-flex'>
                       <div class='d-flex flex-column justify-content-center'>
                         <h6 class='mb-0 text-sm'>".$order['firstname']." ".$order['lastname']."</h6>
                         <p class='text-xs text-secondary mb-0'>".$order['email']."</p>
@@ -376,25 +377,24 @@ if(isset($_GET['msg'])) {
                     <p class='font-weight-bold mb-0'>".$order['payment_method']."</p>
                   </td>
                   <td class='align-middle text-center'>
-                    <div class='btn-group'>
-                      <select class='form-select form-select-sm quick-status-update' data-order-id='".$order['id']."' aria-label='Quick Status Update' style='min-width: 120px;'>
-                        <option value=''>Update Status</option>
-                        <option value='pending' ".($order['status'] == 'pending' ? 'selected' : '').">Pending</option>
-                        <option value='processing' ".($order['status'] == 'processing' ? 'selected' : '').">Processing</option>
-                        <option value='shipped' ".($order['status'] == 'shipped' ? 'selected' : '').">Shipped</option>
-                        <option value='delivered' ".($order['status'] == 'delivered' ? 'selected' : '').">Delivered</option>
-                        <option value='cancelled' ".($order['status'] == 'cancelled' ? 'selected' : '').">Cancelled</option>
-                      </select>
-                      <a href='#' class='btn text-primary px-2 mb-0' data-bs-toggle='modal' data-bs-target='#orderDetailsModal' 
-                        data-orderid='".$order['id']."'>
-                        <i class='bx bx-info-circle bx-sm'></i>
-                      </a>
-                    </div>
+                    <select class='form-select form-select-sm quick-status-update' data-order-id='".$order['id']."' aria-label='Quick Status Update' style='min-width: 120px;'>
+                      <option value=''>Update Status</option>
+                      <option value='pending' ".($order['status'] == 'pending' ? 'selected' : '').">Pending</option>
+                      <option value='processing' ".($order['status'] == 'processing' ? 'selected' : '').">Processing</option>
+                      <option value='shipped' ".($order['status'] == 'shipped' ? 'selected' : '').">Shipped</option>
+                      <option value='delivered' ".($order['status'] == 'delivered' ? 'selected' : '').">Delivered</option>
+                      <option value='cancelled' ".($order['status'] == 'cancelled' ? 'selected' : '').">Cancelled</option>
+                    </select>
+                  </td>
+                  <td class='align-middle text-center'>
+                    <a href='#' class='btn text-primary px-2 mb-0' data-bs-toggle='modal' data-bs-target='#orderDetailsModal' data-orderid='".$order['id']."'>
+                      <i class='bx bx-info-circle bx-sm'></i>
+                    </a>
                   </td>
                   </tr>";
                 }
               } else {
-                echo "<tr><td colspan='8' class='text-center py-4'>No orders found</td></tr>";
+                echo "<tr><td colspan='9' class='text-center py-4'>No orders found</td></tr>";
               }
               ?>
             </tbody>
@@ -506,6 +506,11 @@ if(isset($_GET['msg'])) {
 </div>
 
 </main>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <!-- Toasts will be dynamically added here -->
+</div>
 
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

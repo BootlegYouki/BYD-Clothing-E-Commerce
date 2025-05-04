@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Show success notification
-            alert('Order #' + orderId + ' status updated to ' + status);
+            // Show toast notification instead of alert
+            showToast('Status Update', 'Order #' + orderId + ' status updated to ' + status.charAt(0).toUpperCase() + status.slice(1), 'success');
             
             // Update the status badge on the page
             const statusCell = this.closest('tr').querySelector('td:nth-child(6)');
@@ -164,13 +164,58 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             statusCell.innerHTML = newBadge;
           } else {
-            alert('Error: ' + data.message);
+            // Show error toast
+            showToast('Error', data.message, 'error');
           }
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('An error occurred while updating the status.');
+          showToast('Error', 'An error occurred while updating the status.', 'error');
         });
       });
     });
+    
+    // Function to show toast notifications
+    function showToast(title, message, type) {
+      // Create toast element
+      const toastEl = document.createElement('div');
+      toastEl.className = 'toast align-items-center border-0';
+      
+      // Set background color based on type
+      if (type === 'success') {
+        toastEl.classList.add('bg-success', 'text-white');
+      } else if (type === 'error') {
+        toastEl.classList.add('bg-danger', 'text-white');
+      } else if (type === 'warning') {
+        toastEl.classList.add('bg-warning', 'text-dark');
+      } else {
+        toastEl.classList.add('bg-primary', 'text-white');
+      }
+      
+      // Set toast content
+      toastEl.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">
+            <strong>${title}</strong>: ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+      
+      // Add toast to container
+      const toastContainer = document.querySelector('.toast-container');
+      toastContainer.appendChild(toastEl);
+      
+      // Initialize and show toast
+      const toast = new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 5000
+      });
+      toast.show();
+      
+      // Remove toast element when hidden
+      toastEl.addEventListener('hidden.bs.toast', function() {
+        toastContainer.removeChild(toastEl);
+      });
+    }
   });
