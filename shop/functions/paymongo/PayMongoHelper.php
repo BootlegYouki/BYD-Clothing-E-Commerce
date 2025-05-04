@@ -58,7 +58,7 @@ class PayMongoHelper {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
             
             // Log request data for debugging
-            error_log("PayMongo API Request to $url: $jsonData");
+            error_log("PayMongo API Request to $url: " . substr($jsonData, 0, 1000) . (strlen($jsonData) > 1000 ? '...' : ''));
         }
     
         // Execute request and get response
@@ -67,7 +67,7 @@ class PayMongoHelper {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
         // Log raw response for debugging
-        error_log("PayMongo API Response ($httpCode): $response");
+        error_log("PayMongo API Response ($httpCode): " . substr($response, 0, 1000) . (strlen($response) > 1000 ? '...' : ''));
         
         // Close cURL session
         curl_close($ch);
@@ -83,7 +83,7 @@ class PayMongoHelper {
         
         // Check for JSON parsing errors
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("PayMongo API JSON Error: " . json_last_error_msg() . " - Raw response: $response");
+            error_log("PayMongo API JSON Error: " . json_last_error_msg() . " - Raw response: " . substr($response, 0, 1000));
             throw new Exception("Invalid JSON response: " . json_last_error_msg());
         }
         
@@ -129,12 +129,12 @@ class PayMongoHelper {
         // Set default success and cancel URLs if not provided
         if (!$successUrl) {
             $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-            $successUrl = $baseUrl . "/BYD-Clothing-E-Commerce-main/shop/payment-success.php";
+            $successUrl = $baseUrl . "/BYD-Clothing-E-Commerce-main/shop/payment_return.php?status=success";
         }
         
         if (!$cancelUrl) {
             $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-            $cancelUrl = $baseUrl . "/BYD-Clothing-E-Commerce-main/shop/payment-cancelled.php";
+            $cancelUrl = $baseUrl . "/BYD-Clothing-E-Commerce-main/shop/payment_return.php?status=failed";
         }
         
         // Fix phone number format if it exists in customerInfo
@@ -255,10 +255,6 @@ class PayMongoHelper {
      */
     public function getCheckoutUrl($amount, $description, $metadata = []) {
         $checkout = $this->createCheckoutSession($amount, $description, $metadata);
-        
-        if ($checkout['success'] && isset($checkout['checkout_url'])) {
-            return $checkout['checkout_url'];
-        } else {
-        }
+        return $checkout['checkout_url'];
     }
 }

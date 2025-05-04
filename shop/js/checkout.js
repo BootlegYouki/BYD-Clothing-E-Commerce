@@ -125,8 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('shopping-cart');
                     localStorage.removeItem('cart');
                     
-                    // Store the order ID in session storage for retrieval after payment
-                    sessionStorage.setItem('pending_order_id', data.order_id);
+                    // Store the reference in session storage
+                    if (data.reference) {
+                        sessionStorage.setItem('order_reference', data.reference);
+                    }
                     
                     // Redirect directly to the payment URL in the same tab
                     window.location.href = data.payment_url;

@@ -5,8 +5,7 @@
  * This script handles the initial payment processing:
  * 1. Collects order data from the form
  * 2. Creates a payment link via PayMongo
- * 3. Stores order information in the database
- * 4. Returns the payment URL to redirect the customer
+ * 3. Returns the payment URL to redirect the customer
  */
 require_once '../../../admin/config/dbcon.php';
 require_once __DIR__ . '/PayMongoHelper.php';
@@ -55,9 +54,42 @@ try {
         ]
     ];
     
+    // Generate a unique reference for this order
+    $orderReference = 'ORDER-' . time() . '-' . $formData['user_id'];
+    
+    // Calculate order subtotal from cart items
+    $subtotal = 0;
+    foreach ($formData['cart_items'] as $item) {
+        $subtotal += $item['price'] * $item['quantity'];
+    }
+    
+    // Create a simplified version of cart items for metadata
+    $simpleCart = [];
+    foreach ($formData['cart_items'] as $item) {
+        $simpleCart[] = [
+            'id' => isset($item['id']) ? $item['id'] : 0,
+            'name' => $item['name'] ?? $item['title'] ?? $item['productTitle'] ?? 'Product',
+            'size' => $item['size'],
+            'quantity' => $item['quantity'],
+            'price' => $item['price']
+        ];
+    }
+    
+    // Store all order data in metadata - this will be available in the webhook
     $metadata = [
         'user_id' => $formData['user_id'],
-        'reference_number' => 'ORDER-' . time() . '-' . $formData['user_id']
+        'reference_number' => $orderReference,
+        'firstname' => $formData['firstname'],
+        'lastname' => $formData['lastname'],
+        'email' => $formData['email'],
+        'phone' => $formData['phone'],
+        'address' => $formData['address'],
+        'zipcode' => $formData['zipcode'],
+        'subtotal' => $subtotal,
+        'shipping_cost' => $shipping_cost,
+        'total_amount' => $subtotal + $shipping_cost,
+        'cart_items' => json_encode($simpleCart),
+        'order_date' => date('Y-m-d H:i:s')
     ];
     
     // Define the description and line items before using them
@@ -82,12 +114,8 @@ try {
         'currency' => 'PHP'
     ];
     
-    // Inside the createCheckoutSession call, update the success_url
     // Set up base URL for redirects - works with both local and hosted environments
     $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-    
-    // Generate a unique reference for this order
-    $orderReference = 'ORDER-' . time() . '-' . $formData['user_id'];
     
     // Determine the correct path based on server environment
     $projectPath = '';
@@ -115,10 +143,6 @@ try {
     $successUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=success&reference=' . urlencode($orderReference);
     $cancelUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=failed&reference=' . urlencode($orderReference);
     
-    // Debug the URLs (remove in production)
-    error_log("Success URL: " . $successUrl);
-    error_log("Cancel URL: " . $cancelUrl);
-    
     // Store reference in metadata for future reference
     $metadata['reference_number'] = $orderReference;
     
@@ -133,19 +157,16 @@ try {
         $cancelUrl
     );
     
-    // Store order in database and get order ID
-    $orderId = insertOrderToDatabase($conn, $formData, $checkout['session_id']);
-    
-    // Store payment ID in session for reference
+    // Store session ID in PHP session for reference
     $_SESSION['payment_id'] = $checkout['session_id'];
-    $_SESSION['last_order_id'] = $orderId;
+    $_SESSION['order_reference'] = $orderReference;
     
     // Return success response with checkout URL
     header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'payment_url' => $checkout['checkout_url'],
-        'order_id' => $orderId,
+        'reference' => $orderReference,
         'open_in_new_tab' => false  // Changed from true to false to open in same tab
     ]);
     
@@ -157,127 +178,4 @@ try {
         'success' => false,
         'message' => 'Payment processing failed: '.$e->getMessage()
     ]);
-}
-
-/**
- * Insert order data into database
- * 
- * @param mysqli $conn Database connection
- * @param array $data Order data
- * @param string $paymentId PayMongo payment ID
- * @return int Order ID
- */
-function insertOrderToDatabase($conn, $data, $paymentId) {
-    // Begin database transaction for data integrity
-    mysqli_begin_transaction($conn);
-    
-    try {
-        // 1. Prepare SQL for orders table insertion
-        $order_query = "INSERT INTO orders (
-            user_id, 
-            firstname, 
-            lastname, 
-            email, 
-            phone, 
-            address, 
-            zipcode, 
-            payment_method, 
-            payment_id, 
-            subtotal, 
-            shipping_cost, 
-            total_amount, 
-            status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt = mysqli_prepare($conn, $order_query);
-        
-        // Calculate order subtotal from cart items
-        $subtotal = 0;
-        foreach ($data['cart_items'] as $item) {
-            $subtotal += $item['price'] * $item['quantity'];
-        }
-        
-        // Set additional order details
-        // Use shipping cost from the data array instead of getting it from $_POST again
-        $shipping_cost = $data['shipping_cost'];
-        $payment_method = 'paymongo';
-        $status = 'pending'; // Initial status
-        
-        // Make sure total_amount is exactly subtotal + shipping_cost to avoid any discrepancies
-        $total_amount = $subtotal + $shipping_cost;
-        
-        // Bind parameters to prepared statement
-        mysqli_stmt_bind_param(
-            $stmt, 
-            "issssssssddds", 
-            $data['user_id'],
-            $data['firstname'],
-            $data['lastname'],
-            $data['email'],
-            $data['phone'],
-            $data['address'],
-            $data['zipcode'],
-            $payment_method,
-            $paymentId,
-            $subtotal,
-            $shipping_cost,
-            $total_amount,  // Use the calculated total instead of $data['total']
-            $status
-        );
-        
-        // Execute order insertion
-        mysqli_stmt_execute($stmt);
-        $order_id = mysqli_insert_id($conn);
-        
-        // 2. Insert individual order items
-        $item_query = "INSERT INTO order_items (
-            order_id, 
-            product_id, 
-            product_name, 
-            size, 
-            quantity, 
-            price, 
-            subtotal
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
-        $item_stmt = mysqli_prepare($conn, $item_query);
-        
-        // Process each cart item
-        foreach ($data['cart_items'] as $item) {
-            $product_id = isset($item['id']) ? $item['id'] : 0;
-            $product_name = $item['name'] ?? $item['title'] ?? $item['productTitle'] ?? 'Product';
-            $size = $item['size'];
-            $quantity = $item['quantity'];
-            $price = $item['price'];
-            $item_subtotal = $price * $quantity;
-            
-            // Bind parameters for each item
-            mysqli_stmt_bind_param(
-                $item_stmt, 
-                "iissidd", 
-                $order_id,
-                $product_id,
-                $product_name,
-                $size,
-                $quantity,
-                $price,
-                $item_subtotal
-            );
-            
-            // Execute item insertion
-            mysqli_stmt_execute($item_stmt);
-        }
-        
-        // Commit all database changes
-        mysqli_commit($conn);
-        
-        // Send order confirmation email with invoice using the EmailConfirmation class
-        EmailConfirmation::sendOrderConfirmationEmail($data, $order_id, $paymentId);
-        
-        return $order_id;
-    } catch (Exception $e) {
-        // Rollback all changes if any error occurs
-        mysqli_rollback($conn);
-        throw $e;
-    }
 }

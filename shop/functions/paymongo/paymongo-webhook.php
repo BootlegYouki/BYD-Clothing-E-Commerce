@@ -1,6 +1,10 @@
 <?php
 // Include database connection
 require_once '../../../admin/config/dbcon.php';
+require_once __DIR__ . '/EmailConfirmation.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -72,11 +76,6 @@ try {
                     $metadata = $attributes['metadata'] ?? [];
                     $paidAt = $attributes['paid_at'] ?? null;
                     
-                    // Extract payment intent details
-                    $paymentIntentId = $paymentIntent['id'] ?? null;
-                    $paymentStatus = $paymentIntent['attributes']['status'] ?? 'unknown';
-                    $amount = $paymentIntent['attributes']['amount'] ?? 0;
-                    
                     // Format payment method for better display
                     $methodMapping = [
                         'card' => 'Credit/Debit Card',
@@ -89,70 +88,64 @@ try {
                     $displayMethod = isset($methodMapping[$paymentMethodUsed]) ? 
                         $methodMapping[$paymentMethodUsed] : ucfirst($paymentMethodUsed);
                     
-                    // Prepare data to be stored
-                    $processedData = [
-                        'session_id' => $sessionId,
-                        'payment_intent_id' => $paymentIntentId,
-                        'payment_method' => $paymentMethodUsed,
-                        'payment_method_display' => $displayMethod,
-                        'status' => $paymentStatus,
-                        'amount' => $amount / 100, // Convert from cents to PHP
-                        'reference_number' => $metadata['reference_number'] ?? null,
-                        'user_id' => $metadata['user_id'] ?? null,
-                        'paid_at' => $paidAt ? date('Y-m-d H:i:s', $paidAt) : null
+                    // Extract order data from metadata
+                    $orderData = [
+                        'user_id' => (int)$metadata['user_id'],
+                        'firstname' => $metadata['firstname'],
+                        'lastname' => $metadata['lastname'],
+                        'email' => $metadata['email'],
+                        'phone' => $metadata['phone'],
+                        'address' => $metadata['address'],
+                        'zipcode' => $metadata['zipcode'],
+                        'subtotal' => (float)$metadata['subtotal'],
+                        'shipping_cost' => (float)$metadata['shipping_cost'],
+                        'total_amount' => (float)$metadata['total_amount'],
+                        'payment_method' => $displayMethod,
+                        'payment_id' => $sessionId,
+                        'payment_intent_id' => $paymentIntent['id'] ?? null,
+                        'reference_number' => $metadata['reference_number'],
+                        'status' => 'processing', // Payment successful, order is now processing
+                        'cart_items' => json_decode($metadata['cart_items'], true)
                     ];
                     
-                    // Update the database
+                    // Insert the order into the database
+                    $orderId = insertOrderToDatabase($conn, $orderData);
+                    
+                    // Send order confirmation email
+                    EmailConfirmation::sendOrderConfirmationEmail($orderData, $orderId, $sessionId);
+                    
+                    // Log the successful order
+                    error_log("Order #$orderId created from webhook payment success");
+                    
+                    // Prepare data to be stored in transactions table
+                    $processedData = [
+                        'session_id' => $sessionId,
+                        'payment_intent_id' => $orderData['payment_intent_id'],
+                        'payment_method' => $paymentMethodUsed,
+                        'payment_method_display' => $displayMethod,
+                        'status' => 'successful',
+                        'amount' => $orderData['total_amount'],
+                        'reference_number' => $orderData['reference_number'],
+                        'user_id' => $orderData['user_id'],
+                        'paid_at' => $paidAt ? date('Y-m-d H:i:s', $paidAt) : null,
+                        'order_id' => $orderId
+                    ];
+                    
+                    // Update the transactions table
                     storePaymentData($conn, $processedData);
                 }
             }
             break;
             
         case 'payment.paid':
-            // Handle direct payment paid event
+            // Handle direct payment paid event (if needed for your application)
             $payment = $data['data']['attributes']['data'] ?? [];
             if (!empty($payment)) {
                 $paymentId = $payment['id'] ?? null;
                 $attributes = $payment['attributes'] ?? [];
                 
-                if ($paymentId && !empty($attributes)) {
-                    // Extract payment details
-                    $paymentIntentId = $attributes['payment_intent_id'] ?? null;
-                    $status = $attributes['status'] ?? 'unknown';
-                    $amount = $attributes['amount'] ?? 0;
-                    $metadata = $attributes['metadata'] ?? [];
-                    $source = $attributes['source'] ?? [];
-                    $paymentMethodUsed = $source['type'] ?? 'unknown';
-                    $paidAt = $attributes['paid_at'] ?? null;
-                    
-                    // Format payment method
-                    $methodMapping = [
-                        'card' => 'Credit/Debit Card',
-                        'gcash' => 'GCash',
-                        'paymaya' => 'PayMaya',
-                        'grab_pay' => 'GrabPay',
-                        'qrph' => 'QR Ph'
-                    ];
-                    
-                    $displayMethod = isset($methodMapping[$paymentMethodUsed]) ? 
-                        $methodMapping[$paymentMethodUsed] : ucfirst($paymentMethodUsed);
-                    
-                    // Prepare data
-                    $processedData = [
-                        'payment_id' => $paymentId,
-                        'payment_intent_id' => $paymentIntentId,
-                        'payment_method' => $paymentMethodUsed,
-                        'payment_method_display' => $displayMethod,
-                        'status' => $status,
-                        'amount' => $amount / 100, // Convert from cents to PHP
-                        'reference_number' => $metadata['reference_number'] ?? null,
-                        'user_id' => $metadata['user_id'] ?? null,
-                        'paid_at' => $paidAt ? date('Y-m-d H:i:s', $paidAt) : null
-                    ];
-                    
-                    // Update the database
-                    storePaymentData($conn, $processedData);
-                }
+                // Log this event but don't process it as we're focusing on checkout sessions
+                error_log("Payment.paid event received: $paymentId");
             }
             break;
             
@@ -221,6 +214,110 @@ function markEventAsProcessed($conn, $eventId) {
 }
 
 /**
+ * Insert order data into database
+ * 
+ * @param mysqli $conn Database connection
+ * @param array $data Order data
+ * @return int Order ID
+ */
+function insertOrderToDatabase($conn, $data) {
+    // Begin database transaction for data integrity
+    mysqli_begin_transaction($conn);
+    
+    try {
+        // 1. Prepare SQL for orders table insertion
+        $order_query = "INSERT INTO orders (
+            user_id, 
+            firstname, 
+            lastname, 
+            email, 
+            phone, 
+            address, 
+            zipcode, 
+            payment_method, 
+            payment_id, 
+            subtotal, 
+            shipping_cost, 
+            total_amount, 
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = mysqli_prepare($conn, $order_query);
+        
+        // Bind parameters to prepared statement
+        mysqli_stmt_bind_param(
+            $stmt, 
+            "issssssssddds", 
+            $data['user_id'],
+            $data['firstname'],
+            $data['lastname'],
+            $data['email'],
+            $data['phone'],
+            $data['address'],
+            $data['zipcode'],
+            $data['payment_method'],
+            $data['payment_id'],
+            $data['subtotal'],
+            $data['shipping_cost'],
+            $data['total_amount'],
+            $data['status']
+        );
+        
+        // Execute order insertion
+        mysqli_stmt_execute($stmt);
+        $order_id = mysqli_insert_id($conn);
+        
+        // 2. Insert individual order items
+        $item_query = "INSERT INTO order_items (
+            order_id, 
+            product_id, 
+            product_name, 
+            size, 
+            quantity, 
+            price, 
+            subtotal
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        $item_stmt = mysqli_prepare($conn, $item_query);
+        
+        // Process each cart item
+        foreach ($data['cart_items'] as $item) {
+            $product_id = isset($item['id']) ? $item['id'] : 0;
+            $product_name = $item['name'];
+            $size = $item['size'];
+            $quantity = $item['quantity'];
+            $price = $item['price'];
+            $item_subtotal = $price * $quantity;
+            
+            // Bind parameters for each item
+            mysqli_stmt_bind_param(
+                $item_stmt, 
+                "iissidd", 
+                $order_id,
+                $product_id,
+                $product_name,
+                $size,
+                $quantity,
+                $price,
+                $item_subtotal
+            );
+            
+            // Execute item insertion
+            mysqli_stmt_execute($item_stmt);
+        }
+        
+        // Commit all database changes
+        mysqli_commit($conn);
+        
+        return $order_id;
+    } catch (Exception $e) {
+        // Rollback all changes if any error occurs
+        mysqli_rollback($conn);
+        throw $e;
+    }
+}
+
+/**
  * Store payment data in the database
  * 
  * @param mysqli $conn Database connection
@@ -255,6 +352,7 @@ function storePaymentData($conn, $data) {
                 payment_method = ?,
                 description = ?,
                 amount = ?,
+                order_id = ?,
                 paid_at = ?,
                 updated_at = NOW()
                 WHERE id = ?";
@@ -265,9 +363,10 @@ function storePaymentData($conn, $data) {
             $paymentMethod = $data['payment_method_display'] ?? 'Unknown';
             $description = "Payment completed via " . $paymentMethod;
             $amount = $data['amount'] ?? 0;
+            $orderId = $data['order_id'] ?? null;
             $paidAt = $data['paid_at'] ?? null;
             
-            mysqli_stmt_bind_param($stmt, "sssdsi", $status, $paymentMethod, $description, $amount, $paidAt, $transactionId);
+            mysqli_stmt_bind_param($stmt, "sssdssi", $status, $paymentMethod, $description, $amount, $orderId, $paidAt, $transactionId);
             mysqli_stmt_execute($stmt);
             
             error_log("Updated transaction ID: $transactionId with payment method: $paymentMethod and status: $status");
@@ -281,9 +380,10 @@ function storePaymentData($conn, $data) {
                 payment_method,
                 description,
                 amount,
+                order_id,
                 paid_at,
                 created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
             
             $stmt = mysqli_prepare($conn, $insertQuery);
             
@@ -294,9 +394,10 @@ function storePaymentData($conn, $data) {
             $paymentMethod = $data['payment_method_display'] ?? 'Unknown';
             $description = "Payment completed via " . $paymentMethod;
             $amount = $data['amount'] ?? 0;
+            $orderId = $data['order_id'] ?? null;
             $paidAt = $data['paid_at'] ?? null;
             
-            mysqli_stmt_bind_param($stmt, "ssssssds", 
+            mysqli_stmt_bind_param($stmt, "ssssssdss", 
                 $paymentId, 
                 $paymentIntentId,
                 $sessionId,
@@ -304,65 +405,13 @@ function storePaymentData($conn, $data) {
                 $paymentMethod,
                 $description,
                 $amount,
+                $orderId,
                 $paidAt
             );
             mysqli_stmt_execute($stmt);
             
             $transactionId = mysqli_insert_id($conn);
             error_log("Created new transaction ID: $transactionId for payment method: $paymentMethod");
-        }
-        
-        // Now update the corresponding order
-        $orderUpdateQuery = "UPDATE orders SET 
-            status = ?,
-            payment_method = ?
-            WHERE payment_id = ? OR payment_id = ? OR payment_id = ?";
-        
-        $stmt = mysqli_prepare($conn, $orderUpdateQuery);
-        $orderStatus = ($data['status'] === 'succeeded' || $data['status'] === 'paid') ? 'processing' : 'pending';
-        
-        mysqli_stmt_bind_param($stmt, "sssss", 
-            $orderStatus,
-            $paymentMethod, 
-            $paymentId, 
-            $paymentIntentId, 
-            $sessionId
-        );
-        mysqli_stmt_execute($stmt);
-        
-        $affectedOrders = mysqli_stmt_affected_rows($stmt);
-        error_log("Updated $affectedOrders orders with status: $orderStatus and payment method: $paymentMethod");
-        
-        // If we have a reference number, try to update by that as well
-        if (!empty($data['reference_number']) && $affectedOrders == 0) {
-            $refParts = explode('-', $data['reference_number']);
-            if (count($refParts) >= 3) {
-                $timestamp = $refParts[1] ?? '';
-                $userId = $refParts[2] ?? '';
-                
-                if (!empty($timestamp) && !empty($userId)) {
-                    $updateByRefQuery = "UPDATE orders SET 
-                        status = ?,
-                        payment_method = ?
-                        WHERE user_id = ? 
-                        AND created_at >= FROM_UNIXTIME(?) - INTERVAL 10 MINUTE
-                        AND created_at <= FROM_UNIXTIME(?) + INTERVAL 10 MINUTE
-                        ORDER BY created_at DESC LIMIT 1";
-                    
-                    $stmt = mysqli_prepare($conn, $updateByRefQuery);
-                    mysqli_stmt_bind_param($stmt, "sssss", 
-                        $orderStatus,
-                        $paymentMethod, 
-                        $userId,
-                        $timestamp,
-                        $timestamp
-                    );
-                    mysqli_stmt_execute($stmt);
-                    
-                    $affectedOrders = mysqli_stmt_affected_rows($stmt);
-                    error_log("Updated $affectedOrders orders by reference pattern with status: $orderStatus");
-                }
-            }
         }
         
         // Commit all database changes
