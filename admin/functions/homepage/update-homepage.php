@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../config/dbcon.php';
+require_once '../../config/dbcon.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Process form fields
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['content_message'] = 'Homepage content updated successfully!';
     
     // Redirect back to homepage customization
-    header('Location: ../homepage-customize.php');
+    header('Location: ../../homepage-customize.php');
     exit();
 }
 ?>

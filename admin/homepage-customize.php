@@ -107,7 +107,7 @@ function get_setting($key, $default = '') {
       </div>
     </nav>
     
-    <form action="functions/update-homepage.php" method="POST">
+    <form action="functions/homepage/update-homepage.php" method="POST">
       <div class="tab-content pt-3" id="nav-tabContent" style="height: 450px; overflow-y: auto;">
         <!-- Hero Section Content -->
         <div class="tab-pane fade show active" id="hero-content" role="tabpanel" aria-labelledby="hero-tab">
@@ -352,7 +352,7 @@ function get_setting($key, $default = '') {
                     </td>
                     <td>
                     <div class="d-flex justify-content-center">
-                      <form action="functions/carousel-actions.php" method="POST">
+                      <form action="functions/homepage/carousel-actions.php" method="POST">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="image_id" value="<?php echo $image['id']; ?>">
                         <button type="submit" class="btn btn-sm btn-danger">
@@ -392,12 +392,12 @@ function get_setting($key, $default = '') {
         <h5 class="modal-title" id="addImageModalLabel">Add New Carousel Image</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="functions/carousel-actions.php" method="POST" enctype="multipart/form-data">
+      <form action="functions/homepage/carousel-actions.php" method="POST" enctype="multipart/form-data">
       <div class="modal-body">
         <input type="hidden" name="action" value="add">
         <input type="hidden" name="is_active" value="1">
         <div class="mb-3">
-            <label class="form-label">Upload Images (1920x800 recommended)</label>
+            <label class="form-label">Upload Images (1x1 recommended)</label>
             <input type="file" name="carousel_image[]" id="carousel_image" class="form-control d-none" multiple accept="image/*">
             <input type="text" class="form-control" id="carousel_image_text" placeholder="No files selected" readonly>
             <div class="error-message text-danger"></div>

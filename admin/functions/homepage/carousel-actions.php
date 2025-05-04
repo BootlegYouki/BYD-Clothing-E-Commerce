@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once '../config/dbcon.php';
+require_once '../../config/dbcon.php';
 
 // Check if user is logged in as admin
 if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
-    header("Location: ../../shop/index.php");
+    header("Location: ../../../shop/index.php");
     exit();
 }
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         default:
             $_SESSION['message'] = "Invalid action specified";
             $_SESSION['message_type'] = "danger";
-            header("Location: ../homepage-customize.php");
+            header("Location: ../../homepage-customize.php");
             exit();
     }
 }
@@ -39,7 +39,7 @@ function addCarouselImage() {
     
     // Handle image uploads
     if (isset($_FILES['carousel_image']) && !empty($_FILES['carousel_image']['name'][0])) {
-        $targetDir = "../../uploads/carousel/";
+        $targetDir = "../../../uploads/carousel/";
         
         // Create directory if it doesn't exist
         if (!file_exists($targetDir)) {
@@ -95,7 +95,7 @@ function addCarouselImage() {
     }
     
     // Use toast notification instead of session message
-    header("Location: ../homepage-customize.php?toast_message=" . urlencode($message) . "&toast_type=" . $type);
+    header("Location: ../../homepage-customize.php?toast_message=" . urlencode($message) . "&toast_type=" . $type);
     exit();
 }
 
@@ -108,7 +108,7 @@ function deleteCarouselImage() {
     $query = "SELECT image_path FROM carousel_images WHERE id = $image_id";
     $result = mysqli_query($conn, $query);
     if ($row = mysqli_fetch_assoc($result)) {
-        $image_path = '../../' . $row['image_path'];
+        $image_path = '../../../' . $row['image_path'];
         if (file_exists($image_path)) {
             unlink($image_path);
         }
@@ -119,9 +119,9 @@ function deleteCarouselImage() {
     
     if (mysqli_query($conn, $query)) {
         // Redirect with toast parameters instead of using session
-        header("Location: ../homepage-customize.php?toast_message=Carousel+image+deleted+successfully&toast_type=success");
+        header("Location: ../../homepage-customize.php?toast_message=Carousel+image+deleted+successfully&toast_type=success");
     } else {
-        header("Location: ../homepage-customize.php?toast_message=Error+deleting+image&toast_type=error");
+        header("Location: ../../homepage-customize.php?toast_message=Error+deleting+image&toast_type=error");
     }
     
     exit();

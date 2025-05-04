@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Send request to server
-    fetch('functions/carousel-actions.php', {
+    fetch('functions/homepage/carousel-actions.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
