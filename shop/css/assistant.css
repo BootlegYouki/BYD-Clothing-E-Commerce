@@ -153,6 +153,7 @@
     border-radius: 20px;
     margin-right: 8px;
     font-size: 14px;
+    min-width: 0; 
 }
 
 .chat-input input:focus {
