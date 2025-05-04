@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newFabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
                 
                 // Check if fabric already exists
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE fabric = '$newFabric'";
+                $check_query = "SELECT COUNT(*) as count FROM fabrics WHERE name = '$newFabric'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -33,12 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Fabric already exists'
                     ];
                 } else {
-                    // Generate a unique SKU for placeholder product
-                    $timestamp = time();
-                    $uniqueSku = 'PLFAB-' . $timestamp . '-' . rand(100, 999);
-                    
-                    // Insert placeholder product with new fabric and unique SKU
-                    $query = "INSERT INTO products (name, fabric, sku) VALUES ('_placeholder_', '$newFabric', '$uniqueSku')";
+                    // Insert new fabric
+                    $query = "INSERT INTO fabrics (name) VALUES ('$newFabric')";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',
@@ -68,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newFabric = mysqli_real_escape_string($conn, $_POST['new_fabric']);
                 
                 // Check if new fabric name already exists
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE fabric = '$newFabric' AND fabric != '$oldFabric'";
+                $check_query = "SELECT COUNT(*) as count FROM fabrics WHERE name = '$newFabric' AND name != '$oldFabric'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -78,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Fabric already exists'
                     ];
                 } else {
-                    $query = "UPDATE products SET fabric = '$newFabric' WHERE fabric = '$oldFabric'";
+                    $query = "UPDATE fabrics SET name = '$newFabric' WHERE name = '$oldFabric'";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',
@@ -104,8 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['fabric']) && !empty($_POST['fabric'])) {
                 $fabric = mysqli_real_escape_string($conn, $_POST['fabric']);
                 
-                // Check if real products use this fabric
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE fabric = '$fabric' AND name != '_placeholder_'";
+                // Check if products use this fabric
+                $check_query = "SELECT COUNT(*) as count FROM products p 
+                                JOIN fabrics f ON p.fabric_id = f.id 
+                                WHERE f.name = '$fabric'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -115,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Cannot delete fabric that is being used by products'
                     ];
                 } else {
-                    // Delete placeholder products with this fabric
-                    $query = "DELETE FROM products WHERE fabric = '$fabric' AND name = '_placeholder_'";
+                    // Delete fabric
+                    $query = "DELETE FROM fabrics WHERE name = '$fabric'";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',

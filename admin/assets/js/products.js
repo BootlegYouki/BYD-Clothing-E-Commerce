@@ -48,7 +48,7 @@ function viewProduct(productId) {
     document.getElementById('viewProductModal').classList.add('loading');
     
     // Fetch product details
-    fetch(`functions/get-product-details.php?id=${productId}`)
+    fetch(`functions/products/get-product-details.php?id=${productId}`)
         .then(response => {
             // Check if response is OK (status in 200-299 range)
             if (!response.ok) {
@@ -153,7 +153,7 @@ function updateProductStatus(productId, field, value, toggleElement) {
     toggleElement.disabled = true;
     
     // Send AJAX request to update the status
-    fetch('functions/update-product-status.php', {
+    fetch('functions/products/update-product-status.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

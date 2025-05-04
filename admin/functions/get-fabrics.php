@@ -12,17 +12,15 @@ if (!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
     exit();
 }
 
-// Query to fetch fabrics
-$query = "SELECT DISTINCT fabric FROM products WHERE fabric IS NOT NULL AND fabric != '' ORDER BY fabric";
+// Query to fetch fabrics from the new fabrics table
+$query = "SELECT name FROM fabrics ORDER BY name";
 $result = mysqli_query($conn, $query);
 
 $fabrics = [];
 
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        if ($row['fabric'] != '' && $row['fabric'] != '_placeholder_') {
-            $fabrics[] = $row['fabric'];
-        }
+        $fabrics[] = $row['name'];
     }
 }
 

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newCategory = mysqli_real_escape_string($conn, $_POST['new_category']);
                 
                 // Check if category already exists
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE category = '$newCategory'";
+                $check_query = "SELECT COUNT(*) as count FROM categories WHERE name = '$newCategory'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -33,12 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Category already exists'
                     ];
                 } else {
-                    // Generate a unique SKU for placeholder product
-                    $timestamp = time();
-                    $uniqueSku = 'PLCAT-' . $timestamp . '-' . rand(100, 999);
-                    
-                    // Insert placeholder product with new category and unique SKU
-                    $query = "INSERT INTO products (name, category, sku) VALUES ('_placeholder_', '$newCategory', '$uniqueSku')";
+                    // Insert new category
+                    $query = "INSERT INTO categories (name) VALUES ('$newCategory')";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',
@@ -68,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newCategory = mysqli_real_escape_string($conn, $_POST['new_category']);
                 
                 // Check if new category name already exists
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE category = '$newCategory' AND category != '$oldCategory'";
+                $check_query = "SELECT COUNT(*) as count FROM categories WHERE name = '$newCategory' AND name != '$oldCategory'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -78,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Category already exists'
                     ];
                 } else {
-                    $query = "UPDATE products SET category = '$newCategory' WHERE category = '$oldCategory'";
+                    $query = "UPDATE categories SET name = '$newCategory' WHERE name = '$oldCategory'";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',
@@ -104,8 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['category']) && !empty($_POST['category'])) {
                 $category = mysqli_real_escape_string($conn, $_POST['category']);
                 
-                // Check if real products use this category
-                $check_query = "SELECT COUNT(*) as count FROM products WHERE category = '$category' AND name != '_placeholder_'";
+                // Check if products use this category
+                $check_query = "SELECT COUNT(*) as count FROM products p 
+                                JOIN categories c ON p.category_id = c.id 
+                                WHERE c.name = '$category'";
                 $check_result = mysqli_query($conn, $check_query);
                 $check_data = mysqli_fetch_assoc($check_result);
                 
@@ -115,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'message' => 'Cannot delete category that is being used by products'
                     ];
                 } else {
-                    // Delete placeholder products with this category
-                    $query = "DELETE FROM products WHERE category = '$category' AND name = '_placeholder_'";
+                    // Delete category
+                    $query = "DELETE FROM categories WHERE name = '$category'";
                     if (mysqli_query($conn, $query)) {
                         $response = [
                             'status' => 'success',

@@ -544,5 +544,22 @@ function generateSKU($productName, $category) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="assets/js/add-product.js"></script>
+<script>
+    // Handle category dropdown special options
+    const categorySelect = document.getElementById('category_display');
+    categorySelect.addEventListener('change', function() {
+        const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+        if (selectedOption.value === 'add_new') {
+            // Open modal for adding new category
+            $('#addCategoryModal').modal('show');
+        } else if (selectedOption.value === 'remove') {
+            // Open modal for removing category
+            $('#removeCategoryModal').modal('show');
+        } else if (selectedOption.value === 'rename') {
+            // Open modal for renaming category
+            $('#renameCategoryModal').modal('show');
+        }
+    });
+</script>
 </body>
 </html>

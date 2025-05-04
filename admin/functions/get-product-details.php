@@ -19,8 +19,12 @@ if(!isset($_GET['id']) || empty($_GET['id'])) {
 
 $product_id = mysqli_real_escape_string($conn, $_GET['id']);
 
-// Get product details
-$product_query = "SELECT * FROM products WHERE id = '$product_id'";
+// Get product details - join with categories and fabrics tables
+$product_query = "SELECT p.*, c.name as category_name, f.name as fabric_name
+                 FROM products p
+                 LEFT JOIN categories c ON p.category_id = c.id
+                 LEFT JOIN fabrics f ON p.fabric_id = f.id
+                 WHERE p.id = '$product_id'";
 $product_result = mysqli_query($conn, $product_query);
 
 if(!$product_result) {
@@ -34,6 +38,10 @@ if(mysqli_num_rows($product_result) == 0) {
 }
 
 $product = mysqli_fetch_assoc($product_result);
+
+// For backward compatibility, add category and fabric fields
+$product['category'] = $product['category_name'];
+$product['fabric'] = $product['fabric_name'];
 
 // Get product images
 $primary_image_query = "SELECT image_url FROM product_images WHERE product_id = '$product_id' AND is_primary = 1 LIMIT 1";

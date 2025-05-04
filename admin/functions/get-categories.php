@@ -12,17 +12,15 @@ if (!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
     exit();
 }
 
-// Query to fetch categories
-$query = "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category";
+// Query to fetch categories from the new categories table
+$query = "SELECT name FROM categories ORDER BY name";
 $result = mysqli_query($conn, $query);
 
 $categories = [];
 
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
-        if ($row['category'] != '' && $row['category'] != '_placeholder_') {
-            $categories[] = $row['category'];
-        }
+        $categories[] = $row['name'];
     }
 }
 
