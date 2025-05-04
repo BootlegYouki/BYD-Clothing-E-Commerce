@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatContainer = document.getElementById('chat-container');
     const chatBubble = document.getElementById('chat-bubble');
     const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('userInput');
     
     if (chatState === 'open') {
         // Apply the active class immediately without animation
@@ -61,7 +62,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Scroll chat to the bottom by default
     scrollChatToBottom();
+    
+    // Adjust UI on orientation change
+    window.addEventListener('resize', handleResize);
+    
+    // Fix iOS virtual keyboard issues
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        userInput.addEventListener('focus', function() {
+            setTimeout(scrollChatToBottom, 300);
+        });
+        
+        userInput.addEventListener('blur', function() {
+            setTimeout(scrollChatToBottom, 300);
+        });
+    }
 });
+
+// Function to handle resize and orientation changes
+function handleResize() {
+    const chatContainer = document.getElementById('chat-container');
+    // Only execute if chat is visible
+    if (chatContainer.classList.contains('active')) {
+        setTimeout(scrollChatToBottom, 100);
+    }
+}
 
 // Function to scroll chat to bottom
 function scrollChatToBottom() {
