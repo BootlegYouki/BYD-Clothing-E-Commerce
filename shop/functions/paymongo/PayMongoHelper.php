@@ -148,7 +148,7 @@ class PayMongoHelper {
             'data' => [
                 'attributes' => [
                     'line_items' => $lineItems,
-                    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay', 'qrph'],
+                    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
                     'success_url' => $successUrl,
                     'cancel_url' => $cancelUrl,
                     'description' => $description,

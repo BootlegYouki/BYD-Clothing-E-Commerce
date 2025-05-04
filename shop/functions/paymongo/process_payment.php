@@ -200,7 +200,7 @@ function insertOrderToDatabase($conn, $data, $paymentId) {
         // Set additional order details
         // Use shipping cost from the data array instead of getting it from $_POST again
         $shipping_cost = $data['shipping_cost'];
-        $payment_method = 'Pending Selection'; // Changed from 'paymongo' to 'Pending Selection'
+        $payment_method = 'paymongo';
         $status = 'pending'; // Initial status
         
         // Make sure total_amount is exactly subtotal + shipping_cost to avoid any discrepancies
