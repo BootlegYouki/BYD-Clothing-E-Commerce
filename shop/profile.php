@@ -37,8 +37,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-// Fetch user orders
-$orders_query = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
+// Fetch user orders - Modified to include reference_number
+$orders_query = "SELECT id as order_id, reference_number, status, created_at, total_amount FROM orders WHERE user_id = ? ORDER BY created_at DESC";
 $orders_stmt = $conn->prepare($orders_query);
 $orders_stmt->bind_param("i", $user_id);
 $orders_stmt->execute();
@@ -235,7 +235,7 @@ while ($row = $orders_result->fetch_assoc()) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Order ID</th>
+                                            <th>Reference Number</th>
                                             <th>Date</th>
                                             <th>Amount</th>
                                             <th>Status</th>
@@ -245,7 +245,13 @@ while ($row = $orders_result->fetch_assoc()) {
                                     <tbody>
                                         <?php foreach ($orders as $order): ?>
                                             <tr>
-                                                <td>#<?php echo $order['order_id']; ?></td>
+                                                <td>
+                                                    <?php if (!empty($order['reference_number'])): ?>
+                                                        <?php echo htmlspecialchars($order['reference_number']); ?>
+                                                    <?php else: ?>
+                                                        #<?php echo $order['order_id']; ?>
+                                                    <?php endif; ?>
+                                                </td>
                                                 <td><?php echo date("M d, Y", strtotime($order['created_at'])); ?></td>
                                                 <td>₱<?php echo number_format($order['total_amount'], 2); ?></td>
                                                 <td>
