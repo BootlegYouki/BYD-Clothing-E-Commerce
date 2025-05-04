@@ -23,16 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const sectionToShow = sections[this.id];
             if (sectionToShow) sectionToShow.style.display = 'block';
             
-            // If showing address section with map, we need to invalidate size for proper rendering
-            if (this.id === 'nav-address' && map) {
+            // If showing address section with map, initialize the map
+            if (this.id === 'nav-address' && typeof initMap === 'function') {
                 setTimeout(() => {
-                    map.invalidateSize();
-                    
-                    // Center the map on user's coordinates or default if not set
-                    const lat = parseFloat(document.getElementById('latitude').value) || 14.5995;
-                    const lng = parseFloat(document.getElementById('longitude').value) || 120.9842;
-                    map.setView([lat, lng], 15);
-                    marker.setLatLng([lat, lng]);
+                    initMap();
                 }, 100);
             }
         });
@@ -56,21 +50,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Edit Address Toggle
+    // Edit Address Toggle with Map Initialization
     document.getElementById('edit-address-btn').addEventListener('click', function() {
         document.getElementById('address-view').style.display = 'none';
         document.getElementById('address-edit').style.display = 'block';
         
-        
-        setTimeout(() => {
-            map.invalidateSize();
-            
-            // Center the map on user's coordinates or default if not set
-            const lat = parseFloat(document.getElementById('latitude').value) || 14.5995;
-            const lng = parseFloat(document.getElementById('longitude').value) || 120.9842;
-            map.setView([lat, lng], 15);
-            marker.setLatLng([lat, lng]);
-        }, 100);
+        // Initialize map after the container is visible
+        if (typeof initMap === 'function') {
+            setTimeout(() => {
+                initMap();
+            }, 100);
+        }
     });
 
     document.getElementById('cancel-address-edit').addEventListener('click', function() {
@@ -320,169 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('was-validated');
         });
     }
-
-    // Enhanced Map initialization for the address section
-    const addressInput = document.getElementById('edit-full-address');
-    const mapDiv = document.getElementById('map');
-    const latInput = document.getElementById('latitude');
-    const lngInput = document.getElementById('longitude');
-    const zipcodeInput = document.getElementById('edit-zipcode');
-
-    // Initialize map with better options
-    const map = L.map('map', {
-        scrollWheelZoom: true,
-        zoomControl: true
-    }).setView([14.5995, 120.9842], 13);
     
-    // Primary tile layer with fallback options
-    const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-        crossOrigin: true
-    }).addTo(map);
-    
-    // Fallback tile layer if primary fails
-    const fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap contributors, © CARTO',
-        maxZoom: 19,
-        crossOrigin: true
-    });
-    
-    // Handle tile error
-    mainLayer.on('tileerror', function(error) {
-        console.log("Tile error detected, switching to fallback");
-        map.removeLayer(mainLayer);
-        fallbackLayer.addTo(map);
-    });
-
-    // Force map to recalculate container size
-    setTimeout(() => {
-        map.invalidateSize(true);
-    }, 300);
-
-    // Add a draggable marker
-    const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
-
-    // Enhanced geocoder control
-    const geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-        geocoder: L.Control.Geocoder.nominatim(),
-        placeholder: 'Search address...',
-        errorMessage: 'Address not found, please try another search or click on the map'
-    }).on('markgeocode', function(e) {
-        marker.setLatLng(e.geocode.center);
-        map.setView(e.geocode.center, 16);
-        updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
-        fetchAddressAndZipcode(e.geocode.center.lat, e.geocode.center.lng);
-        
-        // Add visual feedback
-        addressInput.classList.add('is-valid');
-        addressInput.classList.remove('is-invalid');
-    }).addTo(map);
-
-    function updateCoordinates(lat, lng) {
-        latInput.value = lat;
-        lngInput.value = lng;
-    }
-
-    function fetchAddressAndZipcode(lat, lng) {
-        // Show loading indicator
-        addressInput.placeholder = 'Fetching address details...';
-        
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.display_name) {
-                    addressInput.value = data.display_name;
-                    addressInput.setAttribute('placeholder', 'Address selected from map');
-                    addressInput.classList.add('is-valid');
-                    addressInput.classList.remove('is-invalid');
-                }
-                if (data && data.address && data.address.postcode) {
-                    zipcodeInput.value = data.address.postcode;
-                } else {
-                    console.log('No zipcode found for this location');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching address:', error);
-                addressInput.placeholder = 'Error fetching address. Please try again.';
-            });
-    }
-
-    // Map click => move marker + get address/zipcode with enhanced feedback
-    map.on('click', e => {
-        marker.setLatLng(e.latlng);
-        updateCoordinates(e.latlng.lat, e.latlng.lng);
-        fetchAddressAndZipcode(e.latlng.lat, e.latlng.lng);
-        
-        // Update placeholder and visual feedback
-        addressInput.setAttribute('placeholder', 'Getting address from map...');
-        addressInput.classList.add('bg-light');
-    });
-
-    // Marker drag end => same as click with enhanced feedback
-    marker.on('dragend', () => {
-        const pos = marker.getLatLng();
-        updateCoordinates(pos.lat, pos.lng);
-        fetchAddressAndZipcode(pos.lat, pos.lng);
-        
-        // Update placeholder and visual feedback
-        addressInput.setAttribute('placeholder', 'Getting address from map...');
-    });
-
-    // Update address field appearance
-    if (addressInput) {
-        addressInput.style.backgroundColor = "#f8f9fa";
-        
-        // Remove input event listener since it's read-only now
-        // Instead, focus should show instructions
-        addressInput.addEventListener('focus', function() {
-            // Show focus hint
-            addressInput.setAttribute('placeholder', 'Click on the map to select your address');
-        });
-        
-        addressInput.addEventListener('blur', function() {
-            // Reset placeholder
-            addressInput.setAttribute('placeholder', 'Click on map to select your address');
-        });
-    }
-
-    // Set initial map location if coordinates exist with better handling
-    if (latInput && lngInput) {
-        if (latInput.value && lngInput.value) {
-            const lat = parseFloat(latInput.value);
-            const lng = parseFloat(lngInput.value);
-            
-            if (!isNaN(lat) && !isNaN(lng)) {
-                map.setView([lat, lng], 15);
-                marker.setLatLng([lat, lng]);
-                
-                // Pre-validate the address field since we have coordinates
-                if (addressInput.value.trim()) {
-                    addressInput.classList.add('is-valid');
-                }
-            } else {
-                console.log('Invalid coordinates, using default view');
-            }
-        }
-    }
-
-    // Update map on tab/section changes
-    document.getElementById('nav-address').addEventListener('click', function() {
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize(true);
-                
-                // Center on existing coordinates or default
-                const lat = parseFloat(latInput.value) || 14.5995;
-                const lng = parseFloat(lngInput.value) || 120.9842;
-                map.setView([lat, lng], 15);
-                marker.setLatLng([lat, lng]);
-            }
-        }, 300);
-    });
-
     // ENHANCED REAL-TIME FIELD VALIDATION
     const usernameInput = document.getElementById('edit-username');
     const phoneInput = document.getElementById('edit-phone');

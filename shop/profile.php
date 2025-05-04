@@ -60,21 +60,34 @@ while ($row = $orders_result->fetch_assoc()) {
     <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
     <!-- UTILITY CSS  -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <!-- LEAFLET MAP -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <!-- ICONSCSS -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- LEAFLET CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/assistant.css">
     <link rel="stylesheet" href="css/profile.css">
+    <style>
+        /* Map styling */
+        .map-invalid {
+            border: 2px solid #dc3545 !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
+        #map {
+            height: 300px;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            z-index: 1; /* Ensure map controls are clickable */
+        }
+    </style>
 </head>
 <body>
     <!-- NAVBAR -->
@@ -155,7 +168,6 @@ while ($row = $orders_result->fetch_assoc()) {
                                 <div class="col-md-8"><?php echo htmlspecialchars($user['phone_number']); ?></div>
                             </div>
                         </div>
-                        
                         <!-- Edit Mode with Enhanced Validation -->
                         <div id="profile-edit" style="display: none;">
                             <form id="update-profile-form" action="functions/profile/update_profile.php" method="post" class="needs-validation" novalidate>
@@ -248,9 +260,9 @@ while ($row = $orders_result->fetch_assoc()) {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                <button class="btn btn-sm btn-outline-coral view-order" data-order-id="<?php echo $order['order_id']; ?>">
-                                                    View Details
-                                                </button>
+                                                    <button class="btn btn-sm btn-outline-coral view-order" data-order-id="<?php echo $order['order_id']; ?>">
+                                                        View Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -285,7 +297,6 @@ while ($row = $orders_result->fetch_assoc()) {
                                 <div class="col-md-9"><?php echo htmlspecialchars($user['zipcode']); ?></div>
                             </div>
                         </div>
-                        
                         <!-- Edit Mode with Enhanced Validation - Updated to match register.php -->
                         <div id="address-edit" style="display: none;">
                             <form id="update-address-form" action="functions/profile/update_address.php" method="post" class="needs-validation" novalidate>
@@ -381,7 +392,7 @@ while ($row = $orders_result->fetch_assoc()) {
             </div>
         </div>
     </div>
-
+    
     <!-- Order Details Modal -->
     <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -401,15 +412,146 @@ while ($row = $orders_result->fetch_assoc()) {
         </div>
     </div>
     
-<!-- FOOTER -->
-<?php include 'includes/footer.php'; ?>
-<!-- UTILITY SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<!-- LEAFLET SCRIPTS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<!-- CUSTOM SCRIPTS -->
-<script src="js/url-cleaner.js"></script>
-<script src="js/profile.js"></script>
+    <!-- FOOTER -->
+    <?php include 'includes/footer.php'; ?>
+    <!-- LEAFLET MAP SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- UTILITY SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- CUSTOM SCRIPTS -->
+    <script src="js/url-cleaner.js"></script>
+
+    <script>
+    // Map initialization variables
+    let map = null;
+    let marker = null;
+    let mainLayer = null;
+    let fallbackLayer = null;
+
+    // Function to initialize the map
+    function initMap() {
+        // If map already exists, destroy it first to avoid duplicates
+        if (map) {
+            map.remove();
+            map = null;
+        }
+        
+        // Create the map with better options
+        map = L.map('map', {
+            scrollWheelZoom: true,
+            zoomControl: true,
+            attributionControl: true
+        });
+        
+        // Set view to user's coordinates or default
+        const lat = parseFloat(document.getElementById('latitude').value) || 14.6760;
+        const lng = parseFloat(document.getElementById('longitude').value) || 121.0437;
+        map.setView([lat, lng], 15);
+        
+        // Primary tile layer with error handling
+        mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map);
+        
+        // Fallback tile layer
+        fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        });
+        
+        // Handle tile error
+        mainLayer.on('tileerror', function(error) {
+            console.log("Tile error detected, switching to fallback");
+            map.removeLayer(mainLayer);
+            fallbackLayer.addTo(map);
+        });
+        
+        // Add a draggable marker
+        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+        
+        // Add geocoder control with better configuration
+        const geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        geocoder: L.Control.Geocoder.nominatim({
+            timeout: 5000, // 5 seconds timeout
+            serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
+        }),
+        placeholder: 'Search address',
+        errorMessage: 'Unable to find that address.'
+        }).on('markgeocode', function(e) {
+        marker.setLatLng(e.geocode.center);
+        map.setView(e.geocode.center, 16);
+        updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+        fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
+        }).addTo(map);
+        
+        // Map click => move marker + reverse geocode + zipcode
+        map.on('click', e => {
+            marker.setLatLng(e.latlng);
+            updateCoordinates(e.latlng.lat, e.latlng.lng);
+            reverseGeocode(e.latlng.lat, e.latlng.lng);
+            fetchZipcode(e.latlng.lat, e.latlng.lng);
+        });
+        
+        // Marker drag end => same as click
+        marker.on('dragend', () => {
+            const pos = marker.getLatLng();
+            updateCoordinates(pos.lat, pos.lng);
+            reverseGeocode(pos.lat, pos.lng);
+            fetchZipcode(pos.lat, pos.lng);
+        });
+        
+        // Force map to recalculate its size after a short delay
+        setTimeout(() => {
+            map.invalidateSize(true);
+        }, 300);
+    }
+
+    // Core helper functions
+    function updateCoordinates(lat, lng) {
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+    }
+
+    function reverseGeocode(lat, lng) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.display_name) {
+                    document.getElementById('edit-full-address').value = data.display_name;
+                }
+            })
+            .catch(error => {
+                console.error('Error with reverse geocoding:', error);
+                document.getElementById('edit-full-address').value = `Location at ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            });
+    }
+
+    function fetchZipcode(lat, lng) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.address && data.address.postcode) {
+                    document.getElementById('edit-zipcode').value = data.address.postcode;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching zipcode:', error);
+            });
+    }
+    </script>
+    <script src="js/profile.js"></script>
 </body>
 </html>

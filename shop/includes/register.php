@@ -245,14 +245,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a draggable marker
     marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
     
-    // Add geocoder control with better configuration
+    Add geocoder control with better configuration
     const geocoder = L.Control.geocoder({
       defaultMarkGeocode: false,
       geocoder: L.Control.Geocoder.nominatim({
         timeout: 5000, // 5 seconds timeout
         serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
       }),
-      placeholder: 'Search address...',
+      placeholder: 'Search address',
       errorMessage: 'Unable to find that address.'
     }).on('markgeocode', function(e) {
       marker.setLatLng(e.geocode.center);
