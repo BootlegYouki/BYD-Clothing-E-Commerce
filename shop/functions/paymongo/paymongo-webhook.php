@@ -55,7 +55,6 @@ if (hasEventBeenProcessed($conn, $eventId)) {
 
 // Process the webhook based on the event type
 $eventType = $data['data']['attributes']['type'] ?? 'unknown';
-$processedData = [];
 
 try {
     // Handle different event types
@@ -116,34 +115,15 @@ try {
                     
                     // Log the successful order
                     error_log("Order #$orderId created from webhook payment success");
-                    
-                    // Prepare data to be stored in transactions table
-                    $processedData = [
-                        'session_id' => $sessionId,
-                        'payment_intent_id' => $orderData['payment_intent_id'],
-                        'payment_method' => $paymentMethodUsed,
-                        'payment_method_display' => $displayMethod,
-                        'status' => 'successful',
-                        'amount' => $orderData['total_amount'],
-                        'reference_number' => $orderData['reference_number'],
-                        'user_id' => $orderData['user_id'],
-                        'paid_at' => $paidAt ? date('Y-m-d H:i:s', $paidAt) : null,
-                        'order_id' => $orderId
-                    ];
-                    
-                    // Update the transactions table
-                    storePaymentData($conn, $processedData);
                 }
             }
             break;
             
         case 'payment.paid':
-            // Handle direct payment paid event (if needed for your application)
+            // Handle direct payment paid event (if needed)
             $payment = $data['data']['attributes']['data'] ?? [];
             if (!empty($payment)) {
                 $paymentId = $payment['id'] ?? null;
-                $attributes = $payment['attributes'] ?? [];
-                
                 // Log this event but don't process it as we're focusing on checkout sessions
                 error_log("Payment.paid event received: $paymentId");
             }
@@ -239,15 +219,16 @@ function insertOrderToDatabase($conn, $data) {
             subtotal, 
             shipping_cost, 
             total_amount, 
+            reference_number,
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = mysqli_prepare($conn, $order_query);
         
         // Bind parameters to prepared statement
         mysqli_stmt_bind_param(
             $stmt, 
-            "issssssssddds", 
+            "issssssssdddss", 
             $data['user_id'],
             $data['firstname'],
             $data['lastname'],
@@ -260,6 +241,7 @@ function insertOrderToDatabase($conn, $data) {
             $data['subtotal'],
             $data['shipping_cost'],
             $data['total_amount'],
+            $data['reference_number'],
             $data['status']
         );
         
@@ -313,115 +295,6 @@ function insertOrderToDatabase($conn, $data) {
     } catch (Exception $e) {
         // Rollback all changes if any error occurs
         mysqli_rollback($conn);
-        throw $e;
-    }
-}
-
-/**
- * Store payment data in the database
- * 
- * @param mysqli $conn Database connection
- * @param array $data Payment data
- * @return bool Success status
- */
-function storePaymentData($conn, $data) {
-    // Begin transaction for data integrity
-    mysqli_begin_transaction($conn);
-    
-    try {
-        // First, check if this payment has already been processed
-        $checkQuery = "SELECT id FROM transactions WHERE 
-            (payment_id = ? OR payment_intent_id = ? OR session_id = ?)";
-        
-        $stmt = mysqli_prepare($conn, $checkQuery);
-        $paymentId = $data['payment_id'] ?? null;
-        $paymentIntentId = $data['payment_intent_id'] ?? null;
-        $sessionId = $data['session_id'] ?? null;
-        
-        mysqli_stmt_bind_param($stmt, "sss", $paymentId, $paymentIntentId, $sessionId);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        
-        if (mysqli_num_rows($result) > 0) {
-            // Payment already exists, update it
-            $row = mysqli_fetch_assoc($result);
-            $transactionId = $row['id'];
-            
-            $updateQuery = "UPDATE transactions SET 
-                status = ?, 
-                payment_method = ?,
-                description = ?,
-                amount = ?,
-                order_id = ?,
-                paid_at = ?,
-                updated_at = NOW()
-                WHERE id = ?";
-            
-            $stmt = mysqli_prepare($conn, $updateQuery);
-            
-            $status = $data['status'] === 'succeeded' || $data['status'] === 'paid' ? 'successful' : $data['status'];
-            $paymentMethod = $data['payment_method_display'] ?? 'Unknown';
-            $description = "Payment completed via " . $paymentMethod;
-            $amount = $data['amount'] ?? 0;
-            $orderId = $data['order_id'] ?? null;
-            $paidAt = $data['paid_at'] ?? null;
-            
-            mysqli_stmt_bind_param($stmt, "sssdssi", $status, $paymentMethod, $description, $amount, $orderId, $paidAt, $transactionId);
-            mysqli_stmt_execute($stmt);
-            
-            error_log("Updated transaction ID: $transactionId with payment method: $paymentMethod and status: $status");
-        } else {
-            // Insert new transaction record
-            $insertQuery = "INSERT INTO transactions (
-                payment_id, 
-                payment_intent_id,
-                session_id,
-                status,
-                payment_method,
-                description,
-                amount,
-                order_id,
-                paid_at,
-                created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-            
-            $stmt = mysqli_prepare($conn, $insertQuery);
-            
-            $paymentId = $data['payment_id'] ?? null;
-            $paymentIntentId = $data['payment_intent_id'] ?? null;
-            $sessionId = $data['session_id'] ?? null;
-            $status = $data['status'] === 'succeeded' || $data['status'] === 'paid' ? 'successful' : $data['status'];
-            $paymentMethod = $data['payment_method_display'] ?? 'Unknown';
-            $description = "Payment completed via " . $paymentMethod;
-            $amount = $data['amount'] ?? 0;
-            $orderId = $data['order_id'] ?? null;
-            $paidAt = $data['paid_at'] ?? null;
-            
-            mysqli_stmt_bind_param($stmt, "ssssssdss", 
-                $paymentId, 
-                $paymentIntentId,
-                $sessionId,
-                $status,
-                $paymentMethod,
-                $description,
-                $amount,
-                $orderId,
-                $paidAt
-            );
-            mysqli_stmt_execute($stmt);
-            
-            $transactionId = mysqli_insert_id($conn);
-            error_log("Created new transaction ID: $transactionId for payment method: $paymentMethod");
-        }
-        
-        // Commit all database changes
-        mysqli_commit($conn);
-        return true;
-        
-    } catch (Exception $e) {
-        // Roll back in case of error
-        mysqli_rollback($conn);
-        error_log("Database error while storing payment: " . $e->getMessage());
         throw $e;
     }
 }
