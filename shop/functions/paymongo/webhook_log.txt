@@ -1,2 +1,562 @@
-2025-05-04 17:24:34 - Raw data: {"data":{"id":"evt_8G1JEGtSEpytPWK3ZsYpKm3w","type":"event","attributes":{"type":"checkout_session.payment.paid","livemode":false,"data":{"id":"cs_9oWJaXDmL9jbz3SBLAKF2UJu","type":"checkout_session","attributes":{"billing":{"address":{"city":null,"country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":null,"postal_code":"1111","state":null},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"billing_information_fields_editable":"enabled","cancel_url":"http://localhost:3000/shop/payment_return.php?status=failed&reference=ORDER-1746350661-50","checkout_url":"https://checkout.paymongo.com/cs_9oWJaXDmL9jbz3SBLAKF2UJu_client_jjWnDT7v4x5mH8jMRY7xrDRp#cGtfdGVzdF9LdW9LUUdHZmYzdGFSTmdVbTg5NG5YWjE=","client_key":"cs_9oWJaXDmL9jbz3SBLAKF2UJu_client_jjWnDT7v4x5mH8jMRY7xrDRp","customer_email":null,"description":"Order Payment for Mark Darren Oandasan","line_items":[{"amount":85000,"currency":"PHP","description":null,"images":[],"name":"TEAL","quantity":1},{"amount":5000,"currency":"PHP","description":null,"images":[],"name":"Shipping Fee","quantity":1}],"livemode":false,"merchant":"BYD CLOTHING","paid_at":1746350669,"payments":[{"id":"pay_PMWaWdsmhSTEGTN61gaUjarS","type":"payment","attributes":{"access_url":null,"amount":90000,"balance_transaction_id":"bal_txn_E9VqWd1msxXWFbqeJY3EnsS7","billing":{"address":{"city":"","country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":"","postal_code":"1111","state":""},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"currency":"PHP","description":"Order Payment for Mark Darren Oandasan","disputed":false,"external_reference_number":null,"fee":2250,"instant_settlement":null,"livemode":false,"net_amount":87750,"origin":"api","payment_intent_id":"pi_PP9pEaHZsSKhnbpseB1mbqHL","payout":null,"source":{"id":"src_Xp8n94GiCqnP1P2ZjeWMcSWG","type":"gcash","provider":{"id":null},"provider_id":null},"statement_descriptor":"BYD CLOTHING","status":"paid","tax_amount":null,"metadata":{"user_id":"50","reference_number":"ORDER-1746350661-50"},"promotion":null,"refunds":[],"taxes":[],"available_at":1746608400,"created_at":1746350669,"credited_at":1747213200,"paid_at":1746350669,"updated_at":1746350669}}],"payment_intent":{"id":"pi_PP9pEaHZsSKhnbpseB1mbqHL","type":"payment_intent","attributes":{"amount":90000,"capture_type":"automatic","client_key":"pi_PP9pEaHZsSKhnbpseB1mbqHL_client_PthdnpwLaRQQNqCQiTvNweTw","currency":"PHP","description":"Order Payment for Mark Darren Oandasan","livemode":false,"original_amount":90000,"statement_descriptor":"BYD CLOTHING","status":"succeeded","last_payment_error":null,"payment_method_allowed":["gcash","paymaya","card","grab_pay"],"payments":[{"id":"pay_PMWaWdsmhSTEGTN61gaUjarS","type":"payment","attributes":{"access_url":null,"amount":90000,"balance_transaction_id":"bal_txn_E9VqWd1msxXWFbqeJY3EnsS7","billing":{"address":{"city":"","country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":"","postal_code":"1111","state":""},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"currency":"PHP","description":"Order Payment for Mark Darren Oandasan","disputed":false,"external_reference_number":null,"fee":2250,"instant_settlement":null,"livemode":false,"net_amount":87750,"origin":"api","payment_intent_id":"pi_PP9pEaHZsSKhnbpseB1mbqHL","payout":null,"source":{"id":"src_Xp8n94GiCqnP1P2ZjeWMcSWG","type":"gcash","provider":{"id":null},"provider_id":null},"statement_descriptor":"BYD CLOTHING","status":"paid","tax_amount":null,"metadata":{"user_id":"50","reference_number":"ORDER-1746350661-50"},"promotion":null,"refunds":[],"taxes":[],"available_at":1746608400,"created_at":1746350669,"credited_at":1747213200,"paid_at":1746350669,"updated_at":1746350669}}],"next_action":null,"payment_method_options":{"card":{"request_three_d_secure":"any"}},"metadata":{"user_id":"50","reference_number":"ORDER-1746350661-50"},"setup_future_usage":null,"created_at":1746350658,"updated_at":1746350669}},"payment_method_types":["grab_pay","gcash","paymaya","card"],"payment_method_used":"gcash","reference_number":null,"send_email_receipt":true,"show_description":true,"show_line_items":true,"status":"active","success_url":"http://localhost:3000/shop/payment_return.php?status=success&reference=ORDER-1746350661-50","created_at":1746350658,"updated_at":1746350658,"metadata":{"reference_number":"ORDER-1746350661-50","user_id":"50"}}},"previous_data":{},"created_at":1746350670,"updated_at":1746350670}}}
-2025-05-04 17:29:12 - Raw data: {"data":{"id":"evt_7daRRuaab7EDvDeUkZT7ntug","type":"event","attributes":{"type":"checkout_session.payment.paid","livemode":false,"data":{"id":"cs_puMWVYRgmKXFjkrAPWFidcXF","type":"checkout_session","attributes":{"billing":{"address":{"city":null,"country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":null,"postal_code":"1111","state":null},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"billing_information_fields_editable":"enabled","cancel_url":"http://localhost:3000/shop/payment_return.php?status=failed&reference=ORDER-1746350924-50","checkout_url":"https://checkout.paymongo.com/cs_puMWVYRgmKXFjkrAPWFidcXF_client_u8BBRL4KLi4DpdnSADiKWjcx#cGtfdGVzdF9LdW9LUUdHZmYzdGFSTmdVbTg5NG5YWjE=","client_key":"cs_puMWVYRgmKXFjkrAPWFidcXF_client_u8BBRL4KLi4DpdnSADiKWjcx","customer_email":null,"description":"Order Payment for Mark Darren Oandasan","line_items":[{"amount":85000,"currency":"PHP","description":null,"images":[],"name":"TEAL","quantity":1},{"amount":5000,"currency":"PHP","description":null,"images":[],"name":"Shipping Fee","quantity":1}],"livemode":false,"merchant":"BYD CLOTHING","paid_at":1746350947,"payments":[{"id":"pay_yeqevHDPsCTQfUEbFknsQZjA","type":"payment","attributes":{"access_url":null,"amount":90000,"balance_transaction_id":"bal_txn_Wx5vV2fAm1naMv8TJTcWqR99","billing":{"address":{"city":"","country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":"","postal_code":"1111","state":""},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"currency":"PHP","description":"Order Payment for Mark Darren Oandasan","disputed":false,"external_reference_number":null,"fee":1980,"instant_settlement":null,"livemode":false,"net_amount":88020,"origin":"api","payment_intent_id":"pi_m7a9yQY53s6Dok8WyCaLqV69","payout":null,"source":{"id":"src_krjMHbdwmoZ5uZvNVUsYWjo5","type":"grab_pay","provider":{"id":null},"provider_id":null},"statement_descriptor":"BYD CLOTHING","status":"paid","tax_amount":null,"metadata":{"reference_number":"ORDER-1746350924-50","user_id":"50"},"promotion":null,"refunds":[],"taxes":[],"available_at":1746608400,"created_at":1746350947,"credited_at":1747213200,"paid_at":1746350947,"updated_at":1746350947}}],"payment_intent":{"id":"pi_m7a9yQY53s6Dok8WyCaLqV69","type":"payment_intent","attributes":{"amount":90000,"capture_type":"automatic","client_key":"pi_m7a9yQY53s6Dok8WyCaLqV69_client_2tBpWEByNCknums5mMa4vK2m","currency":"PHP","description":"Order Payment for Mark Darren Oandasan","livemode":false,"original_amount":90000,"statement_descriptor":"BYD CLOTHING","status":"succeeded","last_payment_error":null,"payment_method_allowed":["grab_pay","gcash","paymaya","qrph","card"],"payments":[{"id":"pay_yeqevHDPsCTQfUEbFknsQZjA","type":"payment","attributes":{"access_url":null,"amount":90000,"balance_transaction_id":"bal_txn_Wx5vV2fAm1naMv8TJTcWqR99","billing":{"address":{"city":"","country":"PH","line1":"25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines","line2":"","postal_code":"1111","state":""},"email":"darrenjade24@gmail.com","name":"Mark Darren Oandasan","phone":"9682351236"},"currency":"PHP","description":"Order Payment for Mark Darren Oandasan","disputed":false,"external_reference_number":null,"fee":1980,"instant_settlement":null,"livemode":false,"net_amount":88020,"origin":"api","payment_intent_id":"pi_m7a9yQY53s6Dok8WyCaLqV69","payout":null,"source":{"id":"src_krjMHbdwmoZ5uZvNVUsYWjo5","type":"grab_pay","provider":{"id":null},"provider_id":null},"statement_descriptor":"BYD CLOTHING","status":"paid","tax_amount":null,"metadata":{"reference_number":"ORDER-1746350924-50","user_id":"50"},"promotion":null,"refunds":[],"taxes":[],"available_at":1746608400,"created_at":1746350947,"credited_at":1747213200,"paid_at":1746350947,"updated_at":1746350947}}],"next_action":null,"payment_method_options":{"card":{"request_three_d_secure":"any"}},"metadata":{"reference_number":"ORDER-1746350924-50","user_id":"50"},"setup_future_usage":null,"created_at":1746350921,"updated_at":1746350948}},"payment_method_types":["qrph","paymaya","gcash","card","grab_pay"],"payment_method_used":"grab_pay","reference_number":null,"send_email_receipt":true,"show_description":true,"show_line_items":true,"status":"active","success_url":"http://localhost:3000/shop/payment_return.php?status=success&reference=ORDER-1746350924-50","created_at":1746350921,"updated_at":1746350921,"metadata":{"user_id":"50","reference_number":"ORDER-1746350924-50"}}},"previous_data":{},"created_at":1746350948,"updated_at":1746350948}}}
+2025-05-04 17:46:09 - Raw data: {
+  "has_more": true,
+  "data": [
+    {
+      "id": "pay_5ahSnVercW7xiGYdHe9GGQyL",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 90000,
+        "balance_transaction_id": "bal_txn_kahRYTAq3AM1gcLPfC1QLqY9",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines",
+            "line2": "",
+            "postal_code": "1111",
+            "state": ""
+          },
+          "email": "darrenjade24@gmail.com",
+          "name": "Mark Darren Oandasan",
+          "phone": "9682351236"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Mark Darren Oandasan",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 2250,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 87750,
+        "origin": "api",
+        "payment_intent_id": "pi_WyjYyYcrFXwVunLNsCR54yrq",
+        "payout": null,
+        "source": {
+          "id": "src_D9HEy1Q4cq2Mo92Lmr3ND7mf",
+          "type": "gcash",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746351219-50",
+          "user_id": "50"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746351228,
+        "credited_at": 1747213200,
+        "paid_at": 1746351228,
+        "updated_at": 1746351228
+      }
+    },
+    {
+      "id": "pay_Pzzru5fYbdvBEG4w5Cn3Pmvd",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 64900,
+        "balance_transaction_id": "bal_txn_jZMr2qa3iVJ3K7fMujeoRjBo",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "25, Planas Ⅲ, Bagong Lipunan ng Crame, 4th District, Quezon City, Eastern Manila District, Metro Manila, 1111, Philippines",
+            "line2": "",
+            "postal_code": "1111",
+            "state": ""
+          },
+          "email": "darrenjade24@gmail.com",
+          "name": "Mark Darren Oandasan",
+          "phone": "9682351236"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Mark Darren Oandasan",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1623,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 63277,
+        "origin": "api",
+        "payment_intent_id": "pi_W7AmBkRxpxAQQKwPavDkkQXP",
+        "payout": null,
+        "source": {
+          "id": "src_yQUFrayXD3BPosM8QKiiwiFx",
+          "type": "gcash",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746349732-50",
+          "user_id": "50"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746349740,
+        "credited_at": 1747213200,
+        "paid_at": 1746349740,
+        "updated_at": 1746349740
+      }
+    },
+    {
+      "id": "pay_WBYuqZXT7N7wvpEyyER71ikR",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 175000,
+        "balance_transaction_id": "bal_txn_gN3nEvTAWU9Jtuqe4Cd6L8JZ",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "East Berkely Street, California Village, San Bartolome, 5th District, Quezon City, Eastern Manila District, Metro Manila, 1116, Philippines",
+            "line2": "",
+            "postal_code": "1116",
+            "state": ""
+          },
+          "email": "darrenjade24@gmail.com",
+          "name": "Mark Darren Oandasan",
+          "phone": "9682351236"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Mark Darren Oandasan",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 3500,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 171500,
+        "origin": "api",
+        "payment_intent_id": "pi_zGKWG7PxrrQ7VRGqjQpHXSFZ",
+        "payout": null,
+        "source": {
+          "id": "paymaya_XU911WTMaaKZGsdrCYBdBo4q",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746322767-19",
+          "user_id": "19"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746322785,
+        "credited_at": 1747213200,
+        "paid_at": 1746322785,
+        "updated_at": 1746322785
+      }
+    },
+    {
+      "id": "pay_yYMJojg6FjVSPHPm1tvHKJyF",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 64900,
+        "balance_transaction_id": "bal_txn_a4Y4fr5vM85k7XZoLtM6GW7Q",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "",
+            "postal_code": "1102",
+            "state": ""
+          },
+          "email": "darrenjade24@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1298,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 63602,
+        "origin": "api",
+        "payment_intent_id": "pi_QKswJ4mCsQ7fEor5PQCm7JSK",
+        "payout": null,
+        "source": {
+          "id": "paymaya_JDNu9E7MqDm9EgVnBVTNCTm3",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746322595-14",
+          "user_id": "14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746322616,
+        "credited_at": 1747213200,
+        "paid_at": 1746322616,
+        "updated_at": 1746322616
+      }
+    },
+    {
+      "id": "pay_vRX2MUng6AVJkjnSySC9FSyZ",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 90000,
+        "balance_transaction_id": "bal_txn_HYUzJ4jGw4pegC2UNNQf14pK",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "",
+            "postal_code": "1102",
+            "state": ""
+          },
+          "email": "jundillmharreyes@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1800,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 88200,
+        "origin": "api",
+        "payment_intent_id": "pi_TFY6kk91JMErUacseY1dmi7f",
+        "payout": null,
+        "source": {
+          "id": "paymaya_EmKExnp5YhbDRDtCnzUpVnN6",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746321739-14",
+          "user_id": "14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746321788,
+        "credited_at": 1747213200,
+        "paid_at": 1746321788,
+        "updated_at": 1746321788
+      }
+    },
+    {
+      "id": "pay_RzmxA73WRX2HXCWvfPNZ7B2D",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 80000,
+        "balance_transaction_id": "bal_txn_YGRcw93cF9iMqSEEA5MMMyX8",
+        "billing": {
+          "address": {
+            "city": "Quezon City",
+            "country": "PH",
+            "line1": "Novaliches Quezon City",
+            "line2": "Novaliches Quezon City",
+            "postal_code": "1123",
+            "state": "Manila"
+          },
+          "email": "reyesjundillmharcalagahan@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9682296846"
+        },
+        "currency": "PHP",
+        "description": "BYD Clothing",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 4300,
+        "foreign_fee": 800,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 74900,
+        "origin": "api",
+        "payment_intent_id": "pi_rYYWFDxBbjSFqJzhF6AxHP6G",
+        "payout": null,
+        "source": {
+          "id": "card_fUNH8VLPFJDuybotPz7RKWth",
+          "type": "card",
+          "brand": "visa",
+          "country": "US",
+          "last4": "4345"
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": null,
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746694800,
+        "created_at": 1746293074,
+        "credited_at": 1747213200,
+        "paid_at": 1746293074,
+        "updated_at": 1746293074
+      }
+    },
+    {
+      "id": "pay_PvMQQszQ94gEy7tea68CbLDy",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 90000,
+        "balance_transaction_id": "bal_txn_3LwWnoQm2M1NonnMdudg6djz",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "",
+            "postal_code": "1102",
+            "state": ""
+          },
+          "email": "jundillmharreyes@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1800,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 88200,
+        "origin": "api",
+        "payment_intent_id": "pi_cae3UEgXzkR7Rtosm9pjePmQ",
+        "payout": null,
+        "source": {
+          "id": "paymaya_VZ4twkSm8iYCgPof7JRD89RE",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "user_id": "14",
+          "reference_number": "ORDER-1746289974-14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746289986,
+        "credited_at": 1747213200,
+        "paid_at": 1746289986,
+        "updated_at": 1746289986
+      }
+    },
+    {
+      "id": "pay_knPwT7eUtDU4oyVu6MuKfdsF",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 90000,
+        "balance_transaction_id": "bal_txn_nD4xTZoRuatEaoS8u7h3nQqo",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "",
+            "postal_code": "1102",
+            "state": ""
+          },
+          "email": "jundillmharreyes@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1800,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 88200,
+        "origin": "api",
+        "payment_intent_id": "pi_jQq1h8SB7eJLdJEw9hC6CmPX",
+        "payout": null,
+        "source": {
+          "id": "paymaya_PfXoFoHXKw7fxPDD9TiLsmQq",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "user_id": "14",
+          "reference_number": "ORDER-1746289777-14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746289790,
+        "credited_at": 1747213200,
+        "paid_at": 1746289790,
+        "updated_at": 1746289790
+      }
+    },
+    {
+      "id": "pay_p5X7XWwuHnts5TEQqjm7c3n5",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 64900,
+        "balance_transaction_id": "bal_txn_33gJeJoZVWikGdpfGTtaHUsa",
+        "billing": {
+          "address": {
+            "city": "Quezon City",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "Novaliches Quezon City",
+            "postal_code": "1102",
+            "state": "Manila"
+          },
+          "email": "jundillmharreyes@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 3772,
+        "foreign_fee": 649,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 60479,
+        "origin": "api",
+        "payment_intent_id": "pi_xLDRr9QzvFkt58kcPjhLYDL3",
+        "payout": null,
+        "source": {
+          "id": "card_Xdtq6UQzUWNXpG74oeKX8aSE",
+          "type": "card",
+          "brand": "visa",
+          "country": "US",
+          "last4": "4345"
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "user_id": "14",
+          "reference_number": "ORDER-1746288812-14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746694800,
+        "created_at": 1746288835,
+        "credited_at": 1747213200,
+        "paid_at": 1746288835,
+        "updated_at": 1746288835
+      }
+    },
+    {
+      "id": "pay_pW6UwRB2SoKaoX8Lntuau2e4",
+      "type": "payment",
+      "attributes": {
+        "access_url": null,
+        "amount": 64900,
+        "balance_transaction_id": "bal_txn_pXszED6dY6DMAbGjBqSHm4DN",
+        "billing": {
+          "address": {
+            "city": "",
+            "country": "PH",
+            "line1": "36 Bayanihan Drive, Sitio Maligaya, Bahay Toro",
+            "line2": "",
+            "postal_code": "1102",
+            "state": ""
+          },
+          "email": "jundillmharreyes@gmail.com",
+          "name": "Jm Reyes",
+          "phone": "9244618214"
+        },
+        "currency": "PHP",
+        "description": "Order Payment for Jm Reyes",
+        "disputed": false,
+        "external_reference_number": null,
+        "fee": 1298,
+        "instant_settlement": null,
+        "livemode": false,
+        "net_amount": 63602,
+        "origin": "api",
+        "payment_intent_id": "pi_UetjGDwTfB7QbAPyUgVYpynt",
+        "payout": null,
+        "source": {
+          "id": "paymaya_AekdDQ9g9AP3cbXpuXRfY9aL",
+          "type": "paymaya",
+          "provider": {
+            "id": null
+          },
+          "provider_id": null
+        },
+        "statement_descriptor": "Beyond Doubt Clothing (BYD)",
+        "status": "paid",
+        "tax_amount": null,
+        "metadata": {
+          "reference_number": "ORDER-1746288231-14",
+          "user_id": "14"
+        },
+        "promotion": null,
+        "refunds": [],
+        "taxes": [],
+        "available_at": 1746608400,
+        "created_at": 1746288247,
+        "credited_at": 1747213200,
+        "paid_at": 1746288247,
+        "updated_at": 1746288247
+      }
+    }
+  ]
+}

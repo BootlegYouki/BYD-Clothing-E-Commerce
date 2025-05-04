@@ -13,6 +13,7 @@ include('config/dbcon.php');
 $status_filter = $_GET['status'] ?? 'all';
 $date_filter = $_GET['date'] ?? 'all';
 $search = $_GET['search'] ?? '';
+$payment_source = 'paymongo'; // Always use Paymongo as the source
 
 // Set sorting parameters
 $sort_column = $_GET['sort'] ?? 'created_at';
@@ -27,55 +28,144 @@ if (!in_array($sort_column, $allowed_columns)) {
 // Validate sort direction
 $sort_direction = strtoupper($sort_direction) == 'ASC' ? 'ASC' : 'DESC';
 
-// Start building the base query
-$query = "SELECT o.*, CONCAT(u.firstname, ' ', u.lastname) as customer_name FROM orders o 
-          LEFT JOIN users u ON o.user_id = u.id 
-          WHERE 1=1";
-$params = [];
-$types = "";
+// Function to fetch data from Paymongo API using the provided curl configuration
+function fetchPaymongoPayments() {
+    $curl = curl_init();
 
-// Status filter
-if($status_filter != 'all') {
-    $query .= " AND o.status = ?";
-    $params[] = $status_filter;
-    $types .= "s";
-}
-
-// Date filter
-if($date_filter == 'today') {
-    $query .= " AND DATE(o.created_at) = CURDATE()";
-} elseif($date_filter == 'week') {
-    $query .= " AND o.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
-} elseif($date_filter == 'month') {
-    $query .= " AND o.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
-}
-
-// Search functionality with prepared statements
-if(!empty($search)) {
-    $query .= " AND (o.firstname LIKE ? OR o.lastname LIKE ? OR u.firstname LIKE ? OR u.lastname LIKE ? OR o.payment_method LIKE ? OR o.order_id LIKE ? OR o.email LIKE ? OR u.email LIKE ?)";
-    $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param]);
-    $types .= "ssssssss";
-}
-
-// Order by the selected column and direction
-$query .= " ORDER BY $sort_column $sort_direction";
-
-// Prepare and execute statement
-$stmt = mysqli_prepare($conn, $query);
-
-if ($stmt) {
-    // Bind parameters if there are any
-    if (!empty($params)) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-    }
+    curl_setopt_array($curl, [
+      CURLOPT_URL => "https://api.paymongo.com/v1/payments?limit=100",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "GET",
+      CURLOPT_HTTPHEADER => [
+        "accept: application/json",
+        "authorization: Basic c2tfdGVzdF9lYkp6d1JIem5LaXJvRW5BN0N0dDhVbnM6"
+      ],
+    ]);
     
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-} else {
-    // Handle error
-    $result = false;
-    echo "Error preparing statement: " . mysqli_error($conn);
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+    
+    curl_close($curl);
+    
+    if ($err) {
+      return ["error" => "cURL Error #:" . $err];
+    } else {
+      return json_decode($response, true);
+    }
+}
+
+// Fetch payment data from Paymongo API
+$paymongo_data = fetchPaymongoPayments();
+
+// Apply filters to the Paymongo data
+$filtered_data = ["data" => []];
+
+if (!empty($paymongo_data['data'])) {
+    foreach ($paymongo_data['data'] as $payment) {
+        $attrs = $payment['attributes'];
+        $include_payment = true;
+        
+        // Apply status filter
+        if ($status_filter != 'all') {
+            // Map Paymongo status to your system's status
+            $payment_status = $attrs['status'];
+            if ($payment_status == 'paid' && $status_filter != 'delivered') {
+                $include_payment = false;
+            } elseif ($payment_status != 'paid' && $status_filter != 'pending') {
+                $include_payment = false;
+            }
+        }
+        
+        // Apply date filter
+        if ($date_filter != 'all') {
+            $payment_date = $attrs['created_at'];
+            $today = strtotime('today');
+            
+            if ($date_filter == 'today' && $payment_date < $today) {
+                $include_payment = false;
+            } elseif ($date_filter == 'week' && $payment_date < strtotime('-7 days')) {
+                $include_payment = false;
+            } elseif ($date_filter == 'month' && $payment_date < strtotime('-30 days')) {
+                $include_payment = false;
+            }
+        }
+        
+        // Apply search filter
+        if (!empty($search)) {
+            $customer_name = strtolower($attrs['billing']['name']);
+            $customer_email = strtolower($attrs['billing']['email']);
+            $payment_id = strtolower($payment['id']);
+            $reference_number = isset($attrs['metadata']['reference_number']) ? 
+                strtolower($attrs['metadata']['reference_number']) : '';
+            
+            $search_term = strtolower($search);
+            
+            if (strpos($customer_name, $search_term) === false && 
+                strpos($customer_email, $search_term) === false && 
+                strpos($payment_id, $search_term) === false &&
+                strpos($reference_number, $search_term) === false) {
+                $include_payment = false;
+            }
+        }
+        
+        // Include payment if it passes all filters
+        if ($include_payment) {
+            $filtered_data['data'][] = $payment;
+        }
+    }
+}
+
+// Sort the filtered data
+if (!empty($filtered_data['data'])) {
+    usort($filtered_data['data'], function($a, $b) use ($sort_column, $sort_direction) {
+        $a_attrs = $a['attributes'];
+        $b_attrs = $b['attributes'];
+        
+        switch($sort_column) {
+            case 'order_id':
+                $a_val = $a['id'];
+                $b_val = $b['id'];
+                break;
+            case 'customer_name':
+                $a_val = $a_attrs['billing']['name'];
+                $b_val = $b_attrs['billing']['name'];
+                break;
+            case 'total_amount':
+                $a_val = $a_attrs['amount'];
+                $b_val = $b_attrs['amount'];
+                break;
+            case 'created_at':
+                $a_val = $a_attrs['created_at'];
+                $b_val = $b_attrs['created_at'];
+                break;
+            case 'status':
+                $a_val = $a_attrs['status'];
+                $b_val = $b_attrs['status'];
+                break;
+            case 'payment_method':
+                $a_val = isset($a_attrs['source']['type']) ? $a_attrs['source']['type'] : '';
+                $b_val = isset($b_attrs['source']['type']) ? $b_attrs['source']['type'] : '';
+                break;
+            default:
+                $a_val = $a_attrs['created_at'];
+                $b_val = $b_attrs['created_at'];
+        }
+        
+        if ($a_val == $b_val) {
+            return 0;
+        }
+        
+        // Sort based on direction
+        if ($sort_direction == 'ASC') {
+            return ($a_val < $b_val) ? -1 : 1;
+        } else {
+            return ($a_val > $b_val) ? -1 : 1;
+        }
+    });
 }
 ?>
 <!DOCTYPE html>
@@ -85,7 +175,7 @@ if ($stmt) {
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit">
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-  <title>Orders | Beyond Doubt Clothing</title>
+  <title>Paymongo Payments | Beyond Doubt Clothing</title>
   <!-- Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
@@ -101,23 +191,23 @@ if ($stmt) {
 <?php include 'includes/navbar.php'; ?>
 
 <div class="container-fluid">
+  <!-- Header and Refresh Button -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="mb-0">Paymongo Payments</h2>
+      <p class="text-muted">Displaying payments processed through Paymongo</p>
+    </div>
+    <div class="col-auto">
+      <a href="?<?= http_build_query($_GET) ?>" class="btn btn-sm btn-outline-primary">
+        <i class='bx bx-refresh me-1'></i> Refresh Data
+      </a>
+    </div>
+  </div>
+
   <!-- Filter Card -->
   <div class="card mb-4">
     <div class="card-body p-3">
       <form method="GET" action="" class="row g-3 align-items-center">
-        <!-- Status Filter -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <label for="status" class="form-label">Order Status</label>
-          <select name="status" id="status" class="form-select">
-            <option value="all" <?= $status_filter == 'all' ? 'selected' : '' ?>>All Status</option>
-            <option value="pending" <?= $status_filter == 'pending' ? 'selected' : '' ?>>Pending</option>
-            <option value="processing" <?= $status_filter == 'processing' ? 'selected' : '' ?>>Processing</option>
-            <option value="shipped" <?= $status_filter == 'shipped' ? 'selected' : '' ?>>Shipped</option>
-            <option value="delivered" <?= $status_filter == 'delivered' ? 'selected' : '' ?>>Delivered</option>
-            <option value="cancelled" <?= $status_filter == 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-          </select>
-        </div>
-        
         <!-- Date Filter -->
         <div class="col-lg-3 col-md-4 col-sm-6">
           <label for="date" class="form-label">Date Range</label>
@@ -132,7 +222,7 @@ if ($stmt) {
         <!-- Search -->
         <div class="col-lg-3 col-md-4 col-sm-6">
           <label for="search" class="form-label">Search</label>
-          <input type="text" class="form-control" id="search" name="search" placeholder="Search by order #, name" value="<?= htmlspecialchars($search) ?>">
+          <input type="text" class="form-control" id="search" name="search" placeholder="Search by name, email, reference #" value="<?= htmlspecialchars($search) ?>">
         </div>
         
         <!-- Submit Button -->
@@ -149,11 +239,11 @@ if ($stmt) {
     <div class="card-header">
       <div class="row align-items-center">
         <div class="col">
-          <h5 class="mb-0">Orders List</h5>
+          <h5 class="mb-0">Payments List</h5>
         </div>
-        <?php if(mysqli_num_rows($result) > 0): ?>
+        <?php if (!empty($filtered_data['data'])): ?>
         <div class="col-auto">
-          <a href="export-orders.php<?= !empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : '' ?>" class="btn btn-sm btn-outline-coral">
+          <a href="export-payments.php<?= !empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : '' ?>" class="btn btn-sm btn-outline-coral">
             <i class='bx bx-export me-1'></i> Export
           </a>
         </div>
@@ -166,7 +256,7 @@ if ($stmt) {
           <thead>
             <tr>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3 sortable" data-sort="order_id">
-                Order ID
+                Payment ID / Reference
                 <i class='bx <?= $sort_column == 'order_id' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'order_id' ? 'active-sort' : '' ?>'></i>
               </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="customer_name">
@@ -174,7 +264,7 @@ if ($stmt) {
                 <i class='bx <?= $sort_column == 'customer_name' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'customer_name' ? 'active-sort' : '' ?>'></i>
               </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="total_amount">
-                Total
+                Amount
                 <i class='bx <?= $sort_column == 'total_amount' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'total_amount' ? 'active-sort' : '' ?>'></i>
               </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="created_at">
@@ -186,7 +276,7 @@ if ($stmt) {
                 <i class='bx <?= $sort_column == 'status' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'status' ? 'active-sort' : '' ?>'></i>
               </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="payment_method">
-                Payment
+                Method
                 <i class='bx <?= $sort_column == 'payment_method' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'payment_method' ? 'active-sort' : '' ?>'></i>
               </th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
@@ -194,67 +284,72 @@ if ($stmt) {
           </thead>
           <tbody>
             <?php
-            if(mysqli_num_rows($result) > 0) {
-              while($row = mysqli_fetch_assoc($result)) {
-                // Define status badge
+            if(!empty($filtered_data['data'])) {
+              // Display Paymongo payments
+              foreach($filtered_data['data'] as $payment) {
+                $attrs = $payment['attributes'];
+                
+                // Format amount (convert from cents to actual amount)
+                $amount = number_format($attrs['amount'] / 100, 2);
+                
+                // Format date
+                $payment_date = date('M d, Y', $attrs['created_at']);
+                
+                // Get payment method
+                $payment_method = ucfirst($attrs['source']['type'] ?? 'Unknown');
+                
+                // Set status badge
                 $status_badge = '';
-                switch($row['status']) {
+                switch($attrs['status']) {
+                  case 'paid':
+                    $status_badge = '<span class="badge bg-success">Paid</span>';
+                    break;
                   case 'pending':
                     $status_badge = '<span class="badge bg-warning">Pending</span>';
                     break;
-                  case 'processing':
-                    $status_badge = '<span class="badge bg-info">Processing</span>';
-                    break;
-                  case 'shipped':
-                    $status_badge = '<span class="badge bg-primary">Shipped</span>';
-                    break;
-                  case 'delivered':
-                    $status_badge = '<span class="badge bg-success">Delivered</span>';
-                    break;
-                  case 'cancelled':
-                    $status_badge = '<span class="badge bg-danger">Cancelled</span>';
+                  case 'failed':
+                    $status_badge = '<span class="badge bg-danger">Failed</span>';
                     break;
                   default:
-                    $status_badge = '<span class="badge bg-secondary">Unknown</span>';
+                    $status_badge = '<span class="badge bg-secondary">'.$attrs['status'].'</span>';
                 }
                 
-                // Format date
-                $order_date = date('M d, Y', strtotime($row['created_at']));
-                
-                // Generate table row
+                // Generate table row for Paymongo payment
                 echo "<tr>
                 <td class='ps-3 align-middle'>
-                  <p class='font-weight-bold mb-0'>#".$row['order_id']."</p>
+                  <p class='font-weight-bold mb-0 text-xs'>".$payment['id']."</p>
+                  <p class='text-xs text-secondary mb-0'>".($attrs['metadata']['reference_number'] ?? 'N/A')."</p>
                 </td>
                 <td class='align-middle'>
                   <div class='d-flex px-2 py-1'>
                     <div class='d-flex flex-column justify-content-center'>
-                      <h6 class='mb-0 text-sm'>".$row['customer_name']."</h6>
+                      <h6 class='mb-0 text-sm'>".$attrs['billing']['name']."</h6>
+                      <p class='text-xs text-secondary mb-0'>".$attrs['billing']['email']."</p>
                     </div>
                   </div>
                 </td>
                 <td class='align-middle'>
-                  <p class='font-weight-bold mb-0'>₱".number_format($row['total_amount'], 2)."</p>
+                  <p class='font-weight-bold mb-0'>₱".$amount."</p>
                 </td>
                 <td class='align-middle'>
-                  <p class='text-secondary mb-0'>".$order_date."</p>
+                  <p class='text-secondary mb-0'>".$payment_date."</p>
                 </td>
                 <td class='align-middle'>
                   ".$status_badge."
                 </td>
                 <td class='align-middle'>
-                  <p class='font-weight-bold mb-0'>".$row['payment_method']."</p>
+                  <p class='font-weight-bold mb-0'>".$payment_method."</p>
                 </td>
                 <td class='align-middle text-center'>
-                    <a href='#' class='btn text-dark px-2 mb-0' data-bs-toggle='modal' data-bs-target='#updateStatusModal' 
-                      data-orderid='".$row['order_id']."' data-status='".$row['status']."'>
-                      <i class='bx bx-edit bx-sm'></i>
-                    </a>
-                  </td>
+                  <a href='#' class='btn text-dark px-2 mb-0' data-bs-toggle='modal' data-bs-target='#paymentDetailsModal' 
+                    data-paymentid='".$payment['id']."'>
+                    <i class='bx bx-info-circle bx-sm'></i>
+                  </a>
+                </td>
                 </tr>";
               }
             } else {
-              echo "<tr><td colspan='7' class='text-center py-4'>No orders found</td></tr>";
+              echo "<tr><td colspan='7' class='text-center py-4'>No payments found</td></tr>";
             }
             ?>
           </tbody>
@@ -264,33 +359,27 @@ if ($stmt) {
   </div>
 </div>
 
-<!-- Update Status Modal -->
-<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<!-- Payment Details Modal -->
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="updateStatusModalLabel">Update Order Status</h5>
+        <h5 class="modal-title" id="paymentDetailsModalLabel">Payment Details</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="code/order-code.php" method="POST">
-        <div class="modal-body">
-          <input type="hidden" name="order_id" id="order_id" value="">
-          <div class="form-group">
-            <label for="order_status" class="form-label">Status</label>
-            <select class="form-select" id="order_status" name="order_status" required>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+      <div class="modal-body p-0">
+        <div id="payment-details-content" class="p-3">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading payment details...</p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" name="update_order_status_btn" class="btn btn-primary">Update Status</button>
-        </div>
-      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -300,20 +389,24 @@ if ($stmt) {
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Handle update status modal
   document.addEventListener('DOMContentLoaded', function() {
-    const updateStatusModal = document.getElementById('updateStatusModal');
-    if (updateStatusModal) {
-      updateStatusModal.addEventListener('show.bs.modal', function(event) {
+    // Handle payment details modal
+    const paymentDetailsModal = document.getElementById('paymentDetailsModal');
+    if (paymentDetailsModal) {
+      paymentDetailsModal.addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
-        const orderId = button.getAttribute('data-orderid');
-        const currentStatus = button.getAttribute('data-status');
+        const paymentId = button.getAttribute('data-paymentid');
+        const contentDiv = document.getElementById('payment-details-content');
         
-        const orderIdInput = updateStatusModal.querySelector('#order_id');
-        const statusSelect = updateStatusModal.querySelector('#order_status');
-        
-        orderIdInput.value = orderId;
-        statusSelect.value = currentStatus;
+        // Fetch payment details
+        fetch(`fetch_payment_details.php?payment_id=${paymentId}`)
+          .then(response => response.text())
+          .then(data => {
+            contentDiv.innerHTML = data;
+          })
+          .catch(error => {
+            contentDiv.innerHTML = `<div class="alert alert-danger">Error loading payment details: ${error}</div>`;
+          });
       });
     }
     
