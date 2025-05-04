@@ -9,22 +9,12 @@ if(!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {
 // Include database connection
 include('config/dbcon.php');
 
-// Process bulk actions if submitted
+// Process bulk actions if submitted - redirect to our new handler
 if(isset($_POST['bulk_action']) && isset($_POST['order_ids'])) {
-    $action = $_POST['bulk_action'];
-    $order_ids = $_POST['order_ids'];
-    
-    if(!empty($order_ids) && in_array($action, ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])) {
-        $ids = implode(',', array_map('intval', $order_ids));
-        $status = mysqli_real_escape_string($conn, $action);
-        
-        $update_query = "UPDATE orders SET status = '$status', updated_at = NOW() WHERE id IN ($ids)";
-        mysqli_query($conn, $update_query);
-        
-        // Redirect to avoid form resubmission
-        header("Location: orders.php?msg=bulk_updated&count=".count($order_ids));
-        exit();
-    }
+    // Forward the request to our new handler that also creates notifications
+    $_SERVER['REQUEST_URI'] = 'functions/orders/update_status.php';
+    require 'functions/orders/update_status.php';
+    exit(); // The script above will handle the redirect
 }
 
 // Set default filter values
@@ -134,10 +124,19 @@ if(isset($_GET['msg'])) {
     switch($_GET['msg']) {
         case 'bulk_updated':
             $count = isset($_GET['count']) ? intval($_GET['count']) : 0;
-            $message = '<div class="alert alert-success">Successfully updated ' . $count . ' orders.</div>';
+            $notifications = isset($_GET['notifications']) ? intval($_GET['notifications']) : 0;
+            $message = '<div class="alert alert-success">Successfully updated ' . $count . ' orders.';
+            if ($notifications > 0) {
+                $message .= ' Sent notifications to ' . $notifications . ' customers.';
+            }
+            $message .= '</div>';
             break;
         case 'status_updated':
             $message = '<div class="alert alert-success">Order status updated successfully.</div>';
+            break;
+        case 'error':
+            $error = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : 'Unknown error';
+            $message = '<div class="alert alert-danger">Error: ' . $error . '</div>';
             break;
     }
 }
@@ -286,7 +285,7 @@ if(isset($_GET['msg'])) {
                   </div>
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="id">
-                  Order ID / Reference
+                  Reference / Order ID
                   <i class='bx <?= $sort_column == 'id' ? ($sort_direction == 'ASC' ? 'bx-caret-up' : 'bx-caret-down') : 'bx-sort' ?> sort-icon <?= $sort_column == 'id' ? 'active-sort' : '' ?>'></i>
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 sortable" data-sort="firstname">
@@ -353,8 +352,8 @@ if(isset($_GET['msg'])) {
                     </div>
                   </td>
                   <td class='align-middle'>
-                    <p class='font-weight-bold mb-0 text-xs'>#".$order['id']."</p>
-                    <p class='text-xs text-secondary mb-0'>".($order['reference_number'] ?? 'N/A')."</p>
+                    <p class='font-weight-bold mb-0 text-xs'>".($order['reference_number'] ?? 'N/A')."</p>
+                    <p class='text-xs text-secondary mb-0'>#".$order['id']."</p>
                   </td>
                   <td class='align-middle'>
                     <div class='d-flex'>

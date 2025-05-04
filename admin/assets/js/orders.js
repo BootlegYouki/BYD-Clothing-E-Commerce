@@ -116,106 +116,113 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Quick status update
-    const quickStatusSelects = document.querySelectorAll('.quick-status-update');
-    quickStatusSelects.forEach(select => {
-      select.addEventListener('change', function() {
-        if (this.value === '') return;
-        
-        const orderId = this.getAttribute('data-order-id');
-        const status = this.value;
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('order_id', orderId);
-        formData.append('status', status);
-        
-        // Send AJAX request
-        fetch('functions/orders/update_order_status.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Show toast notification instead of alert
-            showToast('Status Update', 'Order #' + orderId + ' status updated to ' + status.charAt(0).toUpperCase() + status.slice(1), 'success');
-            
-            // Update the status badge on the page
-            const statusCell = this.closest('tr').querySelector('td:nth-child(6)');
-            let newBadge = '';
-            switch(status) {
-              case 'processing':
-                newBadge = '<span class="badge bg-primary">Processing</span>';
-                break;
-              case 'pending':
-                newBadge = '<span class="badge bg-warning">Pending</span>';
-                break;
-              case 'shipped':
-                newBadge = '<span class="badge bg-info">Shipped</span>';
-                break;
-              case 'delivered':
-                newBadge = '<span class="badge bg-success">Delivered</span>';
-                break;
-              case 'cancelled':
-                newBadge = '<span class="badge bg-danger">Cancelled</span>';
-                break;
-              default:
-                newBadge = '<span class="badge bg-secondary">' + status + '</span>';
-            }
-            statusCell.innerHTML = newBadge;
-          } else {
-            // Show error toast
-            showToast('Error', data.message, 'error');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          showToast('Error', 'An error occurred while updating the status.', 'error');
-        });
-      });
-    });
-    
-    // Function to show toast notifications
-    function showToast(title, message, type) {
-      // Create toast element
-      const toastEl = document.createElement('div');
-      toastEl.className = 'toast align-items-center border-0';
-      
-      // Set background color based on type
-      if (type === 'success') {
-        toastEl.classList.add('bg-success', 'text-white');
-      } else if (type === 'error') {
-        toastEl.classList.add('bg-danger', 'text-white');
-      } else if (type === 'warning') {
-        toastEl.classList.add('bg-warning', 'text-dark');
-      } else {
-        toastEl.classList.add('bg-primary', 'text-white');
-      }
-      
-      // Set toast content
-      toastEl.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">
-            <strong>${title}</strong>: ${message}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-      `;
-      
-      // Add toast to container
-      const toastContainer = document.querySelector('.toast-container');
-      toastContainer.appendChild(toastEl);
-      
-      // Initialize and show toast
-      const toast = new bootstrap.Toast(toastEl, {
-        autohide: true,
-        delay: 5000
-      });
-      toast.show();
-      
-      // Remove toast element when hidden
-      toastEl.addEventListener('hidden.bs.toast', function() {
-        toastContainer.removeChild(toastEl);
-      });
-    }
+    initQuickStatusUpdate();
   });
+
+/**
+ * Initialize quick status update functionality
+ */
+function initQuickStatusUpdate() {
+    const statusDropdowns = document.querySelectorAll('.quick-status-update');
+    
+    statusDropdowns.forEach(dropdown => {
+        // Store original value to detect changes
+        dropdown.dataset.originalValue = dropdown.value;
+        
+        dropdown.addEventListener('change', function() {
+            const orderId = this.dataset.orderId;
+            const newStatus = this.value;
+            const originalStatus = this.dataset.originalValue;
+            
+            // Skip if no change or no value selected
+            if (newStatus === originalStatus || newStatus === '') {
+                return;
+            }
+            
+            // Show loading state
+            this.disabled = true;
+            
+            // Send AJAX request to update status
+            fetch('functions/orders/update_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `order_id=${orderId}&status=${newStatus}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update original value
+                    this.dataset.originalValue = newStatus;
+                    
+                    // Show success toast
+                    let toastMessage = 'Order status updated successfully';
+                    if (data.notification_sent) {
+                        toastMessage += ' and customer notified';
+                    }
+                    showToast(toastMessage, 'success');
+                } else {
+                    // Show error toast and revert selection
+                    showToast('Error: ' + data.message, 'error');
+                    this.value = originalStatus;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Failed to update order status', 'error');
+                this.value = originalStatus;
+            })
+            .finally(() => {
+                // Re-enable dropdown
+                this.disabled = false;
+            });
+        });
+    });
+}
+
+/**
+ * Display a toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - The type of toast (success, error, info)
+ */
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    
+    if (!toastContainer) {
+        console.error('Toast container not found');
+        return;
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    // Set toast content
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    // Add to container
+    toastContainer.appendChild(toast);
+    
+    // Initialize and show toast
+    const bsToast = new bootstrap.Toast(toast, {
+        autohide: true,
+        delay: 3000
+    });
+    bsToast.show();
+    
+    // Remove from DOM after hidden
+    toast.addEventListener('hidden.bs.toast', function () {
+        toast.remove();
+    });
+}
