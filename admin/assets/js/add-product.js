@@ -563,9 +563,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for the "Select Category" option
             const selectCategoryButton = document.querySelector('#category_dropdown button[data-value=""]');
             if (selectCategoryButton) {
-                selectCategoryButton.addEventListener('click', function() {
+                selectCategoryButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     categoryInput.value = '';
                     categoryDisplay.textContent = 'Select Category';
+                    // Close dropdown manually
+                    setTimeout(() => {
+                        document.querySelector('#category_dropdown').classList.remove('show');
+                    }, 100);
                 });
             }
             
@@ -579,7 +585,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoryItem.className = 'category-item';
                 categoryItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                        <span class="category-name" data-value="${category}">${category}</span>
+                        <button type="button" class="category-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
+                                data-value="${category}" style="background: none; box-shadow: none;">${category}</button>
                         <div class="category-actions">
                             <button type="button" class="category-action-btn edit-btn" title="Rename Category" data-category="${category}">
                                 <i class="material-symbols-rounded">edit</i>
@@ -592,7 +599,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 categoryContainer.appendChild(categoryItem);
                 
-                categoryItem.querySelector('.category-name').addEventListener('click', function() {
+                // Use direct click handler with explicit actions
+                categoryItem.querySelector('.category-name').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (!this.classList.contains('editing')) {
                         const value = this.getAttribute('data-value');
                         categoryInput.value = value;
@@ -602,6 +613,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (productName) {
                             updateSKU(productName, value);
                         }
+                        
+                        // Manually close the dropdown
+                        setTimeout(() => {
+                            const dropdown = document.querySelector('#category_dropdown');
+                            if (dropdown && dropdown.classList.contains('show')) {
+                                dropdown.classList.remove('show');
+                                document.getElementById('category_display').setAttribute('aria-expanded', 'false');
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -633,12 +653,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
+                                // Check if the deleted category is currently selected
+                                if (categoryInput.value === categoryToDelete) {
+                                    // Reset the selection
+                                    categoryInput.value = '';
+                                    categoryDisplay.textContent = 'Select Category';
+                                    
+                                    // Also update the lastSelectedCategory variable
+                                    lastSelectedCategory = '';
+                                }
+                                
                                 // Refresh the category dropdown
                                 initializeCategoryDropdown();
                                 // Show success message
                                 showBootstrapAlert('.category-items-container .alert-container', 'success', response.message);
                             } else {
-                                // Show error and restore button
                                 showBootstrapAlert('.category-items-container .alert-container', 'danger', response.message);
                                 button.disabled = false;
                                 button.innerHTML = originalHTML;
@@ -678,9 +707,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for the "Select Fabric" option
             const selectFabricButton = document.querySelector('#fabric_dropdown button[data-value=""]');
             if (selectFabricButton) {
-                selectFabricButton.addEventListener('click', function() {
+                selectFabricButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     fabricInput.value = '';
                     fabricDisplay.textContent = 'Select Fabric';
+                    // Close dropdown manually
+                    setTimeout(() => {
+                        document.querySelector('#fabric_dropdown').classList.remove('show');
+                    }, 100);
                 });
             }
             
@@ -694,7 +729,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 fabricItem.className = 'fabric-item';
                 fabricItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                        <span class="fabric-name" data-value="${fabric}">${fabric}</span>
+                        <button type="button" class="fabric-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
+                                data-value="${fabric}" style="background: none; box-shadow: none;">${fabric}</button>
                         <div class="fabric-actions">
                             <button type="button" class="fabric-action-btn edit-btn" title="Rename Fabric" data-fabric="${fabric}">
                                 <i class="material-symbols-rounded">edit</i>
@@ -707,11 +743,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 fabricContainer.appendChild(fabricItem);
                 
-                fabricItem.querySelector('.fabric-name').addEventListener('click', function() {
+                // Use direct click handler with explicit actions
+                fabricItem.querySelector('.fabric-name').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (!this.classList.contains('editing')) {
                         const value = this.getAttribute('data-value');
                         fabricInput.value = value;
                         fabricDisplay.textContent = value;
+                        
+                        // Manually close the dropdown
+                        setTimeout(() => {
+                            const dropdown = document.querySelector('#fabric_dropdown');
+                            if (dropdown && dropdown.classList.contains('show')) {
+                                dropdown.classList.remove('show');
+                                document.getElementById('fabric_display').setAttribute('aria-expanded', 'false');
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -743,12 +792,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
+                                // Check if the deleted fabric is currently selected
+                                if (fabricInput.value === fabricToDelete) {
+                                    // Reset the selection
+                                    fabricInput.value = '';
+                                    fabricDisplay.textContent = 'Select Fabric';
+                                    
+                                    // Also update the lastSelectedFabric variable
+                                    lastSelectedFabric = '';
+                                }
+                                
                                 // Refresh the fabric dropdown
                                 initializeFabricDropdown();
                                 // Show success message just like categories
                                 showBootstrapAlert('.fabric-items-container .alert-container', 'success', response.message);
                             } else {
-                                // Show error and restore button - identical to categories
                                 showBootstrapAlert('.fabric-items-container .alert-container', 'danger', response.message);
                                 button.disabled = false;
                                 button.innerHTML = originalHTML;
@@ -781,21 +839,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const originalContent = element.innerHTML;
         
-        // Store a reference to the parent element that contains our buttons
-        const listItem = element.closest('.' + type + '-item');
-        const editBtn = listItem.querySelector('.edit-btn');
-        const editBtnParent = editBtn.parentNode; // Store parent reference
-        const originalEditBtnHTML = editBtn.innerHTML;
-        
-        // Replace edit icon with save icon
-        editBtn.innerHTML = '<i class="material-symbols-rounded">check</i>';
-        editBtn.title = "Save changes";
-        
-        const deleteBtn = listItem.querySelector('.delete-btn');
-        if (deleteBtn) {
-            deleteBtn.style.display = 'none'; // Hide delete button during edit mode
-        }
-
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-control form-control-sm inline-edit-input';
@@ -812,50 +855,10 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdownMenu.classList.add('show');
         }
         
-        // Create a fresh save handler function
-        function saveChanges() {
-            // If save was already triggered, bail out
-            if (input._saveTriggered) return;
-            input._saveTriggered = true;
-            
+        input.addEventListener('blur', function() {
             const newValue = input.value.trim();
             
-            // Reset the button back to edit mode first
-            editBtn.innerHTML = originalEditBtnHTML;
-            editBtn.title = "Rename " + type.charAt(0).toUpperCase() + type.slice(1);
-            
-            // Create a new button but don't replace it yet - check if parent exists
-            const newEditBtn = editBtn.cloneNode(true);
-            
-            const deleteBtn = listItem.querySelector('.delete-btn');
-            if (deleteBtn) {
-                deleteBtn.style.display = '';
-            }
-            // Safely handle button replacement
-            if (editBtnParent && editBtnParent.contains(editBtn)) {
-                try {
-                    editBtnParent.replaceChild(newEditBtn, editBtn);
-                    
-                    // Re-add click handler for edit mode to the new button
-                    newEditBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
-                        if (nameElement) {
-                            const currentName = nameElement.getAttribute('data-value');
-                            enableInlineEdit(nameElement, currentName, type);
-                        }
-                    });
-                } catch (err) {
-                    console.warn('Error replacing edit button:', err);
-                    // Just restore the original content and avoid further DOM manipulation
-                }
-            } else {
-                // If parent is gone, we can't replace - just restore content
-                console.warn('Edit button parent not available - restoring content only');
-            }
-            
             if (newValue && newValue !== currentValue) {
-                // Show loading state in element
                 element.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
                 
                 const data = {
@@ -881,42 +884,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.status === 'success') {
                             element.innerHTML = newValue;
                             element.setAttribute('data-value', newValue);
-                            
-                            // Only update button attributes if we successfully replaced the button
-                            const currentEditBtn = listItem.querySelector('.edit-btn');
-                            if (currentEditBtn) {
-                                currentEditBtn.setAttribute('data-' + type, newValue);
-                            }
-                            
-                            const deleteBtn = listItem.querySelector('.delete-btn');
-                            if (deleteBtn) {
-                                deleteBtn.setAttribute('data-' + type, newValue);
-                            }
-                            
-                            // Update the selected value if it was the current one
-                            const categoryInput = document.getElementById('category');
-                            const fabricInput = document.getElementById('fabric');
-                            
-                            if (type === 'category' && categoryInput && categoryInput.value === currentValue) {
-                                categoryInput.value = newValue;
-                                const selectedCategory = document.getElementById('selected_category');
-                                if (selectedCategory) {
-                                    selectedCategory.textContent = newValue;
-                                }
-                                
-                                // Update SKU if needed
-                                const productName = document.getElementById('name');
-                                if (productName && productName.value) {
-                                    updateSKU();
-                                }
-                            } else if (type === 'fabric' && fabricInput && fabricInput.value === currentValue) {
-                                fabricInput.value = newValue;
-                                const selectedFabric = document.getElementById('selected_fabric');
-                                if (selectedFabric) {
-                                    selectedFabric.textContent = newValue;
-                                }
-                            }
-                            
                         } else {
                             element.innerHTML = originalContent;
                             showBootstrapAlert(
@@ -941,30 +908,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.innerHTML = originalContent;
                 element.classList.remove('editing');
             }
-        }
-        
-        // Simplify the cancel function to avoid DOM replacement errors
-        // We'll rely on the explicit save/cancel buttons instead
-        
-        // Prevent dropdown from closing when clicking on form
-        inlineForm.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-
-    // Helper function to re-initialize click handlers after edits
-    function initializeDropdownClickHandlers() {
-        // Re-add click handlers to edit buttons
-        document.querySelectorAll('.category-item .edit-btn, .fabric-item .edit-btn').forEach(button => {
-            button.onclick = function(e) {
-                e.stopPropagation();
-                const type = this.closest('.category-item') ? 'category' : 'fabric';
-                const nameElement = this.closest('.' + type + '-item').querySelector('.' + type + '-name');
-                if (nameElement) {
-                    const currentName = nameElement.getAttribute('data-value');
-                    enableInlineEdit(nameElement, currentName, type);
-                }
-            };
         });
     }
 
@@ -1014,7 +957,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     dropdownMenu.classList.add('show');
                     
                     // Ensure the dropdown toggle button shows as active
-                    const dropdownToggle = document.querySelector(`[data-bs-toggle="dropdown"][aria-expanded="true"]`);
+                    const dropdownToggleId = type === 'category' ? 'category_display' : 'fabric_display';
+                    const dropdownToggle = document.getElementById(dropdownToggleId);
                     if (dropdownToggle) {
                         dropdownToggle.setAttribute('aria-expanded', 'true');
                     }
@@ -1059,9 +1003,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }); 
         }
         
-        // Remove blur handler to avoid conflicts with button clicks
-        // We'll rely on the explicit save/cancel buttons instead
-        
         // Prevent dropdown from closing when clicking on form
         inlineForm.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -1081,7 +1022,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show minimal loading state - just disable the input
         input.disabled = true;
         
-        // Fix URL construction for fabric management
         const endpoint = type === 'category' 
             ? 'functions/products/manage-categories.php' 
             : 'functions/products/manage-fabrics.php';
@@ -1096,7 +1036,6 @@ document.addEventListener('DOMContentLoaded', function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    // No visual feedback except for the dropdown refreshing
                     if (type === 'category') {
                         initializeCategoryDropdown();
                         
@@ -1111,7 +1050,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 updateSKU();
                             }
                             
-                            // Show success message only for categories
                             setTimeout(() => {
                                 showBootstrapAlert('.category-items-container .alert-container', 'success', `${type} added successfully`);
                             }, 400);
@@ -1125,14 +1063,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             fabricInput.value = newValue;
                             fabricDisplay.textContent = newValue;
                             
-                            // Add success message for fabrics (matching category)
                             setTimeout(() => {
                                 showBootstrapAlert('.fabric-items-container .alert-container', 'success', `${type} added successfully`);
                             }, 400);
                         }, 300);
                     }
                     
-                    // Simply remove the form on success
                     document.querySelector('.inline-add-form').remove();
                 } else {
                     errorElem.textContent = response.message || `Failed to add ${type}`;
@@ -1144,7 +1080,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Server Response:", xhr.responseText);
                 
                 try {
-                    // Try to parse the response as JSON to get detailed error message
                     const errorResponse = JSON.parse(xhr.responseText);
                     if (errorResponse && errorResponse.message) {
                         errorElem.textContent = errorResponse.message;
@@ -1152,7 +1087,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorElem.textContent = `Server error: ${status}`;
                     }
                 } catch (e) {
-                    // If not valid JSON, show the raw response or a generic message
                     if (xhr.responseText) {
                         errorElem.textContent = `Server error: ${xhr.responseText.substring(0, 50)}...`;
                     } else {
@@ -1165,7 +1099,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to show Bootstrap alerts
     function showBootstrapAlert(containerSelector, type, message) {
         const container = document.querySelector(containerSelector);
         if (!container) return;
@@ -1178,7 +1111,6 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = '';
         container.appendChild(alert);
         
-        // Auto dismiss after 3 seconds
         setTimeout(() => {
             alert.classList.remove('show');
             setTimeout(() => {
@@ -1188,7 +1120,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 150);
         }, 3000);
 
-        // Make sure dropdown stays open
         const dropdown = container.closest('.dropdown-menu');
         if (dropdown) {
             dropdown.classList.add('show');
@@ -1198,29 +1129,24 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCategoryDropdown();
     initializeFabricDropdown();
 
-    // Add arrow key navigation for size inputs
     function setupSizeInputNavigation() {
         const sizeInputs = document.querySelectorAll('.size-stock-grid input[type="number"]');
         const sizeArray = Array.from(sizeInputs);
         
         sizeArray.forEach((input, index) => {
             input.addEventListener('keydown', function(e) {
-                // Right arrow key - move to next input
                 if (e.key === 'ArrowRight' && index < sizeArray.length - 1) {
                     e.preventDefault();
                     sizeArray[index + 1].focus();
                 }
                 
-                // Left arrow key - move to previous input
                 if (e.key === 'ArrowLeft' && index > 0) {
                     e.preventDefault();
                     sizeArray[index - 1].focus();
                 }
             });
             
-            // Position cursor at the end of the input value when focused
             input.addEventListener('focus', function(e) {
-                // Move cursor to the end by temporarily storing the value and reassigning it
                 const val = this.value;
                 this.value = '';
                 this.value = val;
@@ -1228,11 +1154,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Call the function to set up navigation
     setupSizeInputNavigation();
 });
 
-// Pricing calculator updates
 document.addEventListener('DOMContentLoaded', function() {
     const originalPriceInput = document.getElementById('original_price');
     const discountPriceInput = document.getElementById('discount_price');
@@ -1246,19 +1170,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const originalPrice = parseFloat(originalPriceInput.value) || 0;
         let discountPrice = parseFloat(discountPriceInput.value) || originalPrice;
         
-        // Don't allow discount price to be higher than original price
         if (discountPrice > originalPrice) {
             discountPrice = originalPrice;
             discountPriceInput.value = originalPrice;
         }
         
-        // Calculate discount percentage for display only
         let discountPercentage = 0;
         if (originalPrice > 0 && discountPrice < originalPrice) {
             discountPercentage = Math.round(((originalPrice - discountPrice) / originalPrice) * 100);
         }
         
-        // Update display
         originalPriceDisplay.textContent = `₱${originalPrice.toFixed(2)}`;
         finalPriceDisplay.textContent = `₱${discountPrice.toFixed(2)}`;
         
@@ -1275,6 +1196,5 @@ document.addEventListener('DOMContentLoaded', function() {
     originalPriceInput.addEventListener('input', updatePricePreview);
     discountPriceInput.addEventListener('input', updatePricePreview);
     
-    // Initialize price display
     updatePricePreview();
 });

@@ -595,9 +595,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for the "Select Category" option
             const selectCategoryButton = document.querySelector('#category_dropdown button[data-value=""]');
             if (selectCategoryButton) {
-                selectCategoryButton.addEventListener('click', function() {
+                selectCategoryButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     categoryInput.value = '';
                     document.getElementById('selected_category').textContent = 'Select Category';
+                    // Close dropdown manually
+                    setTimeout(() => {
+                        document.querySelector('#category_dropdown').classList.remove('show');
+                    }, 100);
                 });
             }
             
@@ -611,7 +617,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoryItem.className = 'category-item';
                 categoryItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                        <span class="category-name" data-value="${category}">${category}</span>
+                        <button type="button" class="category-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
+                                data-value="${category}" style="background: none; box-shadow: none;">${category}</button>
                         <div class="category-actions">
                             <button type="button" class="category-action-btn edit-btn" title="Rename Category" data-category="${category}">
                                 <i class="material-symbols-rounded">edit</i>
@@ -624,7 +631,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 categoryContainer.appendChild(categoryItem);
                 
-                categoryItem.querySelector('.category-name').addEventListener('click', function() {
+                // Use direct click handler with explicit actions
+                categoryItem.querySelector('.category-name').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (!this.classList.contains('editing')) {
                         const value = this.getAttribute('data-value');
                         categoryInput.value = value;
@@ -634,6 +645,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (productName) {
                             updateSKU();
                         }
+                        
+                        // Manually close the dropdown
+                        setTimeout(() => {
+                            const dropdown = document.querySelector('#category_dropdown');
+                            if (dropdown && dropdown.classList.contains('show')) {
+                                dropdown.classList.remove('show');
+                                document.getElementById('category_display').setAttribute('aria-expanded', 'false');
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -656,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Make AJAX request to delete the category
                     $.ajax({
-                        url: 'functions/manage-categories.php',
+                        url: 'functions/products/manage-categories.php',
                         type: 'POST',
                         data: {
                             action: 'delete',
@@ -665,6 +685,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
+                                // Check if the deleted category is currently selected
+                                if (categoryInput.value === categoryToDelete) {
+                                    // Reset the selection
+                                    categoryInput.value = '';
+                                    document.getElementById('selected_category').textContent = 'Select Category';
+                                }
+                                
                                 // Refresh the category dropdown
                                 initializeCategoryDropdown();
                                 // Show success message
@@ -702,9 +729,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for the "Select Fabric" option
             const selectFabricButton = document.querySelector('#fabric_dropdown button[data-value=""]');
             if (selectFabricButton) {
-                selectFabricButton.addEventListener('click', function() {
+                selectFabricButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     fabricInput.value = '';
                     document.getElementById('selected_fabric').textContent = 'Select Fabric';
+                    // Close dropdown manually
+                    setTimeout(() => {
+                        document.querySelector('#fabric_dropdown').classList.remove('show');
+                    }, 100);
                 });
             }
             
@@ -718,7 +751,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 fabricItem.className = 'fabric-item';
                 fabricItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                        <span class="fabric-name" data-value="${fabric}">${fabric}</span>
+                        <button type="button" class="fabric-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
+                                data-value="${fabric}" style="background: none; box-shadow: none;">${fabric}</button>
                         <div class="fabric-actions">
                             <button type="button" class="fabric-action-btn edit-btn" title="Rename Fabric" data-fabric="${fabric}">
                                 <i class="material-symbols-rounded">edit</i>
@@ -731,11 +765,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 fabricContainer.appendChild(fabricItem);
                 
-                fabricItem.querySelector('.fabric-name').addEventListener('click', function() {
+                // Use direct click handler with explicit actions
+                fabricItem.querySelector('.fabric-name').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (!this.classList.contains('editing')) {
                         const value = this.getAttribute('data-value');
                         fabricInput.value = value;
                         document.getElementById('selected_fabric').textContent = value;
+                        
+                        // Manually close the dropdown
+                        setTimeout(() => {
+                            const dropdown = document.querySelector('#fabric_dropdown');
+                            if (dropdown && dropdown.classList.contains('show')) {
+                                dropdown.classList.remove('show');
+                                document.getElementById('fabric_display').setAttribute('aria-expanded', 'false');
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -767,6 +814,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
+                                // Check if the deleted fabric is currently selected
+                                if (fabricInput.value === fabricToDelete) {
+                                    // Reset the selection
+                                    fabricInput.value = '';
+                                    document.getElementById('selected_fabric').textContent = 'Select Fabric';
+                                }
+                                
                                 // Refresh the fabric dropdown
                                 initializeFabricDropdown();
                                 // Show success message just like categories
@@ -889,7 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.new_fabric = newValue;
                 }
                 
-                const url = type === 'category' ? 'functions/manage-categories.php' : 'functions/products/manage-fabrics.php';
+                const url = type === 'category' ? 'functions/products/manage-categories.php' : 'functions/products/manage-fabrics.php';
                 
                 $.ajax({
                     url: url,
@@ -1082,7 +1136,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     dropdownMenu.classList.add('show');
                     
                     // Ensure the dropdown toggle button shows as active
-                    const dropdownToggle = document.querySelector(`[data-bs-toggle="dropdown"][aria-expanded="true"]`);
+                    const dropdownToggleId = type === 'category' ? 'category_display' : 'fabric_display';
+                    const dropdownToggle = document.getElementById(dropdownToggleId);
                     if (dropdownToggle) {
                         dropdownToggle.setAttribute('aria-expanded', 'true');
                     }
@@ -1147,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         input.disabled = true;
         
         // Fix URL construction to handle "category" -> "categories" pluralization
-        const endpoint = type === 'category' ? 'functions/manage-categories.php' : `functions/manage-${type}s.php`;
+        const endpoint = type === 'category' ? 'functions/products/manage-categories.php' : `functions/products/manage-${type}s.php`;
         
         $.ajax({
             url: endpoint,
