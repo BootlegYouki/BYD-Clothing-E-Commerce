@@ -103,7 +103,7 @@ try {
                         'payment_id' => $sessionId,
                         'payment_intent_id' => $paymentIntent['id'] ?? null,
                         'reference_number' => $metadata['reference_number'],
-                        'status' => 'processing', // Payment successful, order is now processing
+                        'status' => 'processing',
                         'cart_items' => json_decode($metadata['cart_items'], true)
                     ];
                     
