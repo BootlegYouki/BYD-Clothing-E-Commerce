@@ -330,7 +330,7 @@
 }
 
 /* For tablets */
-@media (min-width: 577px) and (max-width: 991px) {
+@media (min-width: 577px){
     .chat-container {
         width: 320px;
         height: 450px;
@@ -341,6 +341,55 @@
     .chat-bubble {
         width: 55px;
         height: 55px;
+    }
+}
+
+/* For exactly 768px (common tablet width) - Full screen chat */
+@media (max-width: 991px) {
+    .chat-container {
+        width: 600px;
+        height: 700px;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .chat-container.active {
+        transform: scale(1);
+    }
+    
+    .chat-header {
+        padding: 15px 25px;
+        border-bottom-width: 3px;
+    }
+    
+    .chat-header h2 {
+        font-size: 18px;
+    }
+    
+    .chat-messages {
+        max-height: none;
+        padding: 20px;
+    }
+    
+    .message-content {
+        max-width: 80%;
+    }
+    
+    .chat-input {
+        padding: 15px;
+    }
+    
+    .chat-input input {
+        height: 50px;
+        padding: 12px 15px;
+        font-size: 16px;
+    }
+    
+    .send-btn {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
     }
 }
 
