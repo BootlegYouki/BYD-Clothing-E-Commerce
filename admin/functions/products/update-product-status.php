@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/dbcon.php';
+include '../../config/dbcon.php';
 
 // Validate inputs
 if(!isset($_POST['product_id']) || !isset($_POST['field']) || !isset($_POST['value'])) {

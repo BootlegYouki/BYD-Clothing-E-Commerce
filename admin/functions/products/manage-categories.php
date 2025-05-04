@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/dbcon.php';
+include '../../config/dbcon.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['auth']) || $_SESSION['auth_role'] != 1) {

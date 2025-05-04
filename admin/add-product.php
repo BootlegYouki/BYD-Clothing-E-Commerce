@@ -96,7 +96,7 @@ function generateSKU($productName, $category) {
         </div>
     </div>
     
-    <form action="functions/code.php" method="POST" enctype="multipart/form-data">
+    <form action="functions/products/code.php" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="col-lg-8">
                 <!-- Basic Information Section -->
@@ -333,7 +333,7 @@ function generateSKU($productName, $category) {
                             <i class="material-symbols-rounded">photo_library</i>
                         </div>
                         <p class="mb-2">Additional Product Images</p>
-                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
+                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 4)</small>
                         
                         <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
                         <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>
@@ -544,22 +544,5 @@ function generateSKU($productName, $category) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="assets/js/add-product.js"></script>
-<script>
-    // Handle category dropdown special options
-    const categorySelect = document.getElementById('category_display');
-    categorySelect.addEventListener('change', function() {
-        const selectedOption = categorySelect.options[categorySelect.selectedIndex];
-        if (selectedOption.value === 'add_new') {
-            // Open modal for adding new category
-            $('#addCategoryModal').modal('show');
-        } else if (selectedOption.value === 'remove') {
-            // Open modal for removing category
-            $('#removeCategoryModal').modal('show');
-        } else if (selectedOption.value === 'rename') {
-            // Open modal for renaming category
-            $('#renameCategoryModal').modal('show');
-        }
-    });
-</script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../config/dbcon.php');
+include('../../config/dbcon.php');
 
 // Function to handle product addition
 if(isset($_POST['add_product'])) {
@@ -41,7 +41,7 @@ if(isset($_POST['add_product'])) {
     // Validate required fields
     if(empty($name) || empty($original_price) || empty($category)) {
         $_SESSION['message'] = "All required fields must be filled";
-        header('Location: ../add-product.php');
+        header('Location: ../../add-product.php');
         exit();
     }
 
@@ -63,7 +63,7 @@ if(isset($_POST['add_product'])) {
         
         // Process and upload images
         // Create directory if it doesn't exist
-        $upload_dir = '../../uploads/products/' . $product_id . '/';
+        $upload_dir = '../../../uploads/products/' . $product_id . '/';
         if(!file_exists($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
@@ -129,14 +129,14 @@ if(isset($_POST['add_product'])) {
         // If everything is successful, commit the transaction
         mysqli_commit($conn);
         $_SESSION['message'] = "Product added successfully";
-        header('Location: ../add-product.php');
+        header('Location: ../../add-product.php');
         exit();
         
     } catch (Exception $e) {
         // If there's an error, roll back the transaction
         mysqli_rollback($conn);
         $_SESSION['message'] = "Something went wrong: " . $e->getMessage();
-        header('Location: ../add-product.php');
+        header('Location: ../../add-product.php');
         exit();
     }
 }
@@ -159,7 +159,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete_product' && isset($_GET[
         
         while($image = mysqli_fetch_assoc($images_result)) {
             // Store CORRECT image paths for file deletion
-            $image_paths[] = '../../' . $image['image_url'];
+            $image_paths[] = '../../../' . $image['image_url'];
         }
         
         // Delete product images from database
@@ -185,7 +185,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete_product' && isset($_GET[
             }
             
             // Delete product directory if it exists
-            $product_dir = '../../uploads/products/' . $product_id;
+            $product_dir = '../../../uploads/products/' . $product_id;
             if(is_dir($product_dir)) {
                 // Remove any remaining files in directory
                 $files = glob($product_dir . '/*');
@@ -212,7 +212,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete_product' && isset($_GET[
     }
     
     // Redirect back to products page
-    header('Location: ../products.php');
+    header('Location: ../../products.php');
     exit();
 }
 
@@ -255,7 +255,7 @@ if(isset($_POST['update_product'])) {
     // Validate required fields
     if(empty($name) || empty($original_price) || empty($category)) {
         $_SESSION['message'] = "All required fields must be filled";
-        header('Location: ../edit-product.php?id=' . $product_id);
+        header('Location: ../../edit-product.php?id=' . $product_id);
         exit();
     }
 
@@ -275,7 +275,7 @@ if(isset($_POST['update_product'])) {
                 
                 if (mysqli_num_rows($image_result) > 0) {
                     $image = mysqli_fetch_assoc($image_result);
-                    $image_path = '../../' . $image['image_url'];
+                    $image_path = '../../../' . $image['image_url'];
                     
                     // Delete from database
                     $delete_query = "DELETE FROM product_images WHERE id = '$image_id'";
@@ -344,7 +344,7 @@ if(isset($_POST['update_product'])) {
             // Check for errors
             if($primary_image_error === 0) {
                 // Create directory if it doesn't exist
-                $upload_dir = "../../uploads/products/$product_id/";
+                $upload_dir = "../../../uploads/products/$product_id/";
                 if(!is_dir($upload_dir)) {
                     mkdir($upload_dir, 0755, true);
                 }
@@ -389,7 +389,7 @@ if(isset($_POST['update_product'])) {
                 // Check for errors
                 if($additional_image_error === 0) {
                     // Create directory if it doesn't exist
-                    $upload_dir = "../../uploads/products/$product_id/";
+                    $upload_dir = "../../../uploads/products/$product_id/";
                     if(!is_dir($upload_dir)) {
                         mkdir($upload_dir, 0755, true);
                     }
@@ -419,14 +419,14 @@ if(isset($_POST['update_product'])) {
         mysqli_commit($conn);
         $_SESSION['message'] = "Product updated successfully";
         $_SESSION['message_type'] = "success"; // Add message type for proper styling
-        header('Location: ../products.php');
+        header('Location: ../../products.php');
         exit();
         
     } catch (Exception $e) {
         // If there's an error, roll back the transaction
         mysqli_rollback($conn);
         $_SESSION['message'] = "Something went wrong: " . $e->getMessage();
-        header('Location: ../edit-product.php?id=' . $product_id);
+        header('Location: ../../edit-product.php?id=' . $product_id);
         exit();
     }
 }

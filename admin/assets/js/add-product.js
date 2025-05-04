@@ -230,7 +230,7 @@ document.getElementById('primary_image').addEventListener('change', async functi
             
             // Create a simple text-based preview with improved responsive layout
             document.getElementById('primary_image_preview').innerHTML = `
-                <div class="alert alert-success removable-image" onclick="event.stopPropagation(); removePrimaryImage(0);" title="Click to remove image">
+                <div class="alert alert-success removable-image" onclick="event.stopPropagation(); removePrimaryImage(0, event);" title="Click to remove image">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1 min-width-0">
                             <strong>Primary Image</strong>
@@ -337,7 +337,7 @@ document.getElementById('additional_images').addEventListener('change', async fu
                 const fileSize = formatFileSize(additionalFilesCollection[i].size);
                 previewHtml += `
                     <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
-                         onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                         onclick="event.stopPropagation(); removeAdditionalImage(${i}, event);" 
                          title="Click to remove image">
                         <div class="d-flex align-items-center">
                             <div class="flex-grow-1 min-width-0">
@@ -391,7 +391,7 @@ function removeAdditionalImage(index, e) {
         const fileSize = formatFileSize(additionalFilesCollection[i].size);
         previewHtml += `
             <div id="preview_${i}" class="alert alert-success mb-2 removable-image" 
-                 onclick="event.stopPropagation(); removeAdditionalImage(${i});" 
+                 onclick="event.stopPropagation(); removeAdditionalImage(${i}, event);" 
                  title="Click to remove image">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 min-width-0">
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             lastSelectedCategory = categorySelect.value;
             
-            fetch('functions/generate_sku.php', {
+            fetch('functions/products/generate_sku.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function fetchCategories() {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: 'functions/get-categories.php',
+                url: 'functions/products/get-categories.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function fetchFabrics() {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: 'functions/get-fabrics.php',
+                url: 'functions/products/get-fabrics.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Make AJAX request to delete the category
                     $.ajax({
-                        url: 'functions/manage-categories.php',
+                        url: 'functions/products/manage-categories.php',
                         type: 'POST',
                         data: {
                             action: 'delete',
@@ -734,7 +734,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Make AJAX request to delete the fabric
                     $.ajax({
-                        url: 'functions/manage-fabrics.php',
+                        url: 'functions/products/manage-fabrics.php',
                         type: 'POST',
                         data: {
                             action: 'delete',
@@ -870,7 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.new_fabric = newValue;
                 }
                 
-                const url = type === 'category' ? 'functions/manage-categories.php' : 'functions/manage-fabrics.php';
+                const url = type === 'category' ? 'functions/products/manage-categories.php' : 'functions/products/manage-fabrics.php';
                 
                 $.ajax({
                     url: url,
@@ -1081,8 +1081,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show minimal loading state - just disable the input
         input.disabled = true;
         
-        // Fix URL construction to handle "category" -> "categories" pluralization
-        const endpoint = type === 'category' ? 'functions/manage-categories.php' : `functions/manage-${type}s.php`;
+        // Fix URL construction for fabric management
+        const endpoint = type === 'category' 
+            ? 'functions/products/manage-categories.php' 
+            : 'functions/products/manage-fabrics.php';
         
         $.ajax({
             url: endpoint,

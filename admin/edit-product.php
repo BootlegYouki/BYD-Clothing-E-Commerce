@@ -138,7 +138,7 @@ function generateSKU($productName, $category) {
         </div>
     </div>
     
-    <form action="functions/code.php" method="POST" enctype="multipart/form-data">
+    <form action="functions/products/code.php" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="product_id" value="<?= $product_id ?>">
         <input type="hidden" name="deleted_images" id="deleted_images" value="">
         
@@ -398,7 +398,7 @@ function generateSKU($productName, $category) {
                             <i class="material-symbols-rounded">photo_library</i>
                         </div>
                         <p class="mb-2">Additional Product Images</p>
-                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 3)</small>
+                        <small class="text-muted d-block mb-3">Click to select or drag & drop<br>(Max: 4)</small>
                         
                         <input type="file" name="additional_images[]" id="additional_images" class="form-control d-none" multiple accept="image/*">
                         <input type="text" class="form-control file-name-display" id="additional_images_text" placeholder="No files selected" readonly>

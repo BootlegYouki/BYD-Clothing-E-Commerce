@@ -4,7 +4,7 @@
 
 function confirmDelete(productId) {
     if(confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
-        window.location.href = "functions/code.php?action=delete_product&id=" + productId;
+        window.location.href = "functions/products/code.php?action=delete_product&id=" + productId;
     }
 }
 
