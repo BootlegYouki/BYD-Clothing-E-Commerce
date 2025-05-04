@@ -53,6 +53,9 @@ $result = mysqli_query($conn, $query);
   
   <!-- Core CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- LEAFLET CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <link rel="stylesheet" href="assets/css/custom.css">
   <link rel="stylesheet" href="assets/css/sidebar.css">
 </head>
@@ -315,6 +318,12 @@ $result = mysqli_query($conn, $query);
           <label class="form-label text-muted small">Default Shipping Address</label>
           <p class="mb-0" id="customerAddress">No address on file</p>
         </div>
+        
+        <!-- Customer Location Map -->
+        <div id="customer-location-container" class="mt-3" style="display: none;">
+          <label class="form-label text-muted small">Location</label>
+          <div id="customer-map" class="rounded shadow-sm" style="height: 250px;"></div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -328,8 +337,15 @@ $result = mysqli_query($conn, $query);
 
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- LEAFLET SCRIPTS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Customer map variable
+    let customerMap = null;
+    let customerMarker = null;
+    
     // Handle view customer modal
     const viewCustomerModal = document.getElementById('viewCustomerModal');
     if (viewCustomerModal) {
@@ -345,6 +361,7 @@ $result = mysqli_query($conn, $query);
         document.getElementById('customerOrders').textContent = '0';
         document.getElementById('customerLastOrder').textContent = 'Never';
         document.getElementById('customerAddress').textContent = 'No address on file';
+        document.getElementById('customer-location-container').style.display = 'none';
         
         // Fetch customer details
         fetch(`functions/get-customer-details.php?id=${customerId}`)
@@ -358,16 +375,14 @@ $result = mysqli_query($conn, $query);
             // Update modal with customer details
             document.getElementById('customerName').textContent = `${data.firstname} ${data.lastname}`;
             document.getElementById('customerEmail').textContent = data.email;
-            document.getElementById('customerPhone').textContent = data.phone || 'Not provided';
+            document.getElementById('customerPhone').textContent = data.phone_number || 'Not provided';
             document.getElementById('customerJoined').textContent = data.joined_date;
             document.getElementById('customerOrders').textContent = data.order_count;
             document.getElementById('customerLastOrder').textContent = data.last_order_date || 'Never';
             
             // Format address if available
-            if (data.address) {
-              let address = data.address;
-              if (data.city) address += `, ${data.city}`;
-              if (data.state) address += `, ${data.state}`;
+            if (data.full_address) {
+              let address = data.full_address;
               if (data.zipcode) address += ` ${data.zipcode}`;
               
               document.getElementById('customerAddress').textContent = address;
@@ -377,6 +392,44 @@ $result = mysqli_query($conn, $query);
             
             // Update view orders link
             document.getElementById('viewOrdersBtn').href = `orders.php?search=${encodeURIComponent(data.email)}`;
+            
+            // Initialize and show map if latitude and longitude are available
+            if (data.latitude && data.longitude) {
+              document.getElementById('customer-location-container').style.display = 'block';
+              
+              // Add location coordinates text display
+              const locationText = document.createElement('p');
+              locationText.className = 'mb-2 text-secondary';
+              locationText.innerHTML = `<strong>Coordinates:</strong> ${data.latitude}, ${data.longitude}`;
+              document.getElementById('customer-location-container').prepend(locationText);
+              
+              // Initialize map if not already done
+              if (!customerMap) {
+                customerMap = L.map('customer-map').setView([data.latitude, data.longitude], 15);
+                
+                // Use HTTPS instead of HTTP for the tile layer to avoid mixed content warnings
+                L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                  maxZoom: 20,
+                  subdomains:['mt0','mt1','mt2','mt3']
+                }).addTo(customerMap);
+              } else {
+                customerMap.setView([data.latitude, data.longitude], 15);
+              }
+              
+              // Clear previous marker if it exists
+              if (customerMarker) {
+                customerMap.removeLayer(customerMarker);
+              }
+              
+              // Add marker for customer location
+              customerMarker = L.marker([data.latitude, data.longitude]).addTo(customerMap)
+                .bindPopup(`${data.firstname} ${data.lastname}'s Location`);
+                
+              // Fix Leaflet display issue when map is initialized in a hidden container
+              setTimeout(() => {
+                customerMap.invalidateSize();
+              }, 300);
+            }
           })
           .catch(error => {
             console.error('Error:', error);
