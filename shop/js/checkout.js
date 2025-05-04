@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Submitting payment with total:', (subtotal + SHIPPING_FEE).toFixed(2));
                 
                 // Submit order data to backend
-                const response = await fetch('functions/process_payment.php', {
+                const response = await fetch('functions/paymongo/process_payment.php', {
                     method: 'POST',
                     body: formData
                 });

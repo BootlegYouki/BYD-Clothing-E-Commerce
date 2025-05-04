@@ -66,10 +66,10 @@
           <div class="row mt-3">
             <div class="col-12">
               <div class="form-floating mb-3">
-                <input type="tel" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" required>
+                <input type="tel" class="form-control" name="phone_number" id="phone_number" placeholder="Phone Number" required pattern="^09\d{9}$">
                 <label for="phone_number" class="form-label">Phone Number</label>
                 <div class="invalid-feedback" id="phoneInvalidFeedback">
-                  Please enter your phone number.
+                  Please enter a valid phone number.
                 </div>
                 <div class="invalid-feedback d-none" id="phoneRegisteredFeedback">
                   Phone number already registered.
@@ -224,10 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }).setView([14.6760, 121.0437], 16);
     
     // Primary tile layer with error handling
-    mainLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      attribution: '© Google Maps',
-      maxZoom: 20,
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
       crossOrigin: true
     }).addTo(map);
     
@@ -566,9 +565,40 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   
-  // Real-time Phone Number Validation
+  // Phone number validation
   const phoneInput = document.getElementById('phone_number');
   if(phoneInput) {
+    // Add input event for real-time validation
+    phoneInput.addEventListener("input", function() {
+      const phoneVal = phoneInput.value.trim();
+      
+      // Remove non-digit characters
+      let digitsOnly = phoneVal.replace(/\D/g, '');
+      
+      // Limit to 11 digits
+      digitsOnly = digitsOnly.substring(0, 11);
+      
+      // Update input value if changed
+      if (digitsOnly !== phoneVal) {
+        phoneInput.value = digitsOnly;
+      }
+      
+      // Validate format
+      if (digitsOnly.length === 11 && digitsOnly.startsWith('09')) {
+        phoneInput.setCustomValidity('');
+        phoneInput.classList.remove('is-invalid');
+        phoneInput.classList.add('is-valid');
+      } else if (digitsOnly.length === 0) {
+        phoneInput.setCustomValidity('');
+        phoneInput.classList.remove('is-invalid', 'is-valid');
+      } else {
+        phoneInput.setCustomValidity('Phone number must be 11 digits starting with 09');
+        phoneInput.classList.add('is-invalid');
+        phoneInput.classList.remove('is-valid');
+      }
+    });
+    
+    // Keep the existing blur event for checking if phone is registered
     phoneInput.addEventListener("blur", function() {
       const phoneVal = phoneInput.value.trim();
       if(phoneVal !== "") {

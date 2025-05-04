@@ -48,7 +48,7 @@ class PayMongoHelper {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => strtoupper($method),
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_SSL_VERIFYPEER => false, // Disable SSL verification for testing
+            CURLOPT_SSL_VERIFYPEER => true, // Disable SSL verification for testing
             CURLOPT_TIMEOUT => 30, // Add timeout to prevent hanging requests
         ]);
     
@@ -99,7 +99,7 @@ class PayMongoHelper {
     }
 
     /**
-     * Create a checkout session (new PayMongo Checkout UI)
+     * Create a checkout session
      * 
      * @param float $amount Payment amount
      * @param string $description Payment description
@@ -137,6 +137,12 @@ class PayMongoHelper {
             $cancelUrl = $baseUrl . "/BYD-Clothing-E-Commerce-main/shop/payment-cancelled.php";
         }
         
+        // Fix phone number format if it exists in customerInfo
+        if (!empty($customerInfo) && isset($customerInfo['phone'])) {
+            // Remove any leading 0 from the phone number
+            $customerInfo['phone'] = preg_replace('/^0/', '', $customerInfo['phone']);
+        }
+        
         // Prepare request data
         $requestData = [
             'data' => [
@@ -146,7 +152,7 @@ class PayMongoHelper {
                     'success_url' => $successUrl,
                     'cancel_url' => $cancelUrl,
                     'description' => $description,
-                    'send_email_receipt' => false,
+                    'send_email_receipt' => true,
                     'show_description' => true,
                     'show_line_items' => true
                 ]
@@ -240,94 +246,6 @@ class PayMongoHelper {
     }
 
     /**
-     * Create a payment link (legacy method - use createCheckoutSession instead)
-     * 
-     * @param float $amount Payment amount
-     * @param string $description Payment description
-     * @param array $metadata Additional metadata
-     * @return array Payment link data
-     * @deprecated Use createCheckoutSession instead
-     */
-    public function createPaymentLink($amount, $description, $metadata = []) {
-        // Convert amount to cents (PayMongo requires amount in smallest currency unit)
-        $amountInCents = round($amount * 100);
-        
-        // Create payment link request
-        return $this->makeRequest('POST', 'links', [
-            'data' => [
-                'attributes' => [
-                    'amount' => $amountInCents,
-                    'description' => $description,
-                    'remarks' => 'Order payment',
-                    'currency' => 'PHP',
-                    'metadata' => $metadata
-                ]
-            ]
-        ]);
-    }
-    
-    /**
-     * Create a payment link with new tab flag
-     * 
-     * @param float $amount Payment amount
-     * @param string $description Payment description
-     * @param array $metadata Additional metadata
-     * @return array Payment link data with new tab flag
-     * @deprecated Use createCheckoutSession instead
-     */
-    public function createPaymentLinkNewTab($amount, $description, $metadata = []) {
-        $paymentLink = $this->createPaymentLink($amount, $description, $metadata);
-        $paymentLink['open_in_new_tab'] = true;
-        return $paymentLink;
-    }
-
-    /**
-     * Create a payment intent
-     * 
-     * @param float $amount Payment amount
-     * @param array $metadata Additional metadata
-     * @return array Payment intent data
-     */
-    public function createPaymentIntent($amount, $metadata = []) {
-        // Convert amount to cents (PayMongo requires amount in smallest currency unit)
-        $amountInCents = round($amount * 100);
-        
-        // Create payment intent request
-        return $this->makeRequest('POST', 'payment_intents', [
-            'data' => [
-                'attributes' => [
-                    'amount' => $amountInCents,
-                    'payment_method_allowed' => ['card', 'paymaya', 'gcash'],
-                    'payment_method_options' => [
-                        'card' => ['request_three_d_secure' => 'any']
-                    ],
-                    'currency' => 'PHP',
-                    'capture_type' => 'automatic',
-                    'metadata' => $metadata
-                ]
-            ]
-        ]);
-    }
-
-    /**
-     * Create a webhook for payment events
-     * 
-     * @param string $url Webhook URL
-     * @param array $events Events to listen for
-     * @return array Webhook data
-     */
-    public function createWebhook($url, $events = ['payment.paid', 'payment.failed']) {
-        return $this->makeRequest('POST', 'webhooks', [
-            'data' => [
-                'attributes' => [
-                    'url' => $url,
-                    'events' => $events
-                ]
-            ]
-        ]);
-    }
-
-    /**
      * Get checkout URL from a checkout session
      * 
      * @param float $amount Payment amount
@@ -341,7 +259,6 @@ class PayMongoHelper {
         if ($checkout['success'] && isset($checkout['checkout_url'])) {
             return $checkout['checkout_url'];
         } else {
-            throw new Exception("Failed to create checkout URL: " . ($checkout['message'] ?? 'Unknown error'));
         }
     }
 }

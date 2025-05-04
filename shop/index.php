@@ -62,6 +62,8 @@ function get_setting($key, $default = '') {
     <?php include 'includes/registersuccess.php'; ?>
     <!-- TERMS MODAL  -->
     <?php include 'includes/terms.php'; ?>
+    <!-- PAYMENT MODALS -->
+    <?php include 'includes/payment_modals.php'; ?>
 <!-- HOME SECTION -->
 <section id="home">
   <div class="container-fluid py-3 pb-5 px-lg-0 px-5">
