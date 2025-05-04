@@ -48,7 +48,7 @@ class PayMongoHelper {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => strtoupper($method),
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_SSL_VERIFYPEER => true, // Disable SSL verification for testing
+            CURLOPT_SSL_VERIFYPEER => false, // Disable SSL verification for testing
             CURLOPT_TIMEOUT => 30, // Add timeout to prevent hanging requests
         ]);
     
@@ -148,7 +148,7 @@ class PayMongoHelper {
             'data' => [
                 'attributes' => [
                     'line_items' => $lineItems,
-                    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
+                    'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay', 'qrph'],
                     'success_url' => $successUrl,
                     'cancel_url' => $cancelUrl,
                     'description' => $description,
