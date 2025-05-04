@@ -34,3 +34,35 @@
   th.checkbox-cell input, td.checkbox-cell input {
     margin: 0 auto;
   }
+
+  .notify-customer-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border: none;
+    padding: 1rem;
+    margin-left: 8px;
+  }
+  
+  .notify-customer-btn i {
+    font-size: 1.2rem;
+  }
+  
+  .notify-customer-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+  }
+  
+  .notify-customer-btn:not(.active) {
+    background-color: #e9ecef;
+    color: #6c757d;
+  }
+  
+  .notify-customer-btn:hover {
+    transform: translateY(-1px);
+  }

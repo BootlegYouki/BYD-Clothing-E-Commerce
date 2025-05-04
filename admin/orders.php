@@ -376,14 +376,19 @@ if(isset($_GET['msg'])) {
                     <p class='font-weight-bold mb-0'>".$order['payment_method']."</p>
                   </td>
                   <td class='align-middle text-center'>
-                    <select class='form-select form-select-sm quick-status-update' data-order-id='".$order['id']."' aria-label='Quick Status Update' style='min-width: 120px;'>
-                      <option value=''>Update Status</option>
-                      <option value='pending' ".($order['status'] == 'pending' ? 'selected' : '').">Pending</option>
-                      <option value='processing' ".($order['status'] == 'processing' ? 'selected' : '').">Processing</option>
-                      <option value='shipped' ".($order['status'] == 'shipped' ? 'selected' : '').">Shipped</option>
-                      <option value='delivered' ".($order['status'] == 'delivered' ? 'selected' : '').">Delivered</option>
-                      <option value='cancelled' ".($order['status'] == 'cancelled' ? 'selected' : '').">Cancelled</option>
-                    </select>
+                    <div class='d-flex align-items-center justify-content-center'>
+                      <select class='form-select form-select-sm quick-status-update' data-order-id='".$order['id']."' aria-label='Quick Status Update' style='min-width: 120px;'>
+                        <option value=''>Update Status</option>
+                        <option value='pending' ".($order['status'] == 'pending' ? 'selected' : '').">Pending</option>
+                        <option value='processing' ".($order['status'] == 'processing' ? 'selected' : '').">Processing</option>
+                        <option value='shipped' ".($order['status'] == 'shipped' ? 'selected' : '').">Shipped</option>
+                        <option value='delivered' ".($order['status'] == 'delivered' ? 'selected' : '').">Delivered</option>
+                        <option value='cancelled' ".($order['status'] == 'cancelled' ? 'selected' : '').">Cancelled</option>
+                      </select>
+                      <button type='button' class='btn btn-sm notify-customer-btn ms-1 active' data-order-id='".$order['id']."' title='Click to toggle customer notification'>
+                        <i class='bx bx-bell'></i>
+                      </button>
+                    </div>
                   </td>
                   <td class='align-middle text-center'>
                     <a href='#' class='btn text-primary px-2 mb-0' data-bs-toggle='modal' data-bs-target='#orderDetailsModal' data-orderid='".$order['id']."'>

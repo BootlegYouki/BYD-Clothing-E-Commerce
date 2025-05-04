@@ -286,8 +286,8 @@ $users_result = mysqli_query($conn, $users_query);
             <div class="bulk-actions" id="bulk-actions">
                 <form method="POST" action="functions/manage_notifications.php" id="bulk-action-form">
                     <input type="hidden" name="action" value="bulk_delete">
-                    <button type="button" class="btn btn-danger btn-sm" id="bulk-delete-btn" disabled>
-                        <i class="material-symbols-rounded">delete</i> Delete Selected (<span id="selected-count">0</span>)
+                    <button type="button" class="btn btn-danger btn-sm d-block" id="bulk-delete-btn" disabled>
+                        <i class="material-symbols-rounded">delete</i> Delete (<span id="selected-count">0</span>)
                     </button>
                 </form>
             </div>

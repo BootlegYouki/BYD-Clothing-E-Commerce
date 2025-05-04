@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get order ID and new status
     $order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
     $new_status = isset($_POST['status']) ? $_POST['status'] : '';
+    $notify_customer = isset($_POST['notify_customer']) && $_POST['notify_customer'] === 'yes';
     
     // Validate input
     if ($order_id <= 0 || !in_array($new_status, ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])) {
@@ -44,8 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = mysqli_stmt_get_result($stmt);
         $order = mysqli_fetch_assoc($result);
         
-        // Only proceed with notification if there's a user_id (registered customer)
-        if (!empty($order['user_id'])) {
+        $notification_sent = false;
+        
+        // Only proceed with notification if there's a user_id (registered customer) and notification is requested
+        if (!empty($order['user_id']) && $notify_customer) {
             // Create notification for the customer
             $notification_type = '';
             $notification_title = '';
@@ -90,7 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = mysqli_prepare($conn, $insert_query);
                 mysqli_stmt_bind_param($stmt, 'isss', $order['user_id'], $notification_type, $notification_title, $notification_message);
                 
-                if (!mysqli_stmt_execute($stmt)) {
+                if (mysqli_stmt_execute($stmt)) {
+                    $notification_sent = true;
+                } else {
                     // Log the error but don't fail the transaction
                     error_log("Failed to create notification: " . mysqli_stmt_error($stmt));
                 }
@@ -104,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             'status' => 'success', 
             'message' => 'Order status updated successfully',
-            'notification_sent' => !empty($order['user_id'])
+            'notification_sent' => $notification_sent
         ]);
         
     } catch (Exception $e) {
@@ -122,6 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && isset($_POST['order_ids'])) {
     $action = $_POST['bulk_action'];
     $order_ids = $_POST['order_ids'];
+    $notify_customer = isset($_POST['notify_customer']) && $_POST['notify_customer'] === 'yes';
     
     if(!empty($order_ids) && in_array($action, ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])) {
         $status = mysqli_real_escape_string($conn, $action);
@@ -148,8 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_action']) && iss
             
             // Create notifications for each order with a user_id
             while ($order = mysqli_fetch_assoc($orders_result)) {
-                if (empty($order['user_id'])) {
-                    continue; // Skip guests
+                if (empty($order['user_id']) || !$notify_customer) {
+                    continue; // Skip guests or if notification is not requested
                 }
                 
                 // Determine notification content based on status

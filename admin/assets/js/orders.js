@@ -115,9 +115,44 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.show();
     });
     
+    // Initialize notification buttons
+    initNotificationButtons();
+    
     // Quick status update
     initQuickStatusUpdate();
   });
+
+/**
+ * Initialize notification buttons
+ */
+function initNotificationButtons() {
+    const notifyButtons = document.querySelectorAll('.notify-customer-btn');
+    
+    notifyButtons.forEach(btn => {
+        // Set initial state
+        updateNotifyButtonStyle(btn);
+        
+        // Add click handler
+        btn.addEventListener('click', function() {
+            // Toggle active state
+            btn.classList.toggle('active');
+            updateNotifyButtonStyle(btn);
+        });
+    });
+}
+
+/**
+ * Update notification button styling based on active state
+ */
+function updateNotifyButtonStyle(button) {
+    if (button.classList.contains('active')) {
+        button.setAttribute('title', 'Customer will be notified (click to disable)');
+        button.querySelector('i').className = 'bx bx-bell';
+    } else {
+        button.setAttribute('title', 'Customer will NOT be notified (click to enable)');
+        button.querySelector('i').className = 'bx bx-bell-off';
+    }
+}
 
 /**
  * Initialize quick status update functionality
@@ -142,13 +177,17 @@ function initQuickStatusUpdate() {
             // Show loading state
             this.disabled = true;
             
+            // Check if the notification button is active
+            const notifyButton = document.querySelector(`.notify-customer-btn[data-order-id="${orderId}"]`);
+            const notifyCustomer = notifyButton ? notifyButton.classList.contains('active') : false;
+            
             // Send AJAX request to update status
             fetch('functions/orders/update_status.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `order_id=${orderId}&status=${newStatus}`
+                body: `order_id=${orderId}&status=${newStatus}&notify_customer=${notifyCustomer ? 'yes' : 'no'}`
             })
             .then(response => response.json())
             .then(data => {
