@@ -50,8 +50,8 @@
                 <p class="mb-0">&copy; <?php echo date('Y'); ?> Beyond Doubt Clothing. All Rights Reserved.</p>
                   </div>
                   <div class="social-media col-lg-3 mb-3">
-                      <a href="https://www.facebook.com/profile.php?id=100094756167660" class="me-3"><i class="fa fa-facebook"></i></a>
-                      <a href="https://www.instagram.com/beyonddoubt.clothing"><i class="fa fa-instagram"></i></a>
+                      <a href="https://www.facebook.com/profile.php?id=100094756167660" target="_blank" class="me-3"><i class="fa fa-facebook"></i></a>
+                      <a href="https://www.instagram.com/beyonddoubt.clothing" target="_blank"><i class="fa fa-instagram"></i></a>
                   </div>
             </div>
         </div>
