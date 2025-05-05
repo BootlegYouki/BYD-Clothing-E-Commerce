@@ -88,5 +88,39 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof updateShoppingCart === 'function') {
         updateShoppingCart();
     }
+    
+    // Listen for successful login event
+    document.addEventListener('userLoggedIn', function(e) {
+        // Update cart UI to show checkout button instead of login button
+        updateCartCheckoutButton(true);
+    });
 });
+
+// Function to update cart checkout button based on authentication status
+function updateCartCheckoutButton(isLoggedIn) {
+    const cartActionsContainer = document.querySelector('#cart-items-container .card-body .d-grid');
+    if (!cartActionsContainer) return;
+    
+    if (isLoggedIn) {
+        // Replace "Login to Checkout" button with "Checkout" button
+        cartActionsContainer.innerHTML = `
+            <a href="checkout.php" class="btn btn-dark">Checkout</a>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Continue Shopping</button>
+        `;
+    } else {
+        // Show "Login to Checkout" button
+        cartActionsContainer.innerHTML = `
+            <button type="button" class="btn btn-dark" id="loginToCheckoutBtn" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="offcanvas">Login to Checkout</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Continue Shopping</button>
+        `;
+        
+        // Re-attach event listener to the new button
+        const newLoginToCheckoutBtn = document.getElementById('loginToCheckoutBtn');
+        if (newLoginToCheckoutBtn) {
+            newLoginToCheckoutBtn.addEventListener('click', function() {
+                sessionStorage.setItem('redirectToCheckout', 'true');
+            });
+        }
+    }
+}
 </script>

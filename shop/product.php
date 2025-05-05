@@ -390,6 +390,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     
     <!-- SCRIPT -->
     <script src="js/url-cleaner.js"></script>
+    <script src="js/cart.js"></script>
     <script src="js/product.js"></script>
 </body>
 </html>

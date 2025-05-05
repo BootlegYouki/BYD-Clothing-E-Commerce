@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Generate HTML for each cart item
         itemsHtml += `
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
                 <div style="width: 50px; height: 50px; overflow: hidden;" class="flex-shrink-0">
                     <img src="${item.image}" class="img-fluid" alt="${productName}">

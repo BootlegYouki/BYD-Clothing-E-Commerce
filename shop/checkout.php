@@ -446,9 +446,9 @@ $shipping_fee = 50;
             map.setView([initialLat, initialLng], 16);
             
             // Add tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3'],
             }).addTo(map);
             
             // Add marker (not draggable by default)
