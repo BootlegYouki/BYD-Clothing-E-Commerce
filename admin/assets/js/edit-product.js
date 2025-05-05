@@ -615,6 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
             categories.forEach(category => {
                 const categoryItem = document.createElement('li');
                 categoryItem.className = 'category-item';
+                categoryItem.style.cursor = 'pointer'; // Make cursor show it's clickable
                 categoryItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
                         <button type="button" class="category-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
@@ -630,6 +631,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 categoryContainer.appendChild(categoryItem);
+                
+                // Add click event to the entire category item
+                categoryItem.addEventListener('click', function(e) {
+                    // Don't trigger selection if clicking on action buttons or if already in edit mode
+                    if (e.target.closest('.category-actions') || 
+                        this.querySelector('.category-name').classList.contains('editing')) {
+                        return;
+                    }
+                    
+                    const nameButton = this.querySelector('.category-name');
+                    const value = nameButton.getAttribute('data-value');
+                    categoryInput.value = value;
+                    document.getElementById('selected_category').textContent = value;
+                    
+                    const productName = document.getElementById('name').value;
+                    if (productName) {
+                        updateSKU();
+                    }
+                    
+                    // Manually close the dropdown
+                    setTimeout(() => {
+                        const dropdown = document.querySelector('#category_dropdown');
+                        if (dropdown && dropdown.classList.contains('show')) {
+                            dropdown.classList.remove('show');
+                            document.getElementById('category_display').setAttribute('aria-expanded', 'false');
+                        }
+                    }, 100);
+                });
                 
                 // Use direct click handler with explicit actions
                 categoryItem.querySelector('.category-name').addEventListener('click', function(e) {
@@ -749,6 +778,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fabrics.forEach(fabric => {
                 const fabricItem = document.createElement('li');
                 fabricItem.className = 'fabric-item';
+                fabricItem.style.cursor = 'pointer'; // Make cursor show it's clickable
                 fabricItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center px-3 py-2">
                         <button type="button" class="fabric-name btn btn-link p-0 text-start text-dark border-0 w-100 text-decoration-none" 
@@ -764,6 +794,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 fabricContainer.appendChild(fabricItem);
+                
+                // Add click event to the entire fabric item
+                fabricItem.addEventListener('click', function(e) {
+                    // Don't trigger selection if clicking on action buttons or if already in edit mode
+                    if (e.target.closest('.fabric-actions') || 
+                        this.querySelector('.fabric-name').classList.contains('editing')) {
+                        return;
+                    }
+                    
+                    const nameButton = this.querySelector('.fabric-name');
+                    const value = nameButton.getAttribute('data-value');
+                    fabricInput.value = value;
+                    document.getElementById('selected_fabric').textContent = value;
+                    
+                    // Manually close the dropdown
+                    setTimeout(() => {
+                        const dropdown = document.querySelector('#fabric_dropdown');
+                        if (dropdown && dropdown.classList.contains('show')) {
+                            dropdown.classList.remove('show');
+                            document.getElementById('fabric_display').setAttribute('aria-expanded', 'false');
+                        }
+                    }, 100);
+                });
                 
                 // Use direct click handler with explicit actions
                 fabricItem.querySelector('.fabric-name').addEventListener('click', function(e) {
