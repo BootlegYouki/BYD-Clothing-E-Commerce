@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const sectionToShow = sections[this.id];
             if (sectionToShow) sectionToShow.style.display = 'block';
             
+            // If showing orders section, attach event listeners to view buttons
+            if (this.id === 'nav-orders') {
+                console.log('Orders section activated');
+                setTimeout(attachOrderDetailListeners, 100);
+            }
+            
             // If showing address section with map, initialize the map
             if (this.id === 'nav-address' && typeof initMap === 'function') {
                 setTimeout(() => {
@@ -163,105 +169,120 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // View Order Details
-    const orderButtons = document.querySelectorAll('.view-order');
-    const orderModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-    
-    orderButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const orderId = this.getAttribute('data-order-id');
-            const orderContentDiv = document.getElementById('order-details-content');
-            
-            // Show loading spinner
-            orderContentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-            
-            // Open modal
-            orderModal.show();
-            
-            // Fetch order details
-            fetch(`functions/profile/get_order_details.php?order_id=${orderId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        let html = `
-                            <div class="order-info mb-4">
-                                <h6>Order #${data.order.order_id}</h6>
-                                <p><strong>Date:</strong> ${new Date(data.order.created_at).toLocaleDateString()}</p>
-                                <p><strong>Status:</strong> <span class="badge ${data.order.status === 'pending' ? 'bg-warning' : data.order.status === 'completed' ? 'bg-success' : 'bg-danger'}">${data.order.status.charAt(0).toUpperCase() + data.order.status.slice(1)}</span></p>
-                                <p><strong>Payment Method:</strong> ${data.order.payment_method}</p>
-                            </div>
-                            <div class="shipping-info mb-4">
-                                <h6>Shipping Information</h6>
-                                <p><strong>Name:</strong> ${data.order.firstname} ${data.order.lastname}</p>
-                                <p><strong>Address:</strong> ${data.order.address}</p>
-                                <p><strong>City:</strong> ${data.order.city}</p>
-                                <p><strong>Zipcode:</strong> ${data.order.zipcode}</p>
-                                <p><strong>Phone:</strong> ${data.order.phone}</p>
-                                <p><strong>Email:</strong> ${data.order.email}</p>
-                            </div>
-                            <div class="order-items mb-4">
-                                <h6>Order Items</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Size</th>
-                                                <th>Qty</th>
-                                                <th>Price</th>
-                                                <th>Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>`;
+    // View Order Details - Enhanced Implementation
+    function attachOrderDetailListeners() {
+        const orderButtons = document.querySelectorAll('.view-order');
+        console.log('Found ' + orderButtons.length + ' order buttons');
+        
+        orderButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const orderId = this.getAttribute('data-order-id');
+                console.log('Order button clicked: ' + orderId);
+                
+                const orderContentDiv = document.getElementById('order-details-content');
+                const orderModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                
+                // Show loading spinner
+                orderContentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                
+                // Open modal
+                orderModal.show();
+                
+                // Fetch order details
+                fetch(`functions/profile/get_order_details.php?order_id=${orderId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Order data received:', data);
                         
-                        data.items.forEach(item => {
-                            html += `
-                                <tr>
-                                    <td>${item.product_name}</td>
-                                    <td>${item.size}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>₱${parseFloat(item.price).toFixed(2)}</td>
-                                    <td>₱${parseFloat(item.subtotal).toFixed(2)}</td>
-                                </tr>`;
-                        });
-                        
-                        html += `
-                                        </tbody>
-                                    </table>
+                        if (data.status === 'success') {
+                            let html = `
+                                <div class="order-info mb-4">
+                                    <h6>Order #${data.order.reference_number || data.order.order_id}</h6>
+                                    <p><strong>Date:</strong> ${new Date(data.order.created_at).toLocaleDateString()}</p>
+                                    <p><strong>Status:</strong> <span class="badge ${data.order.status === 'pending' ? 'bg-warning' : data.order.status === 'completed' ? 'bg-success' : 'bg-danger'}">${data.order.status.charAt(0).toUpperCase() + data.order.status.slice(1)}</span></p>
+                                    <p><strong>Payment Method:</strong> ${data.order.payment_method}</p>
                                 </div>
-                            </div>
-                            <div class="order-summary">
-                                <div class="row">
-                                    <div class="col-md-6 offset-md-6">
+                                <div class="shipping-info mb-4">
+                                    <h6>Shipping Information</h6>
+                                    <p><strong>Name:</strong> ${data.order.firstname} ${data.order.lastname}</p>
+                                    <p><strong>Address:</strong> ${data.order.address}</p>
+                                    <p><strong>Zipcode:</strong> ${data.order.zipcode}</p>
+                                    <p><strong>Phone:</strong> ${data.order.phone}</p>
+                                    <p><strong>Email:</strong> ${data.order.email}</p>
+                                </div>
+                                <div class="order-items mb-4">
+                                    <h6>Order Items</h6>
+                                    <div class="table-responsive">
                                         <table class="table table-sm">
-                                            <tr>
-                                                <td>Subtotal:</td>
-                                                <td class="text-end">₱${parseFloat(data.order.subtotal).toFixed(2)}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Shipping:</td>
-                                                <td class="text-end">₱${parseFloat(data.order.shipping_cost).toFixed(2)}</td>
-                                            </tr>
-                                            <tr class="fw-bold">
-                                                <td>Total:</td>
-                                                <td class="text-end">₱${parseFloat(data.order.total_amount).toFixed(2)}</td>
-                                            </tr>
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Size</th>
+                                                    <th>Qty</th>
+                                                    <th>Price</th>
+                                                    <th>Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+                            
+                            data.items.forEach(item => {
+                                html += `
+                                    <tr>
+                                        <td>${item.product_name}</td>
+                                        <td>${item.size}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>₱${parseFloat(item.price).toFixed(2)}</td>
+                                        <td>₱${parseFloat(item.subtotal).toFixed(2)}</td>
+                                    </tr>`;
+                            });
+                            
+                            html += `
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
-                            </div>`;
-                        
-                        orderContentDiv.innerHTML = html;
-                    } else {
-                        orderContentDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    orderContentDiv.innerHTML = '<div class="alert alert-danger">There was an error loading order details. Please try again later.</div>';
-                });
+                                <div class="order-summary">
+                                    <div class="row">
+                                        <div class="col-md-6 offset-md-6">
+                                            <table class="table table-sm">
+                                                <tr>
+                                                    <td>Subtotal:</td>
+                                                    <td class="text-end">₱${parseFloat(data.order.subtotal || 0).toFixed(2)}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Shipping:</td>
+                                                    <td class="text-end">₱${parseFloat(data.order.shipping_cost || 0).toFixed(2)}</td>
+                                                </tr>
+                                                <tr class="fw-bold">
+                                                    <td>Total:</td>
+                                                    <td class="text-end">₱${parseFloat(data.order.total_amount).toFixed(2)}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            
+                            orderContentDiv.innerHTML = html;
+                        } else {
+                            orderContentDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        orderContentDiv.innerHTML = '<div class="alert alert-danger">There was an error loading order details. Please try again later.</div>';
+                    });
+            });
         });
-    });
+    }
+
+    // Initialize order detail listeners on page load
+    attachOrderDetailListeners();
 
     // ENHANCED PASSWORD VALIDATION
     const currentPassword = document.getElementById('current-password');
