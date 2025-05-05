@@ -51,17 +51,105 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Edit Address Toggle with Map Initialization
+    let isMapEditable = false;
+
     document.getElementById('edit-address-btn').addEventListener('click', function() {
-        document.getElementById('address-view').style.display = 'none';
-        document.getElementById('address-edit').style.display = 'block';
-        
-        // Initialize map after the container is visible
-        if (typeof initMap === 'function') {
-            setTimeout(() => {
-                initMap();
-            }, 100);
-        }
+        toggleMapEditing(!isMapEditable);
     });
+
+    function toggleMapEditing(enable) {
+        isMapEditable = enable;
+        const mapOverlay = document.getElementById('map-overlay');
+        const mapStatus = document.getElementById('map-status');
+        const addressInput = document.getElementById('edit-full-address');
+        const zipcodeInput = document.getElementById('edit-zipcode');
+        const mapInstructions = document.getElementById('map-instructions');
+        const editAddressBtn = document.getElementById('edit-address-btn');
+        
+        if (enable) {
+            // Enable map interactions
+            mapOverlay.style.display = 'none';
+            if (map) {
+                map.dragging.enable();
+                map.touchZoom.enable();
+                map.doubleClickZoom.enable();
+                map.scrollWheelZoom.enable();
+                map.boxZoom.enable();
+                map.keyboard.enable();
+            }
+            
+            if (marker) {
+                marker.dragging.enable();
+            }
+            
+            // Add geocoder to the map when in edit mode
+            if (window.geocoder) {
+                try {
+                    window.geocoder.addTo(map);
+                } catch(e) {
+                    console.log("Geocoder already added");
+                }
+            }
+            
+            // Make address field editable (remove readonly)
+            addressInput.readOnly = false;
+            addressInput.style.cursor = 'text';
+            addressInput.style.color = '#000';
+            zipcodeInput.readOnly = false;
+            
+            // Update UI elements
+            mapStatus.textContent = 'Editable';
+            mapStatus.classList.remove('bg-secondary');
+            mapStatus.classList.add('bg-success');
+            editAddressBtn.innerHTML = '<i class="fas fa-lock me-1"></i> Lock Address';
+            editAddressBtn.classList.remove('btn-primary');
+            editAddressBtn.classList.add('btn-warning');
+            
+            // Show map instructions
+            mapInstructions.style.display = 'block';
+        } else {
+            // Disable map interactions
+            mapOverlay.style.display = 'block';
+            if (map) {
+                map.dragging.disable();
+                map.touchZoom.disable();
+                map.doubleClickZoom.disable();
+                map.scrollWheelZoom.disable();
+                map.boxZoom.disable();
+                map.keyboard.disable();
+            }
+            
+            if (marker) {
+                marker.dragging.disable();
+            }
+            
+            // Remove geocoder from the map when locked
+            if (window.geocoder) {
+                try {
+                    window.geocoder.remove();
+                } catch(e) {
+                    console.log("Geocoder already removed");
+                }
+            }
+            
+            // Make address field readonly again
+            addressInput.readOnly = true;
+            addressInput.style.cursor = 'default';
+            addressInput.style.color = '#495057';
+            zipcodeInput.readOnly = true;
+            
+            // Update UI elements
+            mapStatus.textContent = 'Locked';
+            mapStatus.classList.remove('bg-success');
+            mapStatus.classList.add('bg-secondary');
+            editAddressBtn.innerHTML = '<i class="fas fa-edit me-1"></i> Edit Address';
+            editAddressBtn.classList.remove('btn-warning');
+            editAddressBtn.classList.add('btn-primary');
+            
+            // Hide map instructions
+            mapInstructions.style.display = 'none';
+        }
+    }
 
     document.getElementById('cancel-address-edit').addEventListener('click', function() {
         document.getElementById('address-edit').style.display = 'none';

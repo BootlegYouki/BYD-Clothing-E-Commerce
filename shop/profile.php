@@ -75,19 +75,6 @@ while ($row = $orders_result->fetch_assoc()) {
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/assistant.css">
     <link rel="stylesheet" href="css/profile.css">
-    <style>
-        /* Map styling */
-        .map-invalid {
-            border: 2px solid #dc3545 !important;
-            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
-        }
-        #map {
-            height: 300px;
-            border-radius: 0.375rem;
-            margin-bottom: 1rem;
-            z-index: 1; /* Ensure map controls are clickable */
-        }
-    </style>
 </head>
 <body>
     <!-- NAVBAR -->
@@ -287,31 +274,27 @@ while ($row = $orders_result->fetch_assoc()) {
                 <div id="address-section" class="card mb-4" style="display: none;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">My Address</h5>
-                        <button class="btn btn-sm btn-primary" id="edit-address-btn">
-                            <i class="fa fa-pencil"></i> Edit
-                        </button>
                     </div>
                     <div class="card-body">
-                        <!-- View Mode -->
-                        <div id="address-view">
-                            <div class="row mb-3">
-                                <div class="col-md-3 fw-bold">Address</div>
-                                <div class="col-md-9"><?php echo htmlspecialchars($user['full_address']); ?></div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-3 fw-bold">Zipcode</div>
-                                <div class="col-md-9"><?php echo htmlspecialchars($user['zipcode']); ?></div>
-                            </div>
+                        <div class="map-container mb-3 position-relative">
+                            <div id="map" class="rounded shadow-sm" style="height: 300px;"></div>
+                            <div id="map-overlay"></div>
+                            <button type="button" id="edit-address-btn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i> Edit Address
+                            </button>
                         </div>
-                        <!-- Edit Mode with Enhanced Validation - Updated to match register.php -->
-                        <div id="address-edit" style="display: none;">
-                            <form id="update-address-form" action="functions/profile/update_address.php" method="post" class="needs-validation" novalidate>
-                                <div class="alert alert-info small py-2 mb-2">
-                                    <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
-                                </div>
-                                <div class="mb-4">
-                                    <div id="map" class="mb-3 rounded shadow-sm" style="height: 300px;"></div>
-                                    <label for="edit-full-address" class="form-label">Full Address</label>
+                        
+                        <div class="alert alert-info small py-2 mb-2" id="map-instructions" style="display: none;">
+                            <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
+                        </div>
+                        
+                        <form id="update-address-form" action="functions/profile/update_address.php" method="post" class="needs-validation" novalidate>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="edit-full-address" class="form-label mb-0">Complete Address</label>
+                                        <div id="map-status" class="badge bg-secondary">Locked</div>
+                                    </div>
                                     <input type="text" class="form-control" id="edit-full-address" name="full_address" 
                                         value="<?php echo htmlspecialchars($user['full_address']); ?>" 
                                         placeholder="Click on map to select your address" 
@@ -319,25 +302,27 @@ while ($row = $orders_result->fetch_assoc()) {
                                     <div class="invalid-feedback">
                                         Please provide your address by selecting a location on the map.
                                     </div>
-                                    <div class="form-text text-muted mt-2">
-                                        <i class="fa-solid fa-circle-info me-1"></i> You can search for an address above or click directly on the map to select your location.
-                                    </div>
                                 </div>
-                                <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($user['latitude']); ?>" required>
-                                <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($user['longitude']); ?>" required>
-                                <div class="mb-4">
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
                                     <label for="edit-zipcode" class="form-label">Zipcode</label>
-                                    <input type="text" class="form-control" id="edit-zipcode" name="zipcode" value="<?php echo htmlspecialchars($user['zipcode']); ?>" required>
+                                    <input type="text" class="form-control" id="edit-zipcode" name="zipcode" 
+                                        value="<?php echo htmlspecialchars($user['zipcode']); ?>" readonly required>
                                     <div class="form-text text-muted mt-2">
-                                        <i class="fa-solid fa-circle-info me-1"></i> Zipcode is automatically determined from your map location, but you may edit it if needed.
+                                        <i class="fa-solid fa-circle-info me-1"></i> Zipcode is automatically determined from your map location.
                                     </div>
                                 </div>
-                                <div class="d-flex gap-3">
-                                    <button type="submit" class="btn btn-primary">Save Address</button>
-                                    <button type="button" class="btn btn-secondary" id="cancel-address-edit">Cancel</button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+                            
+                            <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($user['latitude']); ?>" required>
+                            <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($user['longitude']); ?>" required>
+                            
+                            <div class="d-flex gap-3 mt-4">
+                                <button type="submit" class="btn btn-primary">Save Address</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 
@@ -420,14 +405,19 @@ while ($row = $orders_result->fetch_assoc()) {
     
     <!-- FOOTER -->
     <?php include 'includes/footer.php'; ?>
+    
     <!-- LEAFLET MAP SCRIPTS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    
     <!-- UTILITY SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
     <!-- CUSTOM SCRIPTS -->
     <script src="js/url-cleaner.js"></script>
+    <script src="js/profile.js"></script>
 
+    <!-- INLINE MAP INITIALIZATION -->
     <script>
     // Map initialization variables
     let map = null;
@@ -435,17 +425,36 @@ while ($row = $orders_result->fetch_assoc()) {
     let mainLayer = null;
     let fallbackLayer = null;
 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map immediately on page load
+        initMap();
+        
+        // Ensure map is properly sized when address section becomes visible
+        document.getElementById('nav-address').addEventListener('click', function() {
+            setTimeout(() => {
+                if (map) map.invalidateSize(true);
+            }, 100);
+        });
+    });
+
     // Function to initialize the map
     function initMap() {
+        console.log("Map initialization started...");
+        
         // If map already exists, destroy it first to avoid duplicates
         if (map) {
             map.remove();
             map = null;
         }
         
-        // Create the map with better options
+        // Create the map with limited interactions by default
         map = L.map('map', {
-            scrollWheelZoom: true,
+            scrollWheelZoom: false,
+            dragging: false,
+            touchZoom: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
             zoomControl: true,
             attributionControl: true
         });
@@ -454,44 +463,34 @@ while ($row = $orders_result->fetch_assoc()) {
         const lat = parseFloat(document.getElementById('latitude').value) || 14.6760;
         const lng = parseFloat(document.getElementById('longitude').value) || 121.0437;
         map.setView([lat, lng], 15);
+        console.log("Map center set to:", lat, lng);
         
-        // Primary tile layer with error handling
-        mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        // Use HTTPS for tile layers
+        mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+                    maxZoom: 20,
+                    subdomains:['mt0','mt1','mt2','mt3']
         }).addTo(map);
         
-        // Fallback tile layer
-        fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-        });
+        // Add a non-draggable marker by default
+        marker = L.marker([lat, lng], { draggable: false }).addTo(map);
         
-        // Handle tile error
-        mainLayer.on('tileerror', function(error) {
-            console.log("Tile error detected, switching to fallback");
-            map.removeLayer(mainLayer);
-            fallbackLayer.addTo(map);
-        });
-        
-        // Add a draggable marker
-        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-        
-        // Add geocoder control with better configuration
-        const geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-        geocoder: L.Control.Geocoder.nominatim({
-            timeout: 5000, // 5 seconds timeout
-            serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
-        }),
-        placeholder: 'Search address',
-        errorMessage: 'Unable to find that address.'
+        // Create geocoder control (but don't add it yet)
+        window.geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false,
+            geocoder: L.Control.Geocoder.nominatim({
+                timeout: 5000,
+                serviceUrl: 'https://nominatim.openstreetmap.org/'
+            }),
+            position: 'bottomright',
+            placeholder: 'Search address',
+            errorMessage: 'Unable to find that address.'
         }).on('markgeocode', function(e) {
-        marker.setLatLng(e.geocode.center);
-        map.setView(e.geocode.center, 16);
-        updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
-        fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
-        }).addTo(map);
+            marker.setLatLng(e.geocode.center);
+            map.setView(e.geocode.center, 16);
+            updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+            fetchZipcode(e.geocode.center.lat, e.geocode.center.lng);
+            reverseGeocode(e.geocode.center.lat, e.geocode.center.lng);
+        });
         
         // Map click => move marker + reverse geocode + zipcode
         map.on('click', e => {
@@ -509,9 +508,10 @@ while ($row = $orders_result->fetch_assoc()) {
             fetchZipcode(pos.lat, pos.lng);
         });
         
-        // Force map to recalculate its size after a short delay
+        // Force map to recalculate its size
         setTimeout(() => {
             map.invalidateSize(true);
+            console.log("Map size recalculated");
         }, 300);
     }
 
@@ -524,9 +524,7 @@ while ($row = $orders_result->fetch_assoc()) {
     function reverseGeocode(lat, lng) {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
@@ -543,9 +541,7 @@ while ($row = $orders_result->fetch_assoc()) {
     function fetchZipcode(lat, lng) {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
@@ -553,11 +549,8 @@ while ($row = $orders_result->fetch_assoc()) {
                     document.getElementById('edit-zipcode').value = data.address.postcode;
                 }
             })
-            .catch(error => {
-                console.error('Error fetching zipcode:', error);
-            });
+            .catch(error => console.error('Error fetching zipcode:', error));
     }
     </script>
-    <script src="js/profile.js"></script>
 </body>
 </html>
