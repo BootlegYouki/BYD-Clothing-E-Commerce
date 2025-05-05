@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // PRODUCT ANIMATION WHEN FIRST LOADED
   setTimeout(() => {
     const products = document.querySelectorAll('.product-card');
     
     if (products.length > 0) {
-      // Create intersection observer
       const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -17,17 +15,13 @@ document.addEventListener('DOMContentLoaded', function () {
         rootMargin: '0px 0px -10% 0px' 
       });
       
-      // Observe each product card
       products.forEach((product) => {
-        // Add initial class before animation
         product.classList.add('product-before-animate');
-        // Start observing
         observer.observe(product);
       });
     }
   }, 300);
 
-  // PHONE NUMBER COPY TO CLIPBOARD IN FOOTER
   window.copyPhoneNumber = function() {
     const phone = "0905 507 9634";
     
@@ -53,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         success = document.execCommand('copy');
       } catch (e) {
-        // Silent catch
       }
       
       document.body.removeChild(tempInput);
@@ -65,6 +58,4 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   };
-  
-  // Remove URL parameter processing since we're now using AJAX
 });

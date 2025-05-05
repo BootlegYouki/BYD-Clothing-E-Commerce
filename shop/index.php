@@ -25,18 +25,38 @@ function get_setting($key, $default = '') {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Beyond Doubt Clothing</title> 
+    
+    <title>Beyond Doubt Clothing</title>
+    <meta name="description" content="Beyond Doubt Clothing offers premium streetwear apparel that blends style, comfort, and identity. Shop urban fashion made to stand out.">
+    
+    <!-- Structured Data for Google Site Name -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Beyond Doubt Clothing",
+      "url": "https://byd-clothing.com",
+      "logo": "https://byd-clothing.com/logo/logo_admin_light.png"
+    }
+    </script>
+
     <!-- BOOTSTRAP CSS/JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Favicon -->
     <link rel="icon" href="img/logo/logo.ico" type="image/x-icon">
+
     <!-- UTILITY CSS  -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <!-- ICONSCSS -->
+    
+    <!-- ICONS CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
     <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/important.css">
     <link rel="stylesheet" href="css/headerfooter.css">
@@ -44,6 +64,7 @@ function get_setting($key, $default = '') {
     <link rel="stylesheet" href="css/shopcart.css">
     <link rel="stylesheet" href="css/assistant.css">
 </head>
+
 <body>
     <!-- NAVBAR -->
     <?php include 'includes/header.php'; ?>

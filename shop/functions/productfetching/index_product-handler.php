@@ -61,7 +61,10 @@ function renderProductCard($product, $for_swiper = false) {
     // Use discount_price directly instead of calculating it
     $originalPrice = $product['original_price'];
     $discountPercentage = $product['discount_percentage'];
-    $discountedPrice = $product['discount_price'];
+    // if no discount, fall back to original price
+    $discountedPrice = $discountPercentage > 0 
+                       ? $product['discount_price'] 
+                       : $originalPrice;
     
     // Image URL with fallback
     $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
