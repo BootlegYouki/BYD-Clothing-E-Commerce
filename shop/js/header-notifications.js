@@ -242,6 +242,14 @@ function markNotificationAsReadFromHeader(notificationId, button) {
 function createHeaderNotificationItem(notification) {
     const timeAgo = notification.time_ago || 'Just now';
     
+    // Truncate long messages to improve UI appearance
+    const maxLength = 20; // Character limit for message display
+    let message = notification.message;
+    
+    if (message.length > maxLength) {
+        message = message.substring(0, maxLength) + '...';
+    }
+    
     return `
         <div class="notification-item p-3 border-bottom" data-id="${notification.id}">
             <div class="d-flex">
@@ -250,7 +258,7 @@ function createHeaderNotificationItem(notification) {
                 </div>
                 <div class="flex-grow-1 ms-3">
                     <h6 class="mb-1 fw-bold">${notification.title}</h6>
-                    <p class="text-muted small mb-1">${notification.message}</p>
+                    <p class="text-muted small mb-1">${message}</p>
                     <small class="text-muted">${timeAgo}</small>
                 </div>
                 <div class="align-self-center ms-2">
