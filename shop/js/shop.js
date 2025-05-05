@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup filtering functionalities
     setupFilterHandlers();
-    setupLazyLoading();
     
     // Initialize clear filter buttons visibility
     updateClearFilterButtons();
@@ -60,25 +59,6 @@ function updateQueryStringParameter(uri, key, value) {
     }
 }
 
-function setupLazyLoading() {
-    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-    if (!lazyImages.length) return;
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src || img.src;
-                observer.unobserve(img);
-            }
-        });
-    });
-  
-    lazyImages.forEach(img => {
-        if (!img.src) img.src = img.dataset.src;
-        observer.observe(img);
-    });
-}
 
 /**
  * Setup handlers for category filtering and sorting

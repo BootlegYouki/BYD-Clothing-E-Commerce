@@ -231,7 +231,7 @@ $categories = getAllCategories($conn);
                 
                 // Loop through products in groups to create rows
                 for ($i = 0; $i < $totalProducts; $i += $productsPerRow) { 
-                    echo '<div class="row justify-content-center product-row">';
+                    echo '<div class="row product-row">';
                     
                     // Add up to 4 products per row
                     for ($j = $i; $j < min($i + $productsPerRow, $totalProducts); $j++) {
