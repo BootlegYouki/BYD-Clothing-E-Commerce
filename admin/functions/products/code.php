@@ -9,12 +9,18 @@ if(isset($_POST['add_product'])) {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
-    $discount_price = !empty($_POST['discount_price']) ? mysqli_real_escape_string($conn, $_POST['discount_price']) : $original_price;
+    
+    // Change: Set discount_price to NULL when empty instead of using original price
+    if(!empty($_POST['discount_price'])) {
+        $discount_price = mysqli_real_escape_string($conn, $_POST['discount_price']);
+    } else {
+        $discount_price = "NULL"; // SQL NULL value for direct insertion into query
+    }
     
     // Calculate discount percentage based on prices
     $discount_percentage = 0;
-    if($original_price > 0 && $discount_price < $original_price) {
-        $discount_percentage = round((($original_price - $discount_price) / $original_price) * 100);
+    if($original_price > 0 && !empty($_POST['discount_price']) && $_POST['discount_price'] < $original_price) {
+        $discount_percentage = round((($original_price - $_POST['discount_price']) / $original_price) * 100);
     }
 
     // Process category selection
@@ -49,9 +55,9 @@ if(isset($_POST['add_product'])) {
     mysqli_begin_transaction($conn);
     
     try {
-        // Insert into products table - updated to include discount_price column
+        // Insert into products table - updated to handle NULL discount_price
         $product_query = "INSERT INTO products (sku, name, description, original_price, discount_percentage, discount_price, category, fabric, is_featured, is_new_release) 
-                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', '$discount_price', '$category', '$fabric', '$is_featured', '$is_new_release')";
+                          VALUES ('$sku', '$name', '$description', '$original_price', '$discount_percentage', " . ($discount_price === "NULL" ? "NULL" : "'$discount_price'") . ", '$category', '$fabric', '$is_featured', '$is_new_release')";
         $product_result = mysqli_query($conn, $product_query);
         
         if(!$product_result) {
@@ -202,6 +208,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete_product' && isset($_GET[
             }
             
             $_SESSION['message'] = "Product deleted successfully";
+            $_SESSION['message_type'] = "success"; // Add this line to set message type to success
         } else {
             throw new Exception("Error deleting product");
         }
@@ -209,6 +216,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete_product' && isset($_GET[
         // Rollback transaction if error occurs
         mysqli_rollback($conn);
         $_SESSION['message'] = "Failed to delete product: " . $e->getMessage();
+        $_SESSION['message_type'] = "error"; // Add this line for consistency
     }
     
     // Redirect back to products page
@@ -223,12 +231,18 @@ if(isset($_POST['update_product'])) {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $original_price = mysqli_real_escape_string($conn, $_POST['original_price']);
-    $discount_price = !empty($_POST['discount_price']) ? mysqli_real_escape_string($conn, $_POST['discount_price']) : $original_price;
+    
+    // Change: Set discount_price to NULL when empty instead of using original price
+    if(!empty($_POST['discount_price'])) {
+        $discount_price = mysqli_real_escape_string($conn, $_POST['discount_price']);
+    } else {
+        $discount_price = "NULL"; // SQL NULL value for direct insertion into query
+    }
     
     // Calculate discount percentage based on prices
     $discount_percentage = 0;
-    if($original_price > 0 && $discount_price < $original_price) {
-        $discount_percentage = round((($original_price - $discount_price) / $original_price) * 100);
+    if($original_price > 0 && !empty($_POST['discount_price']) && $_POST['discount_price'] < $original_price) {
+        $discount_percentage = round((($original_price - $_POST['discount_price']) / $original_price) * 100);
     }
     
     // Process category selection
@@ -290,14 +304,14 @@ if(isset($_POST['update_product'])) {
                 }
             }
         }
-        // Update product in products table - added discount_price field
+        // Update product in products table - updated to handle NULL discount_price
         $product_query = "UPDATE products SET 
                             sku = '$sku', 
                             name = '$name', 
                             description = '$description', 
                             original_price = '$original_price', 
                             discount_percentage = '$discount_percentage', 
-                            discount_price = '$discount_price', 
+                            discount_price = " . ($discount_price === "NULL" ? "NULL" : "'$discount_price'") . ", 
                             category = '$category',
                             fabric = '$fabric',
                             is_featured = '$is_featured',
