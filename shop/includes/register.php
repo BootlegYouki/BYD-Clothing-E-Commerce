@@ -224,15 +224,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }).setView([14.6760, 121.0437], 16);
     
     // Primary tile layer with error handling
-    mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-            }).addTo(map);
+    mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3'],
+        crossOrigin: true
+    }).addTo(map);
     
     // Fallback tile layer
-    fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3'],
+        crossOrigin: true
     });
     
     // Handle tile error
@@ -245,14 +247,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a draggable marker
     marker = L.marker([14.6760, 121.0437], { draggable: true }).addTo(map);
     
-    Add geocoder control with better configuration
+    // Add geocoder control with better configuration
     const geocoder = L.Control.geocoder({
       defaultMarkGeocode: false,
       geocoder: L.Control.Geocoder.nominatim({
         timeout: 5000, // 5 seconds timeout
         serviceUrl: 'https://nominatim.openstreetmap.org/' // Explicitly set the service URL
       }),
-      placeholder: 'Search address',
+      placeholder: 'Search address...',
       errorMessage: 'Unable to find that address.'
     }).on('markgeocode', function(e) {
       marker.setLatLng(e.geocode.center);
