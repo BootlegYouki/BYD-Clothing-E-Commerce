@@ -266,6 +266,65 @@ function showAddToCartToast(item) {
     toast.show();
 }
 
+/**
+ * Show danger toast notification when item can't be added to cart
+ * @param {Object} item - The product that couldn't be added
+ */
+function showDangerToast(item) {
+    const toastEl = document.getElementById('cartErrorToast');
+    if (!toastEl) return;
+    
+    // Show toast
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+    
+    // Initialize view cart button in the error toast
+    const errorViewCartBtn = document.getElementById('view-cart-btn-error');
+    if (errorViewCartBtn) {
+        errorViewCartBtn.addEventListener('click', function() {
+            // View cart button is kept but has no functionality
+        });
+    }
+}
+
+/**
+ * Show warning toast when item quantity has been adjusted
+ * @param {Object} item - The product with adjusted quantity
+ */
+function showWarningToast(item) {
+    const toastEl = document.getElementById('cartAddedToast');
+    if (!toastEl) return;
+    
+    // Set toast content
+    document.getElementById('toast-product-name').textContent = item.title;
+    document.getElementById('toast-product-category').textContent = item.category;
+    document.getElementById('toast-product-size').textContent = item.size;
+    document.getElementById('toast-product-quantity').textContent = item.quantity;
+    document.getElementById('toast-product-image').src = item.image;
+    
+    // Change toast header to indicate warning
+    const toastHeader = toastEl.querySelector('.toast-header');
+    toastHeader.innerHTML = `
+        <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+        <strong class="me-auto">Quantity Adjusted</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    `;
+    
+    // Show toast
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+    
+    // Restore original header when toast is hidden
+    toastEl.addEventListener('hidden.bs.toast', function onHidden() {
+        toastHeader.innerHTML = `
+            <i class="fa fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Added to Cart</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        `;
+        toastEl.removeEventListener('hidden.bs.toast', onHidden);
+    });
+}
+
 // Make functions available globally
 window.updateCartCount = updateCartCount;
 window.addToCart = addToCart;
@@ -273,3 +332,5 @@ window.removeCartItem = removeCartItem;
 window.updateCartItemQuantity = updateCartItemQuantity;
 window.updateShoppingCart = updateShoppingCart;
 window.showAddToCartToast = showAddToCartToast;
+window.showDangerToast = showDangerToast;
+window.showWarningToast = showWarningToast;

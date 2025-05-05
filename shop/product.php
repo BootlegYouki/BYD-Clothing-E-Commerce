@@ -341,6 +341,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
     
     <!-- Toast notification for cart -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
+        <!-- Success toast -->
         <div id="cartAddedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="fa fa-check-circle text-success me-2"></i>
@@ -360,6 +361,20 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         </div>
                     </div>
                     <button type="button" class="btn btn-primary btn-sm ms-3" id="view-cart-btn" data-bs-dismiss="toast">View Cart</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error toast - for maximum quantity reached -->
+        <div id="cartErrorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fa fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Maximum Quantity Reached</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <div class="alert alert-danger py-2 px-3 mb-2">
+                    You already have the maximum available quantity in your cart.
                 </div>
             </div>
         </div>

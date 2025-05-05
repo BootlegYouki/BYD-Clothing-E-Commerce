@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeQuantityControls();
     initializeAddToCart();
     initializeImageZoom();
-    initializeViewCartButton();
     updateCartCount();
     updateShoppingCart();
     
@@ -299,6 +298,57 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedSizeButton = document.querySelector(`.btn-size.active[data-size="${selectedSize}"]`);
             const stock = parseInt(selectedSizeButton.getAttribute('data-stock'));
             
+            // Check if item already exists in cart and if adding would exceed stock
+            let cart = JSON.parse(localStorage.getItem('shopping-cart')) || [];
+            const existingItemIndex = cart.findIndex(item => 
+                item.id === productId && item.size === selectedSize
+            );
+            
+            if (existingItemIndex > -1) {
+                const currentQuantity = cart[existingItemIndex].quantity;
+                if (currentQuantity >= stock) {
+                    // Show error toast - can't add more than stock available
+                    window.showDangerToast({
+                        title: productName,
+                        category: productCategory,
+                        size: selectedSize,
+                        image: productImage,
+                        stock: stock
+                    });
+                    return;
+                }
+                
+                // If adding current quantity would exceed stock, limit it
+                if (currentQuantity + quantity > stock) {
+                    // Show warning toast that we've adjusted quantity
+                    window.showWarningToast({
+                        title: productName,
+                        category: productCategory,
+                        size: selectedSize,
+                        image: productImage,
+                        stock: stock,
+                        quantity: stock - currentQuantity
+                    });
+                    
+                    // Create cart item with adjusted quantity
+                    const cartItem = {
+                        id: productId,
+                        title: productName,
+                        category: productCategory,
+                        price: productPrice,
+                        originalPrice: productOriginalPrice,
+                        size: selectedSize,
+                        quantity: stock - currentQuantity,
+                        stock: stock,
+                        image: productImage
+                    };
+                    
+                    // Add to cart (the function will handle combining with existing)
+                    window.addToCart(cartItem);
+                    return;
+                }
+            }
+            
             // Create cart item object
             const cartItem = {
                 id: productId,
@@ -308,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 originalPrice: productOriginalPrice,
                 size: selectedSize,
                 quantity: quantity,
-                stock: stock,     // Include stock information
+                stock: stock,
                 image: productImage
             };
             
@@ -449,21 +499,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
-    /**
-     * Initialize the View Cart button in toast notification
-     */
-    function initializeViewCartButton() {
-        const viewCartBtn = document.getElementById('view-cart-btn');
-        if (viewCartBtn) {
-            viewCartBtn.addEventListener('click', function() {
-                // Open the offcanvas cart
-                const offcanvasCart = new bootstrap.Offcanvas(document.getElementById('offcanvasCart'));
-                offcanvasCart.show();
-            });
-        }
-    }
-
     // Initialize the related products swiper for mobile view
     if (document.querySelector('.related-products-swiper')) {
         const relatedProductsSwiper = new Swiper('.related-products-swiper', {
