@@ -300,11 +300,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
       })
       .then(data => {
-        if (data && data.display_name) addressInput.value = data.display_name;
+        if (data && data.display_name) {
+          addressInput.value = data.display_name;
+          // Remove invalid state when address is filled
+          addressInput.classList.remove('is-invalid');
+        }
       })
       .catch(error => {
         console.error('Error with reverse geocoding:', error);
         addressInput.value = `Location at ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        // Also remove invalid state here
+        addressInput.classList.remove('is-invalid');
       });
   }
 
@@ -343,6 +349,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (signupForm) {
     signupForm.addEventListener('submit', function(e) {
       e.preventDefault();
+      
+      // Check if address has been selected
+      if (!latInput.value || !lngInput.value || !addressInput.value) {
+        // Show validation error for address
+        addressInput.classList.add('is-invalid');
+        // Scroll to the map section
+        mapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Add validation class to make Bootstrap show validation messages
+        signupForm.classList.add('was-validated');
+        return;
+      }
       
       // Check if form is valid
       if (!signupForm.checkValidity()) {
