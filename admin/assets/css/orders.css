@@ -60,7 +60,7 @@
   
   .notify-customer-btn:not(.active) {
     background-color: #e9ecef;
-    color: #6c757d;
+    color: white;
   }
   
   .notify-customer-btn:hover {

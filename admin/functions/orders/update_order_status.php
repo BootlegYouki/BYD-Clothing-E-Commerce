@@ -24,6 +24,7 @@ if (!isset($_POST['status']) || empty($_POST['status'])) {
 
 $order_id = intval($_POST['order_id']);
 $status = mysqli_real_escape_string($conn, $_POST['status']);
+$send_notification = (isset($_POST['send_notification']) && $_POST['send_notification'] === 'yes');
 
 // Validate status
 $valid_statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -47,7 +48,21 @@ if (mysqli_num_rows($result) == 0) {
 $order = mysqli_fetch_assoc($result);
 $old_status = $order['status'];
 
-// Only update if status has changed
+// If this is a notification-only request and the status matches
+if ($send_notification && $old_status == $status) {
+    $notification_sent = sendOrderStatusNotification($order, $status);
+    
+    echo json_encode([
+        'success' => true,
+        'message' => $notification_sent ? 'Notification sent successfully' : 'Failed to send notification',
+        'notification_sent' => $notification_sent
+    ]);
+    
+    mysqli_close($conn);
+    exit();
+}
+
+// If status has changed
 if ($old_status != $status) {
     // Update order status
     $update_query = "UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?";
@@ -55,24 +70,42 @@ if ($old_status != $status) {
     mysqli_stmt_bind_param($stmt, "si", $status, $order_id);
     
     if (mysqli_stmt_execute($stmt)) {
-        // Send email notification to customer
-        $should_notify = isset($_POST['send_notification']) && $_POST['send_notification'] == 'yes';
-        if ($should_notify) {
-            sendOrderStatusNotification($order, $status);
+        // Send email notification if requested
+        $notification_sent = false;
+        if ($send_notification) {
+            $notification_sent = sendOrderStatusNotification($order, $status);
         }
         
         echo json_encode([
             'success' => true, 
             'message' => 'Order status updated successfully',
             'old_status' => $old_status,
-            'new_status' => $status
+            'new_status' => $status,
+            'notification_sent' => $notification_sent
         ]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Database error: ' . mysqli_error($conn)]);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Database error: ' . mysqli_error($conn)
+        ]);
     }
 } else {
     // Status hasn't changed
-    echo json_encode(['success' => true, 'message' => 'No changes made - status is already ' . $status]);
+    if ($send_notification) {
+        // Still send notification even if status hasn't changed
+        $notification_sent = sendOrderStatusNotification($order, $status);
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Notification sent successfully',
+            'notification_sent' => $notification_sent
+        ]);
+    } else {
+        echo json_encode([
+            'success' => true, 
+            'message' => 'No changes made - status is already ' . $status
+        ]);
+    }
 }
 
 mysqli_close($conn);

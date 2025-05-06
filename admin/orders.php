@@ -385,9 +385,9 @@ if(isset($_GET['msg'])) {
                         <option value='delivered' ".($order['status'] == 'delivered' ? 'selected' : '').">Delivered</option>
                         <option value='cancelled' ".($order['status'] == 'cancelled' ? 'selected' : '').">Cancelled</option>
                       </select>
-                      <button type='button' class='btn btn-sm notify-customer-btn ms-1 active' data-order-id='".$order['id']."' title='Click to toggle customer notification'>
-                        <i class='bx bx-bell'></i>
-                      </button>
+                      <div class='notify-btn-container ms-1' data-order-id='".$order['id']."'>
+                        <!-- Notification button will appear here after status change -->
+                      </div>
                     </div>
                   </td>
                   <td class='align-middle text-center'>

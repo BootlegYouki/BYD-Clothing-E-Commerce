@@ -115,44 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.show();
     });
     
-    // Initialize notification buttons
-    initNotificationButtons();
-    
     // Quick status update
     initQuickStatusUpdate();
   });
-
-/**
- * Initialize notification buttons
- */
-function initNotificationButtons() {
-    const notifyButtons = document.querySelectorAll('.notify-customer-btn');
-    
-    notifyButtons.forEach(btn => {
-        // Set initial state
-        updateNotifyButtonStyle(btn);
-        
-        // Add click handler
-        btn.addEventListener('click', function() {
-            // Toggle active state
-            btn.classList.toggle('active');
-            updateNotifyButtonStyle(btn);
-        });
-    });
-}
-
-/**
- * Update notification button styling based on active state
- */
-function updateNotifyButtonStyle(button) {
-    if (button.classList.contains('active')) {
-        button.setAttribute('title', 'Customer will be notified (click to disable)');
-        button.querySelector('i').className = 'bx bx-bell';
-    } else {
-        button.setAttribute('title', 'Customer will NOT be notified (click to enable)');
-        button.querySelector('i').className = 'bx bx-bell-off';
-    }
-}
 
 /**
  * Initialize quick status update functionality
@@ -177,33 +142,41 @@ function initQuickStatusUpdate() {
             // Show loading state
             this.disabled = true;
             
-            // Check if the notification button is active
-            const notifyButton = document.querySelector(`.notify-customer-btn[data-order-id="${orderId}"]`);
-            const notifyCustomer = notifyButton ? notifyButton.classList.contains('active') : false;
+            // Get the notification button container
+            const notifyBtnContainer = document.querySelector(`.notify-btn-container[data-order-id="${orderId}"]`);
             
             // Send AJAX request to update status
-            fetch('functions/orders/update_status.php', {
+            fetch('functions/orders/update_order_status.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `order_id=${orderId}&status=${newStatus}&notify_customer=${notifyCustomer ? 'yes' : 'no'}`
+                body: `order_id=${orderId}&status=${newStatus}&send_notification=no`
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
+                if (data.success) {
                     // Update original value
                     this.dataset.originalValue = newStatus;
                     
-                    // Show success toast
-                    let toastMessage = 'Order status updated successfully';
-                    if (data.notification_sent) {
-                        toastMessage += ' and customer notified';
+                    // Update status badge in the table
+                    const statusCell = this.closest('tr').querySelector('td:nth-child(6)');
+                    statusCell.innerHTML = getStatusBadgeHtml(newStatus);
+                    
+                    // Show notify button
+                    if (notifyBtnContainer) {
+                        notifyBtnContainer.innerHTML = `
+                            <button type="button" class="btn btn-sm btn-primary notify-customer-btn" 
+                                onclick="sendStatusNotification(${orderId}, '${newStatus}')">
+                                <i class='bx bx-envelope'></i>
+                            </button>`;
                     }
-                    showToast(toastMessage, 'success');
+                    
+                    // Show success toast
+                    showToast('Order status updated successfully', 'success');
                 } else {
                     // Show error toast and revert selection
-                    showToast('Error: ' + data.message, 'error');
+                    showToast('Error: ' + (data.message || 'Failed to update status'), 'error');
                     this.value = originalStatus;
                 }
             })
@@ -218,6 +191,98 @@ function initQuickStatusUpdate() {
             });
         });
     });
+}
+
+/**
+ * Send notification to customer about status change
+ */
+function sendStatusNotification(orderId, status) {
+    const btnContainer = document.querySelector(`.notify-btn-container[data-order-id="${orderId}"]`);
+    if (btnContainer) {
+      // Show loading state
+      btnContainer.innerHTML = `<button type="button" class="btn btn-sm btn-primary notify-customer-btn" disabled>
+          <i class='bx bx-loader-alt bx-spin'></i>
+      </button>`;
+    }
+    
+    // Send AJAX request to notify customer
+    fetch('functions/orders/update_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `order_id=${orderId}&status=${status}&notify_customer=yes`
+    })
+    .then(response => {
+        // First check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        // Then try to parse as JSON, but handle text response as error if not valid JSON
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error("Invalid JSON response:", text);
+                throw new Error("Server returned invalid JSON response");
+            }
+        });
+    })
+    .then(data => {
+        if (data.success || data.status === 'success') {
+            if (btnContainer) {
+                btnContainer.innerHTML = `<span class="badge bg-success d-none"><i class='bx bx-check'></i> Notification Sent</span>`;
+            }
+            showToast('Notification sent to customer', 'success');
+        } else {
+            if (btnContainer) {
+                btnContainer.innerHTML = `<button type="button" class="btn btn-sm btn-primary notify-customer-btn"  
+                    onclick="sendStatusNotification(${orderId}, '${status}')">
+                    <i class='bx bx-envelope'></i> Retry Notification
+                </button>`;
+            }
+            showToast('Error: ' + (data.message || 'Failed to send notification'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (btnContainer) {
+            btnContainer.innerHTML = `<button type="button" class="btn btn-sm btn-primary notify-customer-btn" 
+                onclick="sendStatusNotification(${orderId}, '${status}')">
+                <i class='bx bx-revision'></i> Retry
+            </button>`;
+        }
+        showToast('Failed to send notification: ' + error.message, 'error');
+    });
+}
+
+/**
+ * Generate HTML for status badge
+ */
+function getStatusBadgeHtml(status) {
+    let badgeClass = 'bg-secondary';
+    let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+    
+    switch(status) {
+        case 'processing':
+            badgeClass = 'bg-primary';
+            break;
+        case 'pending':
+            badgeClass = 'bg-warning';
+            break;
+        case 'shipped':
+            badgeClass = 'bg-info';
+            break;
+        case 'delivered':
+            badgeClass = 'bg-success';
+            break;
+        case 'cancelled':
+            badgeClass = 'bg-danger';
+            break;
+    }
+    
+    return `<span class="badge ${badgeClass}">${statusText}</span>`;
 }
 
 /**
