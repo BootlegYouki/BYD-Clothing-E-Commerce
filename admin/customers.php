@@ -316,7 +316,9 @@ $result = mysqli_query($conn, $query);
         
         <div class="mb-3">
           <label class="form-label text-muted small">Default Shipping Address</label>
-          <p class="mb-0" id="customerAddress">No address on file</p>
+          <div id="customerAddressContainer">
+            <p class="mb-0" id="customerAddress">No address on file</p>
+          </div>
         </div>
         
         <!-- Customer Location Map -->
@@ -360,7 +362,7 @@ $result = mysqli_query($conn, $query);
         document.getElementById('customerJoined').textContent = 'Jan 01, 2023';
         document.getElementById('customerOrders').textContent = '0';
         document.getElementById('customerLastOrder').textContent = 'Never';
-        document.getElementById('customerAddress').textContent = 'No address on file';
+        document.getElementById('customerAddressContainer').innerHTML = '<p class="mb-0" id="customerAddress">No address on file</p>';
         document.getElementById('customer-location-container').style.display = 'none';
         
         // Fetch customer details
@@ -385,9 +387,18 @@ $result = mysqli_query($conn, $query);
               let address = data.full_address;
               if (data.zipcode) address += ` ${data.zipcode}`;
               
-              document.getElementById('customerAddress').textContent = address;
+              // Create address link if coordinates are available
+              if (data.latitude && data.longitude) {
+                const googleMapsUrl = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+                document.getElementById('customerAddressContainer').innerHTML = 
+                  `<a href="${googleMapsUrl}" target="_blank" class="text-primary">
+                    ${address} <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">open_in_new</i>
+                   </a>`;
+              } else {
+                document.getElementById('customerAddressContainer').innerHTML = `<p class="mb-0">${address}</p>`;
+              }
             } else {
-              document.getElementById('customerAddress').textContent = 'No address on file';
+              document.getElementById('customerAddressContainer').innerHTML = '<p class="mb-0">No address on file</p>';
             }
             
             // Update view orders link
@@ -397,20 +408,14 @@ $result = mysqli_query($conn, $query);
             if (data.latitude && data.longitude) {
               document.getElementById('customer-location-container').style.display = 'block';
               
-              // Add location coordinates text display
-              const locationText = document.createElement('p');
-              locationText.className = 'mb-2 text-secondary';
-              locationText.innerHTML = `<strong>Coordinates:</strong> ${data.latitude}, ${data.longitude}`;
-              document.getElementById('customer-location-container').prepend(locationText);
-              
               // Initialize map if not already done
               if (!customerMap) {
                 customerMap = L.map('customer-map').setView([data.latitude, data.longitude], 15);
                 
                 // Use HTTPS instead of HTTP for the tile layer to avoid mixed content warnings
-                L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                  maxZoom: 20,
-                  subdomains:['mt0','mt1','mt2','mt3']
+                L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
                 }).addTo(customerMap);
               } else {
                 customerMap.setView([data.latitude, data.longitude], 15);
