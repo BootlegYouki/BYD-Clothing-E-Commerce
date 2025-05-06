@@ -198,10 +198,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Automatically select Medium size or first available size if Medium isn't available
         let mediumButton = null;
         let firstAvailableButton = null;
+        let allSizesOutOfStock = true;
         
         sizeButtons.forEach(button => {
             // Skip disabled buttons (out of stock)
             if (button.disabled) return;
+            
+            // If we reach here, at least one size has stock
+            allSizesOutOfStock = false;
             
             // Save the first available button we find
             if (!firstAvailableButton) {
@@ -214,11 +218,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Click the Medium button if available, otherwise click the first available button
-        if (mediumButton) {
-            mediumButton.click();
-        } else if (firstAvailableButton) {
-            firstAvailableButton.click();
+        // Show message if all sizes are out of stock
+        if (allSizesOutOfStock) {
+            stockInfo.textContent = "No stock available on all sizes";
+            stockInfo.style.display = 'block';
+            stockInfo.classList.add('out-of-stock');
+            
+            if (addToCartBtn && !isAdmin) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.classList.add('out-of-stock');
+                addToCartBtn.textContent = 'OUT OF STOCK';
+                addToCartBtn.title = 'This product is currently out of stock';
+            }
+        } else {
+            // Click the Medium button if available, otherwise click the first available button
+            if (mediumButton) {
+                mediumButton.click();
+            } else if (firstAvailableButton) {
+                firstAvailableButton.click();
+            }
         }
     }
     
