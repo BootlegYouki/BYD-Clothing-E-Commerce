@@ -139,11 +139,24 @@ include 'config/dbcon.php';
                                             <p class="text-xs font-weight-bold mb-0"><?= $product['category'] ?></p>
                                         </td>
                                         <td class="text-center align-middle">
-                                            <?php if($product['discount_price'] > 0 || $product['discount_percentage'] > 0): ?>
-                                            <p class="text-xs font-weight-bold mb-0">₱<?= number_format($sale_price, 2) ?></p>
-                                            <p class="text-xs text-secondary mb-0"><del>₱<?= number_format($product['original_price'], 2) ?></del> (<?= $product['discount_percentage'] ?>% off)</p>
+                                            <?php 
+                                            // Check if there's a real discount - not just when fields are set
+                                            $has_discount = false;
+                                            
+                                            // If discount_percentage is greater than zero, we have a discount
+                                            if($product['discount_percentage'] > 0) {
+                                                $has_discount = true;
+                                            }
+                                            // Or if discount_price exists and is less than original price
+                                            else if(isset($product['discount_price']) && $product['discount_price'] > 0 && $product['discount_price'] < $product['original_price']) {
+                                                $has_discount = true;
+                                            }
+                                            
+                                            if($has_discount): ?>
+                                                <p class="text-xs font-weight-bold mb-0">₱<?= number_format($sale_price, 2) ?></p>
+                                                <p class="text-xs text-secondary mb-0"><del>₱<?= number_format($product['original_price'], 2) ?></del> (<?= $product['discount_percentage'] ?>% off)</p>
                                             <?php else: ?>
-                                            <p class="text-xs font-weight-bold mb-0">₱<?= number_format($product['original_price'], 2) ?></p>
+                                                <p class="text-xs font-weight-bold mb-0">₱<?= number_format($product['original_price'], 2) ?></p>
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center align-middle">
@@ -202,7 +215,6 @@ include 'config/dbcon.php';
 
 <!-- Core JS Files -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/products.js"></script>
 </body>
 </html>

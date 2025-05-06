@@ -66,6 +66,9 @@ function renderProductCard($product, $for_swiper = false) {
                        ? $product['discount_price'] 
                        : $originalPrice;
     
+    // Check if there's an actual discount (prices are different)
+    $hasActualDiscount = ($discountPercentage > 0 && $discountedPrice < $originalPrice);
+    
     // Image URL with fallback
     $imageUrl = !empty($product['image_url']) ? '../' . $product['image_url'] : 'img/placeholder.jpg';
     
@@ -83,7 +86,7 @@ function renderProductCard($product, $for_swiper = false) {
             <div class="product-img-container">
                 <img class="img-fluid product-img mb-3" src="' . $imageUrl . '" alt="' . $product['name'] . '" loading="lazy">';
                 
-    if ($discountPercentage > 0) {
+    if ($hasActualDiscount) {
         $output .= '<span class="discount-badge">-' . $discountPercentage . '%</span>';
     }
             
@@ -100,14 +103,14 @@ function renderProductCard($product, $for_swiper = false) {
                 <h5 class="text-uppercase mb-2">' . $product['category'] . ' - "' . $product['name'] . '"</h5>
                 <div class="price-container mb-3">';
                 
-    if ($discountPercentage > 0) {
+    if ($hasActualDiscount) {
         $output .= '
                     <div class="price-wrapper">
                         <span class="original-price">₱' . number_format($originalPrice, 2) . '</span>
                         <span class="current-price">₱' . number_format($discountedPrice, 2) . '</span>
                     </div>';
     } else {
-        $output .= '<span class="current-price">₱' . number_format($discountedPrice, 2) . '</span>';
+        $output .= '<span class="current-price">₱' . number_format($originalPrice, 2) . '</span>';
     }
                 
     $output .= '

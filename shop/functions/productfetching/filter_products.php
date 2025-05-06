@@ -80,19 +80,22 @@ if ($action == 'filter_products') {
                         if($discountPrice > 0 && $discountPercentage <= 0) {
                             $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
                         }
+                        
+                        // Check if there's an actual discount (prices are different)
+                        $hasActualDiscount = ($discountPrice > 0 && $discountPrice < $originalPrice);
                         ?>
                         <div class="product text-center col-lg-3 col-md-6 col-12 mb-4">
                             <div class="product-card" data-product-id="<?= $product['id'] ?>">
                                 <div class="product-img-container">
                                     <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                                    <?php if($discountPrice > 0): ?>
+                                    <?php if($hasActualDiscount): ?>
                                         <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="product-info">
                                     <h5 class="text-uppercase mb-2"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                     <div class="price-container mb-3">
-                                        <?php if($discountPrice > 0): ?>
+                                        <?php if($hasActualDiscount): ?>
                                             <div class="price-wrapper">
                                                 <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
                                                 <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>
@@ -126,19 +129,22 @@ if ($action == 'filter_products') {
                         if($discountPrice > 0 && $discountPercentage <= 0) {
                             $discountPercentage = round(($originalPrice - $discountPrice) / $originalPrice * 100);
                         }
+                        
+                        // Check if there's an actual discount (prices are different)
+                        $hasActualDiscount = ($discountPrice > 0 && $discountPrice < $originalPrice);
                     ?>
                     <div class="swiper-slide">
                         <div class="product-card" data-product-id="<?= $product['id'] ?>">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $product['image'] ?>" alt="<?= $product['title'] ?>" loading="lazy">
-                            <?php if($discountPrice > 0): ?>
+                            <?php if($hasActualDiscount): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
                         </div>
                             <div class="product-info">
                                 <h5 class="text-uppercase mb-2 text-center"><?= $product['category'] ?> - "<?= $product['title'] ?>"</h5>
                                 <div class="price-container mb-3">
-                                    <?php if($discountPrice > 0): ?>
+                                    <?php if($hasActualDiscount): ?>
                                         <div class="price-wrapper">
                                             <span class="original-price">₱<?= number_format($originalPrice, 2) ?></span>
                                             <span class="current-price">₱<?= number_format($discountPrice, 2) ?></span>

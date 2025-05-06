@@ -1233,14 +1233,19 @@ document.addEventListener('DOMContentLoaded', function() {
             discountPercentage = Math.round(((originalPrice - discountPrice) / originalPrice) * 100);
         }
         
-        originalPriceDisplay.textContent = `₱${originalPrice.toFixed(2)}`;
+        // Update final price display (always shown)
         finalPriceDisplay.textContent = `₱${discountPrice.toFixed(2)}`;
         
         if (discountPercentage > 0) {
+            // Show original price only when there is a discount
+            originalPriceDisplay.style.cssText = "display: inline !important";
+            originalPriceDisplay.textContent = `₱${originalPrice.toFixed(2)}`;
             discountText.textContent = `(${discountPercentage}% off)`;
             savingsContainer.classList.remove('d-none');
             savingsAmount.textContent = `₱${(originalPrice - discountPrice).toFixed(2)}`;
         } else {
+            // Hide original price and discount text when there's no discount
+            originalPriceDisplay.style.cssText = "display: none !important";
             discountText.textContent = '';
             savingsContainer.classList.add('d-none');
         }
@@ -1249,5 +1254,6 @@ document.addEventListener('DOMContentLoaded', function() {
     originalPriceInput.addEventListener('input', updatePricePreview);
     discountPriceInput.addEventListener('input', updatePricePreview);
     
+    // Ensure price preview is updated immediately
     updatePricePreview();
 });

@@ -169,12 +169,19 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         <h1 class="product-title mb-2"><?= htmlspecialchars($product['name']) ?></h1>
                         <h5 class="product-category text-uppercase text-muted mb-3"><?= htmlspecialchars($product['category']) ?></h5>
                         
-                        <?php if($product['discount_price'] > 0): ?>
+                        <?php 
+                        // Check for an actual discount (price difference)
+                        $has_discount = (isset($product['discount_price']) && 
+                                        $product['discount_price'] > 0 && 
+                                        $product['discount_price'] < $product['original_price']);
+                        
+                        // Only show original price if there's a real discount
+                        if($has_discount): ?>
                             <span class="original-price">₱<?= number_format($product['original_price'], 2) ?></span>
                         <?php endif; ?>
                         <!-- Price display -->
                         <div class="price-container mb-4 align-items-center">
-                            <?php if($product['discount_price'] > 0): ?>
+                            <?php if($has_discount): ?>
                                 <div class="price-wrapper">
                                     <span class="current-price">₱<?= number_format($product['discount_price'], 2) ?></span>
                                 </div>
