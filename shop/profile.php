@@ -466,7 +466,7 @@ while ($row = $orders_result->fetch_assoc()) {
         console.log("Map center set to:", lat, lng);
         
         // Use HTTPS for tile layers
-        mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+        mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
                     maxZoom: 20,
                     subdomains:['mt0','mt1','mt2','mt3']
         }).addTo(map);

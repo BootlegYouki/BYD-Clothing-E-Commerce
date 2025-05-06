@@ -224,14 +224,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }).setView([14.6760, 121.0437], 16);
     
     // Primary tile layer with error handling
-    mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
         maxZoom: 20,
         subdomains:['mt0','mt1','mt2','mt3'],
         crossOrigin: true
     }).addTo(map);
     
     // Fallback tile layer
-    fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
         maxZoom: 20,
         subdomains:['mt0','mt1','mt2','mt3'],
         crossOrigin: true
