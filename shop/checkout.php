@@ -21,7 +21,7 @@ $user_result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($user_result);
 
 // Fixed shipping fee
-$shipping_fee = 0;
+$shipping_fee = 50;
 ?>
 
 <!DOCTYPE html>
