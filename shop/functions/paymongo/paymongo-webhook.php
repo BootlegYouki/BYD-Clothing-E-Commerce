@@ -107,14 +107,30 @@ try {
                         'cart_items' => json_decode($metadata['cart_items'], true)
                     ];
                     
-                    // Insert the order into the database
-                    $orderId = insertOrderToDatabase($conn, $orderData);
+                    // Begin transaction to ensure both order creation and stock update complete together
+                    mysqli_begin_transaction($conn);
                     
-                    // Send order confirmation email
-                    EmailConfirmation::sendOrderConfirmationEmail($orderData, $orderId, $sessionId);
-                    
-                    // Log the successful order
-                    error_log("Order #$orderId created from webhook payment success");
+                    try {
+                        // Insert the order into the database
+                        $orderId = insertOrderToDatabase($conn, $orderData);
+                        
+                        // Update product stock levels based on purchased items
+                        updateProductStock($conn, $orderData['cart_items']);
+                        
+                        // Commit transaction after both operations succeeded
+                        mysqli_commit($conn);
+                        
+                        // Send order confirmation email
+                        EmailConfirmation::sendOrderConfirmationEmail($orderData, $orderId, $sessionId);
+                        
+                        // Log the successful order
+                        error_log("Order #$orderId created from webhook payment success and stock updated");
+                    } catch (Exception $e) {
+                        // Rollback transaction if anything fails
+                        mysqli_rollback($conn);
+                        error_log("Failed to process order: " . $e->getMessage());
+                        throw $e;
+                    }
                 }
             }
             break;
@@ -297,5 +313,58 @@ function insertOrderToDatabase($conn, $data) {
         mysqli_rollback($conn);
         throw $e;
     }
+}
+
+/**
+ * Updates product stock levels based on purchased items
+ *
+ * @param mysqli $conn Database connection
+ * @param array $cartItems Cart items from order
+ * @return bool True on success
+ */
+function updateProductStock($conn, $cartItems) {
+    if (empty($cartItems)) {
+        error_log("No cart items to update stock for");
+        return false;
+    }
+    
+    foreach ($cartItems as $item) {
+        // Validate required fields
+        if (!isset($item['id']) || !isset($item['size']) || !isset($item['quantity'])) {
+            error_log("Missing required data for stock update: " . json_encode($item));
+            continue;
+        }
+        
+        $productId = (int)$item['id'];
+        $size = mysqli_real_escape_string($conn, $item['size']);
+        $quantity = (int)$item['quantity'];
+        
+        // Skip invalid data
+        if ($productId <= 0 || empty($size) || $quantity <= 0) {
+            error_log("Invalid product data for stock update: " . json_encode($item));
+            continue;
+        }
+        
+        // Update stock in database
+        $query = "UPDATE product_sizes SET stock = stock - ? 
+                 WHERE product_id = ? AND size = ? AND stock >= ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "iisi", $quantity, $productId, $size, $quantity);
+        
+        if (!mysqli_stmt_execute($stmt)) {
+            error_log("Error updating stock for product $productId size $size: " . mysqli_error($conn));
+        } else {
+            // Check if any rows were affected
+            if (mysqli_stmt_affected_rows($stmt) <= 0) {
+                error_log("Stock update failed: Product $productId size $size might be out of stock");
+            } else {
+                error_log("Updated stock for product $productId size $size: -$quantity");
+            }
+        }
+        
+        mysqli_stmt_close($stmt);
+    }
+    
+    return true;
 }
 ?>

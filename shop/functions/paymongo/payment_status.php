@@ -37,6 +37,9 @@ try {
     $paymentStatus = $session['data']['attributes']['payment_intent']['status'] ?? 'unknown';
     $paymentMethodUsed = $session['data']['attributes']['payment_method_used'] ?? 'unknown';
     
+    // Extract metadata from session
+    $metadata = $session['data']['attributes']['metadata'] ?? [];
+    
     // Set up base URL for redirects
     $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
     
@@ -59,6 +62,26 @@ try {
     $successUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=success&reference=' . urlencode($reference);
     $pendingUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=pending&reference=' . urlencode($reference);
     $failedUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=failed&reference=' . urlencode($reference);
+    
+    // If payment is successful, validate stock availability before showing success message
+    if ($paymentStatus === 'succeeded' || $paymentStatus === 'paid') {
+        // Check stock if we have cart items in metadata
+        if (!empty($metadata['cart_items'])) {
+            $cartItems = json_decode($metadata['cart_items'], true);
+            if (is_array($cartItems)) {
+                $stockIssues = validateStock($conn, $cartItems);
+                if (!empty($stockIssues)) {
+                    // Store stock issues for display on the success page
+                    $_SESSION['stock_issues'] = $stockIssues;
+                }
+            }
+        }
+        
+        // Redirect to success page even if there are stock issues
+        // (the webhook will handle actual stock updates and the success page can show warnings if needed)
+        header("Location: ../../checkout_success.php?reference=" . urlencode($reference));
+        exit;
+    }
     
     // Check payment status and redirect accordingly
     if ($paymentStatus === 'succeeded') {
@@ -231,4 +254,65 @@ try {
     $failedUrl = $baseUrl . "/shop/payment_return.php?status=error";
     header("Location: $failedUrl");
     exit;
+}
+
+/**
+ * Validate stock availability for cart items
+ * 
+ * @param mysqli $conn Database connection
+ * @param array $cartItems Cart items from session metadata
+ * @return array Array of items with stock issues
+ */
+function validateStock($conn, $cartItems) {
+    $stockIssues = [];
+    
+    foreach ($cartItems as $item) {
+        // Skip if missing required data
+        if (!isset($item['id']) || !isset($item['size']) || !isset($item['quantity'])) {
+            continue;
+        }
+        
+        $productId = (int)$item['id'];
+        $size = mysqli_real_escape_string($conn, $item['size']);
+        $quantity = (int)$item['quantity'];
+        
+        // Skip invalid data
+        if ($productId <= 0 || empty($size) || $quantity <= 0) {
+            continue;
+        }
+        
+        // Check current stock
+        $query = "SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "is", $productId, $size);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if ($row = mysqli_fetch_assoc($result)) {
+            $currentStock = (int)$row['stock'];
+            if ($currentStock < $quantity) {
+                // Get product name for better user experience
+                $nameQuery = "SELECT name FROM products WHERE id = ?";
+                $nameStmt = mysqli_prepare($conn, $nameQuery);
+                mysqli_stmt_bind_param($nameStmt, "i", $productId);
+                mysqli_stmt_execute($nameStmt);
+                $nameResult = mysqli_stmt_get_result($nameStmt);
+                $productName = ($nameRow = mysqli_fetch_assoc($nameResult)) ? $nameRow['name'] : "Product #$productId";
+                
+                $stockIssues[] = [
+                    'product_id' => $productId,
+                    'name' => $productName,
+                    'size' => $size,
+                    'requested' => $quantity,
+                    'available' => $currentStock
+                ];
+                
+                mysqli_stmt_close($nameStmt);
+            }
+        }
+        
+        mysqli_stmt_close($stmt);
+    }
+    
+    return $stockIssues;
 }

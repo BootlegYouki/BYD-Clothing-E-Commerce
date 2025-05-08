@@ -52,6 +52,15 @@ try {
         mysqli_begin_transaction($conn);
         
         try {
+            // Get current order status first
+            $current_status_query = "SELECT status FROM orders WHERE id = ?";
+            $stmt = mysqli_prepare($conn, $current_status_query);
+            mysqli_stmt_bind_param($stmt, 'i', $order_id);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $current_status_row = mysqli_fetch_assoc($result);
+            $current_status = $current_status_row ? $current_status_row['status'] : '';
+            
             // Update order status in database
             $update_query = "UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?";
             $stmt = mysqli_prepare($conn, $update_query);
@@ -59,6 +68,12 @@ try {
             
             if (!mysqli_stmt_execute($stmt)) {
                 throw new Exception("Failed to update order status: " . mysqli_stmt_error($stmt));
+            }
+            
+            // If changing to cancelled and order was previously not cancelled,
+            // we need to restore the stock
+            if ($new_status === 'cancelled' && $current_status !== 'cancelled') {
+                restoreProductStock($conn, $order_id);
             }
             
             // Get customer information for the order
@@ -260,5 +275,49 @@ try {
     // Catch any uncaught exceptions and return as JSON error
     error_log("Uncaught exception: " . $e->getMessage());
     return_json_error("System error: " . $e->getMessage());
+}
+
+/**
+ * Restore product stock for cancelled orders
+ *
+ * @param mysqli $conn Database connection
+ * @param int $orderId Order ID
+ * @return bool True on success, false on failure
+ */
+function restoreProductStock($conn, $orderId) {
+    // Get order items
+    $query = "SELECT product_id, size, quantity FROM order_items WHERE order_id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $orderId);
+    
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log("Failed to fetch order items for stock restoration: " . mysqli_error($conn));
+        return false;
+    }
+    
+    $result = mysqli_stmt_get_result($stmt);
+    
+    // Process each order item
+    while ($item = mysqli_fetch_assoc($result)) {
+        $productId = $item['product_id'];
+        $size = $item['size'];
+        $quantity = $item['quantity'];
+        
+        // Update stock in database (add back the quantity)
+        $updateQuery = "UPDATE product_sizes SET stock = stock + ? 
+                      WHERE product_id = ? AND size = ?";
+        $updateStmt = mysqli_prepare($conn, $updateQuery);
+        mysqli_stmt_bind_param($updateStmt, "iis", $quantity, $productId, $size);
+        
+        if (!mysqli_stmt_execute($updateStmt)) {
+            error_log("Error restoring stock for product $productId size $size: " . mysqli_error($conn));
+        } else {
+            error_log("Restored stock for product $productId size $size: +$quantity (order cancelled)");
+        }
+        
+        mysqli_stmt_close($updateStmt);
+    }
+    
+    return true;
 }
 ?>
