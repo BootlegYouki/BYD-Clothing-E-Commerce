@@ -34,7 +34,7 @@ $formData = [
 ];
 
 // Add shipping fee to the total amount
-$shipping_cost = isset($_POST['shipping_cost']) ? floatval($_POST['shipping_cost']) : 50;
+$shipping_cost = isset($_POST['shipping_cost']) ? floatval($_POST['shipping_cost']) : 20;
 $formData['total'] += $shipping_cost;
 $formData['shipping_cost'] = $shipping_cost; // Store shipping cost in formData
 
