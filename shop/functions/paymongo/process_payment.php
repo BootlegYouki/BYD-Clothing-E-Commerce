@@ -143,6 +143,9 @@ try {
     $successUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=success&reference=' . urlencode($orderReference);
     $cancelUrl = $baseUrl . $projectPath . '/shop/payment_return.php?status=failed&reference=' . urlencode($orderReference);
     
+    // Add a special URL for the status check page for QR Ph payments
+    $statusCheckUrl = $baseUrl . $projectPath . '/shop/functions/paymongo/payment_status.php?reference=' . urlencode($orderReference);
+    
     // Store reference in metadata for future reference
     $metadata['reference_number'] = $orderReference;
     
@@ -161,12 +164,17 @@ try {
     $_SESSION['payment_id'] = $checkout['session_id'];
     $_SESSION['order_reference'] = $orderReference;
     
+    // Generate the status check URL with the session ID
+    $statusCheckUrlWithSession = $statusCheckUrl . '&session_id=' . $checkout['session_id'];
+    
     // Return success response with checkout URL
     header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'payment_url' => $checkout['checkout_url'],
         'reference' => $orderReference,
+        'session_id' => $checkout['session_id'],
+        'status_check_url' => $statusCheckUrlWithSession,
         'open_in_new_tab' => false  // Changed from true to false to open in same tab
     ]);
     
