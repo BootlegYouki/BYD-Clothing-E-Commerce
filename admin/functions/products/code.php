@@ -23,15 +23,15 @@ if(isset($_POST['add_product'])) {
         $discount_percentage = round((($original_price - $_POST['discount_price']) / $original_price) * 100);
     }
 
-    // Process category selection
-    $category = '';
-    if(isset($_POST['category']) && !empty($_POST['category'])) {
-        // Use the selected category
-        $category = mysqli_real_escape_string($conn, $_POST['category']);
-    } else {
-        // Default category if none selected
-        $category = 'Uncategorized';
+    // Process category selection - make it required
+    if(!isset($_POST['category']) || empty($_POST['category'])) {
+        $_SESSION['message'] = "Category selection is required";
+        $_SESSION['message_type'] = "error";
+        header('Location: ../../add-product.php');
+        exit();
     }
+    
+    $category = mysqli_real_escape_string($conn, $_POST['category']);
 
     // Process fabric selection
     $fabric = '';
@@ -47,6 +47,7 @@ if(isset($_POST['add_product'])) {
     // Validate required fields
     if(empty($name) || empty($original_price) || empty($category)) {
         $_SESSION['message'] = "All required fields must be filled";
+        $_SESSION['message_type'] = "error";
         header('Location: ../../add-product.php');
         exit();
     }
@@ -245,15 +246,14 @@ if(isset($_POST['update_product'])) {
         $discount_percentage = round((($original_price - $_POST['discount_price']) / $original_price) * 100);
     }
     
-    // Process category selection
-    $category = '';
-    if(isset($_POST['category']) && !empty($_POST['category'])) {
-        // Use the selected category
-        $category = mysqli_real_escape_string($conn, $_POST['category']);
-    } else {
-        // Default category if none selected
-        $category = 'Uncategorized';
+    // Process category selection - make it required
+    if(!isset($_POST['category']) || empty($_POST['category'])) {
+        $_SESSION['message'] = "Category selection is required";
+        header('Location: ../../edit-product.php?id=' . $product_id);
+        exit();
     }
+    
+    $category = mysqli_real_escape_string($conn, $_POST['category']);
     
     // Process fabric selection
     $fabric = '';
