@@ -113,7 +113,7 @@ function getDashboardData($conn) {
     
     // Get low stock count
     if (tableExists($conn, 'product_sizes')) {
-        $stock_query = "SELECT COUNT(*) as count FROM product_sizes WHERE stock <= 5 AND stock > 0";
+        $stock_query = "SELECT COUNT(*) as count FROM product_sizes WHERE stock <= 50 AND stock > 0";
         $stock_result = mysqli_query($conn, $stock_query);
         
         if ($stock_result && $row = mysqli_fetch_assoc($stock_result)) {
