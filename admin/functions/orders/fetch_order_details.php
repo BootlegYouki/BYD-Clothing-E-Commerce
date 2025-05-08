@@ -17,8 +17,11 @@ if (!isset($_GET['order_id']) || !is_numeric($_GET['order_id'])) {
 
 $order_id = intval($_GET['order_id']);
 
-// Fetch order details
-$order_query = "SELECT * FROM orders WHERE id = ?";
+// Fetch order details with user coordinates if available
+$order_query = "SELECT o.*, u.latitude, u.longitude 
+                FROM orders o 
+                LEFT JOIN users u ON o.user_id = u.id 
+                WHERE o.id = ?";
 $stmt = mysqli_prepare($conn, $order_query);
 mysqli_stmt_bind_param($stmt, "i", $order_id);
 mysqli_stmt_execute($stmt);
@@ -64,6 +67,19 @@ switch($order['status']) {
 $order_date = new DateTime($order['created_at']);
 $now = new DateTime();
 $days_since_order = $order_date->diff($now)->days;
+
+// Prepare address display
+$address_text = $order['address'] . ', ' . $order['zipcode'];
+$has_coordinates = !empty($order['latitude']) && !empty($order['longitude']);
+$address_html = '';
+
+if ($has_coordinates) {
+    $maps_url = "https://www.google.com/maps?q={$order['latitude']},{$order['longitude']}";
+    $address_html = '<strong>Address:</strong> <a href="' . $maps_url . '" target="_blank" class="text-primary">' . 
+                    $address_text . ' <i class="bx bx-map-pin"></i></a>';
+} else {
+    $address_html = '<strong>Address:</strong> ' . $address_text;
+}
 ?>
 
 <div class="order-details">
@@ -76,7 +92,7 @@ $days_since_order = $order_date->diff($now)->days;
                     <p class="mb-1"><strong>Order ID:</strong> #<?= $order['id'] ?></p>
                     <p class="mb-1"><strong>Reference:</strong> <?= $order['reference_number'] ?? 'N/A' ?></p>
                     <p class="mb-1"><strong>Date:</strong> <?= date('M d, Y h:i A', strtotime($order['created_at'])) ?></p>
-                    <p class="mb-1"><strong>Age:</strong> <?= $days_since_order ?> days old</p>
+                    <p class="mb-1"><strong>Elapsed Time:</strong> <?= $days_since_order ?> days old</p>
                     <p class="mb-1"><strong>Status:</strong> <?= $status_badge ?></p>
                     <p class="mb-1"><strong>Payment Method:</strong> <?= $order['payment_method'] ?></p>
                     <p class="mb-0"><strong>Payment ID:</strong> <?= $order['payment_id'] ?? 'N/A' ?></p>
@@ -91,7 +107,7 @@ $days_since_order = $order_date->diff($now)->days;
                     <p class="mb-1"><strong>Name:</strong> <?= $order['firstname'] . ' ' . $order['lastname'] ?></p>
                     <p class="mb-1"><strong>Email:</strong> <?= $order['email'] ?></p>
                     <p class="mb-1"><strong>Phone:</strong> <?= $order['phone'] ?></p>
-                    <p class="mb-0"><strong>Address:</strong> <?= $order['address'] . ', ' . $order['zipcode'] ?></p>
+                    <p class="mb-0"><?= $address_html ?></p>
                 </div>
             </div>
         </div>
