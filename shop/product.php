@@ -367,7 +367,7 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                             <p class="mt-1 mb-0 text-muted">Size: <span id="toast-product-size"></span> | Qty: <span id="toast-product-quantity"></span></p>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary btn-sm ms-3" id="view-cart-btn" data-bs-dismiss="toast">View Cart</button>
+                    <button type="button" class="btn btn-primary btn-sm ms-3" id="view-cart-btn" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">View Cart</button>
                 </div>
             </div>
         </div>

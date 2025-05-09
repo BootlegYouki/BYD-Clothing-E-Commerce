@@ -239,9 +239,14 @@ function initializeViewCartButton() {
     const viewCartBtn = document.getElementById('view-cart-btn');
     if (viewCartBtn) {
         viewCartBtn.addEventListener('click', function() {
-            // Open the offcanvas cart
-            const offcanvasCart = new bootstrap.Offcanvas(document.getElementById('offcanvasCart'));
-            offcanvasCart.show();
+            // First, manually dismiss the toast
+            const toastEl = document.getElementById('cartAddedToast');
+            if (toastEl) {
+                const toast = bootstrap.Toast.getInstance(toastEl);
+                if (toast) {
+                    toast.hide();
+                }
+            }
         });
     }
 }
