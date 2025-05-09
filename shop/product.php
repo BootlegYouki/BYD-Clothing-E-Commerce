@@ -282,14 +282,14 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                     <div class="product-card">
                         <div class="product-img-container">
                             <img class="product-img mb-3" src="<?= $relatedImageUrl ?>" alt="<?= htmlspecialchars($related['name']) ?>">
-                            <?php if($discountPrice > 0): ?>
+                            <?php if($discountPercentage > 0): ?>
                                 <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                             <?php endif; ?>
                         </div>
                         <div class="product-info text-center">
                             <h5 class="text-uppercase mb-2"><?= htmlspecialchars($related['category']) ?> - "<?= htmlspecialchars($related['name']) ?>"</h5>
                             <div class="price-container mb-3 justify-content-center">
-                                <?php if($discountPrice > 0): ?>
+                                <?php if($discountPercentage > 0): ?>
                                     <div class="price-wrapper-related">
                                         <span class="original-price-related">₱<?= number_format($originalPrice, 2) ?></span>
                                         <span class="current-price-related">₱<?= number_format($discountPrice, 2) ?></span>
@@ -318,14 +318,14 @@ $primary_image = !empty($product['primary_image']) ? '../' . $product['primary_i
                         <div class="product-card">
                             <div class="product-img-container">
                                 <img class="product-img mb-3" src="<?= $relatedImageUrl ?>" alt="<?= htmlspecialchars($related['name']) ?>">
-                                <?php if($discountPrice > 0): ?>
+                                <?php if($discountPercentage > 0): ?>
                                     <span class="discount-badge">-<?= $discountPercentage ?>%</span>
                                 <?php endif; ?>
                             </div>
                             <div class="product-info text-center">
                                 <h5 class="text-uppercase mb-2"><?= htmlspecialchars($related['category']) ?> - "<?= htmlspecialchars($related['name']) ?>"</h5>
                                 <div class="price-container mb-3 justify-content-center">
-                                    <?php if($discountPrice > 0): ?>
+                                    <?php if($discountPercentage > 0): ?>
                                         <div class="price-wrapper-related">
                                             <span class="original-price-related">₱<?= number_format($originalPrice, 2) ?></span>
                                             <span class="current-price-related">₱<?= number_format($discountPrice, 2) ?></span>
