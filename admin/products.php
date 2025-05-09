@@ -103,7 +103,7 @@ include 'config/dbcon.php';
                                     $products_query = "SELECT p.*, 
                                                       (SELECT image_url FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) as primary_image,
                                                       (SELECT SUM(stock) FROM product_sizes WHERE product_id = p.id) as total_stock
-                                                      FROM products p ORDER BY id DESC";
+                                                      FROM products p ORDER BY id ASC";
                                     $products_result = mysqli_query($conn, $products_query);
 
                                     if(mysqli_num_rows($products_result) > 0) {
