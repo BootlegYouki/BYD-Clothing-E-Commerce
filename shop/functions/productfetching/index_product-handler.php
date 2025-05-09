@@ -93,13 +93,15 @@ function renderProductCard($product, $for_swiper = false) {
     $output .= '
             </div>
             <div class="product-info">
+            <!--
                 <div class="star mb-2">
                     <i class="fa fa-star"></i>
                     <i class="fa fa-star"></i>
                     <i class="fa fa-star"></i>
                     <i class="fa fa-star"></i>
                     <i class="fa fa-star"></i>
-                </div>
+                </div> 
+                -->
                 <h5 class="text-uppercase mb-2">' . $product['category'] . ' - "' . $product['name'] . '"</h5>
                 <div class="price-container mb-3">';
                 
