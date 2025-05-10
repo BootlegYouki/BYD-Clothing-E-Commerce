@@ -124,6 +124,9 @@
     max-width: 75%;
     padding: 10px 12px;
     border-radius: 15px;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .user-message .message-content {
