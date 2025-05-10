@@ -24,7 +24,7 @@ function tableExists($conn, $tableName) {
  */
 function getDashboardData($conn) {
     $data = [
-        'pending_count' => 0,
+        'orders_count' => 0,
         'total_sales' => 0,
         'percent_change' => 0,
         'change_class' => 'text-success',
@@ -37,12 +37,12 @@ function getDashboardData($conn) {
         'yearly_sales_data' => [0, 0, 0, 0, 0, 0, 0, 0]
     ];
     
-    // Fetch pending orders count
+    // Fetch total orders count
     if (tableExists($conn, 'orders')) {
-        $pending_query = "SELECT COUNT(*) as count FROM orders WHERE status='pending'";
-        $pending_result = mysqli_query($conn, $pending_query);
-        if ($pending_result && $row = mysqli_fetch_assoc($pending_result)) {
-            $data['pending_count'] = $row['count'];
+        $orders_query = "SELECT COUNT(*) as count FROM orders";
+        $orders_result = mysqli_query($conn, $orders_query);
+        if ($orders_result && $row = mysqli_fetch_assoc($orders_result)) {
+            $data['orders_count'] = $row['count'];
         }
         
         // Calculate monthly sales

@@ -49,8 +49,8 @@ extract($dashboard);
                             <div class="card-header p-2 ps-3">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <p class="text-sm mb-0 text-capitalize">Pending Orders</p>
-                                        <h4 class="mb-0"><?= $pending_count ?></h4>
+                                        <p class="text-sm mb-0 text-capitalize">Orders</p>
+                                        <h4 class="mb-0"><?= $orders_count ?></h4>
                                     </div>
                                     <div class="icon icon-md icon-shape bg-gradient-primary shadow-primary shadow text-center border-radius-lg">
                                         <i class="material-symbols-rounded opacity-10 cursor-pointer">shopping_bag</i>
@@ -59,8 +59,8 @@ extract($dashboard);
                             </div>
                             <hr class="dark horizontal my-0">
                             <div class="card-footer p-2 ps-3">
-                                <a href="orders.php?status=pending" class="mb-0 text-sm text-coral">
-                                    View pending orders <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">arrow_forward</i>
+                                <a href="orders.php" class="mb-0 text-sm text-coral">
+                                    View all orders <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">arrow_forward</i>
                                 </a>
                             </div>
                         </div>
