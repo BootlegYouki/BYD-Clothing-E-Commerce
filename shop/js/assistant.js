@@ -155,6 +155,8 @@ async function createDynamicSystemPrompt(dataNeeds = {}) {
     const requiresProductData = dataNeeds.requiresProductData === true;
     const requiresStockData = dataNeeds.requiresStockData === true;
     const requiresPriceData = dataNeeds.requiresPriceData === true;
+    const requiresFAQData = dataNeeds.requiresFAQData === true;
+    const userMessage = dataNeeds.userMessage || '';
     
     // Base prompt without product data
     let basePrompt = `You are a helpful customer service assistant for BYD-CLOTHING, an e-commerce store specializing in stylish apparel.
@@ -176,6 +178,18 @@ IMPORTANT DISPLAY INSTRUCTIONS:
 - For products with discounts: Show "Original Price: ₱X, Y% off, Final Price: ₱Z"
 - For products with no discount (0%): Only show "Price: ₱X" without mentioning discounts
 - Only mention available sizes if asked about specific products`;
+
+    // Add FAQ data if needed
+    let faqData = '';
+    if (requiresFAQData && userMessage) {
+        const faqs = await getFAQData(userMessage);
+        if (faqs && faqs.length > 0) {
+            faqData = `\n\nFrequently Asked Questions that may be relevant to the user's query:\n`;
+            faqs.forEach((faq, index) => {
+                faqData += `${index + 1}. Q: ${faq.question}\n   A: ${faq.answer}\n\n`;
+            });
+        }
+    }
 
     // Only fetch product data if the prompt requires it
     if (requiresProductData) {
@@ -207,12 +221,12 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     if (requiresStockData && product.stock_by_size) {
                         tshirtInfo += ' | Stock: ';
                         let availableSizes = [];
-                        let hasStock = false; // This line is missing in your code
+                        let hasStock = false;
                         
                         for (const size in product.stock_by_size) {
                             if (product.stock_by_size[size] > 0) {
                                 availableSizes.push(`${size}:${product.stock_by_size[size]}`);
-                                hasStock = true; // This sets hasStock to true when at least one size has stock
+                                hasStock = true;
                             }
                         }
                         
@@ -249,12 +263,12 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                     if (requiresStockData && product.stock_by_size) {
                         longslvInfo += ' | Stock: ';
                         let availableSizes = [];
-                        let hasStock = false; // Add this line
+                        let hasStock = false;
                         
                         for (const size in product.stock_by_size) {
                             if (product.stock_by_size[size] > 0) {
                                 availableSizes.push(`${size}:${product.stock_by_size[size]}`);
-                                hasStock = true; // Add this line
+                                hasStock = true;
                             }
                         }
                         
@@ -269,13 +283,27 @@ IMPORTANT DISPLAY INSTRUCTIONS:
                 });
             }
             
-            return basePrompt + `\n\nProducts Information (Live from Database):\n${tshirtInfo}\n${longslvInfo}`;
+            return basePrompt + `\n\nProducts Information (Live from Database):\n${tshirtInfo}\n${longslvInfo}${faqData}`;
         } catch (error) {
             console.error('Error fetching product data:', error);
-            return basePrompt;
+            return basePrompt + faqData;
         }
     }
-    return basePrompt;
+    return basePrompt + faqData;
+}
+async function getFAQData(message) {
+    try {
+        const response = await fetch(`../shop/functions/chatbot/faq-data.php?query=${encodeURIComponent(message)}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch FAQ data');
+        }
+        
+        const data = await response.json();
+        return data.faqs || [];
+    } catch (error) {
+        console.error('Error fetching FAQ data:', error);
+        return [];
+    }
 }
 async function initializeBot() {
     // First, check if user is logged in
@@ -460,8 +488,9 @@ async function sendMessage() {
     // Add user message to conversation history
     conversationHistory.push({"role": "user", "content": userMessage});
 
-    // Check what kind of product data is needed based on user's message
+    // Check what kind of data is needed based on user's message
     const dataNeeds = messageRequiresProductData(userMessage);
+    dataNeeds.userMessage = userMessage; // Pass the actual message for FAQ matching
     
     // Add bot message with loading indicator
     chatMessages.innerHTML += `
@@ -659,11 +688,12 @@ async function regenerateResponse(messageId) {
         document.getElementById("sendIcon").classList.add("d-none");
         document.getElementById("stopIcon").classList.remove("d-none");
         
-        // Check if we need product data for the regenerated message
+        // Check if we need product data or FAQ data for the regenerated message
         const dataNeeds = messageRequiresProductData(lastUserMessage.content);
+        dataNeeds.userMessage = lastUserMessage.content; // Pass the actual message for FAQ matching
         
         try {
-            // Update system prompt based on whether product data is needed
+            // Update system prompt based on whether product/FAQ data is needed
             conversationHistory[0] = {
                 "role": "system", 
                 "content": await createDynamicSystemPrompt(dataNeeds)
@@ -785,6 +815,13 @@ function messageRequiresProductData(message) {
         'how many', 'quantity', 'sold out', 'still have', 'run out'
     ];
     
+    // FAQ keywords
+    const faqKeywords = [
+        'faq', 'question', 'help', 'how to', 'shipping', 'delivery',
+        'order', 'payment', 'return', 'exchange', 'contact', 'support',
+        'track', 'international', 'where is', 'when will'
+    ];
+    
     // Convert message to lowercase for case-insensitive matching
     const lowerMessage = message.toLowerCase();
     
@@ -792,11 +829,13 @@ function messageRequiresProductData(message) {
     const needsBasicInfo = productKeywords.some(keyword => lowerMessage.includes(keyword));
     const needsPriceInfo = priceKeywords.some(keyword => lowerMessage.includes(keyword));
     const needsStockInfo = stockKeywords.some(keyword => lowerMessage.includes(keyword));
+    const mightBeFAQ = faqKeywords.some(keyword => lowerMessage.includes(keyword));
     
     return {
         requiresProductData: needsBasicInfo || needsPriceInfo || needsStockInfo,
         requiresStockData: needsStockInfo,
-        requiresPriceData: needsPriceInfo
+        requiresPriceData: needsPriceInfo,
+        requiresFAQData: mightBeFAQ
     };
 }
 function trimConversationHistory(history, messageLimit = 6) {
