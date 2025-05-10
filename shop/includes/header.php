@@ -282,6 +282,21 @@ function updateHeaderAfterAuth(username, isAdmin = false) {
       }, 100);
     }
   }
+  
+  // Handle cart icon visibility based on admin status
+  const orderIconWrapper = document.querySelector('.order-icon-wrapper');
+  if (orderIconWrapper) {
+    if (isAdmin) {
+      // Hide cart icon for admin users
+      orderIconWrapper.classList.add('d-none');
+    } else {
+      // Show cart icon for regular users (unless on checkout page)
+      const isCheckoutPage = window.location.pathname.includes('checkout.php');
+      if (!isCheckoutPage) {
+        orderIconWrapper.classList.remove('d-none');
+      }
+    }
+  }
 }
 
 // New function to update header after logout

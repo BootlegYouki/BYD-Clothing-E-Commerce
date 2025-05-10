@@ -268,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
           if (data.role === 1) {
             // Admin user - show admin success modal directly
             const adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
+            // Set the adminLoginShown flag before showing modal
+            sessionStorage.setItem('adminLoginShown', 'true');
             adminLoginModal.show();
           } else {
             // Regular user - show login success modal directly

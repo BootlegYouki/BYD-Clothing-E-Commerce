@@ -74,16 +74,36 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     <?php if(isset($_SESSION['admin_login_success'])): ?>
-    // Check if we've already shown this modal in the current session
+    
+    // More robust check to prevent duplicate modal displays
     if (!sessionStorage.getItem('adminLoginShown')) {
+        // Track what page we're on
+        const currentPage = window.location.pathname.split('/').pop() || 'index.php';
+        
+        // Set flag BEFORE showing modal to prevent race conditions
+        sessionStorage.setItem('adminLoginShown', 'true');
+        sessionStorage.setItem('adminLoginPage', currentPage);
+        
         var adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginSuccessModal'));
         adminLoginModal.show();
-        // Set a flag in sessionStorage so we don't show it again
-        sessionStorage.setItem('adminLoginShown', 'true');
+        
+        // Add event listener for when modal is closed
+        document.getElementById('adminLoginSuccessModal').addEventListener('hidden.bs.modal', function() {
+            // Ensure flag remains set when modal is closed
+            sessionStorage.setItem('adminLoginShown', 'true');
+        });
     }
     
     <?php 
+    // Important: We MUST unset this session variable to prevent showing the modal on page navigation
     unset($_SESSION['admin_login_success']);
     endif; ?>
+});
+
+// Clear admin login shown flag when user logs out 
+window.addEventListener('storage', function(e) {
+    if (e.key === 'loggedOut' && e.newValue === 'true') {
+        sessionStorage.removeItem('adminLoginShown');
+    }
 });
 </script>
