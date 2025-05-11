@@ -394,7 +394,13 @@ $email = $_SESSION['verify_email'];
                             if (response.status === 'success') {
                                 showMessage('success', response.message);
                                 setTimeout(function() {
-                                    window.location.href = response.redirect;
+                                    // Check if redirect URL exists and is valid
+                                    if (response.redirect && response.redirect !== '') {
+                                        window.location.href = response.redirect;
+                                    } else {
+                                        // Default fallback if no redirect is provided
+                                        window.location.href = 'index.php';
+                                    }
                                 }, 1500);
                             } else {
                                 showMessage('danger', response.message);

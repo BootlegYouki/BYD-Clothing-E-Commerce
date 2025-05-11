@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           // Login failed
           const errorMessage = document.getElementById('loginErrorMessage');
-          errorMessage.textContent = data.message || 'Invalid Login Credentials. Please try again.';
+          errorMessage.textContent = 'Invalid Login Credentials. Please try again.';
           errorMessage.classList.remove('d-none');
         }
       })
