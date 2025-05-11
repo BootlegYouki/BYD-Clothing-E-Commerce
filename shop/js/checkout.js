@@ -189,6 +189,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let geocoder = null;
     let isMapEditable = false;
     
+    // Explicitly ensure zipcode input is readonly on page load
+    if (zipcodeInput) {
+        zipcodeInput.setAttribute('readonly', 'readonly');
+        zipcodeInput.style.cursor = 'default';
+        zipcodeInput.style.color = '#495057';
+        // Prevent copy-paste and direct input
+        zipcodeInput.addEventListener('keydown', function(e) {
+            if (!isMapEditable) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+    
     // Initialize the map
     initMap();
     
@@ -233,9 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
             addressInput.style.cursor = 'text';
             addressInput.style.color = '#000';
             
-            // Make zipcode field editable as well
+            // Make zipcode field editable (properly remove readonly)
             if (zipcodeInput) {
-                zipcodeInput.readOnly = false;
+                zipcodeInput.removeAttribute('readonly');
                 zipcodeInput.style.cursor = 'text';
                 zipcodeInput.style.color = '#000';
             }
@@ -280,9 +294,9 @@ document.addEventListener('DOMContentLoaded', function() {
             addressInput.style.cursor = 'default';
             addressInput.style.color = '#495057';
             
-            // Make zipcode field readonly as well
+            // Make zipcode field properly readonly
             if (zipcodeInput) {
-                zipcodeInput.readOnly = true;
+                zipcodeInput.setAttribute('readonly', 'readonly');
                 zipcodeInput.style.cursor = 'default';
                 zipcodeInput.style.color = '#495057';
             }
