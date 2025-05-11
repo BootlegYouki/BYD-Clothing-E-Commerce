@@ -233,6 +233,13 @@ document.addEventListener('DOMContentLoaded', function() {
             addressInput.style.cursor = 'text';
             addressInput.style.color = '#000';
             
+            // Make zipcode field editable as well
+            if (zipcodeInput) {
+                zipcodeInput.readOnly = false;
+                zipcodeInput.style.cursor = 'text';
+                zipcodeInput.style.color = '#000';
+            }
+            
             // Update UI elements
             mapStatus.textContent = 'Editable';
             mapStatus.classList.remove('bg-secondary');
@@ -272,6 +279,13 @@ document.addEventListener('DOMContentLoaded', function() {
             addressInput.readOnly = true;
             addressInput.style.cursor = 'default';
             addressInput.style.color = '#495057';
+            
+            // Make zipcode field readonly as well
+            if (zipcodeInput) {
+                zipcodeInput.readOnly = true;
+                zipcodeInput.style.cursor = 'default';
+                zipcodeInput.style.color = '#495057';
+            }
             
             // Update UI elements
             mapStatus.textContent = 'Locked';
