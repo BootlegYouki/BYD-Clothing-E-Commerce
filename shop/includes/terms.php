@@ -6,28 +6,28 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Welcome to BYD Clothing! This website and its services are owned and operated by Beyond Doubt Clothing (BYD). By accessing and using our website, you agree to comply with these Terms and Conditions, along with our Privacy Policy, which may be updated from time to time without prior notice. Please read these terms carefully before using our services.</p>
+                    <p>Welcome to BYD Clothing. This website and its services are owned and operated by Beyond Doubt Clothing (BYD). By accessing and using our website, you agree to be bound by these Terms and Conditions, along with our Privacy Policy, which may be amended from time to time without prior notice. Please review these terms carefully before using our services.</p>
                     <p><strong>1. Intellectual Property</strong><br>
-                    All content on this website, including text, images, graphics, and logos, is owned or licensed by BYD Clothing. You may not copy, distribute, modify, or reproduce any content without prior written consent. Unauthorized use of any material may result in legal action.</p>
+                    All content available on this website, including but not limited to text, images, graphics, and logos, is the property of BYD Clothing or its licensors. You may not copy, distribute, modify, or reproduce any content without prior written consent. Unauthorized use of any material may result in legal action.</p>
                     <p><strong>2. Product Orders and Availability</strong><br>
-                    Placing an order constitutes an offer to purchase a product, subject to availability and order confirmation. Prices and product descriptions may change without notice. We reserve the right to cancel any order due to stock shortages, pricing errors, or suspected fraudulent activity.</p>
+                    Placing an order constitutes an offer to purchase a product. All orders are subject to availability and confirmation of payment. Product details and pricing are subject to change without notice. BYD Clothing reserves the right to cancel any order due to stock unavailability, pricing errors, or suspected fraudulent activity.</p>
                     <p><strong>3. Payment and Transactions</strong><br>
-                    All payments must be processed through PayMongo, our official payment gateway. No other payment methods will be accepted. Once a payment is confirmed, transactions are final. Refunds and cancellations will be handled per our return policy.</p>
+                    All transactions must be completed through PayMongo, our official payment gateway. Alternative payment methods are not accepted. Once a payment has been confirmed, it is considered final. Requests for adjustments or concerns regarding completed transactions will be handled according to our company policy.</p>
                     <p><strong>4. Chatbot and Customer Support</strong><br>
-                    Our chatbot provides automated responses to frequently asked questions. However, complex issues such as refunds, returns, and exchanges require direct contact with our customer support team. The chatbot is limited to text-based interactions and does not support voice commands.</p>
-                    <p><strong>5. Shipping and Returns</strong><br>
-                    Shipping costs and estimated delivery times will be provided at checkout. We are not responsible for delays caused by courier services. Returns and refunds are subject to our return policy, and customers must follow the proper process to request them.</p>
+                    Our website chatbot provides automated responses to general inquiries. For matters requiring special attention, such as product concerns or order issues, customers must directly contact our customer support team. The chatbot operates through text-based messaging only and does not support voice commands.</p>
+                    <p><strong>5. Shipping and Delivery</strong><br>
+                    Shipping costs and estimated delivery times are provided at checkout. BYD Clothing is not responsible for delays caused by third-party courier services. Product concerns or requests for service adjustments must follow the procedures outlined in our company policy.</p>
                     <p><strong>6. User Responsibilities</strong><br>
-                    Users must use the website lawfully and must not engage in fraudulent activities, abuse, or unauthorized access. Any violation of these terms may result in account suspension or legal action.</p>
+                    Users must access and use this website lawfully and ethically. Any form of fraud, abuse, unauthorized access, or violation of these terms may result in account suspension and/or legal action.</p>
                     <p><strong>7. Privacy and Security</strong><br>
-                    We take data security seriously and implement industry-standard measures to protect your information. By using our website, you agree to our privacy policy regarding data collection and use. However, we are not responsible for unauthorized access to user accounts due to negligence.</p>
+                    We employ industry-standard security measures to protect user information. By using our website, you consent to the collection and use of your data as outlined in our Privacy Policy. However, BYD Clothing is not responsible for unauthorized access resulting from user negligence.</p>
                     <p><strong>8. Limitation of Liability</strong><br>
-                    BYD Clothing is not responsible for technical issues, service interruptions, or third-party disruptions that affect website functionality. Our liability is limited to the extent permitted by law.</p>
+                    BYD Clothing shall not be held liable for technical issues, service interruptions, or disruptions caused by third-party services affecting website functionality. Our liability is limited to the maximum extent permitted by applicable law.</p>
                     <p><strong>9. Modifications to Terms</strong><br>
-                    We reserve the right to update these terms at any time. Continued use of the website after modifications means you accept the revised terms.</p>
+                    These Terms and Conditions may be updated without notice. Continued use of the website following such changes constitutes acceptance of the revised terms.</p>
                     <p><strong>10. Governing Law</strong><br>
-                    These terms and conditions are governed by applicable laws in our jurisdiction. Any disputes will be handled through appropriate legal channels.</p>
-                    <p>By using our website, you acknowledge that you have read, understood, and agreed to these Terms and Conditions.</p>
+                    These Terms and Conditions are governed by the laws of the applicable jurisdiction. Any disputes arising from the use of this website will be resolved through appropriate legal channels.</p>
+                    <p>By accessing and using our website, you acknowledge that you have read, understood, and agreed to be bound by these Terms and Conditions.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-modal btn-lg" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#SignupModal">I Understand</button>
