@@ -315,9 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
         map.setView([initialLat, initialLng], 16);
         
         // Add tile layer
-        L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
-            maxZoom: 20,
-            subdomains:['mt0','mt1','mt2','mt3'],
+        L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
         }).addTo(map);
         
         // Add marker (not draggable by default)

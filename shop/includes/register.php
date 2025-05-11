@@ -78,10 +78,11 @@
             </div>
             <div class="col-lg-6 col-12">
               <div class="form-floating mb-3">
-                <input type="email" class="form-control" name="regemail" id="regemail" placeholder="name@example.com" required>
+                <input type="email" class="form-control" name="regemail" id="regemail" placeholder="name@example.com" required
+                       pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[c][o][m]$">
                 <label for="regemail" class="form-label">Email</label>
                 <div class="invalid-feedback" id="emailInvalidFeedback">
-                  Please enter a valid email.
+                  Please enter a valid email ending with .com
                 </div>
                 <div class="invalid-feedback d-none" id="emailRegisteredFeedback">
                   Email already registered.
@@ -116,10 +117,11 @@
             </div>
             <div class="col-12">
               <div class="form-floating mb-2">
-                <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder="Zipcode" required>
+                <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder="Zipcode" required
+                       pattern="[0-9]+" maxlength="10">
                 <label for="zipcode" class="form-label">Zipcode</label>
                 <div class="invalid-feedback">
-                  Please enter your zipcode.
+                  Please enter a valid zipcode (numbers only).
                 </div>
               </div>
               <div class="form-text text-muted small pb-2">
@@ -531,6 +533,78 @@ document.addEventListener("DOMContentLoaded", function() {
           confirmPassword.classList.add("is-valid");
       }
   });
+
+  // Add additional email validation for .com domain
+  const emailInput = document.getElementById('regemail');
+  if(emailInput) {
+    emailInput.addEventListener("input", function() {
+      const emailVal = emailInput.value.trim();
+      if(emailVal !== "") {
+        // Check if email ends with .com
+        if(!emailVal.endsWith(".com")) {
+          emailInput.setCustomValidity("Email must end with .com");
+          emailInput.classList.add("is-invalid");
+        } else {
+          emailInput.setCustomValidity("");
+          emailInput.classList.remove("is-invalid");
+        }
+      } else {
+        emailInput.setCustomValidity("");
+      }
+    });
+    
+    emailInput.addEventListener("blur", function() {
+      const emailVal = emailInput.value.trim();
+      if(emailVal !== "") {
+        fetch("functions/account/check_email.php?email=" + encodeURIComponent(emailVal))
+          .then(response => response.json())
+          .then(data => {
+            const feedback = document.getElementById('emailRegisteredFeedback');
+            const invalidFeedback = document.getElementById('emailInvalidFeedback');
+            if(data.exists) {
+              emailInput.setCustomValidity("This email is already registered");
+              feedback.classList.remove("d-none");
+              emailInput.classList.add("is-invalid");
+              if(invalidFeedback) invalidFeedback.classList.add("d-none");
+            } else if(!emailVal.endsWith(".com")) {
+              emailInput.setCustomValidity("Email must end with .com");
+              feedback.classList.add("d-none");
+              emailInput.classList.add("is-invalid");
+              if(invalidFeedback) invalidFeedback.classList.remove("d-none");
+            } else {
+              emailInput.setCustomValidity("");
+              feedback.classList.add("d-none");
+              emailInput.classList.remove("is-invalid");
+              if(invalidFeedback) invalidFeedback.classList.remove("d-none");
+            }
+          })
+          .catch(error => console.error("Error checking email:", error));
+      } else {
+        emailInput.setCustomValidity("");
+      }
+    });
+  }
+  
+  // Zipcode validation to only allow numbers
+  const zipcodeInput = document.getElementById('zipcode');
+  if(zipcodeInput) {
+    zipcodeInput.addEventListener("input", function(e) {
+      // Remove any non-digit characters
+      const sanitizedValue = this.value.replace(/\D/g, '');
+      
+      // Update the value if it was changed
+      if(sanitizedValue !== this.value) {
+        this.value = sanitizedValue;
+      }
+      
+      // Set validity based on whether there's content
+      if(this.value.trim() === '') {
+        this.setCustomValidity('Please enter your zipcode.');
+      } else {
+        this.setCustomValidity('');
+      }
+    });
+  }
 });
 
 // SIGN UP MODAL FORM VALIDATION (Bootstrap custom validation)
