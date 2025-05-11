@@ -228,8 +228,143 @@
 </div>
 </section>
 
-    <!-- FOOTER -->
-    <?php include 'includes/footer.php'; ?>
+<!-- FAQ SECTION -->
+<section class="about-section">
+    <div class="container px-5">
+        <div class="text-center mb-5">
+            <h2>Frequently Asked Questions</h2>
+            <hr class="body-hr mx-auto">
+            <p>Everything you need to know about our products and services</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <!-- Left Column -->
+            <div class="col-lg-6">
+                <div class="accordion faq-accordion" id="faqAccordionLeft">
+                    <!-- FAQ Item 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                <i class="fas fa-question-circle me-2 text-primary"></i> How can I place an order?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body py-3">
+                                To place an order, browse our products, add items to your cart, and proceed to checkout. You'll be guided through the payment and shipping process.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <i class="fas fa-ruler me-2 text-primary"></i> What are your size options?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body py-3">
+                                Sizes vary depending on the product. Each item includes a size chart to help you choose the best fit.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                <i class="fas fa-shipping-fast me-2 text-primary"></i> How long will it take for my order to arrive?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body py-3">
+                                Shipping times vary depending on your location and the shipping method chosen. Typically, orders are processed within 1-2 business days, and standard shipping takes 5-7 business days.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                <i class="fas fa-globe me-2 text-primary"></i> Do you offer international shipping?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body py-3">
+                                Currently, we do not offer international shipping. Our products are only available for delivery within the Philippines. We are continuously working to expand our reach, so stay tuned for future updates.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="col-lg-6">
+                <div class="accordion faq-accordion" id="faqAccordionRight">
+                    <!-- FAQ Item 5 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                <i class="fas fa-credit-card me-2 text-primary"></i> What payment methods do you accept?
+                            </button>
+                        </h2>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body py-3">
+                                We accept major credit/debit cards, GCash, Maya and through QRPh.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 6 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSix">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                <i class="fas fa-exchange-alt me-2 text-primary"></i> How do I return or exchange an item?
+                            </button>
+                        </h2>
+                        <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body py-3">
+                                At the moment, we do not offer returns or exchanges. We encourage you to double-check your order details before confirming your purchase. If you have concerns, feel free to reach out—we're here to help!
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 7 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSeven">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                <i class="fas fa-truck-loading me-2 text-primary"></i> How can I track my order?
+                            </button>
+                        </h2>
+                        <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body py-3">
+                                Currently, we don't have a tracking system in place. However, you'll receive a confirmation message once your order has been shipped, and you can always contact us directly for updates on your order status.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 8 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingEight">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                <i class="fas fa-headset me-2 text-primary"></i> How can I contact customer support?
+                            </button>
+                        </h2>
+                        <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body py-3">
+                                If I can't answer your question, You can email us at <a href="https://mail.google.com/mail/?view=cm&fs=1&to=beyond.doubtclothing1@gmail.com" target="_blank">beyond.doubtclothing1@gmail.com</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<?php include 'includes/footer.php'; ?>
     
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
