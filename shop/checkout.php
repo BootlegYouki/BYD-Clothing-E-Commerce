@@ -172,7 +172,7 @@ $shipping_fee = 20;
                                     </div>
                                     <div class="col-md-6">
                                         <label for="zipcode" class="form-label">Postal/ZIP Code</label>
-                                        <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" pattern="[0-9]*" inputmode="numeric" onkeypress="return /[0-9]/i.test(event.key)" required>
+                                        <input type="text" class="form-control" id="zipcode" name="zipcode" value="<?= htmlspecialchars($user['zipcode'] ?? '') ?>" pattern="[0-9]*" inputmode="numeric" onkeypress="return /[0-9]/i.test(event.key)" readonly required>
                                     </div>
                                 </div>
                             </div>
