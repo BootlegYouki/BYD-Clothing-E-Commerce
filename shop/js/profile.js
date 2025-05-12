@@ -334,17 +334,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }).setView([14.5995, 120.9842], 13);
     
     // Primary tile layer with fallback options
-    const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-        crossOrigin: true
-    }).addTo(map);
+    const mainLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
+        }).addTo(map);
     
     // Fallback tile layer if primary fails
-    const fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap contributors, © CARTO',
-        maxZoom: 19,
-        crossOrigin: true
+    const fallbackLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
     });
     
     // Handle tile error
