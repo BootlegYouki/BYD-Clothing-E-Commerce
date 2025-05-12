@@ -34,7 +34,7 @@ if (!in_array($status, $valid_statuses)) {
 }
 
 // Get current order status for comparison
-$query = "SELECT status, email, firstname, lastname, reference_number, latitude, longitude FROM orders WHERE id = ?";
+$query = "SELECT status, email, firstname, lastname, reference_number FROM orders WHERE id = ?";
 $stmt = mysqli_prepare($conn, $query);
 mysqli_stmt_bind_param($stmt, "i", $order_id);
 mysqli_stmt_execute($stmt);
@@ -141,13 +141,6 @@ function sendOrderStatusNotification($order, $new_status) {
             $subject .= "Status Update";
     }
     
-    // Check if we have coordinates
-    $has_coordinates = !empty($order['latitude']) && !empty($order['longitude']);
-    $map_link = '';
-    if ($has_coordinates) {
-        $map_link = "<p><a href='https://www.google.com/maps?q={$order['latitude']},{$order['longitude']}' target='_blank'>View Delivery Location on Map</a></p>";
-    }
-    
     // Create message body
     $message = "
     <html>
@@ -179,9 +172,6 @@ function sendOrderStatusNotification($order, $new_status) {
             break;
         case 'shipped':
             $message .= "<p>Your order is on the way! You should receive it within the estimated delivery timeframe.</p>";
-            if ($has_coordinates) {
-                $message .= "<p>Your order is on the way to the following address:</p>" . $map_link;
-            }
             break;
         case 'delivered':
             $message .= "<p>Your order has been delivered. We hope you enjoy your purchase!</p>

@@ -17,8 +17,11 @@ if (!isset($_GET['order_id']) || !is_numeric($_GET['order_id'])) {
 
 $order_id = intval($_GET['order_id']);
 
-// Fetch order details - now using coordinates directly from orders table
-$order_query = "SELECT o.* FROM orders o WHERE o.id = ?";
+// Fetch order details with user coordinates if available
+$order_query = "SELECT o.*, u.latitude, u.longitude 
+                FROM orders o 
+                LEFT JOIN users u ON o.user_id = u.id 
+                WHERE o.id = ?";
 $stmt = mysqli_prepare($conn, $order_query);
 mysqli_stmt_bind_param($stmt, "i", $order_id);
 mysqli_stmt_execute($stmt);

@@ -91,7 +91,6 @@ $headers = [
     'Email', 
     'Phone',
     'Address',
-    'Coordinates',
     'Items Count',
     'Subtotal',
     'Shipping',
@@ -134,11 +133,6 @@ function exportCSV($result, $headers) {
     
     // Add order data rows
     while ($row = mysqli_fetch_assoc($result)) {
-        // Format coordinates for display
-        $coordinates = (!empty($row['latitude']) && !empty($row['longitude'])) 
-            ? $row['latitude'] . ', ' . $row['longitude']
-            : 'N/A';
-            
         fputcsv($output, [
             $row['id'],
             $row['reference_number'],
@@ -147,7 +141,6 @@ function exportCSV($result, $headers) {
             $row['email'],
             $row['phone'],
             $row['address'] . ', ' . $row['zipcode'],
-            $coordinates,
             $row['item_count'],
             $row['subtotal'],
             $row['shipping_cost'],
@@ -269,12 +262,6 @@ function exportPDF($result, $headers) {
         
         // Address
         $html .= '<td>' . htmlspecialchars($row['address'] . ', ' . $row['zipcode']) . '</td>';
-        
-        // Coordinates
-        $coordinates = (!empty($row['latitude']) && !empty($row['longitude'])) 
-            ? $row['latitude'] . ', ' . $row['longitude']
-            : 'N/A';
-        $html .= '<td>' . htmlspecialchars($coordinates) . '</td>';
         
         // Items Count
         $html .= '<td>' . $row['item_count'] . '</td>';
