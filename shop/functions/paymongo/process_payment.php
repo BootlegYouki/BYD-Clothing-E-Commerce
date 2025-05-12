@@ -30,7 +30,9 @@ $formData = [
     'address' => $_POST['address'],
     'zipcode' => $_POST['zipcode'],
     'total' => floatval($_POST['total']),
-    'cart_items' => json_decode($_POST['cart_items'], true)
+    'cart_items' => json_decode($_POST['cart_items'], true),
+    'latitude' => isset($_POST['latitude']) ? $_POST['latitude'] : null,
+    'longitude' => isset($_POST['longitude']) ? $_POST['longitude'] : null
 ];
 
 // Add shipping fee to the total amount
@@ -85,6 +87,8 @@ try {
         'phone' => $formData['phone'],
         'address' => $formData['address'],
         'zipcode' => $formData['zipcode'],
+        'latitude' => $formData['latitude'],
+        'longitude' => $formData['longitude'],
         'subtotal' => $subtotal,
         'shipping_cost' => $shipping_cost,
         'total_amount' => $subtotal + $shipping_cost,
