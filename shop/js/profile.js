@@ -97,11 +97,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Make address field editable (remove readonly)
-            addressInput.readOnly = false;
-            addressInput.style.cursor = 'text';
+            // Keep address field readonly but update styles
             addressInput.style.color = '#000';
+            
+            // Make zipcode editable when map is editable
             zipcodeInput.readOnly = false;
+            zipcodeInput.style.color = '#000';
             
             // Update UI elements
             mapStatus.textContent = 'Editable';
@@ -138,11 +139,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Make address field readonly again
-            addressInput.readOnly = true;
-            addressInput.style.cursor = 'default';
+            // Update address field styles but keep it readonly
             addressInput.style.color = '#495057';
+            
+            // Lock zipcode when map is locked
             zipcodeInput.readOnly = true;
+            zipcodeInput.style.color = '#495057';
             
             // Update UI elements
             mapStatus.textContent = 'Locked';
@@ -168,6 +170,30 @@ document.addEventListener('DOMContentLoaded', function() {
             input.setCustomValidity('');
         });
     });
+
+    // Add event listener for zipcode to only allow numeric input
+    const zipcodeInput = document.getElementById('edit-zipcode');
+    if (zipcodeInput) {
+        // Prevent non-numeric characters
+        zipcodeInput.addEventListener('keypress', function(e) {
+            if (!/^\d*$/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Clean up on paste
+        zipcodeInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const numericOnly = pastedText.replace(/[^\d]/g, '');
+            this.value = numericOnly;
+        });
+        
+        // Remove non-numeric characters on input
+        zipcodeInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^\d]/g, '');
+        });
+    }
 
     // View Order Details - Enhanced Implementation
     function attachOrderDetailListeners() {

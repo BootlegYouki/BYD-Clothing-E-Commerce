@@ -189,6 +189,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let geocoder = null;
     let isMapEditable = false;
     
+    // Ensure address input is permanently readonly on page load
+    if (addressInput) {
+        addressInput.setAttribute('readonly', 'readonly');
+        addressInput.style.cursor = 'default';
+        addressInput.style.color = '#495057';
+        // Prevent copy-paste and direct input
+        addressInput.addEventListener('keydown', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    }
+    
     // Explicitly ensure zipcode input is readonly on page load
     if (zipcodeInput) {
         zipcodeInput.setAttribute('readonly', 'readonly');
@@ -242,10 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Make address field editable (remove readonly)
-            addressInput.readOnly = false;
-            addressInput.style.cursor = 'text';
-            addressInput.style.color = '#000';
+            // Address field remains readonly (removed code that made it editable)
             
             // Make zipcode field editable (properly remove readonly)
             if (zipcodeInput) {
@@ -289,10 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Make address field readonly again
-            addressInput.readOnly = true;
-            addressInput.style.cursor = 'default';
-            addressInput.style.color = '#495057';
+            // No need to change address field as it's always readonly now
             
             // Make zipcode field properly readonly
             if (zipcodeInput) {

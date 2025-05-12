@@ -285,7 +285,7 @@ while ($row = $orders_result->fetch_assoc()) {
                         </div>
                         
                         <div class="alert alert-info small py-2 mb-2" id="map-instructions" style="display: none;">
-                            <i class="fa-solid fa-info-circle me-1"></i> Please click on the map or search to select your exact address location.
+                            <i class="fa-solid fa-info-circle me-1"></i> Make sure to click on the map or search to select your exact address location.
                         </div>
                         
                         <form id="update-address-form" action="functions/profile/update_address.php" method="post" class="needs-validation" novalidate>
@@ -308,10 +308,15 @@ while ($row = $orders_result->fetch_assoc()) {
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="edit-zipcode" class="form-label">Zipcode</label>
-                                    <input type="text" class="form-control" id="edit-zipcode" name="zipcode" 
-                                        value="<?php echo htmlspecialchars($user['zipcode']); ?>" readonly required>
+                                    <input type="number" class="form-control" id="edit-zipcode" name="zipcode" 
+                                        value="<?php echo htmlspecialchars($user['zipcode']); ?>" 
+                                        pattern="[0-9]*" inputmode="numeric"
+                                        required readonly>
                                     <div class="form-text text-muted mt-2">
-                                        <i class="fa-solid fa-circle-info me-1"></i> Zipcode is automatically determined from your map location.
+                                        <i class="fa-solid fa-circle-info me-1"></i> Zipcode is automatically determined from your map location but can be manually edited.
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Please enter a valid numeric zipcode.
                                     </div>
                                 </div>
                             </div>
