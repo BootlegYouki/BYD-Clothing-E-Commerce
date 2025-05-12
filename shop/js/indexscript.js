@@ -1,4 +1,83 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // Initialize Swiper instances for mobile product views
+  const initSwipers = () => {
+    // New Release Swiper
+    if (document.querySelector('.new-release-swiper')) {
+      const newReleaseSwiper = new Swiper('.new-release-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+          }
+        }
+      });
+    }
+    
+    // T-Shirt Swiper
+    if (document.querySelector('.t-shirt-swiper')) {
+      const tShirtSwiper = new Swiper('.t-shirt-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+          }
+        }
+      });
+    }
+    
+    // Long sleeve Swiper
+    if (document.querySelector('.longsleeve-swiper')) {
+      const longsleeveSwiper = new Swiper('.longsleeve-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+          }
+        }
+      });
+    }
+    
+    // Shop Swiper (matching the provided code)
+    if (document.querySelector('.shop-swiper')) {
+      const shopSwiper = new Swiper('.shop-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+          }
+        }
+      });
+    }
+  };
+  
+  // Initialize swiper components
+  initSwipers();
+  
+  // Animation for products
   setTimeout(() => {
     const products = document.querySelectorAll('.product-card');
     
