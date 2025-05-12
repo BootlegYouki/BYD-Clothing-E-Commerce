@@ -96,8 +96,6 @@ try {
                         'phone' => $metadata['phone'],
                         'address' => $metadata['address'],
                         'zipcode' => $metadata['zipcode'],
-                        'longitude' => $metadata['longitude'] ?? null,
-                        'latitude' => $metadata['latitude'] ?? null,
                         'subtotal' => (float)$metadata['subtotal'],
                         'shipping_cost' => (float)$metadata['shipping_cost'],
                         'total_amount' => (float)$metadata['total_amount'],
@@ -232,8 +230,6 @@ function insertOrderToDatabase($conn, $data) {
             phone, 
             address, 
             zipcode, 
-            longitude,
-            latitude,
             payment_method, 
             payment_id, 
             subtotal, 
@@ -241,14 +237,14 @@ function insertOrderToDatabase($conn, $data) {
             total_amount, 
             reference_number,
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = mysqli_prepare($conn, $order_query);
         
         // Bind parameters to prepared statement
         mysqli_stmt_bind_param(
             $stmt, 
-            "issssssddssddds", 
+            "issssssssdddss", 
             $data['user_id'],
             $data['firstname'],
             $data['lastname'],
@@ -256,8 +252,6 @@ function insertOrderToDatabase($conn, $data) {
             $data['phone'],
             $data['address'],
             $data['zipcode'],
-            $data['longitude'],
-            $data['latitude'],
             $data['payment_method'],
             $data['payment_id'],
             $data['subtotal'],
