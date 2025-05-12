@@ -27,6 +27,7 @@ $user_id = $_SESSION['auth_user']['user_id'];
 $order_query = "SELECT 
                     o.*, 
                     o.id as order_id,
+                    o.reference_number,
                     u.firstname, 
                     u.lastname, 
                     u.email, 

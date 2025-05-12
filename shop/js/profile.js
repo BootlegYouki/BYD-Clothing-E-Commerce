@@ -23,16 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const sectionToShow = sections[this.id];
             if (sectionToShow) sectionToShow.style.display = 'block';
             
-            // If showing orders section, attach event listeners to view buttons
-            if (this.id === 'nav-orders') {
-                console.log('Orders section activated');
-                setTimeout(attachOrderDetailListeners, 100);
-            }
-            
-            // If showing address section with map, initialize the map
-            if (this.id === 'nav-address' && typeof initMap === 'function') {
+            // If showing address section with map, we need to invalidate size for proper rendering
+            if (this.id === 'nav-address' && map) {
                 setTimeout(() => {
-                    initMap();
+                    map.invalidateSize();
+                    
+                    // Center the map on user's coordinates or default if not set
+                    const lat = parseFloat(document.getElementById('latitude').value) || 14.5995;
+                    const lng = parseFloat(document.getElementById('longitude').value) || 120.9842;
+                    map.setView([lat, lng], 15);
+                    marker.setLatLng([lat, lng]);
                 }, 100);
             }
         });
@@ -56,108 +56,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Edit Address Toggle with Map Initialization
-    let isMapEditable = false;
-
+    // Edit Address Toggle
     document.getElementById('edit-address-btn').addEventListener('click', function() {
-        toggleMapEditing(!isMapEditable);
-    });
-
-    function toggleMapEditing(enable) {
-        isMapEditable = enable;
-        const mapOverlay = document.getElementById('map-overlay');
-        const mapStatus = document.getElementById('map-status');
-        const addressInput = document.getElementById('edit-full-address');
-        const zipcodeInput = document.getElementById('edit-zipcode');
-        const mapInstructions = document.getElementById('map-instructions');
-        const editAddressBtn = document.getElementById('edit-address-btn');
+        document.getElementById('address-view').style.display = 'none';
+        document.getElementById('address-edit').style.display = 'block';
         
-        if (enable) {
-            // Enable map interactions
-            mapOverlay.style.display = 'none';
-            if (map) {
-                map.dragging.enable();
-                map.touchZoom.enable();
-                map.doubleClickZoom.enable();
-                map.scrollWheelZoom.enable();
-                map.boxZoom.enable();
-                map.keyboard.enable();
-            }
+        
+        setTimeout(() => {
+            map.invalidateSize();
             
-            if (marker) {
-                marker.dragging.enable();
-            }
-            
-            // Add geocoder to the map when in edit mode
-            if (window.geocoder) {
-                try {
-                    window.geocoder.addTo(map);
-                } catch(e) {
-                    console.log("Geocoder already added");
-                }
-            }
-            
-            // Keep address field readonly but update styles
-            addressInput.style.color = '#000';
-            
-            // Make zipcode editable when map is editable
-            zipcodeInput.readOnly = false;
-            zipcodeInput.style.color = '#000';
-            
-            // Update UI elements
-            mapStatus.textContent = 'Editable';
-            mapStatus.classList.remove('bg-secondary');
-            mapStatus.classList.add('bg-success');
-            editAddressBtn.innerHTML = '<i class="fas fa-lock me-1"></i> Lock Address';
-            editAddressBtn.classList.remove('btn-primary');
-            editAddressBtn.classList.add('btn-warning');
-            
-            // Show map instructions
-            mapInstructions.style.display = 'block';
-        } else {
-            // Disable map interactions
-            mapOverlay.style.display = 'block';
-            if (map) {
-                map.dragging.disable();
-                map.touchZoom.disable();
-                map.doubleClickZoom.disable();
-                map.scrollWheelZoom.disable();
-                map.boxZoom.disable();
-                map.keyboard.disable();
-            }
-            
-            if (marker) {
-                marker.dragging.disable();
-            }
-            
-            // Remove geocoder from the map when locked
-            if (window.geocoder) {
-                try {
-                    window.geocoder.remove();
-                } catch(e) {
-                    console.log("Geocoder already removed");
-                }
-            }
-            
-            // Update address field styles but keep it readonly
-            addressInput.style.color = '#495057';
-            
-            // Lock zipcode when map is locked
-            zipcodeInput.readOnly = true;
-            zipcodeInput.style.color = '#495057';
-            
-            // Update UI elements
-            mapStatus.textContent = 'Locked';
-            mapStatus.classList.remove('bg-success');
-            mapStatus.classList.add('bg-secondary');
-            editAddressBtn.innerHTML = '<i class="fas fa-edit me-1"></i> Edit Address';
-            editAddressBtn.classList.remove('btn-warning');
-            editAddressBtn.classList.add('btn-primary');
-            
-            // Hide map instructions
-            mapInstructions.style.display = 'none';
-        }
-    }
+            // Center the map on user's coordinates or default if not set
+            const lat = parseFloat(document.getElementById('latitude').value) || 14.5995;
+            const lng = parseFloat(document.getElementById('longitude').value) || 120.9842;
+            map.setView([lat, lng], 15);
+            marker.setLatLng([lat, lng]);
+        }, 100);
+    });
 
     document.getElementById('cancel-address-edit').addEventListener('click', function() {
         document.getElementById('address-edit').style.display = 'none';
@@ -171,144 +85,104 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add event listener for zipcode to only allow numeric input
-    const zipcodeInput = document.getElementById('edit-zipcode');
-    if (zipcodeInput) {
-        // Prevent non-numeric characters
-        zipcodeInput.addEventListener('keypress', function(e) {
-            if (!/^\d*$/.test(e.key)) {
-                e.preventDefault();
-            }
-        });
-        
-        // Clean up on paste
-        zipcodeInput.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-            const numericOnly = pastedText.replace(/[^\d]/g, '');
-            this.value = numericOnly;
-        });
-        
-        // Remove non-numeric characters on input
-        zipcodeInput.addEventListener('input', function() {
-            this.value = this.value.replace(/[^\d]/g, '');
-        });
-    }
-
-    // View Order Details - Enhanced Implementation
-    function attachOrderDetailListeners() {
-        const orderButtons = document.querySelectorAll('.view-order');
-        console.log('Found ' + orderButtons.length + ' order buttons');
-        
-        orderButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-                console.log('Order button clicked: ' + orderId);
-                
-                const orderContentDiv = document.getElementById('order-details-content');
-                const orderModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-                
-                // Show loading spinner
-                orderContentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-                
-                // Open modal
-                orderModal.show();
-                
-                // Fetch order details
-                fetch(`functions/profile/get_order_details.php?order_id=${orderId}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Order data received:', data);
+    // View Order Details
+    const orderButtons = document.querySelectorAll('.view-order');
+    const orderModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+    
+    orderButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const orderContentDiv = document.getElementById('order-details-content');
+            
+            // Show loading spinner
+            orderContentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            // Open modal
+            orderModal.show();
+            
+            // Fetch order details
+            fetch(`functions/profile/get_order_details.php?order_id=${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let html = `
+                            <div class="order-info mb-4">
+                                <h6>Order #${data.order.reference_number}</h6>
+                                <p><strong>Date:</strong> ${new Date(data.order.created_at).toLocaleDateString()}</p>
+                                <p><strong>Status:</strong> <span class="badge ${data.order.status === 'pending' ? 'bg-warning' : data.order.status === 'completed' ? 'bg-success' : 'bg-danger'}">${data.order.status.charAt(0).toUpperCase() + data.order.status.slice(1)}</span></p>
+                                <p><strong>Payment Method:</strong> ${data.order.payment_method}</p>
+                            </div>
+                            <div class="shipping-info mb-4">
+                                <h6>Shipping Information</h6>
+                                <p><strong>Name:</strong> ${data.order.firstname} ${data.order.lastname}</p>
+                                <p><strong>Address:</strong> ${data.order.address}</p>
+                                <p><strong>Zipcode:</strong> ${data.order.zipcode}</p>
+                                <p><strong>Phone:</strong> ${data.order.phone}</p>
+                                <p><strong>Email:</strong> ${data.order.email}</p>
+                            </div>
+                            <div class="order-items mb-4">
+                                <h6>Order Items</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Size</th>
+                                                <th>Qty</th>
+                                                <th>Price</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
                         
-                        if (data.status === 'success') {
-                            let html = `
-                                <div class="order-info mb-4">
-                                    <h6>Order #${data.order.reference_number || data.order.order_id}</h6>
-                                    <p><strong>Date:</strong> ${new Date(data.order.created_at).toLocaleDateString()}</p>
-                                    <p><strong>Status:</strong> <span class="badge ${data.order.status === 'pending' ? 'bg-warning' : data.order.status === 'completed' ? 'bg-success' : 'bg-danger'}">${data.order.status.charAt(0).toUpperCase() + data.order.status.slice(1)}</span></p>
-                                    <p><strong>Payment Method:</strong> ${data.order.payment_method}</p>
-                                </div>
-                                <div class="shipping-info mb-4">
-                                    <h6>Shipping Information</h6>
-                                    <p><strong>Name:</strong> ${data.order.firstname} ${data.order.lastname}</p>
-                                    <p><strong>Address:</strong> ${data.order.address}</p>
-                                    <p><strong>Zipcode:</strong> ${data.order.zipcode}</p>
-                                    <p><strong>Phone:</strong> ${data.order.phone}</p>
-                                    <p><strong>Email:</strong> ${data.order.email}</p>
-                                </div>
-                                <div class="order-items mb-4">
-                                    <h6>Order Items</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Product</th>
-                                                    <th>Size</th>
-                                                    <th>Qty</th>
-                                                    <th>Price</th>
-                                                    <th>Subtotal</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>`;
-                            
-                            data.items.forEach(item => {
-                                html += `
-                                    <tr>
-                                        <td>${item.product_name}</td>
-                                        <td>${item.size}</td>
-                                        <td>${item.quantity}</td>
-                                        <td>₱${parseFloat(item.price).toFixed(2)}</td>
-                                        <td>₱${parseFloat(item.subtotal).toFixed(2)}</td>
-                                    </tr>`;
-                            });
-                            
+                        data.items.forEach(item => {
                             html += `
-                                            </tbody>
+                                <tr>
+                                    <td>${item.product_name}</td>
+                                    <td>${item.size}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>₱${parseFloat(item.price).toFixed(2)}</td>
+                                    <td>₱${parseFloat(item.subtotal).toFixed(2)}</td>
+                                </tr>`;
+                        });
+                        
+                        html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="order-summary">
+                                <div class="row">
+                                    <div class="col-md-6 offset-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td>Subtotal:</td>
+                                                <td class="text-end">₱${parseFloat(data.order.subtotal).toFixed(2)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Shipping:</td>
+                                                <td class="text-end">₱${parseFloat(data.order.shipping_cost).toFixed(2)}</td>
+                                            </tr>
+                                            <tr class="fw-bold">
+                                                <td>Total:</td>
+                                                <td class="text-end">₱${parseFloat(data.order.total_amount).toFixed(2)}</td>
+                                            </tr>
                                         </table>
                                     </div>
                                 </div>
-                                <div class="order-summary">
-                                    <div class="row">
-                                        <div class="col-md-6 offset-md-6">
-                                            <table class="table table-sm">
-                                                <tr>
-                                                    <td>Subtotal:</td>
-                                                    <td class="text-end">₱${parseFloat(data.order.subtotal || 0).toFixed(2)}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Shipping:</td>
-                                                    <td class="text-end">₱${parseFloat(data.order.shipping_cost || 0).toFixed(2)}</td>
-                                                </tr>
-                                                <tr class="fw-bold">
-                                                    <td>Total:</td>
-                                                    <td class="text-end">₱${parseFloat(data.order.total_amount).toFixed(2)}</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            
-                            orderContentDiv.innerHTML = html;
-                        } else {
-                            orderContentDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        orderContentDiv.innerHTML = '<div class="alert alert-danger">There was an error loading order details. Please try again later.</div>';
-                    });
-            });
+                            </div>`;
+                        
+                        orderContentDiv.innerHTML = html;
+                    } else {
+                        orderContentDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    orderContentDiv.innerHTML = '<div class="alert alert-danger">There was an error loading order details. Please try again later.</div>';
+                });
         });
-    }
-
-    // Initialize order detail listeners on page load
-    attachOrderDetailListeners();
+    });
 
     // ENHANCED PASSWORD VALIDATION
     const currentPassword = document.getElementById('current-password');
@@ -445,7 +319,169 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('was-validated');
         });
     }
+
+    // Enhanced Map initialization for the address section
+    const addressInput = document.getElementById('edit-full-address');
+    const mapDiv = document.getElementById('map');
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const zipcodeInput = document.getElementById('edit-zipcode');
+
+    // Initialize map with better options
+    const map = L.map('map', {
+        scrollWheelZoom: true,
+        zoomControl: true
+    }).setView([14.5995, 120.9842], 13);
     
+    // Primary tile layer with fallback options
+    const mainLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        crossOrigin: true
+    }).addTo(map);
+    
+    // Fallback tile layer if primary fails
+    const fallbackLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors, © CARTO',
+        maxZoom: 19,
+        crossOrigin: true
+    });
+    
+    // Handle tile error
+    mainLayer.on('tileerror', function(error) {
+        console.log("Tile error detected, switching to fallback");
+        map.removeLayer(mainLayer);
+        fallbackLayer.addTo(map);
+    });
+
+    // Force map to recalculate container size
+    setTimeout(() => {
+        map.invalidateSize(true);
+    }, 300);
+
+    // Add a draggable marker
+    const marker = L.marker([14.5995, 120.9842], { draggable: true }).addTo(map);
+
+    // Enhanced geocoder control
+    const geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        geocoder: L.Control.Geocoder.nominatim(),
+        placeholder: 'Search address...',
+        errorMessage: 'Address not found, please try another search or click on the map'
+    }).on('markgeocode', function(e) {
+        marker.setLatLng(e.geocode.center);
+        map.setView(e.geocode.center, 16);
+        updateCoordinates(e.geocode.center.lat, e.geocode.center.lng);
+        fetchAddressAndZipcode(e.geocode.center.lat, e.geocode.center.lng);
+        
+        // Add visual feedback
+        addressInput.classList.add('is-valid');
+        addressInput.classList.remove('is-invalid');
+    }).addTo(map);
+
+    function updateCoordinates(lat, lng) {
+        latInput.value = lat;
+        lngInput.value = lng;
+    }
+
+    function fetchAddressAndZipcode(lat, lng) {
+        // Show loading indicator
+        addressInput.placeholder = 'Fetching address details...';
+        
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    addressInput.value = data.display_name;
+                    addressInput.setAttribute('placeholder', 'Address selected from map');
+                    addressInput.classList.add('is-valid');
+                    addressInput.classList.remove('is-invalid');
+                }
+                if (data && data.address && data.address.postcode) {
+                    zipcodeInput.value = data.address.postcode;
+                } else {
+                    console.log('No zipcode found for this location');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching address:', error);
+                addressInput.placeholder = 'Error fetching address. Please try again.';
+            });
+    }
+
+    // Map click => move marker + get address/zipcode with enhanced feedback
+    map.on('click', e => {
+        marker.setLatLng(e.latlng);
+        updateCoordinates(e.latlng.lat, e.latlng.lng);
+        fetchAddressAndZipcode(e.latlng.lat, e.latlng.lng);
+        
+        // Update placeholder and visual feedback
+        addressInput.setAttribute('placeholder', 'Getting address from map...');
+        addressInput.classList.add('bg-light');
+    });
+
+    // Marker drag end => same as click with enhanced feedback
+    marker.on('dragend', () => {
+        const pos = marker.getLatLng();
+        updateCoordinates(pos.lat, pos.lng);
+        fetchAddressAndZipcode(pos.lat, pos.lng);
+        
+        // Update placeholder and visual feedback
+        addressInput.setAttribute('placeholder', 'Getting address from map...');
+    });
+
+    // Update address field appearance
+    if (addressInput) {
+        addressInput.style.backgroundColor = "#f8f9fa";
+        
+        // Remove input event listener since it's read-only now
+        // Instead, focus should show instructions
+        addressInput.addEventListener('focus', function() {
+            // Show focus hint
+            addressInput.setAttribute('placeholder', 'Click on the map to select your address');
+        });
+        
+        addressInput.addEventListener('blur', function() {
+            // Reset placeholder
+            addressInput.setAttribute('placeholder', 'Click on map to select your address');
+        });
+    }
+
+    // Set initial map location if coordinates exist with better handling
+    if (latInput && lngInput) {
+        if (latInput.value && lngInput.value) {
+            const lat = parseFloat(latInput.value);
+            const lng = parseFloat(lngInput.value);
+            
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+                
+                // Pre-validate the address field since we have coordinates
+                if (addressInput.value.trim()) {
+                    addressInput.classList.add('is-valid');
+                }
+            } else {
+                console.log('Invalid coordinates, using default view');
+            }
+        }
+    }
+
+    // Update map on tab/section changes
+    document.getElementById('nav-address').addEventListener('click', function() {
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize(true);
+                
+                // Center on existing coordinates or default
+                const lat = parseFloat(latInput.value) || 14.5995;
+                const lng = parseFloat(lngInput.value) || 120.9842;
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+            }
+        }, 300);
+    });
+
     // ENHANCED REAL-TIME FIELD VALIDATION
     const usernameInput = document.getElementById('edit-username');
     const phoneInput = document.getElementById('edit-phone');
