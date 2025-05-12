@@ -114,6 +114,8 @@ class EmailConfirmation {
                                                     <p style="color: #333333; font-size: 14px; line-height: 1.5; margin: 0 0 5px; font-family: Arial, Helvetica, sans-serif;"><strong>Order #:</strong> ' . $orderId . '</p>
                                                     <p style="color: #333333; font-size: 14px; line-height: 1.5; margin: 0 0 5px; font-family: Arial, Helvetica, sans-serif;"><strong>Date:</strong> ' . $order_date . '</p>
                                                     <p style="color: #333333; font-size: 14px; line-height: 1.5; margin: 0; font-family: Arial, Helvetica, sans-serif;"><strong>Payment Method:</strong> PayMongo</p>
+                                                    <p style="color: #333333; font-size: 12px; line-height: 1.5; margin: 5px 0 0; font-family: Arial, Helvetica, sans-serif;"><strong>Location:</strong> ' . (isset($data['latitude']) && isset($data['longitude']) ? 
+                                                    '<a href="https://maps.google.com/?q='.$data['latitude'].','.$data['longitude'].'" target="_blank">View on Map</a>' : 'Not specified') . '</p>
                                                 </td>
                                             </tr>
                                         </table>

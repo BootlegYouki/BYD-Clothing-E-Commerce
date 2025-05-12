@@ -29,6 +29,8 @@ $formData = [
     'phone' => $_POST['phone'],
     'address' => $_POST['address'],
     'zipcode' => $_POST['zipcode'],
+    'latitude' => $_POST['latitude'] ?? null,  // Add latitude from form
+    'longitude' => $_POST['longitude'] ?? null,  // Add longitude from form
     'total' => floatval($_POST['total']),
     'cart_items' => json_decode($_POST['cart_items'], true)
 ];
@@ -85,6 +87,8 @@ try {
         'phone' => $formData['phone'],
         'address' => $formData['address'],
         'zipcode' => $formData['zipcode'],
+        'latitude' => $formData['latitude'],  // Add latitude to metadata
+        'longitude' => $formData['longitude'],  // Add longitude to metadata
         'subtotal' => $subtotal,
         'shipping_cost' => $shipping_cost,
         'total_amount' => $subtotal + $shipping_cost,
