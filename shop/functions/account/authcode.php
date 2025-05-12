@@ -60,6 +60,8 @@ if (isset($_POST['signupButton'])) {
    $zipcode         = mysqli_real_escape_string($conn, $_POST['zipcode']);
    $password        = mysqli_real_escape_string($conn, $_POST['password']);
    $confirm_password= mysqli_real_escape_string($conn, $_POST['confirm_password']);
+   $latitude        = mysqli_real_escape_string($conn, $_POST['latitude']);
+   $longitude       = mysqli_real_escape_string($conn, $_POST['longitude']);
 
    if ($password !== $confirm_password) {
        if (isAjaxRequest()) {
@@ -98,7 +100,9 @@ if (isset($_POST['signupButton'])) {
        'username' => $username,
        'full_address' => $full_address,
        'zipcode' => $zipcode,
-       'password' => $hashedPassword
+       'password' => $hashedPassword,
+       'latitude' => $latitude,
+       'longitude' => $longitude
    ];
    
    // Store OTP in database (create a temporary entry)
@@ -232,12 +236,12 @@ if(isset($_POST['verify_otp'])) {
             $userData = $_SESSION['temp_user_data'];
             
             $query = "INSERT INTO users 
-                     (firstname, middlename, lastname, phone_number, email, username, full_address, zipcode, password, email_verified, created_at) 
+                     (firstname, middlename, lastname, phone_number, email, username, full_address, zipcode, password, latitude, longitude, email_verified, created_at) 
                      VALUES 
                      ('{$userData['firstname']}', '{$userData['middlename']}', '{$userData['lastname']}', 
                       '{$userData['phone_number']}', '{$userData['email']}', '{$userData['username']}', 
                       '{$userData['full_address']}', '{$userData['zipcode']}', '{$userData['password']}', 
-                      1, NOW())";
+                      '{$userData['latitude']}', '{$userData['longitude']}', 1, NOW())";
             
             if(mysqli_query($conn, $query)) {
                 // Get the new user's ID
