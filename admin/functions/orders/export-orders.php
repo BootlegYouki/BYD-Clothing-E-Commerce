@@ -215,6 +215,7 @@ function exportPDF($result, $headers) {
             .status-shipped { color: #00BCD4; }
             .status-delivered { color: #4CAF50; }
             .status-cancelled { color: #f44336; }
+            a { color: #0000FF; text-decoration: underline; }
         </style>
     </head>
     <body>
@@ -272,9 +273,9 @@ function exportPDF($result, $headers) {
         
         // Coordinates
         $coordinates = (!empty($row['latitude']) && !empty($row['longitude'])) 
-            ? $row['latitude'] . ', ' . $row['longitude']
+            ? '<a href="https://www.google.com/maps?q=' . $row['latitude'] . ',' . $row['longitude'] . '" target="_blank">' . $row['latitude'] . ', ' . $row['longitude'] . '</a>'
             : 'N/A';
-        $html .= '<td>' . htmlspecialchars($coordinates) . '</td>';
+        $html .= '<td>' . $coordinates . '</td>';
         
         // Items Count
         $html .= '<td>' . $row['item_count'] . '</td>';
@@ -312,3 +313,4 @@ function exportPDF($result, $headers) {
     $mpdf->Output('orders-export-' . date('Y-m-d') . '.pdf', 'D');
     exit;
 }
+?>

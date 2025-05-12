@@ -73,7 +73,8 @@ $address_html = '';
 if ($has_coordinates) {
     $maps_url = "https://www.google.com/maps?q={$order['latitude']},{$order['longitude']}";
     $address_html = '<strong>Address:</strong> <a href="' . $maps_url . '" target="_blank" class="text-primary">' . 
-                    $address_text . ' <i class="bx bx-map-pin"></i></a>';
+                    $address_text . ' <i class="bx bx-map-pin"></i></a> ' .
+                    '<span class="badge bg-info text-white ms-1" style="font-size: 0.7rem;">View on Map</span>';
 } else {
     $address_html = '<strong>Address:</strong> ' . $address_text;
 }
