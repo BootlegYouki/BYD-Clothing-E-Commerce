@@ -339,7 +339,7 @@
                         </h2>
                         <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordionRight">
                             <div class="accordion-body py-3">
-                                Currently, we don't have a tracking system in place. However, you'll receive a confirmation message once your order has been shipped, and you can always contact us directly for updates on your order status.
+                                You can track your order by going to Profile > Orders. There, you'll see real-time updates on your order status, such as Processing Payment, Shipped and Delivered. You'll also receive a confirmation message once your order is shipped and Delivered. For any concerns, You can email us at <a href="https://mail.google.com/mail/?view=cm&fs=1&to=beyond.doubtclothing1@gmail.com" target="_blank">beyond.doubtclothing1@gmail.com</a>
                             </div>
                         </div>
                     </div>
