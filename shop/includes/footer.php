@@ -39,12 +39,8 @@
                 <h6 class="text-uppercase">email</h6>
                 <li class="list-unstyled mb-3"><a href="https://mail.google.com/mail/?view=cm&fs=1&to=beyond.doubtclothing1@gmail.com" target="_blank">
                   beyond.doubtclothing1@gmail.com
-                </a></li>
-              </div>
-              <div>
-              <h6 class="pb-2">Privacy & Terms</h6>
-              <li class="list-unstyled text-uppercase"><a href="privacy-policy.php">Privacy Policy</a></li>
-              <li class="list-unstyled mb-3 text-uppercase"><a href="terms-of-service.php">Terms of Service</a></li>
+                </a>
+                </li>
               </div>
             </div>
           </div>
