@@ -96,7 +96,7 @@ extract($dashboard);
                             <div class="card-header p-2 ps-3">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <p class="text-sm mb-0 text-capitalize">Low Stock Items</p>
+                                        <p class="text-sm mb-0 text-capitalize">Low Stock Products</p>
                                         <h4 class="mb-0"><?= $low_stock_count ?></h4>
                                     </div>
                                     <div class="icon icon-md icon-shape bg-gradient-primary shadow-primary shadow text-center border-radius-lg">
@@ -107,7 +107,7 @@ extract($dashboard);
                             <hr class="dark horizontal my-0">
                             <div class="card-footer p-2 ps-3">
                                 <a href="products.php" class="mb-0 text-sm text-coral">
-                                    View low stock items <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">arrow_forward</i>
+                                    View low stock products <i class="material-symbols-rounded" style="font-size: 16px; vertical-align: middle;">arrow_forward</i>
                                 </a>
                             </div>
                         </div>
